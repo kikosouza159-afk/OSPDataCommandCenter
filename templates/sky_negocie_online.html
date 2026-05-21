@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cockpit | Sky Negocie Online</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <style>
+    :root {
+      --bg: #020814;
+      --bg-2: #07172a;
+      --panel: rgba(6, 18, 34, 0.78);
+      --panel-soft: rgba(8, 24, 43, 0.88);
+      --line: rgba(148,163,184,.18);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --yellow: #facc15;
+      --red: #ef4444;
+      --blue: #00e5ff;
+      --radius: 22px;
+      --shadow: 0 18px 40px rgba(0,0,0,.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      color: var(--text);
+      background: #020814;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before { display: none !important; content: none !important; }
+to { background-position: 0 55px; } }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      width: min(1580px, calc(100% - 34px));
+      margin: 0 auto;
+      padding: 28px 0 46px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 22px;
+      padding: 18px 22px;
+      border: 1px solid rgba(0,229,255,.22);
+      border-radius: 24px;
+      background: rgba(6,18,34,.70);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 0 35px rgba(0,229,255,.10);
+    }
+
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #00e5ff, #0077ff);
+      color: #00111f;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      box-shadow: 0 0 24px rgba(0,229,255,.28);
+    }
+    h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -.04em; text-shadow: 0 0 18px rgba(0,229,255,.25); }
+    .brand p { margin: 0; color: #94b7ca; font-size: 13px; }
+
+    .pill {
+      background: rgba(34, 197, 94, .12);
+      border: 1px solid rgba(34, 197, 94, .25);
+      color: #bbf7d0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card { padding: 20px; }
+
+    /* ===== Filtro compacto estilo Talentos ===== */
+    .filters {
+      width: fit-content;
+      max-width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(8,24,43,.94), rgba(5,16,30,.90));
+      border: 1px solid rgba(0,229,255,.15);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.03),
+        0 12px 28px rgba(0,0,0,.16);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 260px 140px 190px 136px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .field.dates {
+      min-width: 0;
+      width: 280px;
+      flex: unset;
+    }
+
+    .field label {
+      font-size: 10px;
+      color: #b6c6de;
+      font-weight: 800;
+      line-height: 1;
+      padding-left: 2px;
+      letter-spacing: .02em;
+    }
+
+    .field select,
+    .field input,
+    .field button {
+      width: 100%;
+      height: 38px;
+      background: rgba(2, 8, 20, .82);
+      color: var(--text);
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: 12px;
+      padding: 8px 11px;
+      font-size: 12px;
+      outline: none;
+      transition: .18s ease;
+    }
+
+    .field input::placeholder {
+      color: #7f94b3;
+    }
+
+    .field select:focus,
+    .field input:focus {
+      border-color: rgba(0,229,255,.34);
+      box-shadow: 0 0 0 3px rgba(0,229,255,.08);
+    }
+
+    .field button {
+      border: none;
+      cursor: pointer;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00e5ff 0%, #0077ff 100%);
+      color: #00111f;
+      padding: 0 12px;
+      white-space: nowrap;
+    }
+
+    .field button:hover {
+      filter: brightness(1.04);
+      transform: translateY(-1px);
+    }
+
+    .filter-help {
+      display: none;
+    }
+
+    .date-filter,
+    .field input[type="date"] {
+      cursor: pointer;
+    }
+
+    .flatpickr-calendar {
+      background: #ffffff;
+      border: 1px solid rgba(148,163,184,.30);
+      border-radius: 14px;
+      box-shadow: 0 18px 48px rgba(2,6,23,.30);
+      overflow: hidden;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      transform-origin: top left;
+    }
+
+    .flatpickr-rContainer,
+    .flatpickr-days {
+      width: 278px !important;
+      min-width: 278px !important;
+      max-width: 278px !important;
+    }
+
+    .dayContainer {
+      width: 278px !important;
+      min-width: 278px !important;
+      max-width: 278px !important;
+    }
+
+    .flatpickr-months {
+      background: #ffffff;
+      border-bottom: 1px solid rgba(148,163,184,.14);
+      padding-top: 3px;
+      padding-bottom: 3px;
+    }
+
+    .flatpickr-current-month {
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .flatpickr-weekdays,
+    .flatpickr-weekdaycontainer {
+      background: #ffffff;
+    }
+
+    span.flatpickr-weekday {
+      color: #0f172a;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .flatpickr-day {
+      color: #0f172a;
+      border-radius: 9px;
+      font-weight: 600;
+      max-width: 37px;
+      height: 33px;
+      line-height: 33px;
+    }
+
+    .flatpickr-day:hover {
+      background: rgba(79,70,229,.10);
+      border-color: transparent;
+    }
+
+    .flatpickr-day.today {
+      border-color: #38bdf8;
+      color: #0f172a;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange,
+    .flatpickr-day.selected.inRange,
+    .flatpickr-day.startRange.inRange,
+    .flatpickr-day.endRange.inRange,
+    .flatpickr-day.selected:focus,
+    .flatpickr-day.startRange:focus,
+    .flatpickr-day.endRange:focus,
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.startRange:hover,
+    .flatpickr-day.endRange:hover,
+    .flatpickr-day.selected.prevMonthDay,
+    .flatpickr-day.startRange.prevMonthDay,
+    .flatpickr-day.endRange.prevMonthDay,
+    .flatpickr-day.selected.nextMonthDay,
+    .flatpickr-day.startRange.nextMonthDay,
+    .flatpickr-day.endRange.nextMonthDay {
+      background: #4f46e5;
+      border-color: #4f46e5;
+      color: #ffffff;
+    }
+
+    .flatpickr-day.inRange {
+      box-shadow: -5px 0 0 #e0e7ff, 5px 0 0 #e0e7ff;
+      border-radius: 0;
+    }
+
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      border-radius: 9px;
+    }
+
+    .flatpickr-prev-month svg,
+    .flatpickr-next-month svg {
+      fill: #0f172a;
+    }
+
+    .flatpickr-monthDropdown-months,
+    .numInputWrapper input,
+    .flatpickr-current-month input.cur-year {
+      font-weight: 700;
+    }
+
+    .field .flatpickr-input[readonly] {
+      background: rgba(2, 8, 20, .82);
+      color: var(--text);
+    }
+
+    .tabs { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+    .tab-btn {
+      border: 1px solid rgba(0,229,255,.24);
+      color: #dff5ff;
+      background: rgba(6,18,34,.76);
+      border-radius: 999px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: .2s;
+    }
+    .tab-btn.active { background: linear-gradient(135deg, rgba(0,229,255,.20), rgba(34,197,94,.12)); box-shadow: 0 0 24px rgba(0,229,255,.14); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .hero { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 18px; }
+    .title h2 { margin: 0 0 8px; font-size: 24px; }
+    .title p { margin: 0; color: var(--muted); }
+    .badge {
+      background: rgba(34, 197, 94, .12);
+      border: 1px solid rgba(34, 197, 94, .25);
+      color: #bbf7d0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .flow-panel { padding: 24px; margin-bottom: 22px; overflow-x: hidden; }
+    .top-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .top-mini { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(180deg, rgba(14,22,38,.96), rgba(17,24,39,.94)); min-height: 96px; }
+    .top-icon { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 24px; background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.22); flex: 0 0 46px; }
+    .top-label { color: var(--muted); font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+    .top-value { font-size: 26px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+    .top-ratio { color: #cbd5e1; font-size: 12px; font-weight: 700; }
+
+    .flow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; align-items: center; position: relative; }
+    .flow::before { content: ''; position: absolute; top: 48px; left: 6%; right: 6%; height: 4px; background: linear-gradient(90deg, rgba(56,189,248,.35), rgba(34,197,94,.35)); z-index: 0; border-radius: 99px; }
+    .step { position: relative; z-index: 2; padding: 16px; border-radius: 20px; border: 1px solid var(--line); background: linear-gradient(180deg, rgba(31,41,55,.95), rgba(15,23,42,.95)); min-height: 128px; display: flex; flex-direction: column; justify-content: space-between; }
+    .icon { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; background: rgba(34, 197, 94, .14); font-size: 22px; border: 1px solid rgba(34, 197, 94, .25); margin-bottom: 10px; }
+    .step h3 { margin: 0 0 8px; font-size: 13px; min-height: 18px; }
+    .value { font-size: 22px; font-weight: 900; line-height: 1; margin-bottom: 8px; }
+    .ratio { color: var(--muted); font-size: 12px; font-weight: 700; }
+
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 22px; }
+    .funnel-indicators { display: flex; gap: 12px; align-items: stretch; }
+    .indicator-main { min-width: 0; flex: 1; }
+    .mini-grid { display: grid; grid-template-columns: repeat(7, minmax(110px, 1fr)); gap: 10px; align-items: stretch; }
+    .mini { background: rgba(148,163,184,.08); border: 1px solid var(--line); border-radius: 16px; padding: 12px; min-height: 92px; }
+    .mini .k { color: var(--muted); font-size: 11px; margin-bottom: 8px; font-weight: 700; line-height: 1.25; }
+    .mini .v { font-size: 18px; font-weight: 900; line-height: 1.15; }
+    .abandono-legenda { background: rgba(148,163,184,.08); border: 1px solid var(--line); border-radius: 16px; padding: 14px; width: 260px; flex: 0 0 260px; }
+    .abandono-legenda h3 { margin: 0 0 10px; font-size: 15px; }
+    .abandono-legenda p { margin: 0 0 8px; color: #cbd5e1; font-size: 12px; line-height: 1.35; }
+
+    .section-title { margin: 0 0 14px; font-size: 20px; }
+    .chart-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .mini-chart-card { background: rgba(15, 23, 42, 0.72); border: 1px solid var(--line); border-radius: 18px; padding: 16px; min-width: 0; overflow: hidden; }
+    .mini-chart-title { font-size: 16px; font-weight: 900; margin: 0 0 10px; }
+    .chart-box { position: relative; height: 285px; width: 100%; overflow: hidden; }
+    .chart-box canvas { display: block; width: 100% !important; height: 100% !important; }
+
+    .table-panel { padding: 18px; margin-bottom: 22px; }
+    .table-wrap, .table-scroll { position: relative; margin-top: 10px; max-height: 420px; overflow: auto; border-radius: 16px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.55); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: max-content; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: #cbd5e1; background: rgba(17, 24, 39, 0.98); position: sticky; top: 0; z-index: 2; }
+
+    .insight { display: grid; grid-template-columns: 46px 1fr; gap: 14px; align-items: start; margin-bottom: 20px; padding: 18px; border-color: rgba(34,197,94,.28); }
+    .insight-icon { width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center; background: rgba(34,197,94,.12); color: var(--green); }
+    .insight h2 { margin: 0 0 6px; font-size: 18px; }
+    .insight p { margin: 0; line-height: 1.55; color: #cbd9f5; }
+
+    .map-layout { display: grid; grid-template-columns: minmax(680px, 1.15fr) minmax(420px, .85fr); gap: 18px; }
+    .folium-panel { min-height: 760px; overflow: hidden; padding: 20px; }
+    .folium-wrapper { height: 675px; border-radius: 22px; overflow: hidden; border: 1px solid rgba(55,213,255,.18); background: rgba(3,8,22,.36); }
+    .folium-wrapper iframe { width: 100% !important; height: 675px !important; border: 0 !important; display: block; }
+    .mini-kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+    .mini-kpi { background: rgba(3,8,22,.28); border: 1px solid rgba(55,213,255,.14); border-radius: 18px; padding: 14px; }
+    .mini-kpi span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .mini-kpi strong { font-size: 22px; }
+    .rank-table { min-width: unset; }
+    .rank-table th, .rank-table td { padding: 11px 10px; font-size: 13px; }
+    .footer-note { color: var(--muted); font-size: 12px; text-align: center; padding-top: 12px; }
+
+    @media (max-width: 1300px) {
+      .flow-panel { overflow-x: auto; }
+      .flow { min-width: 960px; grid-template-columns: repeat(6, minmax(145px, 1fr)); }
+      .top-strip { grid-template-columns: repeat(3, minmax(220px, 1fr)); min-width: 760px; }
+      .mini-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+      .map-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 1100px) {
+      .mini-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      .funnel-indicators { flex-direction: column; }
+      .abandono-legenda { width: 100%; flex: none; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .top-strip { grid-template-columns: 1fr; min-width: 0; }
+      .flow { min-width: 860px; }
+    }
+    @media (max-width: 760px) {
+      .topbar, .hero { align-items: flex-start; flex-direction: column; }
+      .field, .field.dates { min-width: 100%; }
+      .folium-wrapper, .folium-wrapper iframe { height: 560px !important; }
+    }
+  
+    @media (max-width: 980px) {
+      .filter-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .filters {
+        width: 100%;
+      }
+
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.dates {
+        width: 100%;
+      }
+    }
+
+  
+
+    /* ===== Fundo animado do Cockpit aplicado ao Dashboard Sky ===== */
+    .cockpit-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(0,229,255,.16), transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(0,106,255,.18), transparent 34%),
+        linear-gradient(135deg,#020814 0%,#07172a 50%,#020814 100%);
+    }
+
+    .cockpit-bg .grid {
+      position: absolute;
+      inset: -80px;
+      background-image:
+        linear-gradient(rgba(0,229,255,.10) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.10) 1px, transparent 1px);
+      background-size: 55px 55px;
+      transform: perspective(500px) rotateX(62deg);
+      transform-origin: center bottom;
+      animation: cockpitGridMove 5s linear infinite;
+      opacity: .42;
+    }
+
+    @keyframes cockpitGridMove {
+      from { background-position: 0 0; }
+      to { background-position: 0 55px; }
+    }
+
+    .cockpit-bg .orb {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(0,229,255,.10);
+      filter: blur(35px);
+      animation: cockpitFloatOrb 7s ease-in-out infinite alternate;
+    }
+
+    .cockpit-bg .orb.one { top: 12%; left: 12%; }
+    .cockpit-bg .orb.two {
+      right: 10%;
+      bottom: 12%;
+      background: rgba(0,102,255,.13);
+      animation-delay: 1.5s;
+    }
+
+    @keyframes cockpitFloatOrb {
+      from { transform: translate(0,0) scale(1); }
+      to { transform: translate(45px,-30px) scale(1.25); }
+    }
+
+    .cockpit-bg .scanline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 130px;
+      background: linear-gradient(transparent, rgba(0,229,255,.08), transparent);
+      animation: cockpitScan 6s ease-in-out infinite;
+    }
+
+    @keyframes cockpitScan {
+      from { top: -150px; }
+      to { top: 110vh; }
+    }
+
+    .cockpit-bg .electric {
+      position: absolute;
+      inset: 0;
+      opacity: .35;
+      filter: drop-shadow(0 0 10px rgba(0,229,255,.8));
+    }
+
+    .cockpit-bg .electric svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .cockpit-bg .electric path {
+      fill: none;
+      stroke: rgba(0,229,255,.45);
+      stroke-width: 1.4;
+      stroke-dasharray: 12 900;
+      animation: cockpitElectricRun 3.2s linear infinite;
+    }
+
+    .cockpit-bg .electric path:nth-child(2) {
+      animation-delay: 1.4s;
+      stroke: rgba(0,120,255,.5);
+    }
+
+    .cockpit-bg .electric path:nth-child(3) {
+      animation-delay: 2.2s;
+      stroke: rgba(120,240,255,.42);
+    }
+
+    @keyframes cockpitElectricRun {
+      from { stroke-dashoffset: 900; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .cockpit-bg .data-rain {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .cockpit-bg .code {
+      position: absolute;
+      top: -120px;
+      font-size: 13px;
+      color: rgba(0,229,255,.55);
+      text-shadow: 0 0 12px rgba(0,229,255,.8);
+      writing-mode: vertical-rl;
+      letter-spacing: 4px;
+      animation: cockpitRain linear infinite;
+      user-select: none;
+    }
+
+    .cockpit-bg .code:nth-child(1) { left: 6%; animation-duration: 8s; animation-delay: 0s; }
+    .cockpit-bg .code:nth-child(2) { left: 16%; animation-duration: 11s; animation-delay: 1s; }
+    .cockpit-bg .code:nth-child(3) { left: 29%; animation-duration: 9s; animation-delay: 2s; }
+    .cockpit-bg .code:nth-child(4) { left: 43%; animation-duration: 13s; animation-delay: .5s; }
+    .cockpit-bg .code:nth-child(5) { left: 58%; animation-duration: 10s; animation-delay: 2.8s; }
+    .cockpit-bg .code:nth-child(6) { left: 72%; animation-duration: 12s; animation-delay: 1.7s; }
+    .cockpit-bg .code:nth-child(7) { left: 88%; animation-duration: 8.5s; animation-delay: .8s; }
+
+    @keyframes cockpitRain {
+      from { transform: translateY(-140px); opacity: 0; }
+      10% { opacity: .9; }
+      80% { opacity: .75; }
+      to { transform: translateY(120vh); opacity: 0; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .panel,
+    .filters,
+    .flow-panel,
+    .card,
+    .top-strip-card,
+    .mini-chart-card,
+    .map-side-card,
+    .folium-panel {
+      background-color: rgba(6,18,34,.72);
+      backdrop-filter: blur(14px);
+    }
+
+  
+    /* ===== Ajuste de dimensão do Dashboard Sky dentro do Cockpit ===== */
+    .container {
+      width: min(1360px, calc(100% - 64px)) !important;
+      max-width: 1360px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      padding-top: 26px !important;
+      padding-bottom: 42px !important;
+    }
+
+    .topbar,
+    .filters,
+    .flow-panel,
+    .panel,
+    .tabs {
+      max-width: 100%;
+    }
+
+    .topbar {
+      min-height: auto;
+      padding: 18px 22px;
+      border-radius: 22px;
+    }
+
+    .filters {
+      margin-left: 0;
+      margin-right: auto;
+    }
+
+    .flow-panel,
+    .card,
+    .panel {
+      border-radius: 22px;
+    }
+
+    .flow {
+      grid-template-columns: repeat(6, minmax(145px, 1fr)) !important;
+      min-width: 0 !important;
+    }
+
+    .step {
+      min-height: 118px !important;
+      padding: 15px !important;
+    }
+
+    .icon {
+      width: 42px !important;
+      height: 42px !important;
+      font-size: 20px !important;
+    }
+
+    .value {
+      font-size: 21px !important;
+    }
+
+    .mini-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+
+    .chart-grid {
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+    }
+
+    .chart-box {
+      height: 300px !important;
+    }
+
+    .table-scroll {
+      max-width: 100%;
+    }
+
+    .folium-wrapper,
+    .folium-wrapper iframe {
+      height: 610px !important;
+    }
+
+    @media (max-width: 1400px) {
+      .container {
+        width: min(1240px, calc(100% - 48px)) !important;
+        max-width: 1240px !important;
+      }
+
+      .flow {
+        grid-template-columns: repeat(3, minmax(180px, 1fr)) !important;
+      }
+
+      .flow::before {
+        display: none !important;
+      }
+
+      .mini-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        width: calc(100% - 28px) !important;
+      }
+
+      .flow {
+        grid-template-columns: 1fr !important;
+      }
+
+      .mini-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .folium-wrapper,
+      .folium-wrapper iframe {
+        height: 520px !important;
+      }
+    }
+
+  
+    /* ===== Visão Hora a Hora ===== */
+    .hourly-panel {
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .hourly-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .hourly-chart-card {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: 18px;
+      padding: 16px;
+      min-height: 305px;
+    }
+
+    .hourly-chart-title {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 900;
+      color: #f8fafc;
+    }
+
+    .hourly-chart-box {
+      position: relative;
+      height: 245px;
+      width: 100%;
+    }
+
+    .hourly-chart-box canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .hourly-table-panel {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .hourly-table-scroll {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,.18);
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .hourly-table-scroll table {
+      min-width: 1080px;
+    }
+
+    @media (max-width: 1100px) {
+      .hourly-chart-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+    /* ===== FIX V2.1 - alinhamento dos filtros Sky ===== */
+    .filters.filters-compact {
+      width: 100% !important;
+      max-width: 760px !important;
+      padding: 14px 16px !important;
+      overflow: visible !important;
+    }
+
+    .filters.filters-compact .filter-grid {
+      display: grid !important;
+      grid-template-columns: minmax(280px, 1.7fr) minmax(150px, .8fr) minmax(210px, .9fr) !important;
+      gap: 12px !important;
+      align-items: end !important;
+    }
+
+    .filters.filters-compact .field {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-end !important;
+      gap: 7px !important;
+      min-width: 0 !important;
+      width: 100% !important;
+    }
+
+    .filters.filters-compact .field.dates {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    .filters.filters-compact .field label {
+      position: static !important;
+      display: block !important;
+      height: 13px !important;
+      margin: 0 !important;
+      padding: 0 0 0 2px !important;
+      font-size: 11px !important;
+      line-height: 13px !important;
+      font-weight: 800 !important;
+      color: #c7d7ee !important;
+      letter-spacing: .01em !important;
+      white-space: nowrap !important;
+    }
+
+    .filters.filters-compact .field input,
+    .filters.filters-compact .field select,
+    .filters.filters-compact .field button {
+      height: 42px !important;
+      min-height: 42px !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+    }
+
+    .filters.filters-compact .field button {
+      margin-top: 20px !important;
+      border-radius: 14px !important;
+    }
+
+    @media (max-width: 860px) {
+      .filters.filters-compact {
+        max-width: 100% !important;
+      }
+      .filters.filters-compact .filter-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .filters.filters-compact .field button {
+        margin-top: 0 !important;
+      }
+    }
+
+
+    /* ===== FUNIL COMPARATIVO SKY ===== */
+    .funil-compare-wrap {
+      display: grid;
+      gap: 16px;
+    }
+
+    .funil-filter-panel {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .funil-filter-title h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: -.03em;
+    }
+
+    .funil-filter-title p {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .funil-filter-fields {
+      display: flex;
+      gap: 10px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    .funil-field {
+      display: grid;
+      gap: 6px;
+      min-width: 170px;
+    }
+
+    .funil-field label {
+      font-size: 11px;
+      color: #c7d7ee;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .funil-field select,
+    .funil-filter-fields button {
+      height: 42px;
+      border-radius: 13px;
+      border: 1px solid rgba(0,229,255,.18);
+      background: rgba(2,8,20,.84);
+      color: #e5e7eb;
+      padding: 0 12px;
+      font-weight: 850;
+      outline: none;
+    }
+
+    .funil-filter-fields button {
+      border: none;
+      cursor: pointer;
+      color: #00111f;
+      background: linear-gradient(135deg, #00e5ff, #0077ff);
+      box-shadow: 0 0 22px rgba(0,229,255,.14);
+    }
+
+    .sky-funnel-top-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 14px;
+    }
+
+    .sky-funnel-kpi {
+      min-height: 104px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(145deg, rgba(10,38,66,.86), rgba(5,16,30,.84));
+      border: 1px solid rgba(0,229,255,.16);
+      border-radius: 18px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .sky-funnel-icon {
+      width: 50px;
+      height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, rgba(0,229,255,.25), rgba(0,74,173,.34));
+      border: 1px solid rgba(0,229,255,.28);
+    }
+
+    .sky-funnel-icon svg { width: 25px; height: 25px; color: #55dfff; }
+    .sky-funnel-kpi h3 { margin: 0 0 7px; font-size: 17px; }
+    .sky-funnel-values { display: grid; gap: 3px; font-size: 15px; font-weight: 900; }
+    .sky-a { color: #2d92ff; }
+    .sky-b { color: #ff9300; }
+    .sky-funnel-var { border-left: 1px solid rgba(148,163,184,.18); padding-left: 13px; text-align: center; min-width: 74px; }
+    .sky-funnel-var small { display:block; color:#cbd5e1; font-weight:800; margin-bottom:6px; }
+    .sky-funnel-var strong { font-size: 16px; }
+    .var-pos { color: #67e94b !important; }
+    .var-neg { color: #ff4747 !important; }
+
+    .sky-funnel-main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 14px;
+    }
+
+    .sky-funnel-panel {
+      padding: 18px 20px 16px;
+    }
+
+    .sky-funnel-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px minmax(0, 1fr);
+      text-align: center;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    .sky-funnel-head .left { color: #2d92ff; }
+    .sky-funnel-head .right { color: #ff9300; }
+
+    .sky-funnel-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px minmax(0, 1fr);
+      gap: 16px;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .sky-funnel-side {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .sky-funnel-row {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .sky-funnel-left .sky-funnel-row { justify-content: flex-end; }
+    .sky-funnel-right .sky-funnel-row { justify-content: flex-start; }
+
+    .sky-funnel-bar {
+      height: 52px;
+      min-width: 160px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 0 22px;
+      color: #fff;
+      font-weight: 950;
+      text-shadow: 0 1px 8px rgba(0,0,0,.35);
+      box-shadow: 0 8px 18px rgba(0,0,0,.24);
+      font-size: 19px;
+    }
+
+    .sky-funnel-bar .pct { font-size: 12px; opacity: .96; }
+
+    .sky-funnel-left .sky-funnel-bar {
+      background: linear-gradient(90deg, #005ce6, #2290ff);
+      clip-path: polygon(0 0, 100% 0, 91% 100%, 10% 100%);
+      border: 1px solid rgba(91,169,255,.55);
+    }
+
+    .sky-funnel-right .sky-funnel-bar {
+      background: linear-gradient(90deg, #ff9300, #ff5f00);
+      clip-path: polygon(9% 0, 100% 0, 91% 100%, 0 100%);
+      border: 1px solid rgba(255,177,53,.60);
+    }
+
+    .sky-stage-column {
+      width: 250px;
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .sky-stage-row {
+      height: 58px;
+      display: grid;
+      grid-template-columns: 46px auto;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .sky-stage-row::before,
+    .sky-stage-row::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 54px;
+      border-top: 1px dashed rgba(203,213,225,.28);
+    }
+
+    .sky-stage-row::before { right: calc(100% + 5px); }
+    .sky-stage-row::after { left: calc(100% + 5px); }
+
+    .sky-stage-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(15,35,58,.88);
+    }
+
+    .sky-stage-icon svg { width: 22px; height: 22px; color:#d8edff; }
+    .sky-stage-name { font-size: 17px; font-weight: 950; white-space: nowrap; }
+
+    .sky-funnel-variation {
+      padding: 18px 20px;
+    }
+
+    .sky-funnel-variation h2 {
+      margin: 0 0 12px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .sky-var-row {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      border-top: 1px solid rgba(148,163,184,.13);
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .sky-var-row strong { font-size: 16px; }
+
+    .sky-funnel-bottom-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 14px;
+    }
+
+    .sky-funnel-mini-kpi {
+      min-height: 96px;
+      padding: 14px 15px;
+      display: grid;
+      grid-template-columns: 46px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(145deg, rgba(10,38,66,.86), rgba(5,16,30,.84));
+      border: 1px solid rgba(0,229,255,.14);
+      border-radius: 18px;
+    }
+
+    .sky-funnel-mini-kpi .sky-funnel-icon { width: 44px; height: 44px; }
+    .sky-funnel-mini-kpi .sky-funnel-icon svg { width: 23px; height: 23px; }
+    .sky-funnel-mini-kpi h3 { margin: 0 0 6px; font-size: 16px; }
+    .sky-funnel-mini-kpi .sky-funnel-values { font-size: 13px; }
+    .sky-funnel-mini-kpi .sky-funnel-var { min-width: 64px; padding-left: 10px; }
+    .sky-funnel-empty { padding: 28px; text-align: center; color: #94a3b8; font-weight: 800; }
+
+    @media (max-width: 1200px) {
+      .sky-funnel-top-kpis,
+      .sky-funnel-bottom-kpis { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+      .sky-funnel-main-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 860px) {
+      .sky-funnel-head,
+      .sky-funnel-body { grid-template-columns: 1fr; }
+      .sky-stage-column { width: 100%; }
+      .sky-stage-row::before,
+      .sky-stage-row::after { display: none; }
+      .sky-funnel-top-kpis,
+      .sky-funnel-bottom-kpis { grid-template-columns: 1fr; }
+    }
+
+
+    .mapa-placeholder {
+      min-height: 520px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed rgba(0,229,255,.28);
+      border-radius: 22px;
+      background: rgba(6,18,34,.48);
+      color: #cbd5e1;
+      text-align: center;
+      padding: 28px;
+    }
+    .mapa-placeholder strong {
+      display:block;
+      font-size: 22px;
+      color: #e5f9ff;
+      margin-bottom: 8px;
+    }
+    .mapa-placeholder span {
+      color: #94a3b8;
+    }
+
+    .funil-fixed-note {
+      display: inline-flex;
+      align-items: center;
+      height: 42px;
+      padding: 0 12px;
+      border-radius: 13px;
+      color: #facc15;
+      background: rgba(250,204,21,.08);
+      border: 1px solid rgba(250,204,21,.18);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="cockpit-bg">
+    <div class="grid"></div>
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="scanline"></div>
+    <div class="electric">
+      <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
+        <path d="M0 120 C180 80 210 220 390 160 S610 110 780 200 1010 280 1200 160"></path>
+        <path d="M0 520 C160 430 310 570 460 480 S720 370 850 520 1040 610 1200 490"></path>
+        <path d="M0 320 C140 260 280 330 420 290 S700 210 890 310 1030 390 1200 330"></path>
+      </svg>
+    </div>
+    <div class="data-rain">
+      <span class="code">SKY 001 CPC ALO HIT UF</span>
+      <span class="code">NEGOCIE ONLINE CPC ACORDO</span>
+      <span class="code">DATA FLOW DISCADO CONTATO</span>
+      <span class="code">OLOS STRATEGY PLANNING</span>
+      <span class="code">SP RJ MG BA PR DF CE</span>
+      <span class="code">HIT LOC CONVERSAO MAPA</span>
+      <span class="code">SKY 001 CPC ALO HIT UF</span>
+    </div>
+  </div>
+
+  <main class="container">
+    <header class="topbar">
+      <a href="/dashboard" style="text-decoration:none;color:#91f3ff;font-weight:800;margin-right:12px;border:1px solid rgba(0,229,255,.22);background:rgba(6,18,34,.68);border-radius:14px;padding:10px 12px;display:inline-flex;align-items:center;gap:8px;">← Cockpit</a><div class="brand">
+        <div class="logo">SKY</div>
+        <div>
+          <h1>Dashboard Sky | Negocie Online</h1>
+          <p>Monitoramento diário da operação Negocie Online, com leitura consolidada dos indicadores e evolução da performance.</p>
+        </div>
+      </div>
+      <div class="pill">
+        <i data-lucide="calendar-days"></i>
+        <span>{{ dashboard.periodo }}</span>
+      </div>
+    </header>
+
+    <form class="panel filters filters-compact" method="get">
+      <input type="hidden" name="tab" id="active-tab-input" value="{{ request.args.get('tab', 'daily') }}">
+      <div class="filter-grid">
+        <div class="field dates">
+          <label>Datas</label>
+          <input type="text" id="datas-multiplas" class="date-filter multi-date-picker" name="datas" placeholder="Selecione as datas" value="{{ request.args.get('datas', '') }}">
+          <small class="filter-help">Selecione uma ou mais datas no calendário.</small>
+        </div>
+        <div class="field">
+          <label>Faixa atraso</label>
+          <select name="faixa">
+            <option value="">Todas</option>
+            {% for faixa in dashboard.filtros.faixas %}
+            <option value="{{ faixa }}" {% if request.args.get('faixa') == faixa %}selected{% endif %}>{{ faixa }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <button type="submit">Aplicar filtros</button>
+        </div>
+      </div>
+    </form>
+
+    <nav class="tabs">
+      <button class="tab-btn active" type="button" data-tab="daily">Daily</button>
+      <button class="tab-btn" type="button" data-tab="hora">Hora a Hora</button>
+      <button class="tab-btn" type="button" data-tab="mapa">Mapa Brasil</button>
+      <button class="tab-btn" type="button" data-tab="funil">Funil Comparativo</button>
+    </nav>
+
+    <section id="daily" class="tab-content active">
+      <div class="hero">
+        <div class="title">
+          <h2>Fluxo Negocie Online → Sky</h2>
+          <p>Painel cockpit Negocie Online | Sky.</p>
+        </div>
+        <div class="badge">INDICADORES</div>
+      </div>
+
+      
+
+      <section class="panel flow-panel">
+        <div class="flow">
+          {% for item in dashboard.flow %}
+            <div class="step">
+              <div>
+                <div class="icon">{{ item.icon }}</div>
+                <h3>{{ item.label }}</h3>
+              </div>
+              <div>
+                <div class="value">{{ item.value }}</div>
+                <div class="ratio">{{ item.ratio }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="panel card">
+          <h2 class="section-title">Indicadores de eficiência</h2>
+          <div class="funnel-indicators">
+            <div class="indicator-main">
+              <div class="mini-grid">
+                {% for key, value in dashboard.extras.items() %}
+                  <div class="mini"><div class="k">{{ key }}</div><div class="v">{{ value }}</div></div>
+                {% endfor %}
+              </div>
+            </div>
+            <aside class="abandono-legenda">
+              <h3>Regra de leitura</h3>
+              <p><strong>HIT%</strong>: Contato dividido por Discado.</p>
+              <p><strong>CPC%</strong>: CPC dividido por Contato.</p>
+              <p><strong>Conversão</strong>: Acordo dividido por CPC.</p>
+            </aside>
+          </div>
+        </div>
+
+        <div class="panel card">
+          <h2 class="section-title">Volume por dia</h2>
+          <div class="chart-grid">
+            <div class="mini-chart-card">
+              <div class="mini-chart-title">Discado x HIT%</div>
+              <div class="chart-box"><canvas id="chartDiscado"></canvas></div>
+            </div>
+            <div class="mini-chart-card">
+              <div class="mini-chart-title">CPC x Localização</div>
+              <div class="chart-box"><canvas id="chartCpc"></canvas></div>
+            </div>
+            <div class="mini-chart-card">
+              <div class="mini-chart-title">Acordo x Conversão</div>
+              <div class="chart-box"><canvas id="chartAcordo"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <h2 class="section-title">Visão dia a dia</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Indicador</th>
+                {% for data in dashboard.datas %}
+                <th>{{ data }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for linha in dashboard.tabela %}
+              <tr>
+                <td>{{ linha.indicador }}</td>
+                {% for valor in linha.valores %}
+                <td>{{ valor }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+
+    <section id="hora" class="tab-content">
+      <section class="panel hourly-panel">
+        <div class="section-title">
+          <h2>Volume hora a hora por etapa</h2>
+          <small>Barras de volume com linha de taxa. Rótulos ativos nos gráficos.</small>
+        </div>
+
+        <div class="hourly-chart-grid">
+          <div class="hourly-chart-card">
+            <div class="hourly-chart-title">Discado x Spin</div>
+            <div class="hourly-chart-box"><canvas id="horaDiscadoSpin"></canvas></div>
+          </div>
+
+          <div class="hourly-chart-card">
+            <div class="hourly-chart-title">Contato x HIT Rate</div>
+            <div class="hourly-chart-box"><canvas id="horaContatoHit"></canvas></div>
+          </div>
+
+          <div class="hourly-chart-card">
+            <div class="hourly-chart-title">CPC x Localização</div>
+            <div class="hourly-chart-box"><canvas id="horaCpcLoc"></canvas></div>
+          </div>
+
+          <div class="hourly-chart-card">
+            <div class="hourly-chart-title">Acordo x Conversão</div>
+            <div class="hourly-chart-box"><canvas id="horaAcordoConv"></canvas></div>
+          </div>
+
+          <div class="hourly-chart-card">
+            <div class="hourly-chart-title">HangUp x Taxa de HangUp</div>
+            <div class="hourly-chart-box"><canvas id="horaHangup"></canvas></div>
+          </div>
+
+          <div class="hourly-chart-card">
+            <div class="hourly-chart-title">Mailing x Discado</div>
+            <div class="hourly-chart-box"><canvas id="horaMailingDiscado"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel hourly-table-panel">
+        <div class="section-title">
+          <h2>Tabela hora a hora</h2>
+          <small>Indicadores por hora</small>
+        </div>
+        <div class="hourly-table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Indicador</th>
+                {% for hora in dashboard.hora_a_hora.labels %}
+                <th>{{ hora }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for linha in dashboard.hora_a_hora.tabela %}
+              <tr>
+                <td>{{ linha.indicador }}</td>
+                {% for valor in linha.valores %}
+                <td>{{ valor }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+
+    <section id="mapa" class="tab-content">
+      <section class="map-layout">
+        <div class="panel folium-panel">
+          <div class="section-title">
+            <h2>Mapa real de performance por UF</h2>
+            <small>Bolhas por CPC, conversão e localização via DDD</small>
+          </div>
+          <div class="folium-wrapper">
+            {{ dashboard.mapa_html | safe }}
+          </div>
+        </div>
+
+        <aside>
+          <div class="panel" style="margin-bottom:18px;">
+            <div class="section-title">
+              <h2>Resumo regional</h2>
+              <small>Filtros atuais</small>
+            </div>
+            <div class="mini-kpis">
+              <div class="mini-kpi"><span>Discado</span><strong>{{ dashboard.totais.discado }}</strong></div>
+              <div class="mini-kpi"><span>Contato</span><strong>{{ dashboard.totais.contato }}</strong></div>
+              <div class="mini-kpi"><span>CPC</span><strong>{{ dashboard.totais.cpc }}</strong></div>
+              <div class="mini-kpi"><span>Acordo</span><strong>{{ dashboard.totais.acordo }}</strong></div>
+              <div class="mini-kpi"><span>CPC%</span><strong>{{ dashboard.totais.cpcPerc }}</strong></div>
+              <div class="mini-kpi"><span>Conversão</span><strong>{{ dashboard.totais.conversao }}</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-title">
+              <h2>Ranking UF</h2>
+              <small>Top CPC</small>
+            </div>
+            <div class="table-scroll">
+              <table class="rank-table">
+                <thead>
+                  <tr>
+                    <th>UF</th>
+                    <th>Discado</th>
+                    <th>Contato</th>
+                    <th>HIT%</th>
+                    <th>CPC</th>
+                    <th>Acordo</th>
+                    <th>Conv.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in dashboard.ranking_uf %}
+                  <tr>
+                    <td>{{ row.uf }}</td>
+                    <td>{{ row.discado }}</td>
+                    <td>{{ row.contato }}</td>
+                    <td>{{ row.hit }}</td>
+                    <td>{{ row.cpc }}</td>
+                    <td>{{ row.acordo }}</td>
+                    <td>{{ row.conversao }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </section>
+
+
+    <section id="funil" class="tab-content">
+      <div class="funil-compare-wrap">
+        <form class="panel funil-filter-panel" method="get">
+          <input type="hidden" name="tab" value="funil">
+          <input type="hidden" name="datas" value="{{ request.args.get('datas', '') }}">
+          <input type="hidden" name="faixa" value="{{ request.args.get('faixa', '') }}">
+
+          <div class="funil-filter-title">
+            <h2>Funil Comparativo | Fixo x Campanha 202</h2>
+            <p>Campanha A usa valores fixos de média dia. Campanha B usa a campanha 202 segmentada por faixa de atraso.</p>
+          </div>
+
+          <div class="funil-filter-fields">
+            <div class="funil-field">
+              <label>Campanha A</label>
+              <select name="funil_a">
+                {% for fixo in dashboard.funil_comparativo.fixos_a %}
+                <option value="{{ fixo.key }}" {% if dashboard.funil_comparativo.campanha_a == fixo.key %}selected{% endif %}>{{ fixo.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="funil-field">
+              <label>Campanha B</label>
+              <select name="funil_b">
+                {% for seg in dashboard.funil_comparativo.segmentos_b %}
+                <option value="{{ seg.key }}" {% if dashboard.funil_comparativo.campanha_b == seg.key %}selected{% endif %}>{{ seg.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit">Comparar</button>
+            <span class="funil-fixed-note">A = média dia fixa · B = campanha 202 segmentada</span>
+          </div>
+        </form>
+
+        {% if not dashboard.funil_comparativo.tem_dados %}
+          <div class="panel sky-funnel-empty">{{ dashboard.funil_comparativo.mensagem }}</div>
+        {% else %}
+
+        <section class="sky-funnel-top-kpis">
+          {% for card in dashboard.funil_comparativo.cards_topo %}
+          <article class="sky-funnel-kpi panel">
+            <span class="sky-funnel-icon"><i data-lucide="{{ card.icon }}"></i></span>
+            <div>
+              <h3>{{ card.label }}</h3>
+              <div class="sky-funnel-values">
+                <span class="sky-a">A: {{ card.a_fmt }}</span>
+                <span class="sky-b">B: {{ card.b_fmt }}</span>
+              </div>
+            </div>
+            <div class="sky-funnel-var">
+              <small>Var.</small>
+              <strong class="{% if card.classe_var == 'pos' %}var-pos{% else %}var-neg{% endif %}">{{ card.variacao_fmt }}</strong>
+            </div>
+          </article>
+          {% endfor %}
+        </section>
+
+        <section class="sky-funnel-main-grid">
+          <div class="panel sky-funnel-panel">
+            <div class="sky-funnel-head">
+              <span class="left">CAMPANHA A · {{ dashboard.funil_comparativo.campanha_a_label }}</span>
+              <span>ETAPA DO FUNIL</span>
+              <span class="right">CAMPANHA B · {{ dashboard.funil_comparativo.campanha_b_label }}</span>
+            </div>
+
+            <div class="sky-funnel-body">
+              <div class="sky-funnel-side sky-funnel-left">
+                {% for etapa in dashboard.funil_comparativo.etapas %}
+                <div class="sky-funnel-row">
+                  <div class="sky-funnel-bar" style="width: {{ etapa.width_a }}%;">
+                    <span>{{ etapa.a_fmt }}</span>
+                    <span class="pct">{{ etapa.conv_a_fmt }}</span>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              <div class="sky-stage-column">
+                {% for etapa in dashboard.funil_comparativo.etapas %}
+                <div class="sky-stage-row">
+                  <span class="sky-stage-icon"><i data-lucide="{{ etapa.icon }}"></i></span>
+                  <span class="sky-stage-name">{{ etapa.label }}</span>
+                </div>
+                {% endfor %}
+              </div>
+
+              <div class="sky-funnel-side sky-funnel-right">
+                {% for etapa in dashboard.funil_comparativo.etapas %}
+                <div class="sky-funnel-row">
+                  <div class="sky-funnel-bar" style="width: {{ etapa.width_b }}%;">
+                    <span>{{ etapa.b_fmt }}</span>
+                    <span class="pct">{{ etapa.conv_b_fmt }}</span>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <aside class="panel sky-funnel-variation">
+            <h2>Variação % (B/A - 1)</h2>
+            {% for etapa in dashboard.funil_comparativo.etapas %}
+            <div class="sky-var-row">
+              <span>{{ etapa.label }}</span>
+              <strong class="{% if etapa.classe_var == 'pos' %}var-pos{% else %}var-neg{% endif %}">{{ etapa.variacao_fmt }}</strong>
+            </div>
+            {% endfor %}
+          </aside>
+        </section>
+
+        <section class="sky-funnel-bottom-kpis">
+          {% for card in dashboard.funil_comparativo.cards_bottom %}
+          <article class="sky-funnel-mini-kpi panel">
+            <span class="sky-funnel-icon"><i data-lucide="{{ card.icon }}"></i></span>
+            <div>
+              <h3>{{ card.label }}</h3>
+              <div class="sky-funnel-values">
+                <span class="sky-a">A: {{ card.a_fmt }}</span>
+                <span class="sky-b">B: {{ card.b_fmt }}</span>
+              </div>
+            </div>
+            <div class="sky-funnel-var">
+              <small>Var.</small>
+              <strong class="{% if card.classe_var == 'pos' %}var-pos{% else %}var-neg{% endif %}">{{ card.variacao_fmt }}</strong>
+            </div>
+          </article>
+          {% endfor %}
+        </section>
+        {% endif %}
+      </div>
+    </section>
+
+    <div class="footer-note">
+      V2.4 Cockpit/Sky · Dashboard Sky compatível com CampaignId e filtro opcional por campanha.
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    
+    function activateTab(tabName) {
+      const fallback = 'daily';
+      const targetName = document.getElementById(tabName) ? tabName : fallback;
+      const currentTab = new URLSearchParams(window.location.search).get('tab') || 'daily';
+
+      // Para acelerar o painel, mapa e hora a hora são carregados sob demanda.
+      // Se o usuário mudar para uma dessas abas, recarrega somente aquela visão.
+      const lazyTabs = ['mapa', 'hora'];
+      if (lazyTabs.includes(targetName) && currentTab !== targetName) {
+        const urlReload = new URL(window.location.href);
+        urlReload.searchParams.set('tab', targetName);
+        window.location.href = urlReload.toString();
+        return;
+      }
+
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === targetName);
+      });
+
+      document.querySelectorAll('.tab-content').forEach(t => {
+        t.classList.toggle('active', t.id === targetName);
+      });
+
+      const hiddenTab = document.getElementById('active-tab-input');
+      if (hiddenTab) hiddenTab.value = targetName;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', targetName);
+      window.history.replaceState({}, '', url);
+
+      // Corrige gráficos criados enquanto a aba estava escondida.
+      setTimeout(() => {
+        if (window.skyCharts && Array.isArray(window.skyCharts)) {
+          window.skyCharts.forEach(ch => { try { ch.resize(); ch.update('none'); } catch(e) {} });
+        }
+        window.dispatchEvent(new Event('resize'));
+      }, 120);
+    }
+
+    const initialTab = new URLSearchParams(window.location.search).get('tab') || 'daily';
+    activateTab(initialTab);
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+    });
+
+
+    const chartData = {{ dashboard.chart | tojson }};
+    window.skyCharts = window.skyCharts || [];
+
+    Chart.defaults.color = '#cbd5e1';
+    Chart.defaults.borderColor = 'rgba(148,163,184,.12)';
+    Chart.defaults.font.family = 'Inter, Segoe UI, Arial';
+    Chart.defaults.animation = false;
+    Chart.defaults.responsiveAnimationDuration = 0;
+
+    function configDualAxis(barLabel, lineLabel, barData, lineData, barColor='rgba(56, 189, 248, 0.35)', borderColor='rgba(56, 189, 248, 0.95)', lineColor='rgba(250, 204, 21, 1)') {
+      return {
+        type: 'bar',
+        data: {
+          labels: chartData.labels || [],
+          datasets: [
+            { type: 'bar', label: barLabel, data: barData || [], backgroundColor: barColor, borderColor: borderColor, borderWidth: 1.5, borderRadius: 8 },
+            { type: 'line', label: lineLabel, data: lineData || [], yAxisID: 'y1', borderColor: lineColor, backgroundColor: 'rgba(250, 204, 21, .2)', pointRadius: 3, pointHoverRadius: 5, tension: .35 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { labels: { color: '#e5e7eb' } } },
+          scales: {
+            x: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148,163,184,.08)' } },
+            y: { beginAtZero: true, ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148,163,184,.08)' } },
+            y1: { beginAtZero: true, position: 'right', ticks: { color: '#facc15', callback: (value) => value + '%' }, grid: { drawOnChartArea: false } }
+          }
+        }
+      };
+    }
+
+    function makeCombo(id, barLabel, lineLabel, barData, lineData, barColor, borderColor, lineColor) {
+      const canvas = document.getElementById(id);
+      if (!canvas) return;
+      const chart = new Chart(canvas.getContext('2d'), configDualAxis(barLabel, lineLabel, barData, lineData, barColor, borderColor, lineColor));
+      window.skyCharts.push(chart);
+    }
+
+    makeCombo('chartDiscado', 'Discado', 'HIT%', chartData.discado, chartData.hit, 'rgba(56, 189, 248, 0.35)', 'rgba(56, 189, 248, 0.95)', 'rgba(250, 204, 21, 1)');
+    makeCombo('chartCpc', 'CPC', 'Localização %', chartData.cpc, chartData.localizacao, 'rgba(34, 197, 94, 0.28)', 'rgba(34, 197, 94, 0.95)', 'rgba(56, 189, 248, 1)');
+    makeCombo('chartAcordo', 'Acordo', 'Conversão %', chartData.acordo, chartData.conversao, 'rgba(139, 92, 246, 0.32)', 'rgba(139, 92, 246, 0.95)', 'rgba(250, 204, 21, 1)');
+
+
+    if (typeof flatpickr !== 'undefined') {
+      document.querySelectorAll('.multi-date-picker').forEach((el) => {
+        if (el._flatpickr) return;
+        flatpickr(el, {
+          mode: 'multiple',
+          dateFormat: 'd/m/Y',
+          locale: flatpickr.l10ns.pt,
+          conjunction: ', ',
+          allowInput: true
+        });
+      });
+
+      document.querySelectorAll('.date-picker, input[type="date"]').forEach((el) => {
+        if (el.classList.contains('multi-date-picker')) return;
+        if (el._flatpickr) return;
+        flatpickr(el, {
+          locale: flatpickr.l10ns.pt,
+          allowInput: true,
+          dateFormat: 'Y-m-d',
+          altInput: true,
+          altFormat: 'd/m/Y'
+        });
+      });
+    }
+
+
+
+    const hourlyData = {{ dashboard.hora_a_hora.chart | tojson }};
+    console.log('Hora a hora Sky data', hourlyData);
+
+    function getCssVar(name, fallback) {
+      const value = getComputedStyle(document.documentElement).getPropertyValue(name);
+      return value && value.trim() ? value.trim() : fallback;
+    }
+
+    const hourlyHasData = hourlyData && Array.isArray(hourlyData.labels) && hourlyData.labels.length > 0;
+
+    const hasDataLabels = Boolean(window.ChartDataLabels && Chart && Chart.register);
+    if (hasDataLabels) {
+      try { Chart.register(ChartDataLabels); } catch (e) { console.warn('ChartDataLabels não carregou', e); }
+    }
+
+    function shortNumberBR(value) {
+      const n = Number(value || 0);
+      if (Math.abs(n) >= 1000000) return (n / 1000000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi';
+      if (Math.abs(n) >= 1000) return (n / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mil';
+      return n.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+    }
+
+    function ensureNoData(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas || hourlyHasData) return;
+      const parent = canvas.parentElement;
+      if (!parent || parent.querySelector('.no-hourly-data')) return;
+      const msg = document.createElement('div');
+      msg.className = 'no-hourly-data';
+      msg.textContent = 'Sem dados para os filtros selecionados';
+      msg.style.cssText = 'position:absolute;inset:0;display:grid;place-items:center;color:#94a3b8;font-weight:800;font-size:13px;';
+      parent.style.position = 'relative';
+      parent.appendChild(msg);
+    }
+
+    function hourlyCombo(canvasId, barLabel, lineLabel, barData, lineData, barColor, lineColor, lineSuffix='%') {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      ensureNoData(canvasId);
+      if (!hourlyHasData) return;
+
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 260);
+      grad.addColorStop(0, barColor);
+      grad.addColorStop(1, 'rgba(14, 165, 233, .12)');
+
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: hourlyData.labels || [],
+          datasets: [
+            {
+              type: 'bar',
+              label: barLabel,
+              data: barData || [],
+              backgroundColor: grad,
+              borderColor: 'rgba(56,189,248,.95)',
+              borderWidth: 1.4,
+              borderRadius: 8,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: lineLabel,
+              data: lineData || [],
+              borderColor: lineColor,
+              backgroundColor: lineColor,
+              tension: .32,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: { color: '#e5e7eb', boxWidth: 28, font: { weight: '700' } }
+            },
+            datalabels: {
+              display: true,
+              clamp: true,
+              formatter: function(value, context) {
+                if (context.dataset.type === 'line') {
+                  return Number(value || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + lineSuffix;
+                }
+                return shortNumberBR(value);
+              },
+              color: function(context) {
+                return context.dataset.type === 'line' ? lineColor : '#dbeafe';
+              },
+              anchor: 'end',
+              align: 'top',
+              font: { size: 9, weight: '800' }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.parsed.y;
+                  if (context.dataset.type === 'line') {
+                    return context.dataset.label + ': ' + Number(value || 0).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + lineSuffix;
+                  }
+                  return context.dataset.label + ': ' + Number(value || 0).toLocaleString('pt-BR');
+                }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#cbd5e1', maxRotation: 0 }, grid: { color: 'rgba(148,163,184,.08)' } },
+            y: { beginAtZero: true, ticks: { color: '#cbd5e1', callback: (v) => shortNumberBR(v) }, grid: { color: 'rgba(148,163,184,.08)' } },
+            y1: { beginAtZero: true, position: 'right', ticks: { color: lineColor, callback: (v) => v + lineSuffix }, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+
+    function hourlyDoubleBar(canvasId, labelA, labelB, dataA, dataB) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      ensureNoData(canvasId);
+      if (!hourlyHasData) return;
+
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: hourlyData.labels || [],
+          datasets: [
+            {
+              label: labelA,
+              data: dataA || [],
+              backgroundColor: 'rgba(56,189,248,.35)',
+              borderColor: 'rgba(56,189,248,.95)',
+              borderWidth: 1.4,
+              borderRadius: 8
+            },
+            {
+              label: labelB,
+              data: dataB || [],
+              backgroundColor: 'rgba(250,204,21,.25)',
+              borderColor: 'rgba(250,204,21,.95)',
+              borderWidth: 1.4,
+              borderRadius: 8
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#e5e7eb', boxWidth: 28, font: { weight: '700' } } },
+            datalabels: {
+              display: true,
+              clamp: true,
+              formatter: (value) => shortNumberBR(value),
+              color: '#dbeafe',
+              anchor: 'end',
+              align: 'top',
+              font: { size: 9, weight: '800' }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#cbd5e1', maxRotation: 0 }, grid: { color: 'rgba(148,163,184,.08)' } },
+            y: { beginAtZero: true, ticks: { color: '#cbd5e1', callback: (v) => shortNumberBR(v) }, grid: { color: 'rgba(148,163,184,.08)' } }
+          }
+        }
+      });
+    }
+
+    if ((new URLSearchParams(window.location.search).get('tab') || 'daily') === 'hora') {
+      hourlyCombo('horaDiscadoSpin', 'Discado', 'Spin', hourlyData.discado, hourlyData.spin, 'rgba(56,189,248,.42)', 'rgba(250,204,21,1)', '%');
+      hourlyCombo('horaContatoHit', 'Contato', 'HIT Rate', hourlyData.contato, hourlyData.hit, 'rgba(56,189,248,.42)', 'rgba(250,204,21,1)', '%');
+      hourlyCombo('horaCpcLoc', 'CPC', 'Localização', hourlyData.cpc, hourlyData.cpcPerc, 'rgba(56,189,248,.42)', 'rgba(250,204,21,1)', '%');
+      hourlyCombo('horaAcordoConv', 'Acordo', 'Conversão', hourlyData.acordo, hourlyData.conversao, 'rgba(56,189,248,.42)', 'rgba(250,204,21,1)', '%');
+      hourlyCombo('horaHangup', 'HangUp', 'Taxa de HangUp', hourlyData.hangup, hourlyData.hangupPerc, 'rgba(56,189,248,.42)', 'rgba(250,204,21,1)', '%');
+      hourlyDoubleBar('horaMailingDiscado', 'Mailing', 'Discado', hourlyData.mailing, hourlyData.discado);
+    }
+
+  </script>
+</body>
+</html>
