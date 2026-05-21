@@ -1283,13 +1283,6 @@ COLUMN_ALIASES = {
     'data': 'Dt',
     'hour': 'Hour',
     'hora': 'Hour',
-    'campaignid': 'CampaignId',
-    'campaign_id': 'CampaignId',
-    'idcampanha': 'CampaignId',
-    'id_campanha': 'CampaignId',
-    'campaign id': 'CampaignId',
-    'campanhaid': 'CampaignId',
-    'campanha_id': 'CampaignId',
     'nomecampanha': 'NomeCampanha',
     'campanha': 'NomeCampanha',
     'ad': 'AD',
@@ -1319,7 +1312,7 @@ COLUMN_ALIASES = {
 }
 
 REQUIRED_COLUMNS = [
-    'Dt', 'Hour', 'CampaignId', 'NomeCampanha', 'Discado', 'Atendidas', 'Transferencia', 'Recebidas', 'Cpc', 'Acordo'
+    'Dt', 'Hour', 'NomeCampanha', 'Discado', 'Atendidas', 'Transferencia', 'Recebidas', 'Cpc', 'Acordo'
 ]
 
 FLOW_ORDER = [
