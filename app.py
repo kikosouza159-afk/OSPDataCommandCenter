@@ -1319,7 +1319,7 @@ COLUMN_ALIASES = {
 }
 
 REQUIRED_COLUMNS = [
-    'Dt', 'Hour', 'NomeCampanha', 'Discado', 'Atendidas', 'Transferencia', 'Recebidas', 'Cpc', 'Acordo'
+    'Dt', 'Hour', 'CampaignId', 'NomeCampanha', 'Discado', 'Atendidas', 'Transferencia', 'Recebidas', 'Cpc', 'Acordo'
 ]
 
 FLOW_ORDER = [
