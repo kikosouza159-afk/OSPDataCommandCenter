@@ -1283,6 +1283,13 @@ COLUMN_ALIASES = {
     'data': 'Dt',
     'hour': 'Hour',
     'hora': 'Hour',
+    'campaignid': 'CampaignId',
+    'campaign_id': 'CampaignId',
+    'idcampanha': 'CampaignId',
+    'id_campanha': 'CampaignId',
+    'campaign id': 'CampaignId',
+    'campanhaid': 'CampaignId',
+    'campanha_id': 'CampaignId',
     'nomecampanha': 'NomeCampanha',
     'campanha': 'NomeCampanha',
     'ad': 'AD',
@@ -1311,6 +1318,8 @@ COLUMN_ALIASES = {
     'custodetelecom': 'Custo',
 }
 
+# Mantém o Talentos funcionando mesmo sem CampaignId.
+# A validação de CampaignId foi tratada exclusivamente na base da Sky.
 REQUIRED_COLUMNS = [
     'Dt', 'Hour', 'NomeCampanha', 'Discado', 'Atendidas', 'Transferencia', 'Recebidas', 'Cpc', 'Acordo'
 ]
@@ -2419,75 +2428,108 @@ def seconds_to_hhmmss(seconds):
 
 
 def normalizar_colunas(df):
-    renomear = {}
-    for col in df.columns:
-        original = str(col).strip()
-        key = (
-            original
-            .lower()
+    """Normaliza nomes de colunas da base Sky.
+
+    Ajuste importante:
+    - Aceita variações de CampaignId vindas do Excel.
+    - Se a coluna vier como Campaign Id, campaign_id, IdCampanha etc.,
+      ela será padronizada para CampaignId.
+    - Remove espaços, acentos e sinais para reduzir erro por cabeçalho alterado.
+    """
+    import unicodedata
+
+    def limpar_chave(col):
+        texto = str(col).strip().lower()
+        texto = unicodedata.normalize("NFKD", texto)
+        texto = "".join(c for c in texto if not unicodedata.combining(c))
+        texto = (
+            texto
             .replace(" ", "_")
             .replace("-", "_")
             .replace(".", "_")
             .replace("/", "_")
+            .replace("\\", "_")
+            .replace("%", "")
         )
+        while "__" in texto:
+            texto = texto.replace("__", "_")
+        return texto.strip("_")
 
-        mapa = {
-            "data": "DATA",
-            "dt": "DATA",
-            "date": "DATA",
+    mapa = {
+        "data": "DATA",
+        "dt": "DATA",
+        "date": "DATA",
 
-            "hour": "HOUR",
-            "hours": "HOUR",
-            "hora": "HOUR",
-            "hr": "HOUR",
-            "h": "HOUR",
+        "hour": "HOUR",
+        "hours": "HOUR",
+        "hora": "HOUR",
+        "hr": "HOUR",
+        "h": "HOUR",
 
-            "campaignid": "CampaignId",
-            "campaign_id": "CampaignId",
-            "campaign": "CampaignId",
-            "campanhaid": "CampaignId",
-            "campanha_id": "CampaignId",
-            "idcampanha": "CampaignId",
-            "id_campanha": "CampaignId",
+        "campaignid": "CampaignId",
+        "campaign_id": "CampaignId",
+        "campaign": "CampaignId",
+        "campaign_code": "CampaignId",
+        "campaigncode": "CampaignId",
+        "campanhaid": "CampaignId",
+        "campanha_id": "CampaignId",
+        "idcampanha": "CampaignId",
+        "id_campanha": "CampaignId",
+        "id_da_campanha": "CampaignId",
+        "id_camp": "CampaignId",
+        "codcampanha": "CampaignId",
+        "codigo_campanha": "CampaignId",
 
-            "uf_ddd": "UF_DDD",
-            "ddd": "UF_DDD",
-            "prefix": "UF_DDD",
-            "prefixo": "UF_DDD",
+        "nomecampanha": "NomeCampanha",
+        "nome_campanha": "NomeCampanha",
+        "campanha_nome": "NomeCampanha",
 
-            "faixa_atraso": "Faixa_Atraso",
-            "faixa": "Faixa_Atraso",
+        "uf_ddd": "UF_DDD",
+        "ddd": "UF_DDD",
+        "prefix": "UF_DDD",
+        "prefixo": "UF_DDD",
 
-            "tabulacao": "Tabulacao",
-            "tabulação": "Tabulacao",
+        "faixa_atraso": "Faixa_Atraso",
+        "faixaatraso": "Faixa_Atraso",
+        "faixa": "Faixa_Atraso",
 
-            "classificado": "Classificado",
-            "classificacao": "Classificado",
-            "classificação": "Classificado",
+        "tabulacao": "Tabulacao",
+        "tab": "Tabulacao",
 
-            "mailing": "MAILING",
-            "base": "MAILING",
+        "classificado": "Classificado",
+        "classificacao": "Classificado",
+        "class": "Classificado",
 
-            "discado": "Discado",
-            "discagem": "Discado",
+        "mailing": "MAILING",
+        "base": "MAILING",
 
-            "contato": "Contato",
-            "atendidas": "Contato",
-            "atendida": "Contato",
+        "discado": "Discado",
+        "discagem": "Discado",
 
-            "cpc": "Cpc",
-            "acordo": "Acordo",
+        "contato": "Contato",
+        "atendidas": "Contato",
+        "atendida": "Contato",
 
-            "hangup": "HangUp",
-            "hang_up": "HangUp",
+        "cpc": "Cpc",
+        "acordo": "Acordo",
 
-            "tempo": "Tempo",
-            "segundos": "Tempo",
+        "hangup": "HangUp",
+        "hang_up": "HangUp",
+        "hang": "HangUp",
 
-            "custo_telecom": "Custo_Telecom",
-            "custo": "Custo_Telecom",
-        }
+        "tempo": "Tempo",
+        "segundos": "Tempo",
 
+        "custo_telecom": "Custo_Telecom",
+        "custotelecom": "Custo_Telecom",
+        "custo_de_telecom": "Custo_Telecom",
+        "custodetelecom": "Custo_Telecom",
+        "custo": "Custo_Telecom",
+    }
+
+    renomear = {}
+    for col in df.columns:
+        key = limpar_chave(col)
         if key in mapa:
             renomear[col] = mapa[key]
 
@@ -2503,6 +2545,11 @@ SKY_BASE_CACHE = {
 }
 
 def carregar_base():
+    """Carrega e trata a Base_Dashboard_Sky.xlsx sem derrubar a rota da Sky.
+
+    A base da Sky deve conter CampaignId. Mesmo assim, para evitar erro 500,
+    o painel cria CampaignId=202 quando a coluna vier ausente ou com nome não mapeado.
+    """
     if not SKY_ARQUIVO_BASE.exists():
         rows = []
         dias = pd.date_range("2026-05-14", periods=6, freq="D")
@@ -2525,7 +2572,6 @@ def carregar_base():
                         contato = disc if clas in ["Contato", "Cpc", "Acordo"] else 0
                         cpc = disc if clas in ["Cpc", "Acordo"] else 0
                         acordo = max(0, disc // 2) if clas == "Acordo" else 0
-                        mailing = 0
                         rows.append({
                             "DATA": d,
                             "HOUR": hour,
@@ -2534,11 +2580,12 @@ def carregar_base():
                             "Faixa_Atraso": faixas[(ddd + hour) % len(faixas)],
                             "Tabulacao": tab,
                             "Classificado": clas,
-                            "MAILING": mailing,
+                            "MAILING": 0,
                             "Discado": disc,
                             "Contato": contato,
                             "Cpc": cpc,
                             "Acordo": acordo,
+                            "HangUp": 0,
                             "Tempo": contato * (80 + (ddd % 7) * 15),
                             "Custo_Telecom": disc * 0.032
                         })
@@ -2548,31 +2595,60 @@ def carregar_base():
     if SKY_BASE_CACHE.get("df") is not None and SKY_BASE_CACHE.get("mtime") == mtime:
         return SKY_BASE_CACHE["df"].copy()
 
-    df = pd.read_excel(SKY_ARQUIVO_BASE)
+    try:
+        df = pd.read_excel(SKY_ARQUIVO_BASE)
+    except Exception:
+        # Fallback para arquivos em que a primeira aba esteja problemática.
+        xls = pd.ExcelFile(SKY_ARQUIVO_BASE)
+        if not xls.sheet_names:
+            raise
+        df = pd.read_excel(SKY_ARQUIVO_BASE, sheet_name=xls.sheet_names[0])
+
     df = normalizar_colunas(df)
 
-    # Fallback extra para garantir a leitura da hora quando o Excel vier com o campo Hour.
-    fallback_hora_cols = ['Hour', 'HOUR', 'hour', 'Hora', 'hora', 'HR', 'hr']
-    if 'HOUR' not in df.columns:
-        for col_hora in fallback_hora_cols:
+    # Fallbacks para cabeçalhos que o Excel pode alterar.
+    if "HOUR" not in df.columns:
+        for col_hora in ["Hour", "hour", "Hora", "hora", "HR", "hr"]:
             if col_hora in df.columns:
-                df['HOUR'] = df[col_hora]
+                df["HOUR"] = df[col_hora]
                 break
+
+    if "CampaignId" not in df.columns:
+        for col_camp in ["CampaignID", "campaignid", "campaign_id", "Campaign Id", "CampanhaId", "Campanha ID", "IdCampanha", "ID Campanha"]:
+            if col_camp in df.columns:
+                df["CampaignId"] = df[col_camp]
+                break
+
+    # Proteção para o erro atual da Sky:
+    # se CampaignId não vier no Excel, não quebra a página. Assume 202 para manter o painel vivo.
+    if "CampaignId" not in df.columns:
+        df["CampaignId"] = 202
 
     colunas = [
         "DATA","HOUR","CampaignId","UF_DDD","Faixa_Atraso","Tabulacao","Classificado",
-        "MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"
+        "MAILING","Discado","Contato","Cpc","Acordo","HangUp","Tempo","Custo_Telecom"
     ]
 
     for col in colunas:
         if col not in df.columns:
-            df[col] = "" if col in ["Faixa_Atraso","Tabulacao","Classificado"] else 0
+            if col in ["Faixa_Atraso","Tabulacao","Classificado"]:
+                df[col] = ""
+            elif col == "CampaignId":
+                df[col] = 202
+            else:
+                df[col] = 0
 
     df["DATA"] = pd.to_datetime(df["DATA"], errors="coerce")
     df = df.dropna(subset=["DATA"])
 
-    for col in ["HOUR","CampaignId","UF_DDD","MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"]:
+    for col in ["HOUR","CampaignId","UF_DDD","MAILING","Discado","Contato","Cpc","Acordo","HangUp","Tempo","Custo_Telecom"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+
+    # Hora pode vir como "08:00:00"; mantém só a hora.
+    hora_extraida = df["HOUR"].astype(str).str.extract(r"(\d{1,2})")[0]
+    df["HOUR"] = pd.to_numeric(hora_extraida, errors="coerce").fillna(0).astype(int).clip(0, 23)
+
+    df["CampaignId"] = pd.to_numeric(df["CampaignId"], errors="coerce").fillna(202).astype(int)
 
     SKY_BASE_CACHE["mtime"] = mtime
     SKY_BASE_CACHE["df"] = df.copy()
@@ -2581,7 +2657,9 @@ def carregar_base():
 
 def adicionar_uf(df):
     df = df.copy()
-    df["DDD_INT"] = df["UF_DDD"].astype(float).astype(int)
+    if "UF_DDD" not in df.columns:
+        df["UF_DDD"] = 0
+    df["DDD_INT"] = pd.to_numeric(df["UF_DDD"], errors="coerce").fillna(0).astype(int)
     df["UF"] = df["DDD_INT"].map(DDD_UF).fillna("NI")
     return df
 
@@ -3316,15 +3394,113 @@ def consolidar(df):
     }
 
 
+
+@app.route('/debug-sky-excel')
+def debug_sky_excel():
+    """Diagnóstico rápido da base Sky no Render."""
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    try:
+        if not SKY_ARQUIVO_BASE.exists():
+            return jsonify({
+                "ok": False,
+                "erro": "Arquivo Base_Dashboard_Sky.xlsx não encontrado",
+                "pasta_data": str(SKY_DATA_DIR),
+                "arquivos_data": os.listdir(SKY_DATA_DIR) if SKY_DATA_DIR.exists() else []
+            })
+
+        xls = pd.ExcelFile(SKY_ARQUIVO_BASE)
+        df_raw = pd.read_excel(SKY_ARQUIVO_BASE, nrows=5)
+        df_norm = normalizar_colunas(df_raw.copy())
+
+        return jsonify({
+            "ok": True,
+            "arquivo": str(SKY_ARQUIVO_BASE),
+            "abas": xls.sheet_names,
+            "colunas_originais": [str(c) for c in df_raw.columns],
+            "colunas_normalizadas": [str(c) for c in df_norm.columns],
+            "campaignid_encontrado": "CampaignId" in df_norm.columns,
+            "preview": df_norm.fillna("").to_dict(orient="records")
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "erro": str(exc)}), 500
+
+
+def render_sky_erro(exc):
+    """Evita página 500 seca e mostra o erro de tratamento da base Sky."""
+    detalhes = str(exc)
+    return f"""
+    <!DOCTYPE html>
+    <html lang='pt-br'>
+    <head>
+      <meta charset='UTF-8'>
+      <title>Erro na base Sky</title>
+      <style>
+        body {{
+          margin:0;
+          min-height:100vh;
+          display:grid;
+          place-items:center;
+          font-family:Segoe UI,Arial,sans-serif;
+          background:linear-gradient(135deg,#020814,#07172a);
+          color:#e5e7eb;
+        }}
+        .box {{
+          width:min(780px,calc(100% - 32px));
+          padding:28px;
+          border-radius:24px;
+          background:rgba(6,18,34,.86);
+          border:1px solid rgba(0,229,255,.22);
+          box-shadow:0 0 42px rgba(0,229,255,.12);
+        }}
+        h1 {{ margin:0 0 10px; font-size:28px; }}
+        p {{ color:#94a3b8; line-height:1.45; }}
+        code {{
+          display:block;
+          white-space:pre-wrap;
+          background:#020617;
+          border:1px solid rgba(148,163,184,.25);
+          border-radius:14px;
+          padding:14px;
+          color:#fca5a5;
+          margin-top:12px;
+        }}
+        a {{
+          display:inline-block;
+          margin-top:14px;
+          padding:11px 14px;
+          border-radius:14px;
+          text-decoration:none;
+          color:#00111f;
+          font-weight:900;
+          background:linear-gradient(135deg,#00e5ff,#0077ff);
+        }}
+      </style>
+    </head>
+    <body>
+      <div class='box'>
+        <h1>Erro ao carregar a base da Sky</h1>
+        <p>O painel não conseguiu tratar a Base_Dashboard_Sky.xlsx. Acesse <b>/debug-sky-excel</b> para validar as colunas lidas no Render.</p>
+        <code>{detalhes}</code>
+        <a href='/debug-sky-excel'>Abrir diagnóstico da Sky</a>
+      </div>
+    </body>
+    </html>
+    """, 500
+
+
 @app.route('/cliente/sky-negocie-online/painel')
 def sky_negocie_online_index() -> str:
     if 'usuario' not in session:
         return redirect(url_for('login'))
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return acesso_negado()
-    df = carregar_base()
-    dashboard = consolidar(df)
-    return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=session.get('usuario'))
+    try:
+        df = carregar_base()
+        dashboard = consolidar(df)
+        return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=session.get('usuario'))
+    except Exception as exc:
+        return render_sky_erro(exc)
 
 
 @app.route('/cliente/sky-negocie-online/painel/api')
@@ -3333,8 +3509,11 @@ def sky_negocie_online_api():
         return jsonify({"error": "unauthorized"}), 401
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return jsonify({"error": "forbidden"}), 403
-    df = carregar_base()
-    return jsonify(consolidar(df))
+    try:
+        df = carregar_base()
+        return jsonify(consolidar(df))
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
 
 
 
