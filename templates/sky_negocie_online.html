@@ -1175,6 +1175,445 @@ to { background-position: 0 55px; } }
       white-space: nowrap;
     }
 
+
+    /* ===== FUNIL PROJEÇÃO LINEAR ===== */
+    .sky-projection-panel {
+      padding: 16px 18px;
+      border: 1px solid rgba(168,85,247,.18);
+      background: linear-gradient(145deg, rgba(28,19,59,.52), rgba(5,16,30,.86));
+    }
+
+    .sky-projection-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .sky-projection-head h2 {
+      margin: 0 0 5px;
+      font-size: 20px;
+      letter-spacing: -.03em;
+    }
+
+    .sky-projection-head p {
+      margin: 0;
+      color: #aab8ca;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .sky-projection-badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: #f5d0fe;
+      background: rgba(168,85,247,.12);
+      border: 1px solid rgba(168,85,247,.26);
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .sky-projection-body {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 16px;
+      align-items: center;
+    }
+
+    .sky-projection-stages,
+    .sky-projection-bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .sky-projection-stage,
+    .sky-projection-row {
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .sky-projection-stage {
+      gap: 10px;
+      color: #e8f4ff;
+      font-weight: 950;
+    }
+
+    .sky-projection-row {
+      gap: 14px;
+    }
+
+    .sky-projection-bar {
+      height: 42px;
+      min-width: 145px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      color: white;
+      font-weight: 950;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #7c3aed, #d946ef);
+      border: 1px solid rgba(216,180,254,.42);
+      box-shadow: 0 8px 18px rgba(0,0,0,.20);
+    }
+
+    .sky-projection-bar small {
+      font-size: 12px;
+      opacity: .95;
+    }
+
+    .sky-projection-row > strong {
+      min-width: 82px;
+      text-align: right;
+      font-size: 15px;
+    }
+
+    @media (max-width: 860px) {
+      .sky-projection-body { grid-template-columns: 1fr; }
+    }
+
+
+    /* ===== V6 - Projeção no mesmo layout, lado a lado ===== */
+    .sky-funnel-main-grid {
+      grid-template-columns: minmax(0, 1.45fr) minmax(330px, .62fr) 250px;
+      align-items: stretch;
+    }
+
+    .sky-projection-side-panel {
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(168,85,247,.22);
+      background: linear-gradient(145deg, rgba(28,19,59,.58), rgba(5,16,30,.90));
+      overflow: hidden;
+    }
+
+    .sky-projection-side-head {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 11px;
+      text-align: center;
+    }
+
+    .sky-projection-side-head h2 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -.03em;
+      color: #f5d0fe;
+    }
+
+    .sky-projection-side-head p {
+      margin: 0;
+      color: #aab8ca;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .sky-projection-side-panel .sky-projection-badge {
+      justify-self: center;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .sky-projection-funnel-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 138px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .sky-projection-single-side,
+    .sky-projection-stage-side {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .sky-projection-single-row,
+    .sky-projection-stage-row-side {
+      height: 58px;
+      display: flex;
+      align-items: center;
+    }
+
+    .sky-projection-single-row {
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .sky-projection-single-bar {
+      height: 52px;
+      min-width: 132px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 0 18px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 950;
+      text-shadow: 0 1px 8px rgba(0,0,0,.35);
+      background: linear-gradient(90deg, #7c3aed, #d946ef);
+      clip-path: polygon(0 0, 100% 0, 91% 100%, 10% 100%);
+      border: 1px solid rgba(216,180,254,.46);
+      box-shadow: 0 8px 18px rgba(0,0,0,.22);
+    }
+
+    .sky-projection-single-bar small {
+      font-size: 11px;
+      opacity: .95;
+      white-space: nowrap;
+    }
+
+    .sky-projection-stage-row-side {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 8px;
+      align-content: center;
+      position: relative;
+    }
+
+    .sky-projection-stage-row-side::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: calc(100% + 4px);
+      width: 42px;
+      border-top: 1px dashed rgba(216,180,254,.28);
+    }
+
+    .sky-projection-stage-row-side .sky-stage-icon {
+      width: 34px;
+      height: 34px;
+      grid-row: 1 / span 2;
+      background: rgba(39,24,75,.86);
+      border-color: rgba(216,180,254,.26);
+    }
+
+    .sky-projection-stage-row-side .sky-stage-icon svg {
+      width: 18px;
+      height: 18px;
+      color: #f5d0fe;
+    }
+
+    .sky-projection-stage-row-side strong {
+      font-size: 13px;
+      color: #f7eaff;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .sky-projection-stage-row-side em {
+      font-style: normal;
+      font-size: 12px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    /* Mantém a classe antiga caso algum bloco legado ainda exista, mas sem ocupar espaço indevido */
+    .sky-projection-panel {
+      display: none;
+    }
+
+    @media (max-width: 1500px) {
+      .sky-funnel-main-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, .52fr);
+      }
+
+      .sky-funnel-variation {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .sky-funnel-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    /* ===== V9 - Alinhamento fino das linhas do comparativo/projeção/variação =====
+       Todos os blocos passam a usar o mesmo trilho: header + 5 linhas fixas. */
+    :root {
+      --sky-funnel-row-h: 58px;
+      --sky-funnel-row-gap: 10px;
+      --sky-funnel-header-h: 54px;
+    }
+
+    .sky-funnel-main-grid {
+      align-items: start !important;
+    }
+
+    .sky-funnel-panel,
+    .sky-projection-side-panel,
+    .sky-funnel-variation {
+      min-height: auto;
+    }
+
+    .sky-funnel-head {
+      min-height: var(--sky-funnel-header-h);
+      margin-bottom: var(--sky-funnel-row-gap) !important;
+      align-items: center;
+    }
+
+    .sky-funnel-body {
+      align-items: start !important;
+    }
+
+    .sky-funnel-side,
+    .sky-stage-column,
+    .sky-projection-single-side,
+    .sky-projection-stage-side {
+      gap: var(--sky-funnel-row-gap) !important;
+    }
+
+    .sky-funnel-row,
+    .sky-stage-row,
+    .sky-projection-single-row,
+    .sky-projection-stage-row-side,
+    .sky-var-row {
+      height: var(--sky-funnel-row-h) !important;
+      min-height: var(--sky-funnel-row-h) !important;
+      max-height: var(--sky-funnel-row-h) !important;
+    }
+
+    .sky-projection-side-head {
+      height: var(--sky-funnel-header-h) !important;
+      min-height: var(--sky-funnel-header-h) !important;
+      margin-bottom: var(--sky-funnel-row-gap) !important;
+      display: grid !important;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: 1fr;
+      align-items: center;
+      gap: 10px;
+      text-align: left !important;
+    }
+
+    .sky-projection-side-head h2 {
+      font-size: 15px !important;
+      line-height: 1.1;
+      margin: 0 !important;
+    }
+
+    .sky-projection-side-head p {
+      display: none !important;
+    }
+
+    .sky-projection-side-panel .sky-projection-badge {
+      justify-self: end !important;
+      padding: 8px 10px !important;
+      font-size: 11px !important;
+      white-space: nowrap;
+    }
+
+    .sky-projection-funnel-body {
+      align-items: start !important;
+    }
+
+    .sky-funnel-variation h2 {
+      height: var(--sky-funnel-header-h) !important;
+      min-height: var(--sky-funnel-header-h) !important;
+      margin: 0 0 var(--sky-funnel-row-gap) !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.2;
+    }
+
+    .sky-var-row {
+      border-top: 1px solid rgba(148,163,184,.13);
+      display: grid !important;
+      align-items: center !important;
+    }
+
+    .sky-projection-stage-row-side {
+      align-content: center !important;
+    }
+
+    .sky-projection-single-bar,
+    .sky-funnel-bar {
+      height: 48px !important;
+    }
+
+    .sky-projection-single-row,
+    .sky-funnel-row {
+      overflow: visible !important;
+    }
+
+
+    /* ===== V10 - Card de variação alinhado com o restante ===== */
+    .sky-funnel-variation {
+      display: grid !important;
+      grid-template-rows: var(--sky-funnel-header-h) repeat(5, var(--sky-funnel-row-h));
+      row-gap: var(--sky-funnel-row-gap);
+      align-self: stretch;
+      padding: 18px 20px !important;
+    }
+
+    .sky-funnel-variation h2 {
+      margin: 0 !important;
+      height: var(--sky-funnel-header-h) !important;
+      min-height: var(--sky-funnel-header-h) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .sky-var-row {
+      height: var(--sky-funnel-row-h) !important;
+      min-height: var(--sky-funnel-row-h) !important;
+      max-height: var(--sky-funnel-row-h) !important;
+      margin: 0 !important;
+      padding: 0 4px !important;
+      display: grid !important;
+      grid-template-columns: 1fr auto;
+      align-items: center !important;
+      gap: 10px;
+      border-top: 1px solid rgba(148,163,184,.13);
+    }
+
+    .sky-var-row:first-of-type {
+      border-top: 1px solid rgba(148,163,184,.13);
+    }
+
+    .sky-var-row span {
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .sky-var-row strong {
+      font-size: 16px !important;
+      white-space: nowrap;
+      justify-self: end;
+    }
+
+    /* Funil por faixa de atraso no Daily */
+    .faixa-card { padding: 20px; }
+    .faixa-subtitle { margin: -6px 0 16px; color: #9fb3cc; font-size: 13px; line-height: 1.45; }
+    .faixa-funnel-list { display: grid; gap: 12px; }
+    .faixa-row { border: 1px solid rgba(148,163,184,.16); background: linear-gradient(180deg, rgba(15,23,42,.76), rgba(2,8,20,.58)); border-radius: 18px; padding: 14px; overflow: hidden; }
+    .faixa-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .faixa-top strong { font-size: 15px; letter-spacing: -.01em; }
+    .faixa-top span { color: #93c5fd; font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .faixa-bar { height: 10px; border-radius: 999px; background: rgba(148,163,184,.13); overflow: hidden; margin-bottom: 12px; }
+    .faixa-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, rgba(0,229,255,.95), rgba(34,197,94,.88)); box-shadow: 0 0 18px rgba(0,229,255,.16); }
+    .faixa-metrics { display: grid; grid-template-columns: repeat(8, minmax(78px, 1fr)); gap: 8px; }
+    .faixa-metric { padding: 8px 9px; border-radius: 12px; background: rgba(148,163,184,.07); border: 1px solid rgba(148,163,184,.10); }
+    .faixa-metric small { display: block; color: #94a3b8; font-size: 10px; font-weight: 800; margin-bottom: 3px; text-transform: uppercase; }
+    .faixa-metric b { display: block; font-size: 13px; color: #e5e7eb; }
+    .faixa-empty { color: #94a3b8; padding: 12px; margin: 0; }
+    @media (max-width: 1050px) {
+      .faixa-metrics { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+    }
+
   </style>
 </head>
 <body>
@@ -1295,23 +1734,34 @@ to { background-position: 0 55px; } }
           </div>
         </div>
 
-        <div class="panel card">
-          <h2 class="section-title">Volume por dia</h2>
-          <div class="chart-grid">
-            <div class="mini-chart-card">
-              <div class="mini-chart-title">Discado x HIT%</div>
-              <div class="chart-box"><canvas id="chartDiscado"></canvas></div>
-            </div>
-            <div class="mini-chart-card">
-              <div class="mini-chart-title">CPC x Localização</div>
-              <div class="chart-box"><canvas id="chartCpc"></canvas></div>
-            </div>
-            <div class="mini-chart-card">
-              <div class="mini-chart-title">Acordo x Conversão</div>
-              <div class="chart-box"><canvas id="chartAcordo"></canvas></div>
-            </div>
+        <div class="panel faixa-card">
+          <h2 class="section-title">Funil por faixa de atraso</h2>
+          <p class="faixa-subtitle">Leitura do volume e eficiência por régua de atraso. A barra considera o maior volume entre Discado e CPC para facilitar a comparação visual.</p>
+          <div class="faixa-funnel-list">
+            {% for faixa in dashboard.faixa_atraso.cards %}
+              <div class="faixa-row">
+                <div class="faixa-top">
+                  <strong>{{ faixa.faixa }}</strong>
+                  <span>{{ faixa.share_cpc_fmt }} dos CPCs</span>
+                </div>
+                <div class="faixa-bar"><span style="width: {{ faixa.width }}%"></span></div>
+                <div class="faixa-metrics">
+                  <div class="faixa-metric"><small>Discado</small><b>{{ faixa.discado }}</b></div>
+                  <div class="faixa-metric"><small>Contato</small><b>{{ faixa.contato }}</b></div>
+                  <div class="faixa-metric"><small>CPC</small><b>{{ faixa.cpc }}</b></div>
+                  <div class="faixa-metric"><small>Acordo</small><b>{{ faixa.acordo }}</b></div>
+                  <div class="faixa-metric"><small>HIT %</small><b>{{ faixa.hit }}</b></div>
+                  <div class="faixa-metric"><small>CPC %</small><b>{{ faixa.loc }}</b></div>
+                  <div class="faixa-metric"><small>Conversão</small><b>{{ faixa.conversao }}</b></div>
+                  <div class="faixa-metric"><small>TMA</small><b>{{ faixa.tma }}</b></div>
+                </div>
+              </div>
+            {% else %}
+              <p class="faixa-empty">Sem dados por faixa de atraso para os filtros selecionados.</p>
+            {% endfor %}
           </div>
         </div>
+
       </section>
 
       <section class="panel table-panel">
@@ -1488,8 +1938,8 @@ to { background-position: 0 55px; } }
           <input type="hidden" name="faixa" value="{{ request.args.get('faixa', '') }}">
 
           <div class="funil-filter-title">
-            <h2>Funil Comparativo | Fixo x Campanha 202</h2>
-            <p>Campanha A usa valores fixos de média dia. Campanha B usa a campanha 202 segmentada por faixa de atraso.</p>
+            <h2>Funil Comparativo | Fixo total x Realizado x Projeção</h2>
+            <p>Campanha A usa valores fixos totais. Na Campanha B, Mailing é média dia e as demais etapas são soma dos dias selecionados. Projeção segue linear.</p>
           </div>
 
           <div class="funil-filter-fields">
@@ -1510,7 +1960,7 @@ to { background-position: 0 55px; } }
               </select>
             </div>
             <button type="submit">Comparar</button>
-            <span class="funil-fixed-note">A = média dia fixa · B = campanha 202 segmentada</span>
+            <span class="funil-fixed-note">A = fixo total · B = campanha da base · Projeção = B média dia x seg a sáb</span>
           </div>
         </form>
 
@@ -1579,6 +2029,37 @@ to { background-position: 0 55px; } }
             </div>
           </div>
 
+          <aside class="panel sky-projection-side-panel">
+            <div class="sky-projection-side-head">
+              <span class="sky-projection-badge">Projeção mês</span>
+              <h2>Funil de Projeção Linear</h2>
+              <p>Mailing = média dia da Campanha B · Demais etapas = Soma B / {{ dashboard.funil_comparativo.dias_selecionados }} dia(s) × {{ dashboard.funil_comparativo.dias_mes_trabalhados }} dias úteis seg a sáb</p>
+            </div>
+
+            <div class="sky-projection-funnel-body">
+              <div class="sky-projection-single-side">
+                {% for etapa in dashboard.funil_comparativo.etapas_projecao %}
+                <div class="sky-projection-single-row">
+                  <div class="sky-projection-single-bar" style="width: {{ etapa.width_b }}%;">
+                    <span>{{ etapa.b_fmt }}</span>
+                    <small>{{ etapa.conv_b_fmt }}</small>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              <div class="sky-projection-stage-side">
+                {% for etapa in dashboard.funil_comparativo.etapas_projecao %}
+                <div class="sky-projection-stage-row-side">
+                  <span class="sky-stage-icon"><i data-lucide="{{ etapa.icon }}"></i></span>
+                  <strong>{{ etapa.label }}</strong>
+                  <em class="{% if etapa.classe_var == 'pos' %}var-pos{% else %}var-neg{% endif %}">{{ etapa.variacao_fmt }}</em>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </aside>
+
           <aside class="panel sky-funnel-variation">
             <h2>Variação % (B/A - 1)</h2>
             {% for etapa in dashboard.funil_comparativo.etapas %}
@@ -1613,7 +2094,7 @@ to { background-position: 0 55px; } }
     </section>
 
     <div class="footer-note">
-      V2.4 Cockpit/Sky · Dashboard Sky compatível com CampaignId e filtro opcional por campanha.
+      V2.6 Cockpit/Sky · Dashboard Sky compatível com CampaignId e filtro opcional por campanha.
     </div>
   </main>
 

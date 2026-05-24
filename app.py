@@ -1283,13 +1283,6 @@ COLUMN_ALIASES = {
     'data': 'Dt',
     'hour': 'Hour',
     'hora': 'Hour',
-    'campaignid': 'CampaignId',
-    'campaign_id': 'CampaignId',
-    'idcampanha': 'CampaignId',
-    'id_campanha': 'CampaignId',
-    'campaign id': 'CampaignId',
-    'campanhaid': 'CampaignId',
-    'campanha_id': 'CampaignId',
     'nomecampanha': 'NomeCampanha',
     'campanha': 'NomeCampanha',
     'ad': 'AD',
@@ -1318,8 +1311,6 @@ COLUMN_ALIASES = {
     'custodetelecom': 'Custo',
 }
 
-# Mantém o Talentos funcionando mesmo sem CampaignId.
-# A validação de CampaignId foi tratada exclusivamente na base da Sky.
 REQUIRED_COLUMNS = [
     'Dt', 'Hour', 'NomeCampanha', 'Discado', 'Atendidas', 'Transferencia', 'Recebidas', 'Cpc', 'Acordo'
 ]
@@ -2428,108 +2419,75 @@ def seconds_to_hhmmss(seconds):
 
 
 def normalizar_colunas(df):
-    """Normaliza nomes de colunas da base Sky.
-
-    Ajuste importante:
-    - Aceita variações de CampaignId vindas do Excel.
-    - Se a coluna vier como Campaign Id, campaign_id, IdCampanha etc.,
-      ela será padronizada para CampaignId.
-    - Remove espaços, acentos e sinais para reduzir erro por cabeçalho alterado.
-    """
-    import unicodedata
-
-    def limpar_chave(col):
-        texto = str(col).strip().lower()
-        texto = unicodedata.normalize("NFKD", texto)
-        texto = "".join(c for c in texto if not unicodedata.combining(c))
-        texto = (
-            texto
+    renomear = {}
+    for col in df.columns:
+        original = str(col).strip()
+        key = (
+            original
+            .lower()
             .replace(" ", "_")
             .replace("-", "_")
             .replace(".", "_")
             .replace("/", "_")
-            .replace("\\", "_")
-            .replace("%", "")
         )
-        while "__" in texto:
-            texto = texto.replace("__", "_")
-        return texto.strip("_")
 
-    mapa = {
-        "data": "DATA",
-        "dt": "DATA",
-        "date": "DATA",
+        mapa = {
+            "data": "DATA",
+            "dt": "DATA",
+            "date": "DATA",
 
-        "hour": "HOUR",
-        "hours": "HOUR",
-        "hora": "HOUR",
-        "hr": "HOUR",
-        "h": "HOUR",
+            "hour": "HOUR",
+            "hours": "HOUR",
+            "hora": "HOUR",
+            "hr": "HOUR",
+            "h": "HOUR",
 
-        "campaignid": "CampaignId",
-        "campaign_id": "CampaignId",
-        "campaign": "CampaignId",
-        "campaign_code": "CampaignId",
-        "campaigncode": "CampaignId",
-        "campanhaid": "CampaignId",
-        "campanha_id": "CampaignId",
-        "idcampanha": "CampaignId",
-        "id_campanha": "CampaignId",
-        "id_da_campanha": "CampaignId",
-        "id_camp": "CampaignId",
-        "codcampanha": "CampaignId",
-        "codigo_campanha": "CampaignId",
+            "campaignid": "CampaignId",
+            "campaign_id": "CampaignId",
+            "campaign": "CampaignId",
+            "campanhaid": "CampaignId",
+            "campanha_id": "CampaignId",
+            "idcampanha": "CampaignId",
+            "id_campanha": "CampaignId",
 
-        "nomecampanha": "NomeCampanha",
-        "nome_campanha": "NomeCampanha",
-        "campanha_nome": "NomeCampanha",
+            "uf_ddd": "UF_DDD",
+            "ddd": "UF_DDD",
+            "prefix": "UF_DDD",
+            "prefixo": "UF_DDD",
 
-        "uf_ddd": "UF_DDD",
-        "ddd": "UF_DDD",
-        "prefix": "UF_DDD",
-        "prefixo": "UF_DDD",
+            "faixa_atraso": "Faixa_Atraso",
+            "faixa": "Faixa_Atraso",
 
-        "faixa_atraso": "Faixa_Atraso",
-        "faixaatraso": "Faixa_Atraso",
-        "faixa": "Faixa_Atraso",
+            "tabulacao": "Tabulacao",
+            "tabulação": "Tabulacao",
 
-        "tabulacao": "Tabulacao",
-        "tab": "Tabulacao",
+            "classificado": "Classificado",
+            "classificacao": "Classificado",
+            "classificação": "Classificado",
 
-        "classificado": "Classificado",
-        "classificacao": "Classificado",
-        "class": "Classificado",
+            "mailing": "MAILING",
+            "base": "MAILING",
 
-        "mailing": "MAILING",
-        "base": "MAILING",
+            "discado": "Discado",
+            "discagem": "Discado",
 
-        "discado": "Discado",
-        "discagem": "Discado",
+            "contato": "Contato",
+            "atendidas": "Contato",
+            "atendida": "Contato",
 
-        "contato": "Contato",
-        "atendidas": "Contato",
-        "atendida": "Contato",
+            "cpc": "Cpc",
+            "acordo": "Acordo",
 
-        "cpc": "Cpc",
-        "acordo": "Acordo",
+            "hangup": "HangUp",
+            "hang_up": "HangUp",
 
-        "hangup": "HangUp",
-        "hang_up": "HangUp",
-        "hang": "HangUp",
+            "tempo": "Tempo",
+            "segundos": "Tempo",
 
-        "tempo": "Tempo",
-        "segundos": "Tempo",
+            "custo_telecom": "Custo_Telecom",
+            "custo": "Custo_Telecom",
+        }
 
-        "custo_telecom": "Custo_Telecom",
-        "custotelecom": "Custo_Telecom",
-        "custo_de_telecom": "Custo_Telecom",
-        "custodetelecom": "Custo_Telecom",
-        "custo": "Custo_Telecom",
-    }
-
-    renomear = {}
-    for col in df.columns:
-        key = limpar_chave(col)
         if key in mapa:
             renomear[col] = mapa[key]
 
@@ -2545,11 +2503,6 @@ SKY_BASE_CACHE = {
 }
 
 def carregar_base():
-    """Carrega e trata a Base_Dashboard_Sky.xlsx sem derrubar a rota da Sky.
-
-    A base da Sky deve conter CampaignId. Mesmo assim, para evitar erro 500,
-    o painel cria CampaignId=202 quando a coluna vier ausente ou com nome não mapeado.
-    """
     if not SKY_ARQUIVO_BASE.exists():
         rows = []
         dias = pd.date_range("2026-05-14", periods=6, freq="D")
@@ -2572,6 +2525,7 @@ def carregar_base():
                         contato = disc if clas in ["Contato", "Cpc", "Acordo"] else 0
                         cpc = disc if clas in ["Cpc", "Acordo"] else 0
                         acordo = max(0, disc // 2) if clas == "Acordo" else 0
+                        mailing = 0
                         rows.append({
                             "DATA": d,
                             "HOUR": hour,
@@ -2580,12 +2534,11 @@ def carregar_base():
                             "Faixa_Atraso": faixas[(ddd + hour) % len(faixas)],
                             "Tabulacao": tab,
                             "Classificado": clas,
-                            "MAILING": 0,
+                            "MAILING": mailing,
                             "Discado": disc,
                             "Contato": contato,
                             "Cpc": cpc,
                             "Acordo": acordo,
-                            "HangUp": 0,
                             "Tempo": contato * (80 + (ddd % 7) * 15),
                             "Custo_Telecom": disc * 0.032
                         })
@@ -2595,60 +2548,36 @@ def carregar_base():
     if SKY_BASE_CACHE.get("df") is not None and SKY_BASE_CACHE.get("mtime") == mtime:
         return SKY_BASE_CACHE["df"].copy()
 
-    try:
-        df = pd.read_excel(SKY_ARQUIVO_BASE)
-    except Exception:
-        # Fallback para arquivos em que a primeira aba esteja problemática.
-        xls = pd.ExcelFile(SKY_ARQUIVO_BASE)
-        if not xls.sheet_names:
-            raise
-        df = pd.read_excel(SKY_ARQUIVO_BASE, sheet_name=xls.sheet_names[0])
-
+    df = pd.read_excel(SKY_ARQUIVO_BASE)
     df = normalizar_colunas(df)
 
-    # Fallbacks para cabeçalhos que o Excel pode alterar.
+    # Fallback extra para hora quando o Excel vier com Hour/Hora.
     if "HOUR" not in df.columns:
         for col_hora in ["Hour", "hour", "Hora", "hora", "HR", "hr"]:
             if col_hora in df.columns:
                 df["HOUR"] = df[col_hora]
                 break
 
-    if "CampaignId" not in df.columns:
-        for col_camp in ["CampaignID", "campaignid", "campaign_id", "Campaign Id", "CampanhaId", "Campanha ID", "IdCampanha", "ID Campanha"]:
-            if col_camp in df.columns:
-                df["CampaignId"] = df[col_camp]
-                break
-
-    # Proteção para o erro atual da Sky:
-    # se CampaignId não vier no Excel, não quebra a página. Assume 202 para manter o painel vivo.
-    if "CampaignId" not in df.columns:
-        df["CampaignId"] = 202
-
     colunas = [
         "DATA","HOUR","CampaignId","UF_DDD","Faixa_Atraso","Tabulacao","Classificado",
-        "MAILING","Discado","Contato","Cpc","Acordo","HangUp","Tempo","Custo_Telecom"
+        "MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"
     ]
 
     for col in colunas:
         if col not in df.columns:
-            if col in ["Faixa_Atraso","Tabulacao","Classificado"]:
-                df[col] = ""
-            elif col == "CampaignId":
-                df[col] = 202
-            else:
-                df[col] = 0
+            df[col] = "" if col in ["Faixa_Atraso","Tabulacao","Classificado"] else 0
 
     df["DATA"] = pd.to_datetime(df["DATA"], errors="coerce")
     df = df.dropna(subset=["DATA"])
 
-    for col in ["HOUR","CampaignId","UF_DDD","MAILING","Discado","Contato","Cpc","Acordo","HangUp","Tempo","Custo_Telecom"]:
+    for col in ["HOUR","CampaignId","UF_DDD","MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
 
-    # Hora pode vir como "08:00:00"; mantém só a hora.
-    hora_extraida = df["HOUR"].astype(str).str.extract(r"(\d{1,2})")[0]
-    df["HOUR"] = pd.to_numeric(hora_extraida, errors="coerce").fillna(0).astype(int).clip(0, 23)
-
-    df["CampaignId"] = pd.to_numeric(df["CampaignId"], errors="coerce").fillna(202).astype(int)
+    # Reduz tipos numéricos para deixar filtros/agregações mais leves.
+    for col in ["HOUR","CampaignId","UF_DDD"]:
+        df[col] = df[col].astype("int32")
+    for col in ["MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"]:
+        df[col] = df[col].astype("float64")
 
     SKY_BASE_CACHE["mtime"] = mtime
     SKY_BASE_CACHE["df"] = df.copy()
@@ -2657,9 +2586,7 @@ def carregar_base():
 
 def adicionar_uf(df):
     df = df.copy()
-    if "UF_DDD" not in df.columns:
-        df["UF_DDD"] = 0
-    df["DDD_INT"] = pd.to_numeric(df["UF_DDD"], errors="coerce").fillna(0).astype(int)
+    df["DDD_INT"] = df["UF_DDD"].astype(float).astype(int)
     df["UF"] = df["DDD_INT"].map(DDD_UF).fillna("NI")
     return df
 
@@ -2903,28 +2830,38 @@ def montar_visao_hora_a_hora(df):
 
 
 
-# ===== VALORES FIXOS PARA CAMPANHA B - MÉDIA DIA =====
-# Esses valores são usados para comparar a campanha selecionada, por padrão 202,
-# contra os benchmarks fixos Churn e Pré Churn enviados no print.
+# ===== VALORES FIXOS PARA CAMPANHA A - TOTAL DO PERÍODO =====
+# Esses valores ficam chumbados somente na Campanha A.
+# São valores totais, sem média dia.
 FUNIL_FIXO_REFERENCIA = {
     "churn": {
         "label": "Churn Fixo",
         "values": {
             "MAILING": 41370,
-            "Discado": 133923,
-            "Contato": 4108,
-            "Cpc": 837,
-            "Acordo": 246,
+            "Discado": 3214157,
+            "Contato": 98590,
+            "Cpc": 20091,
+            "Acordo": 5905,
         }
     },
     "pre_churn": {
         "label": "Pré Churn Fixo",
         "values": {
             "MAILING": 23113,
-            "Discado": 34501,
-            "Contato": 1766,
-            "Cpc": 500,
-            "Acordo": 165,
+            "Discado": 828029,
+            "Contato": 42392,
+            "Cpc": 12001,
+            "Acordo": 3956,
+        }
+    },
+    "churn_pre_churn": {
+        "label": "Churn + Pré Churn Fixo",
+        "values": {
+            "MAILING": 64483,
+            "Discado": 4042186,
+            "Contato": 140982,
+            "Cpc": 32092,
+            "Acordo": 9861,
         }
     }
 }
@@ -2967,13 +2904,99 @@ def classificar_faixa_funil(valor):
     return "pre_churn" if maior_dia <= 90 else "churn"
 
 # ===== FUNIL COMPARATIVO SKY A x B =====
+
+def dias_uteis_seg_a_sab_do_mes(data_ref):
+    """Conta os dias trabalhados do mês considerando segunda a sábado."""
+    import calendar
+    try:
+        data_ref = pd.to_datetime(data_ref)
+        ano = int(data_ref.year)
+        mes = int(data_ref.month)
+    except Exception:
+        hoje = pd.Timestamp.today()
+        ano = int(hoje.year)
+        mes = int(hoje.month)
+
+    ultimo_dia = calendar.monthrange(ano, mes)[1]
+    dias = pd.date_range(f"{ano}-{mes:02d}-01", f"{ano}-{mes:02d}-{ultimo_dia:02d}", freq="D")
+    return int(sum(1 for d in dias if d.weekday() <= 5))
+
+
+def build_funil_options_a():
+    """Opções fixas da Campanha A.
+
+    Regra solicitada:
+    - Campanha A deve ter apenas Churn, Pré Churn e Churn + Pré Churn.
+    - Esses valores são totais fixos, sem média.
+    """
+    return [
+        {"key": "fixo:churn", "label": "Churn Fixo", "tipo": "fixo", "fixo": "churn"},
+        {"key": "fixo:pre_churn", "label": "Pré Churn Fixo", "tipo": "fixo", "fixo": "pre_churn"},
+        {"key": "fixo:churn_pre_churn", "label": "Churn + Pré Churn Fixo", "tipo": "fixo", "fixo": "churn_pre_churn"},
+    ]
+
+
+def build_funil_options_b(df):
+    """Opções da Campanha B correlacionadas às campanhas existentes na base.
+
+    Campanha B fica apenas com opções da base:
+    - Campanha N · Total selecionado
+    - Campanha N · Pré Churn até 90 dias
+    - Campanha N · Churn acima de 90 dias
+    """
+    options = []
+
+    if df is None or df.empty or "CampaignId" not in df.columns:
+        return options
+
+    base = df.copy()
+    base["CampaignId"] = pd.to_numeric(base["CampaignId"], errors="coerce").fillna(0).astype(int)
+    campaigns = sorted([int(c) for c in base["CampaignId"].dropna().unique().tolist() if int(c) != 0])
+
+    for cid in campaigns:
+        options.append({
+            "key": f"camp:{cid}:total",
+            "label": f"Campanha {cid} · Total selecionado",
+            "tipo": "campanha",
+            "campaign_id": cid,
+            "segmento": "total"
+        })
+        options.append({
+            "key": f"camp:{cid}:pre_churn",
+            "label": f"Campanha {cid} · Pré Churn até 90 dias",
+            "tipo": "campanha",
+            "campaign_id": cid,
+            "segmento": "pre_churn"
+        })
+        options.append({
+            "key": f"camp:{cid}:churn",
+            "label": f"Campanha {cid} · Churn acima de 90 dias",
+            "tipo": "campanha",
+            "campaign_id": cid,
+            "segmento": "churn"
+        })
+
+    return options
+
+def get_funil_option(options, key, default_key):
+    mapa = {o["key"]: o for o in options}
+    if key in mapa:
+        return mapa[key]
+    if default_key in mapa:
+        return mapa[default_key]
+    return options[0] if options else {"key": "fixo:churn", "label": "Churn Fixo", "tipo": "fixo", "fixo": "churn"}
+
+
+# ===== FUNIL COMPARATIVO SKY A x B + PROJEÇÃO =====
 def montar_funil_comparativo_sky(df):
     """Monta o comparativo do funil.
 
-    Campanha A = valores fixos de referência: Churn ou Pré Churn.
-    Campanha B = campanha 202 segmentada pela faixa de atraso:
-      - até 90 dias => Pré Churn
-      - acima de 90 dias => Churn
+    Campanha A usa somente valores fixos totais.
+    Campanha B usa campanhas da base, total ou segmentadas por faixa de atraso:
+      até 90 dias => Pré Churn; acima de 90 dias => Churn.
+
+    Campanha B segue como somatória dos dias selecionados quando for campanha da base.
+    Projeção = Campanha B / dias trabalhados selecionados * dias trabalhados do mês (seg a sáb).
     """
     etapas_def = [
         ("Mailing", "MAILING", "users"),
@@ -2983,70 +3006,76 @@ def montar_funil_comparativo_sky(df):
         ("Acordo", "Acordo", "handshake"),
     ]
 
-    fixos_a = [
-        {"key": key, "label": cfg["label"]}
-        for key, cfg in FUNIL_FIXO_REFERENCIA.items()
-    ]
-    segmentos_b = [
-        {"key": key, "label": cfg["label"]}
-        for key, cfg in FUNIL_B_SEGMENTOS_202.items()
-    ]
+    options_a = build_funil_options_a()
+    options_b = build_funil_options_b(df)
+
+    default_a = "fixo:churn"
+    default_b = "camp:202:churn"
+    if default_b not in {o["key"] for o in options_b}:
+        default_b = options_b[0]["key"] if options_b else "camp:0:total"
+
+    selected_a_key = request.args.get("funil_a", default_a).strip()
+    selected_b_key = request.args.get("funil_b", default_b).strip()
+
+    opt_a = get_funil_option(options_a, selected_a_key, default_a)
+    opt_b = get_funil_option(options_b, selected_b_key, default_b) if options_b else {"key": "camp:0:total", "label": "Sem campanha disponível", "tipo": "campanha", "campaign_id": 0, "segmento": "total"}
 
     payload_vazio = {
-        "fixos_a": fixos_a,
-        "segmentos_b": segmentos_b,
-        "campanha_a": "churn",
-        "campanha_b": "202_churn",
-        "campanha_a_label": "Churn Fixo",
-        "campanha_b_label": "Campanha 202 · Churn acima de 90 dias",
+        "fixos_a": options_a,
+        "segmentos_b": options_b,
+        "campanha_a": opt_a["key"],
+        "campanha_b": opt_b["key"],
+        "campanha_a_label": opt_a["label"],
+        "campanha_b_label": opt_b["label"],
         "etapas": [],
+        "etapas_projecao": [],
         "cards_topo": [],
         "cards_bottom": [],
+        "dias_selecionados": 0,
+        "dias_mes_trabalhados": 0,
+        "mes_projecao": "",
         "tem_dados": False,
-        "mensagem": "Sem dados suficientes para comparar o fixo com a campanha 202 segmentada."
+        "mensagem": "Sem dados suficientes para comparar as opções selecionadas."
     }
 
-    selected_a = request.args.get("funil_a", "churn").strip()
-    selected_b = request.args.get("funil_b", "202_churn").strip()
-
-    if selected_a not in FUNIL_FIXO_REFERENCIA:
-        selected_a = "churn"
-    if selected_b not in FUNIL_B_SEGMENTOS_202:
-        selected_b = "202_churn"
-
-    payload_vazio["campanha_a"] = selected_a
-    payload_vazio["campanha_b"] = selected_b
-    payload_vazio["campanha_a_label"] = FUNIL_FIXO_REFERENCIA[selected_a]["label"]
-    payload_vazio["campanha_b_label"] = FUNIL_B_SEGMENTOS_202[selected_b]["label"]
-
-    if df is None or df.empty or "CampaignId" not in df.columns:
+    if df is None or df.empty:
         return payload_vazio
 
     base = df.copy()
-    base["CampaignId"] = pd.to_numeric(base["CampaignId"], errors="coerce").fillna(0).astype(int)
-
-    cfg_b = FUNIL_B_SEGMENTOS_202[selected_b]
-    campaign_id_b = int(cfg_b["campaign_id"])
-    segmento_b = cfg_b["segmento"]
-
-    base = base[base["CampaignId"] == campaign_id_b]
-    if base.empty:
-        return payload_vazio
-
-    if "Faixa_Atraso" in base.columns:
-        base["SegmentoFunil"] = base["Faixa_Atraso"].apply(classificar_faixa_funil)
-        base = base[base["SegmentoFunil"] == segmento_b]
+    if "CampaignId" in base.columns:
+        base["CampaignId"] = pd.to_numeric(base["CampaignId"], errors="coerce").fillna(0).astype(int)
     else:
-        base = base.iloc[0:0]
+        base["CampaignId"] = 0
 
-    valores_a = FUNIL_FIXO_REFERENCIA[selected_a]["values"].copy()
+    def consolidar_opcao(opcao):
+        """Retorna valores consolidados e metadados da opção selecionada."""
+        valores_zerados = {col: 0 for _, col, _ in etapas_def}
+        meta = {"dias_selecionados": 0, "data_ref": None, "tem_base": False, "valores_media_dia": {}}
 
-    if base.empty:
-        valores_b = {col: 0 for _, col, _ in etapas_def}
-    else:
-        # Primeiro consolida por dia para evitar mailing duplicado por hora/tabulação.
+        if opcao.get("tipo") == "fixo":
+            fixo_key = opcao.get("fixo", "churn")
+            cfg = FUNIL_FIXO_REFERENCIA.get(fixo_key, FUNIL_FIXO_REFERENCIA["churn"])
+            return cfg["values"].copy(), meta
+
+        cid = int(opcao.get("campaign_id", 0) or 0)
+        segmento = opcao.get("segmento", "total")
+        filtro = base[base["CampaignId"] == cid].copy()
+
+        if filtro.empty:
+            return valores_zerados, meta
+
+        if segmento in ["pre_churn", "churn"]:
+            if "Faixa_Atraso" in filtro.columns:
+                filtro["SegmentoFunil"] = filtro["Faixa_Atraso"].apply(classificar_faixa_funil)
+                filtro = filtro[filtro["SegmentoFunil"] == segmento]
+            else:
+                filtro = filtro.iloc[0:0]
+
+        if filtro.empty:
+            return valores_zerados, meta
+
         daily = (
-            base.groupby(["DATA"], as_index=False)
+            filtro.groupby(["DATA"], as_index=False)
                 .agg({
                     "MAILING": "max",
                     "Discado": "sum",
@@ -3056,10 +3085,46 @@ def montar_funil_comparativo_sky(df):
                 })
         )
 
-        # A campanha 202 também é convertida para média dia para comparar com o fixo.
-        valores_b = {}
+        valores = valores_zerados.copy()
         for _, col, _ in etapas_def:
-            valores_b[col] = float(daily[col].mean()) if col in daily.columns and len(daily) else 0
+            valores[col] = float(daily[col].sum()) if col in daily.columns and len(daily) else 0
+
+        meta["dias_selecionados"] = int(daily["DATA"].dt.normalize().nunique()) if len(daily) else 0
+        meta["data_ref"] = daily["DATA"].max() if len(daily) else None
+        meta["tem_base"] = True
+        if meta["dias_selecionados"]:
+            meta["valores_media_dia"] = {k: (v / meta["dias_selecionados"]) for k, v in valores.items()}
+        return valores, meta
+
+    valores_a, meta_a = consolidar_opcao(opt_a)
+    valores_b, meta_b = consolidar_opcao(opt_b)
+
+    # Regra solicitada:
+    # no comparativo, o Mailing da Campanha B deve ser exibido como média dia.
+    # As demais etapas continuam como somatória dos dias selecionados.
+    valores_b_comparativo = valores_b.copy()
+    if meta_b.get("tem_base") and meta_b.get("dias_selecionados"):
+        valores_b_comparativo["MAILING"] = meta_b.get("valores_media_dia", {}).get("MAILING", valores_b.get("MAILING", 0))
+
+    dias_selecionados = int(meta_b.get("dias_selecionados") or 0)
+    data_ref = meta_b.get("data_ref") or meta_a.get("data_ref") or (base["DATA"].max() if "DATA" in base.columns and len(base) else pd.Timestamp.today())
+    dias_mes_trabalhados = dias_uteis_seg_a_sab_do_mes(data_ref)
+    mes_projecao = pd.to_datetime(data_ref).strftime("%m/%Y") if data_ref is not None else ""
+
+    valores_projecao = {col: 0 for _, col, _ in etapas_def}
+    for _, col, _ in etapas_def:
+        if meta_b.get("tem_base") and dias_selecionados:
+            media_dia = valores_b[col] / dias_selecionados
+            # Regra final solicitada:
+            # - Mailing na projeção mostra somente a média dia da Campanha B.
+            # - Demais etapas seguem com projeção linear do mês.
+            if col == "MAILING":
+                valores_projecao[col] = media_dia
+            else:
+                valores_projecao[col] = media_dia * dias_mes_trabalhados
+        else:
+            # Se a Campanha B for fixa, mantém o valor como referência para não quebrar o layout.
+            valores_projecao[col] = valores_b[col]
 
     def pct(num, den):
         return safe_div(num, den)
@@ -3067,34 +3132,47 @@ def montar_funil_comparativo_sky(df):
     def variacao(a, b):
         return safe_div(b, a) - 1 if a else 0
 
-    etapas = []
-    for idx, (label, col, icon) in enumerate(etapas_def):
-        a = float(valores_a.get(col, 0))
-        b = float(valores_b.get(col, 0))
-        if idx == 0:
-            conv_a = 1
-            conv_b = 1
-        else:
-            col_prev = etapas_def[idx - 1][1]
-            conv_a = pct(a, float(valores_a.get(col_prev, 0)))
-            conv_b = pct(b, float(valores_b.get(col_prev, 0)))
+    def montar_etapas(valores_b_local, modo="realizado"):
+        etapas = []
+        for idx, (label, col, icon) in enumerate(etapas_def):
+            a = float(valores_a.get(col, 0))
+            b = float(valores_b_local.get(col, 0))
 
-        var = variacao(a, b)
-        etapas.append({
-            "label": label,
-            "icon": icon,
-            "a": a,
-            "b": b,
-            "a_fmt": br_number(a),
-            "b_fmt": br_number(b),
-            "conv_a": conv_a,
-            "conv_b": conv_b,
-            "conv_a_fmt": br_percent(conv_a),
-            "conv_b_fmt": br_percent(conv_b),
-            "variacao": var,
-            "variacao_fmt": br_percent(var),
-            "classe_var": "pos" if var >= 0 else "neg",
-        })
+            # Regra final:
+            # No comparativo realizado, somente o Mailing da Campanha B deve ser média dia.
+            # Isso impacta o card de Mailing e o funil laranja.
+            if modo == "realizado" and col == "MAILING" and meta_b.get("tem_base") and meta_b.get("dias_selecionados"):
+                b = float(valores_b.get("MAILING", 0)) / float(meta_b.get("dias_selecionados") or 1)
+            if idx == 0:
+                conv_a = 1
+                conv_b = 1
+            else:
+                col_prev = etapas_def[idx - 1][1]
+                conv_a = pct(a, float(valores_a.get(col_prev, 0)))
+                conv_b = pct(b, float(valores_b_local.get(col_prev, 0)))
+
+            var = variacao(a, b)
+            etapas.append({
+                "label": label,
+                "icon": icon,
+                "a": a,
+                "b": b,
+                "a_fmt": br_number(a),
+                "b_fmt": br_number(b),
+                "conv_a": conv_a,
+                "conv_b": conv_b,
+                # Na linha Discado, a razão Discado/Mailing representa Spin e deve aparecer como decimal.
+                "conv_a_fmt": br_number(conv_a, 2) if label == "Discado" else br_percent(conv_a),
+                "conv_b_fmt": br_number(conv_b, 2) if label == "Discado" else br_percent(conv_b),
+                "variacao": var,
+                "variacao_fmt": br_percent(var),
+                "classe_var": "pos" if var >= 0 else "neg",
+                "modo": modo,
+            })
+        return etapas
+
+    etapas = montar_etapas(valores_b, "realizado")
+    etapas_projecao = montar_etapas(valores_projecao, "projecao")
 
     mailing_a = float(valores_a.get("MAILING", 0))
     mailing_b = float(valores_b.get("MAILING", 0))
@@ -3108,20 +3186,21 @@ def montar_funil_comparativo_sky(df):
     acordo_b = float(valores_b.get("Acordo", 0))
 
     metricas_bottom = [
-        ("Hit Rate", "target", pct(atendidas_a, discado_a), pct(atendidas_b, discado_b)),
-        ("LOC", "pie-chart", pct(cpc_a, atendidas_a), pct(cpc_b, atendidas_b)),
-        ("Conversão", "chart-no-axes-combined", pct(acordo_a, cpc_a), pct(acordo_b, cpc_b)),
-        ("Acordo/Mailing", "handshake", pct(acordo_a, mailing_a), pct(acordo_b, mailing_b)),
+        # Spin = Discado / Mailing. Deve ser exibido em decimal, não em percentual.
+        ("Spin", "rotate-cw", pct(discado_a, mailing_a), pct(discado_b, mailing_b), "decimal"),
+        ("Hit Rate", "target", pct(atendidas_a, discado_a), pct(atendidas_b, discado_b), "percent"),
+        ("LOC", "pie-chart", pct(cpc_a, atendidas_a), pct(cpc_b, atendidas_b), "percent"),
+        ("Conversão", "chart-no-axes-combined", pct(acordo_a, cpc_a), pct(acordo_b, cpc_b), "percent"),
     ]
 
     cards_bottom = []
-    for label, icon, a, b in metricas_bottom:
+    for label, icon, a, b, formato in metricas_bottom:
         var = variacao(a, b)
         cards_bottom.append({
             "label": label,
             "icon": icon,
-            "a_fmt": br_percent(a),
-            "b_fmt": br_percent(b),
+            "a_fmt": br_number(a, 2) if formato == "decimal" else br_percent(a),
+            "b_fmt": br_number(b, 2) if formato == "decimal" else br_percent(b),
             "variacao": var,
             "variacao_fmt": br_percent(var),
             "classe_var": "pos" if var >= 0 else "neg",
@@ -3132,23 +3211,124 @@ def montar_funil_comparativo_sky(df):
 
     max_a = max([e["a"] for e in etapas] + [1])
     max_b = max([e["b"] for e in etapas] + [1])
+    max_proj = max([e["b"] for e in etapas_projecao] + [1])
     for e in etapas:
         e["width_a"] = 40 + (safe_div(e["a"], max_a) * 60)
         e["width_b"] = 40 + (safe_div(e["b"], max_b) * 60)
+    for e in etapas_projecao:
+        e["width_b"] = 40 + (safe_div(e["b"], max_proj) * 60)
 
     return {
-        "fixos_a": fixos_a,
-        "segmentos_b": segmentos_b,
-        "campanha_a": selected_a,
-        "campanha_b": selected_b,
-        "campanha_a_label": FUNIL_FIXO_REFERENCIA[selected_a]["label"],
-        "campanha_b_label": FUNIL_B_SEGMENTOS_202[selected_b]["label"],
+        "fixos_a": options_a,
+        "segmentos_b": options_b,
+        "campanha_a": opt_a["key"],
+        "campanha_b": opt_b["key"],
+        "campanha_a_label": opt_a["label"],
+        "campanha_b_label": opt_b["label"],
         "etapas": etapas,
+        "etapas_projecao": etapas_projecao,
         "cards_topo": cards_topo,
         "cards_bottom": cards_bottom,
+        "dias_selecionados": dias_selecionados,
+        "dias_mes_trabalhados": dias_mes_trabalhados,
+        "mes_projecao": mes_projecao,
         "tem_dados": True,
         "mensagem": ""
     }
+
+def montar_faixa_atraso(df):
+    """Monta uma visão executiva do funil por faixa de atraso para a Sky."""
+    if df is None or df.empty or "Faixa_Atraso" not in df.columns:
+        return {"cards": [], "tabela": []}
+
+    base = df.copy()
+    base["Faixa_Atraso"] = base["Faixa_Atraso"].fillna("Não informado").astype(str).str.strip()
+    base.loc[base["Faixa_Atraso"].eq("") | base["Faixa_Atraso"].str.lower().eq("nan"), "Faixa_Atraso"] = "Não informado"
+
+    if "HangUp" not in base.columns:
+        base["HangUp"] = np.where(
+            base.get("Tabulacao", "").astype(str).str.strip().str.lower() == "hangup",
+            base.get("Discado", 0),
+            0
+        )
+
+    for col in ["MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo"]:
+        if col not in base.columns:
+            base[col] = 0
+        base[col] = pd.to_numeric(base[col], errors="coerce").fillna(0)
+
+    faixa_df = (
+        base.groupby("Faixa_Atraso", as_index=False)
+            .agg({
+                "MAILING": "max",
+                "Discado": "sum",
+                "Contato": "sum",
+                "Cpc": "sum",
+                "Acordo": "sum",
+                "HangUp": "sum",
+                "Tempo": "sum",
+            })
+    )
+
+    def _ordem_faixa(valor):
+        txt = str(valor).lower()
+        numeros = re.findall(r"\d+", txt)
+        if numeros:
+            return int(numeros[0])
+        if "acima" in txt or ">" in txt:
+            return 9999
+        return 99999
+
+    faixa_df["Hit"] = faixa_df.apply(lambda x: safe_div(x["Contato"], x["Discado"]), axis=1)
+    faixa_df["CpcPerc"] = faixa_df.apply(lambda x: safe_div(x["Cpc"], x["Contato"]), axis=1)
+    faixa_df["Conversao"] = faixa_df.apply(lambda x: safe_div(x["Acordo"], x["Cpc"]), axis=1)
+    faixa_df["Spin"] = faixa_df.apply(lambda x: safe_div(x["Discado"], x["MAILING"]), axis=1)
+    faixa_df["TMA"] = faixa_df.apply(lambda x: safe_div(x["Tempo"], x["Contato"]), axis=1)
+    faixa_df["ordem"] = faixa_df["Faixa_Atraso"].apply(_ordem_faixa)
+    faixa_df = faixa_df.sort_values(["ordem", "Faixa_Atraso"]).drop(columns=["ordem"])
+
+    total_discado = float(faixa_df["Discado"].sum())
+    total_cpc = float(faixa_df["Cpc"].sum())
+    max_cpc = float(faixa_df["Cpc"].max()) if len(faixa_df) else 0
+    max_discado = float(faixa_df["Discado"].max()) if len(faixa_df) else 0
+    denominador_barra = max(max_cpc, max_discado, 1)
+
+    cards = []
+    tabela = []
+    for _, r in faixa_df.iterrows():
+        largura = 6 + (safe_div(max(float(r["Cpc"]), float(r["Discado"])), denominador_barra) * 94)
+        item = {
+            "faixa": str(r["Faixa_Atraso"]),
+            "mailing": br_number(r["MAILING"]),
+            "discado": br_number(r["Discado"]),
+            "contato": br_number(r["Contato"]),
+            "cpc": br_number(r["Cpc"]),
+            "acordo": br_number(r["Acordo"]),
+            "hit": br_percent(r["Hit"]),
+            "loc": br_percent(r["CpcPerc"]),
+            "conversao": br_percent(r["Conversao"]),
+            "spin": br_number(r["Spin"], 2),
+            "tma": seconds_to_hhmmss(r["TMA"]),
+            "share_discado_fmt": br_percent(safe_div(r["Discado"], total_discado)),
+            "share_cpc_fmt": br_percent(safe_div(r["Cpc"], total_cpc)),
+            "width": round(min(100, max(6, largura)), 2),
+        }
+        cards.append(item)
+        tabela.append({
+            "Faixa": item["faixa"],
+            "Mailing": item["mailing"],
+            "Discado": item["discado"],
+            "Contato": item["contato"],
+            "CPC": item["cpc"],
+            "Acordo": item["acordo"],
+            "HIT %": item["hit"],
+            "CPC %": item["loc"],
+            "Conversão": item["conversao"],
+            "Spin": item["spin"],
+            "TMA": item["tma"],
+        })
+
+    return {"cards": cards, "tabela": tabela}
 
 def consolidar(df):
     df = adicionar_uf(df)
@@ -3178,7 +3358,7 @@ def consolidar(df):
             "cards": [], "capacity": [], "flow": [], "extras": {},
             "datas": [], "tabela": [], "chart": {},
             "insight": "Sem dados para os filtros selecionados.",
-            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "funil_comparativo": montar_funil_comparativo_sky(df)
+            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df)
         }
 
     daily = (
@@ -3362,6 +3542,9 @@ def consolidar(df):
     # Hora a hora também monta vários gráficos/tabelas. Carrega apenas quando a aba estiver ativa.
     hora_a_hora = montar_visao_hora_a_hora(df) if active_tab == "hora" else {"labels": [], "chart": {}, "tabela": []}
 
+    # Funil por faixa de atraso usado na visão Daily.
+    faixa_atraso = montar_faixa_atraso(df)
+
     # Funil comparativo é leve após otimização e mantém os filtros prontos.
     funil_comparativo = montar_funil_comparativo_sky(df)
 
@@ -3375,6 +3558,7 @@ def consolidar(df):
         "chart": chart,
         "hora_a_hora": hora_a_hora,
         "funil_comparativo": funil_comparativo,
+        "faixa_atraso": faixa_atraso,
         "insight": insight,
         "periodo": f"{df['DATA'].min().strftime('%d/%m/%Y')} até {df['DATA'].max().strftime('%d/%m/%Y')}",
         "mapa_html": mapa_html,
@@ -3394,113 +3578,15 @@ def consolidar(df):
     }
 
 
-
-@app.route('/debug-sky-excel')
-def debug_sky_excel():
-    """Diagnóstico rápido da base Sky no Render."""
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
-    try:
-        if not SKY_ARQUIVO_BASE.exists():
-            return jsonify({
-                "ok": False,
-                "erro": "Arquivo Base_Dashboard_Sky.xlsx não encontrado",
-                "pasta_data": str(SKY_DATA_DIR),
-                "arquivos_data": os.listdir(SKY_DATA_DIR) if SKY_DATA_DIR.exists() else []
-            })
-
-        xls = pd.ExcelFile(SKY_ARQUIVO_BASE)
-        df_raw = pd.read_excel(SKY_ARQUIVO_BASE, nrows=5)
-        df_norm = normalizar_colunas(df_raw.copy())
-
-        return jsonify({
-            "ok": True,
-            "arquivo": str(SKY_ARQUIVO_BASE),
-            "abas": xls.sheet_names,
-            "colunas_originais": [str(c) for c in df_raw.columns],
-            "colunas_normalizadas": [str(c) for c in df_norm.columns],
-            "campaignid_encontrado": "CampaignId" in df_norm.columns,
-            "preview": df_norm.fillna("").to_dict(orient="records")
-        })
-    except Exception as exc:
-        return jsonify({"ok": False, "erro": str(exc)}), 500
-
-
-def render_sky_erro(exc):
-    """Evita página 500 seca e mostra o erro de tratamento da base Sky."""
-    detalhes = str(exc)
-    return f"""
-    <!DOCTYPE html>
-    <html lang='pt-br'>
-    <head>
-      <meta charset='UTF-8'>
-      <title>Erro na base Sky</title>
-      <style>
-        body {{
-          margin:0;
-          min-height:100vh;
-          display:grid;
-          place-items:center;
-          font-family:Segoe UI,Arial,sans-serif;
-          background:linear-gradient(135deg,#020814,#07172a);
-          color:#e5e7eb;
-        }}
-        .box {{
-          width:min(780px,calc(100% - 32px));
-          padding:28px;
-          border-radius:24px;
-          background:rgba(6,18,34,.86);
-          border:1px solid rgba(0,229,255,.22);
-          box-shadow:0 0 42px rgba(0,229,255,.12);
-        }}
-        h1 {{ margin:0 0 10px; font-size:28px; }}
-        p {{ color:#94a3b8; line-height:1.45; }}
-        code {{
-          display:block;
-          white-space:pre-wrap;
-          background:#020617;
-          border:1px solid rgba(148,163,184,.25);
-          border-radius:14px;
-          padding:14px;
-          color:#fca5a5;
-          margin-top:12px;
-        }}
-        a {{
-          display:inline-block;
-          margin-top:14px;
-          padding:11px 14px;
-          border-radius:14px;
-          text-decoration:none;
-          color:#00111f;
-          font-weight:900;
-          background:linear-gradient(135deg,#00e5ff,#0077ff);
-        }}
-      </style>
-    </head>
-    <body>
-      <div class='box'>
-        <h1>Erro ao carregar a base da Sky</h1>
-        <p>O painel não conseguiu tratar a Base_Dashboard_Sky.xlsx. Acesse <b>/debug-sky-excel</b> para validar as colunas lidas no Render.</p>
-        <code>{detalhes}</code>
-        <a href='/debug-sky-excel'>Abrir diagnóstico da Sky</a>
-      </div>
-    </body>
-    </html>
-    """, 500
-
-
 @app.route('/cliente/sky-negocie-online/painel')
 def sky_negocie_online_index() -> str:
     if 'usuario' not in session:
         return redirect(url_for('login'))
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return acesso_negado()
-    try:
-        df = carregar_base()
-        dashboard = consolidar(df)
-        return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=session.get('usuario'))
-    except Exception as exc:
-        return render_sky_erro(exc)
+    df = carregar_base()
+    dashboard = consolidar(df)
+    return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=session.get('usuario'))
 
 
 @app.route('/cliente/sky-negocie-online/painel/api')
@@ -3509,11 +3595,8 @@ def sky_negocie_online_api():
         return jsonify({"error": "unauthorized"}), 401
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return jsonify({"error": "forbidden"}), 403
-    try:
-        df = carregar_base()
-        return jsonify(consolidar(df))
-    except Exception as exc:
-        return jsonify({"ok": False, "error": str(exc)}), 500
+    df = carregar_base()
+    return jsonify(consolidar(df))
 
 
 
