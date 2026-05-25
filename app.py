@@ -3016,6 +3016,9 @@ def montar_funil_comparativo_sky(df):
 
     selected_a_key = request.args.get("funil_a", default_a).strip()
     selected_b_key = request.args.get("funil_b", default_b).strip()
+    funil_visao = (request.args.getlist("funil_visao")[-1] if request.args.getlist("funil_visao") else "mes").strip().lower()
+    if funil_visao not in ["mes", "dia"]:
+        funil_visao = "mes"
 
     opt_a = get_funil_option(options_a, selected_a_key, default_a)
     opt_b = get_funil_option(options_b, selected_b_key, default_b) if options_b else {"key": "camp:0:total", "label": "Sem campanha disponível", "tipo": "campanha", "campaign_id": 0, "segmento": "total"}
@@ -3034,6 +3037,8 @@ def montar_funil_comparativo_sky(df):
         "dias_selecionados": 0,
         "dias_mes_trabalhados": 0,
         "mes_projecao": "",
+        "funil_visao": funil_visao,
+        "funil_visao_label": "Dia" if funil_visao == "dia" else "Mês",
         "tem_dados": False,
         "mensagem": "Sem dados suficientes para comparar as opções selecionadas."
     }
@@ -3050,7 +3055,7 @@ def montar_funil_comparativo_sky(df):
     def consolidar_opcao(opcao):
         """Retorna valores consolidados e metadados da opção selecionada."""
         valores_zerados = {col: 0 for _, col, _ in etapas_def}
-        meta = {"dias_selecionados": 0, "data_ref": None, "tem_base": False, "valores_media_dia": {}}
+        meta = {"dias_selecionados": 0, "data_ref": None, "tem_base": False, "valores_media_dia": {}, "mailing_max_dia": 0}
 
         if opcao.get("tipo") == "fixo":
             fixo_key = opcao.get("fixo", "churn")
@@ -3094,22 +3099,41 @@ def montar_funil_comparativo_sky(df):
         meta["tem_base"] = True
         if meta["dias_selecionados"]:
             meta["valores_media_dia"] = {k: (v / meta["dias_selecionados"]) for k, v in valores.items()}
+            # Regra visão Dia: usar o maior Mailing diário dentro do período selecionado.
+            if "MAILING" in daily.columns and len(daily):
+                meta["mailing_max_dia"] = float(daily["MAILING"].max())
         return valores, meta
 
     valores_a, meta_a = consolidar_opcao(opt_a)
     valores_b, meta_b = consolidar_opcao(opt_b)
 
-    # Regra solicitada:
-    # no comparativo, o Mailing da Campanha B deve ser exibido como média dia.
-    # As demais etapas continuam como somatória dos dias selecionados.
-    valores_b_comparativo = valores_b.copy()
-    if meta_b.get("tem_base") and meta_b.get("dias_selecionados"):
-        valores_b_comparativo["MAILING"] = meta_b.get("valores_media_dia", {}).get("MAILING", valores_b.get("MAILING", 0))
-
     dias_selecionados = int(meta_b.get("dias_selecionados") or 0)
     data_ref = meta_b.get("data_ref") or meta_a.get("data_ref") or (base["DATA"].max() if "DATA" in base.columns and len(base) else pd.Timestamp.today())
     dias_mes_trabalhados = dias_uteis_seg_a_sab_do_mes(data_ref)
     mes_projecao = pd.to_datetime(data_ref).strftime("%m/%Y") if data_ref is not None else ""
+
+    # Visão do comparativo:
+    # Mês mantém a leitura atual.
+    # Dia transforma A fixo em média dia do mês e B em média dos dias selecionados.
+    valores_a_view = valores_a.copy()
+    valores_b_view = valores_b.copy()
+
+    if funil_visao == "dia":
+        divisor_a = dias_mes_trabalhados or 1
+        valores_a_view = {k: (float(v) / divisor_a) for k, v in valores_a.items()}
+        # Ajuste solicitado: na visão Dia, o Mailing fixo da Campanha A não deve virar média.
+        valores_a_view["MAILING"] = float(valores_a.get("MAILING", 0))
+
+        if meta_b.get("tem_base") and dias_selecionados:
+            # Demais etapas = média dos dias selecionados.
+            valores_b_view = {k: (float(v) / dias_selecionados) for k, v in valores_b.items()}
+            # Mailing = maior Mailing diário do período selecionado.
+            valores_b_view["MAILING"] = float(meta_b.get("mailing_max_dia") or valores_b_view.get("MAILING", 0))
+    else:
+        # Mês mantém a regra vigente: A fixo total e B realizado,
+        # com Mailing da B em média dia.
+        if meta_b.get("tem_base") and dias_selecionados:
+            valores_b_view["MAILING"] = float(valores_b.get("MAILING", 0)) / float(dias_selecionados or 1)
 
     valores_projecao = {col: 0 for _, col, _ in etapas_def}
     for _, col, _ in etapas_def:
@@ -3135,20 +3159,15 @@ def montar_funil_comparativo_sky(df):
     def montar_etapas(valores_b_local, modo="realizado"):
         etapas = []
         for idx, (label, col, icon) in enumerate(etapas_def):
-            a = float(valores_a.get(col, 0))
+            a = float(valores_a_view.get(col, 0))
             b = float(valores_b_local.get(col, 0))
 
-            # Regra final:
-            # No comparativo realizado, somente o Mailing da Campanha B deve ser média dia.
-            # Isso impacta o card de Mailing e o funil laranja.
-            if modo == "realizado" and col == "MAILING" and meta_b.get("tem_base") and meta_b.get("dias_selecionados"):
-                b = float(valores_b.get("MAILING", 0)) / float(meta_b.get("dias_selecionados") or 1)
             if idx == 0:
                 conv_a = 1
                 conv_b = 1
             else:
                 col_prev = etapas_def[idx - 1][1]
-                conv_a = pct(a, float(valores_a.get(col_prev, 0)))
+                conv_a = pct(a, float(valores_a_view.get(col_prev, 0)))
                 conv_b = pct(b, float(valores_b_local.get(col_prev, 0)))
 
             var = variacao(a, b)
@@ -3171,19 +3190,19 @@ def montar_funil_comparativo_sky(df):
             })
         return etapas
 
-    etapas = montar_etapas(valores_b, "realizado")
+    etapas = montar_etapas(valores_b_view, "realizado")
     etapas_projecao = montar_etapas(valores_projecao, "projecao")
 
-    mailing_a = float(valores_a.get("MAILING", 0))
-    mailing_b = float(valores_b.get("MAILING", 0))
-    discado_a = float(valores_a.get("Discado", 0))
-    discado_b = float(valores_b.get("Discado", 0))
-    atendidas_a = float(valores_a.get("Contato", 0))
-    atendidas_b = float(valores_b.get("Contato", 0))
-    cpc_a = float(valores_a.get("Cpc", 0))
-    cpc_b = float(valores_b.get("Cpc", 0))
-    acordo_a = float(valores_a.get("Acordo", 0))
-    acordo_b = float(valores_b.get("Acordo", 0))
+    mailing_a = float(valores_a_view.get("MAILING", 0))
+    mailing_b = float(valores_b_view.get("MAILING", 0))
+    discado_a = float(valores_a_view.get("Discado", 0))
+    discado_b = float(valores_b_view.get("Discado", 0))
+    atendidas_a = float(valores_a_view.get("Contato", 0))
+    atendidas_b = float(valores_b_view.get("Contato", 0))
+    cpc_a = float(valores_a_view.get("Cpc", 0))
+    cpc_b = float(valores_b_view.get("Cpc", 0))
+    acordo_a = float(valores_a_view.get("Acordo", 0))
+    acordo_b = float(valores_b_view.get("Acordo", 0))
 
     metricas_bottom = [
         # Spin = Discado / Mailing. Deve ser exibido em decimal, não em percentual.
@@ -3232,6 +3251,8 @@ def montar_funil_comparativo_sky(df):
         "dias_selecionados": dias_selecionados,
         "dias_mes_trabalhados": dias_mes_trabalhados,
         "mes_projecao": mes_projecao,
+        "funil_visao": funil_visao,
+        "funil_visao_label": "Dia" if funil_visao == "dia" else "Mês",
         "tem_dados": True,
         "mensagem": ""
     }

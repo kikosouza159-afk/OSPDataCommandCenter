@@ -1614,6 +1614,47 @@ to { background-position: 0 55px; } }
       .faixa-metrics { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
     }
 
+    /* V15 - Toggle Mês/Dia no comparativo, mantendo projeção atual */
+    .funil-view-toggle {
+      display: inline-flex;
+      height: 42px;
+      padding: 4px;
+      gap: 4px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,229,255,.20);
+      background: rgba(2,8,20,.72);
+    }
+
+    .funil-view-toggle button {
+      height: 32px;
+      min-width: 62px;
+      border-radius: 11px;
+      border: none;
+      cursor: pointer;
+      color: #cbd5e1;
+      background: transparent;
+      font-weight: 950;
+      padding: 0 14px;
+    }
+
+    .funil-view-toggle button.active {
+      color: #00111f;
+      background: linear-gradient(135deg, #00e5ff, #0077ff);
+      box-shadow: 0 0 18px rgba(0,229,255,.20);
+    }
+
+    /* V16 - Correção Mês/Dia e projeção somente no Mês */
+    .sky-funnel-main-grid.sky-funnel-dia-grid {
+      grid-template-columns: minmax(0, 1fr) 260px !important;
+      align-items: stretch !important;
+    }
+
+    @media (max-width: 1200px) {
+      .sky-funnel-main-grid.sky-funnel-dia-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1939,7 +1980,7 @@ to { background-position: 0 55px; } }
 
           <div class="funil-filter-title">
             <h2>Funil Comparativo | Fixo total x Realizado x Projeção</h2>
-            <p>Campanha A usa valores fixos totais. Na Campanha B, Mailing é média dia e as demais etapas são soma dos dias selecionados. Projeção segue linear.</p>
+            <p>Campanha A usa valores fixos totais. Em Mês, Mailing B é média dia. Em Dia, Mailing A fica fixo e Mailing B usa o maior mailing diário do período.</p>
           </div>
 
           <div class="funil-filter-fields">
@@ -1959,7 +2000,12 @@ to { background-position: 0 55px; } }
                 {% endfor %}
               </select>
             </div>
-            <button type="submit">Comparar</button>
+<button type="submit" name="funil_visao" value="{{ dashboard.funil_comparativo.funil_visao }}">Comparar</button>
+
+            <div class="funil-view-toggle" aria-label="Alternar visão do funil">
+              <button type="submit" name="funil_visao" value="mes" class="{% if dashboard.funil_comparativo.funil_visao != 'dia' %}active{% endif %}">Mês</button>
+              <button type="submit" name="funil_visao" value="dia" class="{% if dashboard.funil_comparativo.funil_visao == 'dia' %}active{% endif %}">Dia</button>
+            </div>
             <span class="funil-fixed-note">A = fixo total · B = campanha da base · Projeção = B média dia x seg a sáb</span>
           </div>
         </form>
@@ -1987,11 +2033,11 @@ to { background-position: 0 55px; } }
           {% endfor %}
         </section>
 
-        <section class="sky-funnel-main-grid">
+        <section class="sky-funnel-main-grid {% if dashboard.funil_comparativo.funil_visao == 'dia' %}sky-funnel-dia-grid{% endif %}">
           <div class="panel sky-funnel-panel">
             <div class="sky-funnel-head">
               <span class="left">CAMPANHA A · {{ dashboard.funil_comparativo.campanha_a_label }}</span>
-              <span>ETAPA DO FUNIL</span>
+              <span>ETAPA DO FUNIL · VISÃO {{ dashboard.funil_comparativo.funil_visao_label|upper }}</span>
               <span class="right">CAMPANHA B · {{ dashboard.funil_comparativo.campanha_b_label }}</span>
             </div>
 
@@ -2028,6 +2074,7 @@ to { background-position: 0 55px; } }
               </div>
             </div>
           </div>
+          {% if dashboard.funil_comparativo.funil_visao != 'dia' %}
 
           <aside class="panel sky-projection-side-panel">
             <div class="sky-projection-side-head">
@@ -2059,6 +2106,7 @@ to { background-position: 0 55px; } }
               </div>
             </div>
           </aside>
+          {% endif %}
 
           <aside class="panel sky-funnel-variation">
             <h2>Variação % (B/A - 1)</h2>

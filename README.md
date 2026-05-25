@@ -152,3 +152,38 @@ Correção aplicada:
 - Mailing da Campanha B no comparativo agora é calculado dentro da montagem das etapas.
 - Isso garante que o card superior e o funil laranja usem média dia.
 - As demais etapas da Campanha B continuam como soma dos dias selecionados.
+
+
+## V15 - Botão Mês/Dia no comparativo, mantendo modelo atual
+
+- Mantido o layout atual, incluindo Projeção mês.
+- Incluído botão Mês/Dia ao lado do Comparar.
+- Mês mantém a leitura atual.
+- Dia:
+  - Campanha A = fixo total / dias trabalhados do mês.
+  - Campanha B = média dos dias selecionados.
+
+
+## V16 - Correção botão Mês/Dia
+
+Correções:
+- Botão Mês/Dia agora altera os valores corretamente.
+- Removido conflito do input hidden `funil_visao`.
+- Na visão Dia, a Projeção mês fica oculta.
+- Na visão Mês, a Projeção mês continua aparecendo normalmente.
+
+
+## V17 - Regra Mailing no comparativo
+
+Ajuste aplicado na visão comparativa Sky:
+- Visão Mês: Mailing da Campanha B = média dia.
+- Visão Dia: Mailing da Campanha B = maior mailing diário do período selecionado.
+- Demais indicadores da visão Dia continuam como média dos dias selecionados.
+
+
+## V18 - Correção Mailing nas visões Mês/Dia
+
+Correções:
+- Visão Mês: o funil da Campanha B agora usa valores_b_view, garantindo Mailing B em média dia.
+- Visão Dia: o Mailing da Campanha A permanece fixo total, sem dividir pelos dias do mês.
+- Visão Dia: Mailing B permanece como maior Mailing diário do período selecionado.
