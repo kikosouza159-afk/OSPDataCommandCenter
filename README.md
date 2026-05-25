@@ -187,3 +187,34 @@ Correções:
 - Visão Mês: o funil da Campanha B agora usa valores_b_view, garantindo Mailing B em média dia.
 - Visão Dia: o Mailing da Campanha A permanece fixo total, sem dividir pelos dias do mês.
 - Visão Dia: Mailing B permanece como maior Mailing diário do período selecionado.
+
+
+## V19 - Mailing separado por faixa de atraso
+
+Regra aplicada:
+- Não usa mais `max` geral para Mailing.
+- Daily: Mailing = soma dos valores distintos por DATA + Faixa_Atraso.
+- Hora a Hora: Mailing = soma dos valores distintos por DATA + HOUR + Faixa_Atraso, consolidado por hora.
+- Brasil/UF: Mailing = soma dos valores distintos por DATA + UF + Faixa_Atraso.
+- Funil por faixa: Mailing = soma diária dos valores distintos de cada faixa.
+- Comparativo Mês: Mailing B = média da soma diária das faixas distintas.
+- Comparativo Dia: Mailing B = soma distinta das faixas do dia mais recente selecionado.
+
+
+## V20 - Correção média do Mailing no Comparativo Mês
+
+Correção aplicada:
+- O Mailing deixa de usar `max` por Faixa_Atraso.
+- Agora o cálculo remove duplicados por DATA + Faixa_Atraso + MAILING.
+- Comparativo Mês: usa a média diária dessa soma distinta.
+- Comparativo Dia: usa a soma distinta do dia mais recente selecionado.
+- A mesma regra foi mantida para Daily, Hora a Hora e Brasil/UF.
+
+
+## V21 - Correção erro groupby Mailing
+
+Correção:
+- Ajustado o helper `calcular_mailing_distinto_por_faixa`.
+- As chaves de agrupamento agora são deduplicadas.
+- Corrige o erro: `ValueError: Grouper for 'Faixa_Atraso' not 1-dimensional`.
+- Mantém a regra de Mailing distinto por DATA + Faixa_Atraso + MAILING.

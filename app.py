@@ -2418,6 +2418,79 @@ def seconds_to_hhmmss(seconds):
         return "00:00:00"
 
 
+
+
+def calcular_mailing_distinto_por_faixa(base, chave_distinta, chave_final=None):
+    """Calcula Mailing sem duplicar linhas de tabulação/DDD.
+
+    Regra:
+    - Remove duplicidades por chave_distinta + Faixa_Atraso + MAILING.
+    - Depois soma os valores distintos para a chave_final.
+
+    Observação técnica:
+    - As listas de chaves são deduplicadas para evitar erro de pandas:
+      "Grouper for 'Faixa_Atraso' not 1-dimensional".
+    """
+    def _unique(seq):
+        out = []
+        for item in seq:
+            if item not in out:
+                out.append(item)
+        return out
+
+    chave_distinta = _unique(list(chave_distinta))
+    chave_final = _unique(list(chave_final or chave_distinta))
+
+    if base is None or base.empty:
+        return pd.DataFrame(columns=chave_final + ["MAILING"])
+
+    df_mail = base.copy()
+
+    if "MAILING" not in df_mail.columns:
+        df_mail["MAILING"] = 0
+
+    df_mail["MAILING"] = pd.to_numeric(df_mail["MAILING"], errors="coerce").fillna(0)
+
+    for col in _unique(chave_distinta + chave_final):
+        if col not in df_mail.columns:
+            df_mail[col] = ""
+
+    for col in _unique(chave_distinta + chave_final):
+        if str(col).upper() == "DATA":
+            df_mail[col] = pd.to_datetime(df_mail[col], errors="coerce").dt.normalize()
+
+    if "Faixa_Atraso" not in df_mail.columns:
+        df_mail["Faixa_Atraso"] = "Sem faixa"
+
+    df_mail["Faixa_Atraso"] = (
+        df_mail["Faixa_Atraso"]
+        .fillna("Sem faixa")
+        .astype(str)
+        .str.strip()
+    )
+    df_mail.loc[
+        df_mail["Faixa_Atraso"].eq("") | df_mail["Faixa_Atraso"].str.lower().eq("nan"),
+        "Faixa_Atraso"
+    ] = "Sem faixa"
+
+    # Evita duplicar Faixa_Atraso quando ela já está na chave.
+    cols_distintos = _unique(chave_distinta + ["Faixa_Atraso", "MAILING"])
+
+    distintos = (
+        df_mail[cols_distintos]
+        .drop_duplicates()
+        .copy()
+    )
+
+    if not len(distintos):
+        return pd.DataFrame(columns=chave_final + ["MAILING"])
+
+    return (
+        distintos.groupby(chave_final, as_index=False)
+                 .agg({"MAILING": "sum"})
+    )
+
+
 def normalizar_colunas(df):
     renomear = {}
     for col in df.columns:
@@ -2759,10 +2832,9 @@ def montar_visao_hora_a_hora(df):
     base["HOUR"] = pd.to_numeric(hora_extraida, errors="coerce").fillna(0).astype(int)
     base["HOUR"] = base["HOUR"].clip(lower=0, upper=23)
 
-    hourly = (
+    hourly_metricas = (
         base.groupby("HOUR", as_index=False)
             .agg({
-                "MAILING": "max",
                 "Discado": "sum",
                 "Contato": "sum",
                 "Cpc": "sum",
@@ -2772,6 +2844,18 @@ def montar_visao_hora_a_hora(df):
             })
             .sort_values("HOUR")
     )
+
+    # Mailing por hora: soma os mailings distintos por DATA + HOUR + Faixa_Atraso.
+    mailing_hora = calcular_mailing_distinto_por_faixa(
+        base,
+        chave_distinta=["DATA", "HOUR"],
+        chave_final=["HOUR"]
+    )
+
+    hourly = hourly_metricas.merge(mailing_hora, on="HOUR", how="left")
+    hourly["MAILING"] = hourly["MAILING"].fillna(0)
+    cols_hourly = ["HOUR", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo"]
+    hourly = hourly[cols_hourly].sort_values("HOUR")
 
     hourly["Spin"] = hourly.apply(lambda x: safe_div(x["Discado"], x["MAILING"]), axis=1)
     hourly["Hit"] = hourly.apply(lambda x: safe_div(x["Contato"], x["Discado"]), axis=1)
@@ -3055,7 +3139,7 @@ def montar_funil_comparativo_sky(df):
     def consolidar_opcao(opcao):
         """Retorna valores consolidados e metadados da opção selecionada."""
         valores_zerados = {col: 0 for _, col, _ in etapas_def}
-        meta = {"dias_selecionados": 0, "data_ref": None, "tem_base": False, "valores_media_dia": {}, "mailing_max_dia": 0}
+        meta = {"dias_selecionados": 0, "data_ref": None, "tem_base": False, "valores_media_dia": {}, "mailing_dia_distinto": 0}
 
         if opcao.get("tipo") == "fixo":
             fixo_key = opcao.get("fixo", "churn")
@@ -3079,16 +3163,27 @@ def montar_funil_comparativo_sky(df):
         if filtro.empty:
             return valores_zerados, meta
 
-        daily = (
+        daily_metricas = (
             filtro.groupby(["DATA"], as_index=False)
                 .agg({
-                    "MAILING": "max",
                     "Discado": "sum",
                     "Contato": "sum",
                     "Cpc": "sum",
                     "Acordo": "sum",
                 })
         )
+
+        # Mailing do comparativo:
+        # soma distinta das faixas por dia, sem usar máximo geral.
+        mailing_daily = calcular_mailing_distinto_por_faixa(
+            filtro,
+            chave_distinta=["DATA"],
+            chave_final=["DATA"]
+        )
+
+        daily = daily_metricas.merge(mailing_daily, on="DATA", how="left")
+        daily["MAILING"] = daily["MAILING"].fillna(0)
+        daily = daily.sort_values("DATA")
 
         valores = valores_zerados.copy()
         for _, col, _ in etapas_def:
@@ -3099,9 +3194,10 @@ def montar_funil_comparativo_sky(df):
         meta["tem_base"] = True
         if meta["dias_selecionados"]:
             meta["valores_media_dia"] = {k: (v / meta["dias_selecionados"]) for k, v in valores.items()}
-            # Regra visão Dia: usar o maior Mailing diário dentro do período selecionado.
+            # Regra visão Dia:
+            # usa a soma distinta das faixas do dia mais recente selecionado.
             if "MAILING" in daily.columns and len(daily):
-                meta["mailing_max_dia"] = float(daily["MAILING"].max())
+                meta["mailing_dia_distinto"] = float(daily.sort_values("DATA").iloc[-1]["MAILING"])
         return valores, meta
 
     valores_a, meta_a = consolidar_opcao(opt_a)
@@ -3127,8 +3223,8 @@ def montar_funil_comparativo_sky(df):
         if meta_b.get("tem_base") and dias_selecionados:
             # Demais etapas = média dos dias selecionados.
             valores_b_view = {k: (float(v) / dias_selecionados) for k, v in valores_b.items()}
-            # Mailing = maior Mailing diário do período selecionado.
-            valores_b_view["MAILING"] = float(meta_b.get("mailing_max_dia") or valores_b_view.get("MAILING", 0))
+            # Mailing = soma distinta das faixas do dia mais recente selecionado.
+            valores_b_view["MAILING"] = float(meta_b.get("mailing_dia_distinto") or valores_b_view.get("MAILING", 0))
     else:
         # Mês mantém a regra vigente: A fixo total e B realizado,
         # com Mailing da B em média dia.
@@ -3278,10 +3374,9 @@ def montar_faixa_atraso(df):
             base[col] = 0
         base[col] = pd.to_numeric(base[col], errors="coerce").fillna(0)
 
-    faixa_df = (
+    faixa_metricas = (
         base.groupby("Faixa_Atraso", as_index=False)
             .agg({
-                "MAILING": "max",
                 "Discado": "sum",
                 "Contato": "sum",
                 "Cpc": "sum",
@@ -3290,6 +3385,16 @@ def montar_faixa_atraso(df):
                 "Tempo": "sum",
             })
     )
+
+    # Mailing por faixa: soma o mailing distinto por DATA + Faixa_Atraso.
+    mailing_faixa = calcular_mailing_distinto_por_faixa(
+        base,
+        chave_distinta=["DATA", "Faixa_Atraso"],
+        chave_final=["Faixa_Atraso"]
+    )
+
+    faixa_df = faixa_metricas.merge(mailing_faixa, on="Faixa_Atraso", how="left")
+    faixa_df["MAILING"] = faixa_df["MAILING"].fillna(0)
 
     def _ordem_faixa(valor):
         txt = str(valor).lower()
@@ -3382,14 +3487,25 @@ def consolidar(df):
             "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df)
         }
 
-    daily = (
+    daily_metricas = (
         df.groupby("DATA", as_index=False)
           .agg({
-              "MAILING":"max", "Discado":"sum", "Contato":"sum", "Cpc":"sum",
+              "Discado":"sum", "Contato":"sum", "Cpc":"sum",
               "Acordo":"sum", "HangUp":"sum", "Tempo":"sum", "Custo_Telecom":"sum"
           })
           .sort_values("DATA")
     )
+
+    # Daily: soma os Mailings distintos de cada faixa por dia.
+    mailing_daily = calcular_mailing_distinto_por_faixa(
+        df,
+        chave_distinta=["DATA"],
+        chave_final=["DATA"]
+    )
+
+    daily = daily_metricas.merge(mailing_daily, on="DATA", how="left")
+    daily["MAILING"] = daily["MAILING"].fillna(0)
+    daily = daily[["DATA", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]].sort_values("DATA")
 
     daily["Spin"] = daily.apply(lambda x: safe_div(x["Discado"], x["MAILING"]), axis=1)
     daily["Hit"] = daily.apply(lambda x: safe_div(x["Contato"], x["Discado"]), axis=1)
@@ -3510,13 +3626,23 @@ def consolidar(df):
         "custoPorAcordo": daily["CustoPorAcordo"].round(2).tolist(),
     }
 
-    uf_df = (
+    uf_metricas = (
         df.groupby("UF", as_index=False)
           .agg({
-              "MAILING":"max", "Discado":"sum", "Contato":"sum", "Cpc":"sum",
+              "Discado":"sum", "Contato":"sum", "Cpc":"sum",
               "Acordo":"sum", "HangUp":"sum", "Tempo":"sum", "Custo_Telecom":"sum"
           })
     )
+
+    # Brasil/UF: soma Mailing distinto por DATA + UF + Faixa_Atraso.
+    mailing_uf = calcular_mailing_distinto_por_faixa(
+        df,
+        chave_distinta=["DATA", "UF"],
+        chave_final=["UF"]
+    )
+
+    uf_df = uf_metricas.merge(mailing_uf, on="UF", how="left")
+    uf_df["MAILING"] = uf_df["MAILING"].fillna(0)
     uf_df = uf_df[uf_df["UF"].isin(TODAS_UFS)].copy()
     uf_df["Hit"] = uf_df.apply(lambda x: safe_div(x["Contato"], x["Discado"]), axis=1)
     uf_df["CpcPerc"] = uf_df.apply(lambda x: safe_div(x["Cpc"], x["Contato"]), axis=1)
