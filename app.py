@@ -2523,6 +2523,7 @@ def normalizar_colunas(df):
             "idcampanha": "CampaignId",
             "id_campanha": "CampaignId",
 
+            "uf": "UF",
             "uf_ddd": "UF_DDD",
             "ddd": "UF_DDD",
             "prefix": "UF_DDD",
@@ -2552,6 +2553,7 @@ def normalizar_colunas(df):
             "acordo": "Acordo",
 
             "hangup": "HangUp",
+            "%hangup": "PctHangUp",
             "hang_up": "HangUp",
 
             "tempo": "Tempo",
@@ -2572,57 +2574,65 @@ def normalizar_colunas(df):
 # O arquivo só é recarregado quando a data de modificação muda.
 SKY_BASE_CACHE = {
     "mtime": None,
-    "df": None
+    "bases": None
 }
 
-def carregar_base():
-    if not SKY_ARQUIVO_BASE.exists():
-        rows = []
-        dias = pd.date_range("2026-05-14", periods=6, freq="D")
-        ddds = [11,21,31,41,51,71,81,85,61,62,91,92,65,67,98,86,84,27,68,69,96]
-        faixas = ["B.31 a 60 Dias", "C.61 a 90 Dias", "D.91 a 120 Dias", "E.Acima de 120 Dias"]
-        tabs = [
-            ("ADA_Aceita pagamento com desconto", "Acordo"),
-            ("ADA_Ja pagou_Template", "Cpc"),
-            ("ADA_Pergunta quem fala_Template", "Contato"),
-            ("Announcement", "Discado"),
-            ("CarrierMessage", "Discado"),
-            ("NoAnswer", "Discado"),
-        ]
-        for d in dias:
-            for hour in range(8, 18):
-                for ddd in ddds:
-                    for i, (tab, clas) in enumerate(tabs):
-                        peso = (ddd % 9) + 1
-                        disc = ([1, 2, 1, 4, 12, 3][i] + peso)
-                        contato = disc if clas in ["Contato", "Cpc", "Acordo"] else 0
-                        cpc = disc if clas in ["Cpc", "Acordo"] else 0
-                        acordo = max(0, disc // 2) if clas == "Acordo" else 0
-                        mailing = 0
-                        rows.append({
-                            "DATA": d,
-                            "HOUR": hour,
-                            "CampaignId": 202,
-                            "UF_DDD": ddd,
-                            "Faixa_Atraso": faixas[(ddd + hour) % len(faixas)],
-                            "Tabulacao": tab,
-                            "Classificado": clas,
-                            "MAILING": mailing,
-                            "Discado": disc,
-                            "Contato": contato,
-                            "Cpc": cpc,
-                            "Acordo": acordo,
-                            "Tempo": contato * (80 + (ddd % 7) * 15),
-                            "Custo_Telecom": disc * 0.032
-                        })
-        return pd.DataFrame(rows)
+SKY_SHEETS = {
+    "daily": "Funil_Sumarizado",
+    "hora": "Funil_Hora",
+    "uf": "Funil_UF_Dia",
+}
 
-    mtime = SKY_ARQUIVO_BASE.stat().st_mtime
-    if SKY_BASE_CACHE.get("df") is not None and SKY_BASE_CACHE.get("mtime") == mtime:
-        return SKY_BASE_CACHE["df"].copy()
+def _normalizar_nome_sheet(nome):
+    return str(nome or "").strip().lower().replace(" ", "_").replace("-", "_")
 
-    df = pd.read_excel(SKY_ARQUIVO_BASE)
-    df = normalizar_colunas(df)
+def _resolver_sheet(xls, nome_preferido):
+    alvo = _normalizar_nome_sheet(nome_preferido)
+    for sheet in xls.sheet_names:
+        if _normalizar_nome_sheet(sheet) == alvo:
+            return sheet
+    return nome_preferido
+
+def _valor_percentual_para_decimal(serie):
+    def conv(v):
+        if pd.isna(v):
+            return 0
+        if isinstance(v, str):
+            txt = v.strip().replace("%", "").replace(".", "").replace(",", ".")
+            if txt in ["", "nan", "None", "%"]:
+                return 0
+            try:
+                num = float(txt)
+                return num / 100 if "%" in v or num > 1 else num
+            except Exception:
+                return 0
+        try:
+            num = float(v)
+            return num / 100 if num > 1 else num
+        except Exception:
+            return 0
+    return serie.apply(conv)
+
+def _tempo_para_segundos(valor):
+    if pd.isna(valor):
+        return 0
+    if isinstance(valor, (int, float, np.integer, np.floating)):
+        return float(valor)
+    txt = str(valor).strip()
+    if not txt or txt in ["::", "nan", "NaT"]:
+        return 0
+    partes = txt.split(":")
+    try:
+        if len(partes) == 3:
+            return int(float(partes[0])) * 3600 + int(float(partes[1])) * 60 + int(float(partes[2]))
+        if len(partes) == 2:
+            return int(float(partes[0])) * 60 + int(float(partes[1]))
+        return float(txt.replace(",", "."))
+    except Exception:
+        return 0
+
+def preparar_base_sky(df, origem="daily"):
+    df = normalizar_colunas(df.copy())
 
     # Fallback extra para hora quando o Excel vier com Hour/Hora.
     if "HOUR" not in df.columns:
@@ -2632,35 +2642,116 @@ def carregar_base():
                 break
 
     colunas = [
-        "DATA","HOUR","CampaignId","UF_DDD","Faixa_Atraso","Tabulacao","Classificado",
-        "MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"
+        "DATA", "HOUR", "CampaignId", "UF", "UF_DDD", "Faixa_Atraso", "Tabulacao", "Classificado",
+        "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"
     ]
 
     for col in colunas:
         if col not in df.columns:
-            df[col] = "" if col in ["Faixa_Atraso","Tabulacao","Classificado"] else 0
+            if col in ["Faixa_Atraso", "Tabulacao", "Classificado", "UF"]:
+                df[col] = ""
+            else:
+                df[col] = 0
 
     df["DATA"] = pd.to_datetime(df["DATA"], errors="coerce")
-    df = df.dropna(subset=["DATA"])
+    df = df.dropna(subset=["DATA"]).copy()
 
-    for col in ["HOUR","CampaignId","UF_DDD","MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"]:
+    # A nova base da Sky já vem sumarizada. Mantemos o padrão antigo de nomes para não quebrar o HTML.
+    for col in ["HOUR", "CampaignId", "UF_DDD", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
 
+    # Quando Tempo vier zerado mas existir TMA_GERAL, estima Tempo = TMA * Contato.
+    if "TMA_GERAL" in df.columns:
+        tma_seg = df["TMA_GERAL"].apply(_tempo_para_segundos)
+        df["Tempo"] = np.where(df["Tempo"].fillna(0) <= 0, tma_seg * df["Contato"], df["Tempo"])
+
+    if "HitRate" in df.columns:
+        df["HitRate"] = _valor_percentual_para_decimal(df["HitRate"])
+    if "Loc" in df.columns:
+        df["Loc"] = _valor_percentual_para_decimal(df["Loc"])
+    if "Conversao" in df.columns:
+        df["Conversao"] = _valor_percentual_para_decimal(df["Conversao"])
+    if "PctHangUp" in df.columns:
+        df["PctHangUp"] = _valor_percentual_para_decimal(df["PctHangUp"])
+
     # Reduz tipos numéricos para deixar filtros/agregações mais leves.
-    for col in ["HOUR","CampaignId","UF_DDD"]:
-        df[col] = df[col].astype("int32")
-    for col in ["MAILING","Discado","Contato","Cpc","Acordo","Tempo","Custo_Telecom"]:
-        df[col] = df[col].astype("float64")
+    for col in ["HOUR", "CampaignId", "UF_DDD"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype("int32")
+    for col in ["MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype("float64")
+
+    df["Faixa_Atraso"] = df["Faixa_Atraso"].fillna("Sem faixa").astype(str).str.strip()
+    df.loc[df["Faixa_Atraso"].eq("") | df["Faixa_Atraso"].str.lower().eq("nan"), "Faixa_Atraso"] = "Sem faixa"
+
+    return df
+
+def carregar_bases_sky():
+    if not SKY_ARQUIVO_BASE.exists():
+        rows = []
+        dias = pd.date_range("2026-05-14", periods=6, freq="D")
+        ddds = [11,21,31,41,51,71,81,85,61,62,91,92,65,67,98,86,84,27,68,69,96]
+        faixas = ["B.31 a 60 Dias", "C.61 a 90 Dias", "D.91 a 120 Dias", "E.Acima de 120 Dias"]
+        for d in dias:
+            for hour in range(8, 18):
+                for ddd in ddds:
+                    rows.append({
+                        "DATA": d, "HOUR": hour, "CampaignId": 202, "UF_DDD": ddd,
+                        "Faixa_Atraso": faixas[(ddd + hour) % len(faixas)],
+                        "MAILING": 1000, "Discado": 100, "Contato": 20, "Cpc": 8, "Acordo": 2,
+                        "HangUp": 1, "Tempo": 800, "Custo_Telecom": 3.2
+                    })
+        demo = preparar_base_sky(pd.DataFrame(rows))
+        return {"daily": demo, "hora": demo, "uf": demo}
+
+    mtime = SKY_ARQUIVO_BASE.stat().st_mtime
+    if SKY_BASE_CACHE.get("bases") is not None and SKY_BASE_CACHE.get("mtime") == mtime:
+        return {k: v.copy() for k, v in SKY_BASE_CACHE["bases"].items()}
+
+    xls = pd.ExcelFile(SKY_ARQUIVO_BASE)
+    bases = {}
+    for chave, sheet_preferida in SKY_SHEETS.items():
+        sheet_real = _resolver_sheet(xls, sheet_preferida)
+        bases[chave] = preparar_base_sky(pd.read_excel(SKY_ARQUIVO_BASE, sheet_name=sheet_real), origem=chave)
+
+    # Fallbacks para qualquer aba ausente/vazia.
+    if bases.get("daily", pd.DataFrame()).empty:
+        bases["daily"] = bases.get("hora", pd.DataFrame()).copy()
+    if bases.get("hora", pd.DataFrame()).empty:
+        bases["hora"] = bases.get("daily", pd.DataFrame()).copy()
+    if bases.get("uf", pd.DataFrame()).empty:
+        bases["uf"] = bases.get("daily", pd.DataFrame()).copy()
 
     SKY_BASE_CACHE["mtime"] = mtime
-    SKY_BASE_CACHE["df"] = df.copy()
+    SKY_BASE_CACHE["bases"] = {k: v.copy() for k, v in bases.items()}
+    return {k: v.copy() for k, v in bases.items()}
 
-    return df.copy()
+def carregar_base():
+    # Mantido por compatibilidade: a visão Daily/Comparativo usa a sheet Funil_Sumarizado.
+    return carregar_bases_sky()["daily"]
 
 def adicionar_uf(df):
     df = df.copy()
-    df["DDD_INT"] = df["UF_DDD"].astype(float).astype(int)
-    df["UF"] = df["DDD_INT"].map(DDD_UF).fillna("NI")
+
+    # Se já existir UF em formato SP/RJ/MG, usa direto.
+    if "UF" in df.columns:
+        uf_txt = df["UF"].fillna("").astype(str).str.strip().str.upper()
+        uf_valida = uf_txt.where(uf_txt.isin(TODAS_UFS), "")
+        if uf_valida.ne("").any():
+            df["UF"] = uf_valida.replace("", "NI")
+            return df
+
+        # Na base nova, a coluna UF pode vir com DDD numérico.
+        uf_num = pd.to_numeric(df["UF"], errors="coerce")
+        if uf_num.notna().any():
+            df["UF"] = uf_num.fillna(0).astype(int).map(DDD_UF).fillna("NI")
+            return df
+
+    if "UF_DDD" not in df.columns:
+        df["UF_DDD"] = 0
+
+    ddd = pd.to_numeric(df["UF_DDD"], errors="coerce").fillna(0).astype(int)
+    df["DDD_INT"] = ddd
+    df["UF"] = ddd.map(DDD_UF).fillna("NI")
     return df
 
 
@@ -3457,7 +3548,23 @@ def montar_faixa_atraso(df):
     return {"cards": cards, "tabela": tabela}
 
 def consolidar(df):
+    # A Sky agora usa 3 sheets sumarizadas:
+    # Daily/Comparativo -> Funil_Sumarizado
+    # Hora a Hora       -> Funil_Hora
+    # Mapa/UF           -> Funil_UF_Dia
+    if isinstance(df, dict):
+        bases = df
+        df = bases.get("daily", pd.DataFrame()).copy()
+        df_hora_base = bases.get("hora", df).copy()
+        df_uf_base = bases.get("uf", df).copy()
+    else:
+        df = df.copy()
+        df_hora_base = df.copy()
+        df_uf_base = df.copy()
+
     df = adicionar_uf(df)
+    df_hora_base = adicionar_uf(df_hora_base)
+    df_uf_base = adicionar_uf(df_uf_base)
 
     filtros = {
         "min_data": df["DATA"].min().strftime("%Y-%m-%d") if len(df) else "",
@@ -3467,6 +3574,8 @@ def consolidar(df):
     }
 
     df = aplicar_filtros(df)
+    df_hora_filtrado = aplicar_filtros(df_hora_base)
+    df_uf_filtrado = aplicar_filtros(df_uf_base)
 
     # HangUp para os cards do fluxo.
     # Caso a base não tenha a coluna HangUp, calcula pelo volume Discado das linhas tabuladas como HangUp.
@@ -3484,7 +3593,7 @@ def consolidar(df):
             "cards": [], "capacity": [], "flow": [], "extras": {},
             "datas": [], "tabela": [], "chart": {},
             "insight": "Sem dados para os filtros selecionados.",
-            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df)
+            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "hora_a_hora": {"labels": [], "chart": {}, "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df)
         }
 
     daily_metricas = (
@@ -3626,8 +3735,12 @@ def consolidar(df):
         "custoPorAcordo": daily["CustoPorAcordo"].round(2).tolist(),
     }
 
+    base_uf_visao = df_uf_filtrado.copy()
+    if base_uf_visao.empty:
+        base_uf_visao = df.copy()
+
     uf_metricas = (
-        df.groupby("UF", as_index=False)
+        base_uf_visao.groupby("UF", as_index=False)
           .agg({
               "Discado":"sum", "Contato":"sum", "Cpc":"sum",
               "Acordo":"sum", "HangUp":"sum", "Tempo":"sum", "Custo_Telecom":"sum"
@@ -3636,7 +3749,7 @@ def consolidar(df):
 
     # Brasil/UF: soma Mailing distinto por DATA + UF + Faixa_Atraso.
     mailing_uf = calcular_mailing_distinto_por_faixa(
-        df,
+        base_uf_visao,
         chave_distinta=["DATA", "UF"],
         chave_final=["UF"]
     )
@@ -3687,7 +3800,7 @@ def consolidar(df):
         """
 
     # Hora a hora também monta vários gráficos/tabelas. Carrega apenas quando a aba estiver ativa.
-    hora_a_hora = montar_visao_hora_a_hora(df) if active_tab == "hora" else {"labels": [], "chart": {}, "tabela": []}
+    hora_a_hora = montar_visao_hora_a_hora(df_hora_filtrado) if active_tab == "hora" else {"labels": [], "chart": {}, "tabela": []}
 
     # Funil por faixa de atraso usado na visão Daily.
     faixa_atraso = montar_faixa_atraso(df)
@@ -3731,8 +3844,8 @@ def sky_negocie_online_index() -> str:
         return redirect(url_for('login'))
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return acesso_negado()
-    df = carregar_base()
-    dashboard = consolidar(df)
+    bases = carregar_bases_sky()
+    dashboard = consolidar(bases)
     return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=session.get('usuario'))
 
 
@@ -3742,8 +3855,8 @@ def sky_negocie_online_api():
         return jsonify({"error": "unauthorized"}), 401
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return jsonify({"error": "forbidden"}), 403
-    df = carregar_base()
-    return jsonify(consolidar(df))
+    bases = carregar_bases_sky()
+    return jsonify(consolidar(bases))
 
 
 
