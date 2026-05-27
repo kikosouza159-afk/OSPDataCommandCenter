@@ -47,6 +47,8 @@
       padding: 10px 12px 18px;
       border-bottom: 1px solid var(--line);
     }
+    .olos-logo-box { margin-bottom: 14px; padding: 10px 12px; border-radius: 16px; border: 1px solid rgba(255,122,0,.28); background: rgba(255,122,0,.08); box-shadow: 0 0 22px rgba(255,122,0,.10); }
+    .olos-logo { display: block; width: 128px; max-width: 100%; height: auto; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,122,0,.24)); }
     .brand-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
     .brand-sub { color: var(--muted); font-size: 12px; line-height: 1.4; }
     .menu { display: grid; gap: 10px; }
@@ -146,6 +148,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
+        <div class="olos-logo-box"><img class="olos-logo" src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"></div>
         <div class="brand-title">TALENTOS</div>
         <div class="brand-sub">Locator Dashboard integrado ao Cockpit.</div>
       </div>

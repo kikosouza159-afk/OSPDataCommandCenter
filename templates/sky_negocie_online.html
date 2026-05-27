@@ -65,6 +65,7 @@ to { background-position: 0 55px; } }
     }
 
     .brand { display: flex; align-items: center; gap: 14px; }
+    .olos-panel-logo { width: 122px; max-width: 18vw; height: auto; object-fit: contain; filter: drop-shadow(0 0 12px rgba(255,122,0,.30)); }
     .logo {
       width: 54px;
       height: 54px;
@@ -1684,7 +1685,7 @@ to { background-position: 0 55px; } }
 
   <main class="container">
     <header class="topbar">
-      <a href="/dashboard" style="text-decoration:none;color:#91f3ff;font-weight:800;margin-right:12px;border:1px solid rgba(0,229,255,.22);background:rgba(6,18,34,.68);border-radius:14px;padding:10px 12px;display:inline-flex;align-items:center;gap:8px;">← Cockpit</a><div class="brand">
+      <a href="/dashboard" style="text-decoration:none;color:#91f3ff;font-weight:800;margin-right:12px;border:1px solid rgba(0,229,255,.22);background:rgba(6,18,34,.68);border-radius:14px;padding:10px 12px;display:inline-flex;align-items:center;gap:8px;">← Cockpit</a><img class="olos-panel-logo" src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><div class="brand">
         <div class="logo">SKY</div>
         <div>
           <h1>Dashboard Sky | Negocie Online</h1>

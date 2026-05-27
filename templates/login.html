@@ -24,14 +24,14 @@ body{min-height:100vh;overflow-x:hidden;background:#020814;color:#fff}
 body{display:flex;align-items:center;justify-content:center;overflow:hidden}
 .login-card{position:relative;z-index:5;width:410px;padding:38px;border-radius:26px;background:rgba(6,18,34,.76);backdrop-filter:blur(18px);border:1px solid rgba(0,229,255,.28);box-shadow:0 0 45px rgba(0,229,255,.18),inset 0 0 30px rgba(255,255,255,.02);animation:cardEntry .8s ease}
 @keyframes cardEntry{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-.logo{text-align:center;margin-bottom:28px}.tag{display:inline-block;margin-bottom:12px;padding:6px 12px;border-radius:999px;background:rgba(0,229,255,.10);border:1px solid rgba(0,229,255,.22);color:#91f3ff;font-size:11px;letter-spacing:1px}
+.logo{text-align:center;margin-bottom:28px}.olos-login-logo{display:block;width:152px;max-width:70%;height:auto;margin:0 auto 18px;filter:drop-shadow(0 0 14px rgba(255,122,0,.32));}.tag{display:inline-block;margin-bottom:12px;padding:6px 12px;border-radius:999px;background:rgba(0,229,255,.10);border:1px solid rgba(0,229,255,.22);color:#91f3ff;font-size:11px;letter-spacing:1px}
 .logo h1{font-size:38px;letter-spacing:3px;color:#fff;text-shadow:0 0 18px rgba(0,229,255,.55)}.logo p{margin-top:10px;color:#9fc2d4;font-size:13px}
 .erro{margin-bottom:15px;padding:11px;border-radius:12px;background:rgba(255,70,70,.14);border:1px solid rgba(255,70,70,.40);color:#ffb0b0;text-align:center;font-size:13px}
 .input-group{margin-bottom:17px}.input-group label{display:block;margin-bottom:7px;color:#b8d7e8;font-size:13px}.input-group input{width:100%;padding:14px 15px;border-radius:13px;border:1px solid rgba(0,229,255,.28);background:rgba(255,255,255,.07);color:#fff;outline:none;font-size:15px;transition:.25s}.input-group input::placeholder{color:#7694a8}.input-group input:focus{border-color:#00e5ff;box-shadow:0 0 18px rgba(0,229,255,.25);background:rgba(255,255,255,.10)}
 .btn-login{width:100%;margin-top:8px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#00e5ff,#0077ff);color:#00111f;font-weight:800;font-size:15px;cursor:pointer;transition:.25s}.btn-login:hover{transform:translateY(-2px);box-shadow:0 0 26px rgba(0,229,255,.48)}.footer{text-align:center;margin-top:22px;color:#6f91a6;font-size:11px}
 @media(max-width:520px){.login-card{width:calc(100% - 32px);padding:30px 24px}.logo h1{font-size:32px}}
 </style></head><body>{% include "background.html" %}
-<form class="login-card" method="POST"><div class="logo"><span class="tag">OSP COMMAND CENTER</span><h1>COCKPIT</h1><p>Inteligência Operacional • Estratégia • Performance</p></div>
+<form class="login-card" method="POST"><div class="logo"><img class="olos-login-logo" src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><span class="tag">OSP COMMAND CENTER</span><h1>COCKPIT</h1><p>Inteligência Operacional • Estratégia • Performance</p></div>
 {% if erro %}<div class="erro">{{ erro }}</div>{% endif %}
 <div class="input-group"><label>Usuário</label><input type="text" name="usuario" placeholder="Digite seu usuário" required></div>
 <div class="input-group"><label>Senha</label><input type="password" name="senha" placeholder="Digite sua senha" required></div>
