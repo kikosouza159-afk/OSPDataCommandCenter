@@ -66,6 +66,15 @@
         {% endfor %}
       </select>
     </div>
+    <div class="field">
+      <label>Nome Campanha</label>
+      <select name="campanha">
+        <option value="Todos" {% if selected_campaign == 'Todos' %}selected{% endif %}>Todas</option>
+        {% for c in campaigns %}
+          <option value="{{ c }}" {% if c == selected_campaign %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
     <input type="hidden" name="locator_class" value="{{ selected_locator_class }}">
     <input type="hidden" name="receptivo_class" value="{{ selected_receptivo_class }}">
     <input type="hidden" name="classificacao" value="{{ selected_class }}">
@@ -119,6 +128,7 @@
       <h2 class="side-title">Locator <span>IA / Localizador</span></h2>
       <form method="get" class="side-filter">
         <input type="hidden" name="date" value="{{ selected_date }}">
+        <input type="hidden" name="campanha" value="{{ selected_campaign }}">
         <input type="hidden" name="classificacao" value="{{ selected_class }}">
         <input type="hidden" name="receptivo_class" value="{{ selected_receptivo_class }}">
         <div class="field" style="min-width:100%;">
@@ -153,6 +163,7 @@
       <h2 class="side-title">Receptivo <span>Humano / Operação</span></h2>
       <form method="get" class="side-filter">
         <input type="hidden" name="date" value="{{ selected_date }}">
+        <input type="hidden" name="campanha" value="{{ selected_campaign }}">
         <input type="hidden" name="classificacao" value="{{ selected_class }}">
         <input type="hidden" name="locator_class" value="{{ selected_locator_class }}">
         <div class="field" style="min-width:100%;">
@@ -187,6 +198,7 @@
   <section class="chart-card">
     <form method="get" class="chart-head">
       <input type="hidden" name="date" value="{{ selected_date }}">
+      <input type="hidden" name="campanha" value="{{ selected_campaign }}">
       <input type="hidden" name="locator_class" value="{{ selected_locator_class }}">
       <input type="hidden" name="receptivo_class" value="{{ selected_receptivo_class }}">
       <div>

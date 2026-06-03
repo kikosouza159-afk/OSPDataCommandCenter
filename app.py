@@ -1990,13 +1990,16 @@ def load_tabulacao_data() -> pd.DataFrame:
     return df
 
 
-def apply_tabulacao_filters(df: pd.DataFrame, date: str) -> pd.DataFrame:
-    """Na aba de Tabulação, mantemos apenas filtro de data.
-    Locator e Receptivo sempre aparecem lado a lado.
+def apply_tabulacao_filters(df: pd.DataFrame, date: str, campaign: str = 'Todos') -> pd.DataFrame:
+    """Filtro da aba de Tabulação por data e NomeCampanha.
+    Locator e Receptivo continuam aparecendo lado a lado, mas agora podem ser
+    separados por campanha/receptivo conforme o campo NomeCampanha da base.
     """
     out = df.copy()
     if date != 'Todos':
         out = out[out['DataStr'] == date]
+    if campaign != 'Todos' and 'NomeCampanha' in out.columns:
+        out = out[out['NomeCampanha'].astype(str) == str(campaign)]
     return out
 
 
@@ -2176,8 +2179,10 @@ def talentos_tabulacao() -> str:
     context: Dict[str, Any] = {
         'page': 'tabulacao',
         'dates': [],
+        'campaigns': [],
         'class_options': [],
         'selected_date': 'Todos',
+        'selected_campaign': 'Todos',
         'selected_class': 'Todos',
         'selected_locator_class': 'Todos',
         'selected_receptivo_class': 'Todos',
@@ -2188,22 +2193,26 @@ def talentos_tabulacao() -> str:
     try:
         df = load_tabulacao_data()
         dates = sorted(df['DataStr'].dropna().unique().tolist(), reverse=True)
+        campaigns = sorted([x for x in df['NomeCampanha'].dropna().astype(str).unique().tolist() if str(x).strip()]) if 'NomeCampanha' in df.columns else []
         class_options = sorted([x for x in df['Classificacao'].dropna().unique().tolist() if str(x).strip()])
         locator_class_options = sorted([x for x in df.loc[df['Tipo'] == 'Locator', 'Classificacao'].dropna().unique().tolist() if str(x).strip()])
         receptivo_class_options = sorted([x for x in df.loc[df['Tipo'] == 'Receptivo', 'Classificacao'].dropna().unique().tolist() if str(x).strip()])
 
         selected_date = request.args.get('date', dates[0] if dates else 'Todos')
+        selected_campaign = request.args.get('campanha', 'Todos')
         selected_class = request.args.get('classificacao', 'Todos')
         selected_locator_class = request.args.get('locator_class', 'Todos')
         selected_receptivo_class = request.args.get('receptivo_class', 'Todos')
 
-        filtered = apply_tabulacao_filters(df, selected_date)
+        filtered = apply_tabulacao_filters(df, selected_date, selected_campaign)
         context.update({
             'dates': dates,
+            'campaigns': campaigns,
             'class_options': class_options,
             'locator_class_options': locator_class_options,
             'receptivo_class_options': receptivo_class_options,
             'selected_date': selected_date,
+            'selected_campaign': selected_campaign,
             'selected_class': selected_class,
             'selected_locator_class': selected_locator_class,
             'selected_receptivo_class': selected_receptivo_class,
