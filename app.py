@@ -16,7 +16,8 @@ USUARIOS = {
     "sky": "sky123",
     "negocie_online": "negocie@2026",
     "talentos": "talentos123",
-    "sky_talentos": "multi123"
+    "sky_talentos": "multi123",
+    "link": "link123"
 }
 
 
@@ -24,16 +25,17 @@ USUARIOS = {
 # Use o slug do cliente, o mesmo valor usado na URL /cliente/<slug>.
 USUARIO_CLIENTES = {
     "admin": ["*"],
-    "gerber": ["sky-negocie-online", "talentos"],
-    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos"],
-    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos"],
-    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos"],
-    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos"],
+    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
 
     "sky": ["sky-negocie-online"],
     "negocie_online": ["sky-negocie-online"],
     "talentos": ["talentos"],
-    "sky_talentos": ["sky-negocie-online", "talentos"],
+    "link": ["link"],
+    "sky_talentos": ["sky-negocie-online", "talentos", "link"],
 }
 
 
@@ -1239,6 +1241,19 @@ def dashboard():
         return redirect(url_for("login"))
     return render_template("dashboard.html", usuario=session["usuario"], clientes=clientes_permitidos(session["usuario"]))
 
+# ===== CLIENTES LOCATOR | Painel executivo compartilhado =====
+# Cada cliente possui uma base Excel isolada em data/<arquivo>.
+LOCATOR_CLIENTES_CONFIG = {
+    "millennium": {"nome": "MILLENNIUM", "arquivo": "base_millennium.xlsx"},
+    "nw-advogados": {"nome": "NW ADVOGADOS", "arquivo": "base_nw_advogados.xlsx"},
+    "renac": {"nome": "RENAC", "arquivo": "base_renac.xlsx"},
+    "setra": {"nome": "SETRA", "arquivo": "base_setra.xlsx"},
+    "syscob": {"nome": "SYSCOB", "arquivo": "base_syscob.xlsx"},
+    "ferreira-e-chagas": {"nome": "FERREIRA & CHAGAS", "arquivo": "base_ferreira_chagas.xlsx"},
+    "creditas": {"nome": "CREDITAS", "arquivo": "base_creditas.xlsx"},
+    "aranha-e-ferreira": {"nome": "ARANHA FERREIRA", "arquivo": "base_aranha_ferreira.xlsx"},
+}
+
 @app.route("/cliente/<slug>")
 def cliente(slug):
     if "usuario" not in session:
@@ -1255,6 +1270,12 @@ def cliente(slug):
 
     if slug == "talentos":
         return redirect(url_for("talentos_index"))
+
+    if slug == "link":
+        return redirect(url_for("link_index"))
+
+    if slug in LOCATOR_CLIENTES_CONFIG:
+        return redirect(url_for("locator_cliente_index", slug=slug))
 
     return render_template("cliente.html", usuario=session["usuario"], cliente=cliente_selecionado)
 
@@ -3867,6 +3888,423 @@ def sky_negocie_online_api():
     bases = carregar_bases_sky()
     return jsonify(consolidar(bases))
 
+
+
+# ===== LINK | Locator + ATH Dashboard integrado =====
+# Base independente: data/base_link.xlsx
+LINK_ARQUIVO_BASE = Path(os.getenv("LINK_EXCEL_PATH", BASE_DIR / "data" / "base_link.xlsx"))
+LINK_BASE_CACHE = {"mtime": None, "df": None}
+
+LINK_COLUMNS = [
+    "Data", "Hora", "CampaignId", "WayInboundCampaignId", "NomeCampanha", "Mailing", "AD", "ATH",
+    "Tentativas", "Atendidas", "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio",
+    "TMA_LOCATOR", "TMA_ATH", "HitRate", "SucessoInteracao", "%Perda", "Abandono", "%Abandono",
+    "SLA", "Custo"
+]
+
+
+def _link_texto(valor):
+    if pd.isna(valor):
+        return ""
+    return str(valor).strip()
+
+
+def _link_num(valor):
+    if pd.isna(valor):
+        return 0.0
+    if isinstance(valor, (int, float, np.integer, np.floating)):
+        return float(valor)
+    txt = str(valor).strip()
+    if txt in ["", "::", "%", "nan", "NaT", "None"]:
+        return 0.0
+    txt = txt.replace("R$", "").replace(" ", "").replace(".", "").replace(",", ".")
+    try:
+        return float(txt)
+    except Exception:
+        return 0.0
+
+
+def _link_pct(valor):
+    """Retorna percentual na escala visual 0-100. Ex.: '12,5%' -> 12.5."""
+    if pd.isna(valor):
+        return np.nan
+    if isinstance(valor, (int, float, np.integer, np.floating)):
+        num = float(valor)
+        # Excel pode entregar percentuais como 0.125 ou 12.5.
+        return num * 100 if 0 < abs(num) <= 1 else num
+    txt = str(valor).strip()
+    if txt in ["", "::", "%", "nan", "NaT", "None"]:
+        return np.nan
+    tinha_percentual = "%" in txt
+    txt = txt.replace("%", "").replace(" ", "").replace(".", "").replace(",", ".")
+    try:
+        num = float(txt)
+        if not tinha_percentual and 0 < abs(num) <= 1:
+            return num * 100
+        return num
+    except Exception:
+        return np.nan
+
+
+def _link_segundos(valor):
+    if pd.isna(valor):
+        return np.nan
+    if isinstance(valor, pd.Timedelta):
+        return float(valor.total_seconds())
+    if isinstance(valor, (int, float, np.integer, np.floating)):
+        num = float(valor)
+        # Horários do Excel normalmente chegam como fração de dia.
+        return num * 86400 if 0 < num < 1 else num
+    txt = str(valor).strip()
+    if txt in ["", "::", "nan", "NaT", "None"]:
+        return np.nan
+    partes = txt.split(":")
+    try:
+        if len(partes) == 3:
+            return int(float(partes[0])) * 3600 + int(float(partes[1])) * 60 + float(partes[2].replace(",", "."))
+        if len(partes) == 2:
+            return int(float(partes[0])) * 60 + float(partes[1].replace(",", "."))
+        return float(txt.replace(",", "."))
+    except Exception:
+        return np.nan
+
+
+def _link_tempo_fmt(valor):
+    try:
+        if pd.isna(valor):
+            return "00:00"
+        total = int(round(float(valor)))
+        h = total // 3600
+        m = (total % 3600) // 60
+        s = total % 60
+        return f"{h:02d}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
+    except Exception:
+        return "00:00"
+
+
+def _link_num_fmt(valor, decimais=0):
+    try:
+        formato = f"{{:,.{decimais}f}}"
+        return formato.format(float(valor or 0)).replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return "0"
+
+
+def _link_pct_fmt(valor):
+    try:
+        if pd.isna(valor):
+            return "0,00%"
+        return _link_num_fmt(valor, 2) + "%"
+    except Exception:
+        return "0,00%"
+
+
+def _link_money_fmt(valor):
+    return "R$ " + _link_num_fmt(valor, 2)
+
+
+def preparar_base_link(df):
+    df = df.copy()
+    aliases = {
+        "dt": "Data", "data": "Data", "date": "Data",
+        "hour": "Hora", "hora": "Hora",
+        "campaignid": "CampaignId", "campaign_id": "CampaignId",
+        "wayinboundcampaignid": "WayInboundCampaignId", "way_inbound_campaign_id": "WayInboundCampaignId",
+        "nomecampanha": "NomeCampanha", "nome_campanha": "NomeCampanha", "campanha": "NomeCampanha",
+        "mailing": "Mailing", "ad": "AD", "ath": "ATH", "tentativas": "Tentativas", "discado": "Tentativas",
+        "atendidas": "Atendidas", "contato": "Atendidas", "transferencia": "Transferencia", "transferência": "Transferencia",
+        "perda": "Perda", "atend_ath": "Atend_ATH", "atendath": "Atend_ATH", "sucesso_negocio": "Sucesso_Negocio",
+        "sucessonegocio": "Sucesso_Negocio", "tma_locator": "TMA_LOCATOR", "tmalocator": "TMA_LOCATOR",
+        "tma_ath": "TMA_ATH", "tmaath": "TMA_ATH", "hitrate": "HitRate", "hit_rate": "HitRate",
+        "sucessointeracao": "SucessoInteracao", "sucesso_interacao": "SucessoInteracao", "%perda": "%Perda",
+        "pctperda": "%Perda", "pct_perda": "%Perda", "abandono": "Abandono", "%abandono": "%Abandono",
+        "pctabandono": "%Abandono", "pct_abandono": "%Abandono", "sla": "SLA", "custo": "Custo"
+    }
+    renomear = {}
+    for col in df.columns:
+        chave = str(col).strip().lower().replace(" ", "_").replace("-", "_").replace(".", "_")
+        renomear[col] = aliases.get(chave, str(col).strip())
+    df = df.rename(columns=renomear)
+
+    for col in LINK_COLUMNS:
+        if col not in df.columns:
+            df[col] = np.nan if col in ["TMA_LOCATOR", "TMA_ATH", "HitRate", "SucessoInteracao", "%Perda", "%Abandono", "SLA"] else 0
+
+    df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+    df = df.dropna(subset=["Data"]).copy()
+    df["Hora"] = pd.to_numeric(df["Hora"], errors="coerce").fillna(0).astype(int)
+    for col in ["Mailing", "AD", "ATH", "Tentativas", "Atendidas", "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio", "Abandono", "Custo"]:
+        df[col] = df[col].apply(_link_num)
+    for col in ["HitRate", "SucessoInteracao", "%Perda", "%Abandono", "SLA"]:
+        df[col] = df[col].apply(_link_pct)
+    for col in ["TMA_LOCATOR", "TMA_ATH"]:
+        df[col] = df[col].apply(_link_segundos)
+    df["NomeCampanha"] = df["NomeCampanha"].fillna("").astype(str).str.strip()
+    df["CampaignId"] = df["CampaignId"].fillna("").astype(str).str.replace(".0", "", regex=False).str.strip()
+    df["WayInboundCampaignId"] = df["WayInboundCampaignId"].fillna("").astype(str).str.replace(".0", "", regex=False).str.strip()
+    return df
+
+
+def carregar_base_link():
+    if not LINK_ARQUIVO_BASE.exists():
+        return preparar_base_link(pd.DataFrame(columns=LINK_COLUMNS))
+    mtime = LINK_ARQUIVO_BASE.stat().st_mtime
+    if LINK_BASE_CACHE.get("df") is not None and LINK_BASE_CACHE.get("mtime") == mtime:
+        return LINK_BASE_CACHE["df"].copy()
+    df = pd.read_excel(LINK_ARQUIVO_BASE)
+    df = preparar_base_link(df)
+    LINK_BASE_CACHE["mtime"] = mtime
+    LINK_BASE_CACHE["df"] = df.copy()
+    return df.copy()
+
+
+def _link_media_valida(serie):
+    serie = pd.to_numeric(serie, errors="coerce").dropna()
+    return float(serie.mean()) if len(serie) else 0.0
+
+
+def _link_tma_ponderado(df, col_tma, col_volume):
+    base = df[[col_tma, col_volume]].copy()
+    base[col_tma] = pd.to_numeric(base[col_tma], errors="coerce")
+    base[col_volume] = pd.to_numeric(base[col_volume], errors="coerce").fillna(0)
+    base = base.dropna(subset=[col_tma])
+    peso = float(base[col_volume].sum())
+    if peso > 0:
+        return float((base[col_tma] * base[col_volume]).sum() / peso)
+    return _link_media_valida(base[col_tma])
+
+
+def agregar_link(df):
+    if df is None or df.empty:
+        return {
+            "mailing": 0, "ad": 0, "ath": 0, "tentativas": 0, "atendidas": 0, "transferencia": 0,
+            "perda": 0, "atend_ath": 0, "sucesso": 0, "abandono": 0, "custo": 0,
+            "spin": 0, "hit": 0, "interacao": 0, "pct_perda": 0, "pct_abandono": 0,
+            "tma_locator_sec": 0, "tma_ath_sec": 0
+        }
+    total = {
+        "mailing": float(df["Mailing"].max()),
+        "ad": float(df["AD"].sum()), "ath": float(df["ATH"].sum()),
+        "tentativas": float(df["Tentativas"].sum()), "atendidas": float(df["Atendidas"].sum()),
+        "transferencia": float(df["Transferencia"].sum()), "perda": float(df["Perda"].sum()),
+        "atend_ath": float(df["Atend_ATH"].sum()), "sucesso": float(df["Sucesso_Negocio"].sum()),
+        "abandono": float(df["Abandono"].sum()), "custo": float(df["Custo"].sum()),
+    }
+    total["spin"] = total["tentativas"] / total["mailing"] if total["mailing"] else 0
+    total["hit"] = total["atendidas"] / total["tentativas"] * 100 if total["tentativas"] else 0
+    total["interacao"] = total["transferencia"] / total["atendidas"] * 100 if total["atendidas"] else 0
+    # Perda consolidada: usa o percentual já entregue pela base, por média horária, quando disponível.
+    total["pct_perda"] = _link_media_valida(df["%Perda"])
+    # Regra solicitada: %Abandono já vem calculado na base. O card Daily deve usar média das horas válidas.
+    total["pct_abandono"] = _link_media_valida(df["%Abandono"])
+    total["tma_locator_sec"] = _link_tma_ponderado(df, "TMA_LOCATOR", "Atendidas")
+    total["tma_ath_sec"] = _link_tma_ponderado(df, "TMA_ATH", "Atend_ATH")
+    return total
+
+
+def _link_card_total(total):
+    return {
+        **total,
+        "mailing_fmt": _link_num_fmt(total["mailing"]), "tentativas_fmt": _link_num_fmt(total["tentativas"]),
+        "atendidas_fmt": _link_num_fmt(total["atendidas"]), "transferencia_fmt": _link_num_fmt(total["transferencia"]),
+        "atend_ath_fmt": _link_num_fmt(total["atend_ath"]), "sucesso_fmt": _link_num_fmt(total["sucesso"]),
+        "abandono_fmt": _link_num_fmt(total["abandono"]), "perda_fmt": _link_num_fmt(total["perda"]),
+        "spin_fmt": _link_num_fmt(total["spin"], 2), "hit_fmt": _link_pct_fmt(total["hit"]),
+        "interacao_fmt": _link_pct_fmt(total["interacao"]), "pct_perda_fmt": _link_pct_fmt(total["pct_perda"]),
+        "pct_abandono_fmt": _link_pct_fmt(total["pct_abandono"]), "tma_locator_fmt": _link_tempo_fmt(total["tma_locator_sec"]),
+        "tma_ath_fmt": _link_tempo_fmt(total["tma_ath_sec"]), "custo_fmt": _link_money_fmt(total["custo"]),
+        "alerta_perda": total["pct_perda"] > 5, "alerta_abandono": total["pct_abandono"] > 5,
+    }
+
+
+def _link_daily(df):
+    dados = []
+    if df is None or df.empty:
+        return dados
+    for data, grupo in df.groupby(df["Data"].dt.normalize()):
+        total = _link_card_total(agregar_link(grupo))
+        dados.append({"data": data.strftime("%Y-%m-%d"), "label": data.strftime("%d/%m"), **total})
+    return sorted(dados, key=lambda x: x["data"])
+
+
+def _link_hourly(df):
+    dados = []
+    if df is None or df.empty:
+        return dados
+    for hora, grupo in df.groupby("Hora"):
+        total = _link_card_total(agregar_link(grupo))
+        dados.append({"hora": int(hora), "label": f"{int(hora):02d}h", **total})
+    return sorted(dados, key=lambda x: x["hora"])
+
+
+def montar_dashboard_link():
+    base = carregar_base_link()
+    if base.empty:
+        return {"erro": f"Base não encontrada ou vazia: {LINK_ARQUIVO_BASE}", "filtros": {}, "daily": [], "hourly": []}
+
+    datas = sorted(base["Data"].dt.strftime("%Y-%m-%d").dropna().unique().tolist())
+    campanhas = sorted([c for c in base["NomeCampanha"].dropna().unique().tolist() if str(c).strip()])
+    locator = [c for c in campanhas if "locator" in c.lower()]
+    ativas = [c for c in campanhas if "locator" not in c.lower()]
+    campanha_a = request.args.get("campanha_a") or (locator[0] if locator else campanhas[0])
+    campanha_b = request.args.get("campanha_b") or (ativas[0] if ativas else "")
+    data_sel = request.args.get("date") or (datas[-1] if datas else "")
+
+    df_a_hist = base[base["NomeCampanha"] == campanha_a].copy()
+    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_sel].copy()
+    df_b_dia = base[(base["NomeCampanha"] == campanha_b) & (base["Data"].dt.strftime("%Y-%m-%d") == data_sel)].copy() if campanha_b else base.iloc[0:0].copy()
+
+    current = _link_card_total(agregar_link(df_a_dia))
+    comp_a = current
+    comp_b = _link_card_total(agregar_link(df_b_dia))
+    daily = _link_daily(df_a_hist)
+    hourly = _link_hourly(df_a_dia)
+
+    def funnel(total):
+        return [
+            {"label": "Mailing", "value": total["mailing_fmt"]},
+            {"label": "Tentativas", "value": total["tentativas_fmt"]},
+            {"label": "Atendidas", "value": total["atendidas_fmt"]},
+            {"label": "Transferências", "value": total["transferencia_fmt"]},
+            {"label": "Atend. humano", "value": total["atend_ath_fmt"]},
+            {"label": "Sucesso negócio", "value": total["sucesso_fmt"]},
+        ]
+
+    campanha_ids = sorted([x for x in df_a_hist["CampaignId"].unique().tolist() if x])
+    inbound_ids = sorted([x for x in df_a_hist["WayInboundCampaignId"].unique().tolist() if x])
+    return {
+        "erro": None,
+        "filtros": {"datas": datas, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_sel, "campanha_a": campanha_a, "campanha_b": campanha_b},
+        "campaign_ids": campanha_ids, "inbound_ids": inbound_ids,
+        "current": current, "daily": daily, "hourly": hourly,
+        "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel(comp_a), "funnel_b": funnel(comp_b), "tem_b": bool(campanha_b and not df_b_dia.empty)},
+        "alerta_daily_perda": any(x["pct_perda"] > 5 for x in daily),
+        "alerta_daily_abandono": any(x["pct_abandono"] > 5 for x in daily),
+        "alerta_hour_perda": any(x["pct_perda"] > 5 for x in hourly),
+        "alerta_hour_abandono": any(x["pct_abandono"] > 5 for x in hourly),
+    }
+
+
+@app.route('/cliente/link/painel')
+def link_index() -> str:
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if not usuario_pode_acessar_cliente(session.get('usuario'), 'link'):
+        return acesso_negado()
+    dashboard = montar_dashboard_link()
+    return render_template('link_cockpit.html', dashboard=dashboard, usuario=session.get('usuario'))
+
+
+@app.route('/cliente/link/painel/api')
+def link_api():
+    if 'usuario' not in session:
+        return jsonify({"error": "unauthorized"}), 401
+    if not usuario_pode_acessar_cliente(session.get('usuario'), 'link'):
+        return jsonify({"error": "forbidden"}), 403
+    return jsonify(montar_dashboard_link())
+
+
+# ===== CLIENTES LOCATOR COMPARTILHADOS | Funil híbrido + Daily + Hora a hora =====
+# Reaproveita as regras validadas da LINK, mantendo cache e Excel independentes por cliente.
+LOCATOR_CLIENTES_CACHE = {}
+
+
+def _locator_cliente_arquivo(slug):
+    config = LOCATOR_CLIENTES_CONFIG.get(slug, {})
+    arquivo = config.get("arquivo", "")
+    return BASE_DIR / "data" / arquivo
+
+
+def carregar_base_locator_cliente(slug):
+    arquivo = _locator_cliente_arquivo(slug)
+    if not arquivo.exists():
+        return preparar_base_link(pd.DataFrame(columns=LINK_COLUMNS))
+    mtime = arquivo.stat().st_mtime
+    cache = LOCATOR_CLIENTES_CACHE.setdefault(slug, {"mtime": None, "df": None})
+    if cache.get("df") is not None and cache.get("mtime") == mtime:
+        return cache["df"].copy()
+    df = pd.read_excel(arquivo)
+    df = preparar_base_link(df)
+    cache["mtime"] = mtime
+    cache["df"] = df.copy()
+    return df.copy()
+
+
+def montar_dashboard_locator_cliente(slug):
+    config = LOCATOR_CLIENTES_CONFIG.get(slug)
+    if not config:
+        return {"erro": "Cliente não configurado.", "filtros": {}, "daily": [], "hourly": []}
+    base = carregar_base_locator_cliente(slug)
+    arquivo = config["arquivo"]
+    metadata = {"cliente_slug": slug, "cliente_nome": config["nome"], "arquivo_base": arquivo}
+    if base.empty:
+        return {**metadata, "erro": f"Base não encontrada ou vazia: data/{arquivo}", "filtros": {}, "daily": [], "hourly": []}
+
+    datas = sorted(base["Data"].dt.strftime("%Y-%m-%d").dropna().unique().tolist())
+    campanhas = sorted([c for c in base["NomeCampanha"].dropna().unique().tolist() if str(c).strip()])
+    locator = [c for c in campanhas if "locator" in c.lower()]
+    ativas = [c for c in campanhas if "locator" not in c.lower()]
+    campanha_a = request.args.get("campanha_a") or (locator[0] if locator else (campanhas[0] if campanhas else ""))
+    campanha_b = request.args.get("campanha_b") or (ativas[0] if ativas else "")
+    data_sel = request.args.get("date") or (datas[-1] if datas else "")
+
+    df_a_hist = base[base["NomeCampanha"] == campanha_a].copy() if campanha_a else base.iloc[0:0].copy()
+    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_sel].copy()
+    df_b_dia = base[(base["NomeCampanha"] == campanha_b) & (base["Data"].dt.strftime("%Y-%m-%d") == data_sel)].copy() if campanha_b else base.iloc[0:0].copy()
+
+    current = _link_card_total(agregar_link(df_a_dia))
+    comp_a = current
+    comp_b = _link_card_total(agregar_link(df_b_dia))
+    daily = _link_daily(df_a_hist)
+    hourly = _link_hourly(df_a_dia)
+
+    def funnel(total):
+        return [
+            {"label": "Mailing", "value": total["mailing_fmt"]},
+            {"label": "Tentativas", "value": total["tentativas_fmt"]},
+            {"label": "Atendidas", "value": total["atendidas_fmt"]},
+            {"label": "Transferências", "value": total["transferencia_fmt"]},
+            {"label": "Atend. humano", "value": total["atend_ath_fmt"]},
+            {"label": "Sucesso negócio", "value": total["sucesso_fmt"]},
+        ]
+
+    campanha_ids = sorted([x for x in df_a_hist["CampaignId"].unique().tolist() if x])
+    inbound_ids = sorted([x for x in df_a_hist["WayInboundCampaignId"].unique().tolist() if x])
+    return {
+        **metadata,
+        "erro": None,
+        "filtros": {"datas": datas, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_sel, "campanha_a": campanha_a, "campanha_b": campanha_b},
+        "campaign_ids": campanha_ids, "inbound_ids": inbound_ids,
+        "current": current, "daily": daily, "hourly": hourly,
+        "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel(comp_a), "funnel_b": funnel(comp_b), "tem_b": bool(campanha_b and not df_b_dia.empty)},
+        "alerta_daily_perda": any(x["pct_perda"] > 5 for x in daily),
+        "alerta_daily_abandono": any(x["pct_abandono"] > 5 for x in daily),
+        "alerta_hour_perda": any(x["pct_perda"] > 5 for x in hourly),
+        "alerta_hour_abandono": any(x["pct_abandono"] > 5 for x in hourly),
+    }
+
+
+@app.route('/cliente/<slug>/painel')
+def locator_cliente_index(slug):
+    if slug not in LOCATOR_CLIENTES_CONFIG:
+        return redirect(url_for('dashboard'))
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if not usuario_pode_acessar_cliente(session.get('usuario'), slug):
+        return acesso_negado()
+    dashboard = montar_dashboard_locator_cliente(slug)
+    return render_template('locator_cliente_cockpit.html', dashboard=dashboard, usuario=session.get('usuario'))
+
+
+@app.route('/cliente/<slug>/painel/api')
+def locator_cliente_api(slug):
+    if slug not in LOCATOR_CLIENTES_CONFIG:
+        return jsonify({"error": "not_found"}), 404
+    if 'usuario' not in session:
+        return jsonify({"error": "unauthorized"}), 401
+    if not usuario_pode_acessar_cliente(session.get('usuario'), slug):
+        return jsonify({"error": "forbidden"}), 403
+    return jsonify(montar_dashboard_locator_cliente(slug))
 
 
 if __name__ == '__main__':
