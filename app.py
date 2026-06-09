@@ -814,7 +814,7 @@ CLIENTES = [
         "slug": "nw-advogados",
         "sigla": "NA",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://nwadv.com.br/wp-content/themes/nwadv/img/logo-header-nwadv.svg"
     },
     {
         "nome": "OLIVEIRA E ANTUNES",
