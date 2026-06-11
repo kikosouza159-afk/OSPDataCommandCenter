@@ -205,7 +205,7 @@ CLIENTES = [
         "slug": "aranha-e-ferreira",
         "sigla": "AEF",
         "domain": "",
-        "logo_url": "https://afalaw.com.br/wp-content/uploads/2024/12/afalaw-logo-cinza.png"
+        "logo_url": ""
     },
     {
         "nome": "ARAUZ - SOLUCZ",
@@ -513,7 +513,7 @@ CLIENTES = [
         "slug": "ferreira-e-chagas",
         "sigla": "FEC",
         "domain": "",
-        "logo_url": "https://ferreiraechagas.com.br/wp-content/uploads/2019/07/logo-fc-branca2.png"
+        "logo_url": ""
     },
     {
         "nome": "Folha",
@@ -695,7 +695,7 @@ CLIENTES = [
         "slug": "link",
         "sigla": "LIN",
         "domain": "",
-        "logo_url": "https://www.linksolucoes.com.br/logos/logo.png"
+        "logo_url": ""
     },
     {
         "nome": "LOCALCRED",
@@ -779,7 +779,7 @@ CLIENTES = [
         "slug": "millennium",
         "sigla": "MIL",
         "domain": "",
-        "logo_url": "https://www.millenniumcobrancas.com.br/wp-content/uploads/2022/06/cropped-logo_millennium02-ai.png"
+        "logo_url": ""
     },
     {
         "nome": "Mutant",
@@ -814,7 +814,7 @@ CLIENTES = [
         "slug": "nw-advogados",
         "sigla": "NA",
         "domain": "",
-        "logo_url": "https://nwadv.com.br/wp-content/themes/nwadv/img/logo-header-nwadv.svg"
+        "logo_url": ""
     },
     {
         "nome": "OLIVEIRA E ANTUNES",
@@ -967,8 +967,8 @@ CLIENTES = [
         "nome": "RENAC",
         "slug": "renac",
         "sigla": "REN",
-        "domain": "",
-        "logo_url": "https://www.gruporenac.com.br/wp-content/themes/gruporenac/dist/images/logo.png?ver=1"
+        "domain": "renac.com.br",
+        "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=renac.com.br"
     },
     {
         "nome": "RENNER",
@@ -1031,7 +1031,7 @@ CLIENTES = [
         "slug": "setra",
         "sigla": "SET",
         "domain": "",
-        "logo_url": "https://www.setrabpo.com.br/assets/Logo%20Setra%20BPO-CT7qy7uc.png"
+        "logo_url": ""
     },
     {
         "nome": "SHULZE",
@@ -1073,7 +1073,7 @@ CLIENTES = [
         "slug": "syscob",
         "sigla": "SYS",
         "domain": "",
-        "logo_url": "https://syscob.com.br/images/logo_siscob.png"
+        "logo_url": ""
     },
     {
         "nome": "TAHTO",
@@ -1209,7 +1209,6 @@ CLIENTES = [
         "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=yamaha-motor.com.br"
     },
 ]
-
 
 
 
@@ -4392,6 +4391,57 @@ def _link_hourly(df):
     return sorted(dados, key=lambda x: x["hora"])
 
 
+def _link_data_arg(nome, padrao=""):
+    """Valida datas YYYY-MM-DD recebidas pela URL e aplica fallback seguro."""
+    valor = str(request.args.get(nome) or "").strip()
+    try:
+        return pd.to_datetime(valor, format="%Y-%m-%d", errors="raise").strftime("%Y-%m-%d") if valor else padrao
+    except Exception:
+        return padrao
+
+
+def _link_periodo_ordenado(data_inicio, data_fim):
+    """Garante que o intervalo esteja em ordem crescente."""
+    if not data_inicio and not data_fim:
+        return "", ""
+    if not data_inicio:
+        data_inicio = data_fim
+    if not data_fim:
+        data_fim = data_inicio
+    return (data_inicio, data_fim) if data_inicio <= data_fim else (data_fim, data_inicio)
+
+
+def _link_filtrar_periodo(df, data_inicio, data_fim):
+    if df is None or df.empty or not data_inicio or not data_fim:
+        return df.iloc[0:0].copy() if df is not None else pd.DataFrame()
+    serie_data = df["Data"].dt.strftime("%Y-%m-%d")
+    return df[(serie_data >= data_inicio) & (serie_data <= data_fim)].copy()
+
+
+def _link_periodo_label(data_inicio, data_fim):
+    def fmt(valor):
+        try:
+            return pd.to_datetime(valor).strftime("%d/%m/%Y")
+        except Exception:
+            return "--"
+    return fmt(data_inicio) if data_inicio == data_fim else f"{fmt(data_inicio)} a {fmt(data_fim)}"
+
+
+def agregar_link_periodo(df):
+    """Consolida um intervalo do Locator. Mailing soma o maior valor diário por campanha."""
+    if df is None or df.empty:
+        return agregar_link(df)
+    total = agregar_link(df)
+    mailing_diario = (
+        df.assign(_DATA_DIA=df["Data"].dt.normalize())
+          .groupby("_DATA_DIA", dropna=True)["Mailing"]
+          .max()
+    )
+    total["mailing"] = float(mailing_diario.sum()) if len(mailing_diario) else 0.0
+    total["spin"] = total["tentativas"] / total["mailing"] if total["mailing"] else 0
+    return total
+
+
 def montar_dashboard_link():
     base = carregar_base_link()
     base_funil2 = carregar_base_funil2_arquivo(LINK_ARQUIVO_BASE, "link")
@@ -4405,17 +4455,25 @@ def montar_dashboard_link():
     ativas = sorted([c for c in base_funil2["NomeCampanha"].dropna().unique().tolist() if str(c).strip()]) if not base_funil2.empty else []
     campanha_a = request.args.get("campanha_a") or (locator[0] if locator else (campanhas[0] if campanhas else ""))
     campanha_b = request.args.get("campanha_b") or (ativas[0] if ativas else "")
-    data_a = request.args.get("date_a") or request.args.get("date") or (datas[-1] if datas else "")
-    data_b = request.args.get("date_b") or request.args.get("date") or (data_a if data_a in datas_b else (datas_b[-1] if datas_b else ""))
+    padrao_a = datas[-1] if datas else ""
+    padrao_b = padrao_a if padrao_a in datas_b else (datas_b[-1] if datas_b else "")
+    data_a_ini = _link_data_arg("date_a_ini", _link_data_arg("date_a", padrao_a))
+    data_a_fim = _link_data_arg("date_a_fim", _link_data_arg("date_a", padrao_a))
+    data_b_ini = _link_data_arg("date_b_ini", _link_data_arg("date_b", padrao_b))
+    data_b_fim = _link_data_arg("date_b_fim", _link_data_arg("date_b", padrao_b))
+    data_a_ini, data_a_fim = _link_periodo_ordenado(data_a_ini, data_a_fim)
+    data_b_ini, data_b_fim = _link_periodo_ordenado(data_b_ini, data_b_fim)
 
     df_a_hist = base[base["NomeCampanha"] == campanha_a].copy() if campanha_a else base.iloc[0:0].copy()
-    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_a].copy()
-    df_b_dia = base_funil2[(base_funil2["NomeCampanha"] == campanha_b) & (base_funil2["Data"].dt.strftime("%Y-%m-%d") == data_b)].copy() if campanha_b else base_funil2.iloc[0:0].copy()
+    df_a_periodo = _link_filtrar_periodo(df_a_hist, data_a_ini, data_a_fim)
+    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_a_fim].copy()
+    df_b_base = base_funil2[base_funil2["NomeCampanha"] == campanha_b].copy() if campanha_b else base_funil2.iloc[0:0].copy()
+    df_b_periodo = _link_filtrar_periodo(df_b_base, data_b_ini, data_b_fim)
 
     current = _link_card_total(agregar_link(df_a_dia))
-    comp_a = current
-    comp_b = _funil2_card(agregar_funil2(df_b_dia))
-    tem_b = bool(campanha_b and not df_b_dia.empty)
+    comp_a = _link_card_total(agregar_link_periodo(df_a_periodo))
+    comp_b = _funil2_card(agregar_funil2(df_b_periodo))
+    tem_b = bool(campanha_b and not df_b_periodo.empty)
     variacoes = _comparativo_variacoes(comp_a, comp_b, tem_b)
     comparativo_exec = _comparativo_exec(comp_a, comp_b, tem_b, variacoes)
     daily = _link_daily(df_a_hist)
@@ -4445,7 +4503,7 @@ def montar_dashboard_link():
     return {
         "cliente_nome": "LINK", "arquivo_base": "base_link.xlsx",
         "erro": None,
-        "filtros": {"datas": datas, "datas_b": datas_b, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_a, "data_a": data_a, "data_b": data_b, "campanha_a": campanha_a, "campanha_b": campanha_b},
+        "filtros": {"datas": datas, "datas_b": datas_b, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_a_fim, "data_a": data_a_fim, "data_b": data_b_fim, "data_a_ini": data_a_ini, "data_a_fim": data_a_fim, "data_b_ini": data_b_ini, "data_b_fim": data_b_fim, "periodo_a_label": _link_periodo_label(data_a_ini, data_a_fim), "periodo_b_label": _link_periodo_label(data_b_ini, data_b_fim), "campanha_a": campanha_a, "campanha_b": campanha_b},
         "campaign_ids": campanha_ids, "inbound_ids": inbound_ids,
         "current": current, "daily": daily, "hourly": hourly,
         "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel_a(comp_a), "funnel_b": funnel_b(comp_b), "tem_b": tem_b, "tem_sheet": not base_funil2.empty, "variacoes": variacoes, "exec": comparativo_exec},
@@ -4524,17 +4582,25 @@ def montar_dashboard_locator_cliente(slug):
     ativas = sorted([c for c in base_funil2["NomeCampanha"].dropna().unique().tolist() if str(c).strip()]) if not base_funil2.empty else []
     campanha_a = request.args.get("campanha_a") or (locator[0] if locator else (campanhas[0] if campanhas else ""))
     campanha_b = request.args.get("campanha_b") or (ativas[0] if ativas else "")
-    data_a = request.args.get("date_a") or request.args.get("date") or (datas[-1] if datas else "")
-    data_b = request.args.get("date_b") or request.args.get("date") or (data_a if data_a in datas_b else (datas_b[-1] if datas_b else ""))
+    padrao_a = datas[-1] if datas else ""
+    padrao_b = padrao_a if padrao_a in datas_b else (datas_b[-1] if datas_b else "")
+    data_a_ini = _link_data_arg("date_a_ini", _link_data_arg("date_a", padrao_a))
+    data_a_fim = _link_data_arg("date_a_fim", _link_data_arg("date_a", padrao_a))
+    data_b_ini = _link_data_arg("date_b_ini", _link_data_arg("date_b", padrao_b))
+    data_b_fim = _link_data_arg("date_b_fim", _link_data_arg("date_b", padrao_b))
+    data_a_ini, data_a_fim = _link_periodo_ordenado(data_a_ini, data_a_fim)
+    data_b_ini, data_b_fim = _link_periodo_ordenado(data_b_ini, data_b_fim)
 
     df_a_hist = base[base["NomeCampanha"] == campanha_a].copy() if campanha_a else base.iloc[0:0].copy()
-    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_a].copy()
-    df_b_dia = base_funil2[(base_funil2["NomeCampanha"] == campanha_b) & (base_funil2["Data"].dt.strftime("%Y-%m-%d") == data_b)].copy() if campanha_b else base_funil2.iloc[0:0].copy()
+    df_a_periodo = _link_filtrar_periodo(df_a_hist, data_a_ini, data_a_fim)
+    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_a_fim].copy()
+    df_b_base = base_funil2[base_funil2["NomeCampanha"] == campanha_b].copy() if campanha_b else base_funil2.iloc[0:0].copy()
+    df_b_periodo = _link_filtrar_periodo(df_b_base, data_b_ini, data_b_fim)
 
     current = _link_card_total(agregar_link(df_a_dia))
-    comp_a = current
-    comp_b = _funil2_card(agregar_funil2(df_b_dia))
-    tem_b = bool(campanha_b and not df_b_dia.empty)
+    comp_a = _link_card_total(agregar_link_periodo(df_a_periodo))
+    comp_b = _funil2_card(agregar_funil2(df_b_periodo))
+    tem_b = bool(campanha_b and not df_b_periodo.empty)
     variacoes = _comparativo_variacoes(comp_a, comp_b, tem_b)
     comparativo_exec = _comparativo_exec(comp_a, comp_b, tem_b, variacoes)
     daily = _link_daily(df_a_hist)
@@ -4564,7 +4630,7 @@ def montar_dashboard_locator_cliente(slug):
     return {
         **metadata,
         "erro": None,
-        "filtros": {"datas": datas, "datas_b": datas_b, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_a, "data_a": data_a, "data_b": data_b, "campanha_a": campanha_a, "campanha_b": campanha_b},
+        "filtros": {"datas": datas, "datas_b": datas_b, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_a_fim, "data_a": data_a_fim, "data_b": data_b_fim, "data_a_ini": data_a_ini, "data_a_fim": data_a_fim, "data_b_ini": data_b_ini, "data_b_fim": data_b_fim, "periodo_a_label": _link_periodo_label(data_a_ini, data_a_fim), "periodo_b_label": _link_periodo_label(data_b_ini, data_b_fim), "campanha_a": campanha_a, "campanha_b": campanha_b},
         "campaign_ids": campanha_ids, "inbound_ids": inbound_ids,
         "current": current, "daily": daily, "hourly": hourly,
         "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel_a(comp_a), "funnel_b": funnel_b(comp_b), "tem_b": tem_b, "tem_sheet": not base_funil2.empty, "variacoes": variacoes, "exec": comparativo_exec},
