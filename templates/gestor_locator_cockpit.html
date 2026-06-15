@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cockpit | Gestor Locator</title>
+  <style>
+    :root {
+      --navy:#061f49; --navy2:#082b63; --blue:#0b4bb3; --orange:#ff6b1a; --green:#2aa84a;
+      --bg:#07152f; --card:rgba(255,255,255,.94); --text:#081b3a; --muted:#68758d; --line:#dce4ef; --danger:#e44c2a;
+      --shadow:0 18px 45px rgba(0,0,0,.20);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#020814;color:var(--text);min-height:100vh;overflow-x:hidden}
+    /* Fundo padrão do cockpit */
+    .bg-content{position:fixed;inset:0;z-index:0;pointer-events:none}
+    .background{position:fixed;inset:0;background:radial-gradient(circle at 20% 20%, rgba(0, 229, 255, .16), transparent 30%), radial-gradient(circle at 80% 70%, rgba(0, 106, 255, .18), transparent 34%), linear-gradient(135deg, #020814 0%, #07172a 50%, #020814 100%);z-index:0}
+    .bg-grid{position:absolute;inset:-80px;background-image:linear-gradient(rgba(0,229,255,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.10) 1px,transparent 1px);background-size:55px 55px;transform:perspective(500px) rotateX(62deg);transform-origin:center bottom;animation:gridMove 5s linear infinite;opacity:.42}
+    @keyframes gridMove{from{background-position:0 0}to{background-position:0 55px}}
+    .orb{position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(0,229,255,.10);filter:blur(35px);animation:floatOrb 7s ease-in-out infinite alternate}
+    .orb.one{top:12%;left:12%}
+    .orb.two{right:10%;bottom:12%;background:rgba(0,102,255,.13);animation-delay:1.5s}
+    @keyframes floatOrb{from{transform:translate(0,0) scale(1)}to{transform:translate(45px,-30px) scale(1.25)}}
+    .scanline{position:absolute;left:0;right:0;height:130px;background:linear-gradient(transparent,rgba(0,229,255,.08),transparent);animation:scan 6s ease-in-out infinite}
+    @keyframes scan{from{top:-150px}to{top:110vh}}
+    .electric{position:absolute;inset:0;opacity:.35;filter:drop-shadow(0 0 10px rgba(0,229,255,.8))}
+    .electric svg{width:100%;height:100%}
+    .electric path{fill:none;stroke:rgba(0,229,255,.45);stroke-width:1.4;stroke-dasharray:12 900;animation:electricRun 3.2s linear infinite}
+    .electric path:nth-child(2){animation-delay:1.4s;stroke:rgba(0,120,255,.5)}
+    .electric path:nth-child(3){animation-delay:2.2s;stroke:rgba(120,240,255,.42)}
+    @keyframes electricRun{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
+    .data-rain{position:absolute;inset:0;overflow:hidden}
+    .code{position:absolute;top:-120px;font-size:13px;color:rgba(0,229,255,.55);text-shadow:0 0 12px rgba(0,229,255,.8);writing-mode:vertical-rl;letter-spacing:4px;animation:rain linear infinite;user-select:none}
+    .code:nth-child(1){left:6%;animation-duration:8s;animation-delay:0s}
+    .code:nth-child(2){left:16%;animation-duration:11s;animation-delay:1s}
+    .code:nth-child(3){left:29%;animation-duration:9s;animation-delay:2s}
+    .code:nth-child(4){left:43%;animation-duration:13s;animation-delay:.5s}
+    .code:nth-child(5){left:58%;animation-duration:10s;animation-delay:2.8s}
+    .code:nth-child(6){left:72%;animation-duration:12s;animation-delay:1.7s}
+    .code:nth-child(7){left:88%;animation-duration:8.5s;animation-delay:.8s}
+    @keyframes rain{from{transform:translateY(-140px);opacity:0}10%{opacity:.9}80%{opacity:.75}to{transform:translateY(120vh);opacity:0}}
+    .layout:before{display:none !important}
+    .layout{display:flex;min-height:100vh;position:relative;z-index:2}
+    .sidebar{width:238px;background:linear-gradient(180deg,rgba(6,31,73,.96),rgba(3,19,47,.92));color:#fff;padding:24px 18px;position:sticky;top:0;height:100vh;border-right:1px solid rgba(255,255,255,.10);box-shadow:20px 0 50px rgba(0,0,0,.18)}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:34px}
+    .brand-icon{width:54px;height:54px;border-radius:16px;background:#fff;display:grid;place-items:center;color:var(--orange);font-size:30px;font-weight:900}
+    .brand h1{font-size:22px;line-height:1;margin:0;letter-spacing:.4px} .brand span{color:var(--orange);font-size:12px;font-weight:800}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:12px;margin:8px 0;color:#dbe7ff;font-weight:650;font-size:14px}
+    .nav-item.active{background:linear-gradient(135deg,var(--orange),#ff8d43);color:#fff;box-shadow:0 8px 18px rgba(255,107,26,.32)}
+    .nav-ico{width:24px;text-align:center}
+    .last-update{position:absolute;left:18px;right:18px;bottom:22px;color:#bed0f5;font-size:12px;border-top:1px solid rgba(255,255,255,.15);padding-top:16px}
+    .main{flex:1;padding:22px 28px 36px;min-width:0}
+    .topbar{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:14px}
+    h2{margin:0;font-size:34px;color:#fff;letter-spacing:-.8px;text-shadow:0 8px 24px rgba(0,0,0,.28)} .subtitle{margin-top:6px;color:rgba(255,255,255,.78);font-size:16px}
+    .filters{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:12px;min-width:720px;align-items:end}
+    .filter label{display:block;font-size:11px;font-weight:800;color:var(--navy);margin:0 0 5px 3px}
+    .filter input,.filter select{width:100%;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:#fff;color:var(--text);font-weight:650;outline:none}
+    .actions{display:flex;gap:8px;align-items:end;justify-content:flex-end}
+    .btn{height:40px;border:0;border-radius:10px;padding:0 12px;font-weight:800;cursor:pointer;background:var(--navy2);color:white}
+    .btn.alt{background:#e9eff8;color:var(--navy)}
+    .kpis{display:grid;grid-template-columns:repeat(11,minmax(112px,1fr));gap:12px;margin:16px 0 12px}
+    .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px 14px;min-height:94px;display:flex;flex-direction:column;justify-content:space-between}
+    .kpi .label{display:flex;gap:8px;align-items:center;color:var(--navy);font-size:13px;font-weight:800}
+    .kpi .value{font-size:24px;font-weight:900;color:#071946;letter-spacing:-.5px;text-align:right}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px;margin-top:12px}
+    .panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+    .panel-title{font-size:19px;color:var(--navy);font-weight:900;margin:0} .hint{font-size:12px;color:var(--muted);font-weight:650;margin-top:3px}
+    .mini-actions{display:flex;gap:8px;color:var(--muted);font-weight:900}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:430px}
+    table{width:100%;border-collapse:collapse;font-size:13px;min-width:1180px;background:white}
+    th{position:sticky;top:0;background:linear-gradient(180deg,var(--navy2),var(--navy));color:#fff;text-align:right;padding:9px 10px;font-size:12px;z-index:1;white-space:nowrap}
+    th:first-child,td:first-child,th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3){text-align:left}
+    td{padding:8px 10px;border-bottom:1px solid #e8edf5;text-align:right;white-space:nowrap}
+    tbody tr:hover{background:#f5f8ff} .locator-name{font-weight:850;color:#071946}
+    .pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;font-weight:850;font-size:12px}
+    .pill.green{background:#e8f7ed;color:#198239} .pill.orange{background:#fff0e8;color:#e95d1a} .pill.red{background:#ffe9e4;color:#cf3517}
+    .split{display:grid;grid-template-columns:330px 1fr;gap:14px}
+    .accordion{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;max-height:515px;overflow-y:auto}
+    .acc-item{border-bottom:1px solid var(--line)} .acc-btn{width:100%;background:#fff;border:0;display:flex;justify-content:space-between;align-items:center;padding:13px 14px;cursor:pointer;color:var(--text);font-weight:850;text-align:left}
+    .acc-btn small{display:block;color:var(--muted);font-weight:650;margin-top:3px} .acc-item.open .acc-btn{background:#eaf2ff;color:var(--navy)}
+    .acc-arrow{font-size:18px;color:var(--blue)} .hour-box{min-width:0}
+    .legend{display:flex;gap:14px;align-items:center;font-size:12px;color:#3c485c;font-weight:800;flex-wrap:wrap}
+    .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px} .d-orange{background:#ffb787} .d-red{background:#ff6b1a} .d-green{background:#55ad64}
+    .empty{padding:30px;text-align:center;color:var(--muted);font-weight:750}
+    .footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:16px}
+    .client-tag{background:#eef4ff;color:#0b4bb3;border:1px solid #d5e4ff;border-radius:8px;padding:3px 7px;font-weight:850}
+    .date-toggle{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:0;color:#071946;font-weight:900;cursor:pointer;font-size:14px}
+    .date-toggle .chev{display:inline-block;transition:transform .2s ease;color:#0b4bb3}
+    .date-toggle.open .chev{transform:rotate(90deg)}
+    .detail-row td{background:#f8fbff;border-bottom:1px solid #dce4ef;padding:14px}
+    .detail-box{border:1px solid #d8e5f7;border-radius:12px;background:#fff;padding:12px}
+    .detail-title{font-size:13px;font-weight:900;color:#071946;margin-bottom:10px}
+    .client-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    .client-chip{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#eef4ff;border:1px solid #d5e4ff;color:#0b4bb3;font-size:12px;font-weight:850}
+    .mini-table{width:100%;min-width:720px;border-collapse:collapse;font-size:12px}
+    .mini-table th{position:static;background:#eaf2ff;color:#071946;padding:7px 8px;text-align:right;border-bottom:1px solid #d8e5f7}
+    .mini-table td{padding:7px 8px;text-align:right;border-bottom:1px solid #eef2f8;white-space:nowrap}
+    .mini-table th:first-child,.mini-table td:first-child{text-align:left}
+
+    @media(max-width:1400px){.sidebar{width:210px}.filters{min-width:560px;grid-template-columns:repeat(3,1fr)}.kpis{grid-template-columns:repeat(5,1fr)}.topbar{flex-direction:column}}
+    @media(max-width:980px){.layout{display:block}.sidebar{display:none}.main{padding:16px}.filters{min-width:0;width:100%;grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}}
+
+    .sidebar{background:rgba(6,18,34,.78);border-right:1px solid rgba(0,229,255,.22);backdrop-filter:blur(16px)}
+    .brand-icon{background:rgba(255,255,255,.96)}
+    .filters,.kpi,.panel{background:rgba(255,255,255,.92)}
+    .olos-logo{width:118px;height:auto;margin-bottom:18px;filter:drop-shadow(0 0 14px rgba(255,122,0,.28))}
+    .back-link{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:12px;margin:8px 0;color:#dbe7ff;font-weight:650;font-size:14px;text-decoration:none;border:1px solid rgba(255,255,255,.10)}
+    .back-link:hover{background:rgba(255,255,255,.08)}
+    @media(max-width:1050px){.layout{display:block}.sidebar{position:relative;width:auto;height:auto}.last-update{position:relative;left:auto;right:auto;bottom:auto;margin-top:18px}.filters{min-width:0;grid-template-columns:1fr 1fr}.topbar{display:block}.kpis{grid-template-columns:repeat(2,minmax(140px,1fr)) !important}}
+  </style>
+</head>
+<body>
+{% include "background.html" %}
+<div class="layout">
+  <aside class="sidebar">
+    <img class="olos-logo" src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos">
+    <a class="back-link" href="{{ url_for('dashboard') }}">← Voltar ao cockpit</a>
+    <div class="brand"><div class="brand-icon">⌖</div><div><h1>LOCATOR</h1><span>GESTOR</span></div></div>
+    <div class="nav-item active"><span class="nav-ico">⌂</span>Visão Geral</div>
+    <div class="nav-item"><span class="nav-ico">◎</span>Locators</div>
+    <div class="nav-item"><span class="nav-ico">⚑</span>Campanhas</div>
+    <div class="nav-item"><span class="nav-ico">▥</span>Desempenho</div>
+    <div class="nav-item"><span class="nav-ico">◴</span>Hora a Hora</div>
+    <div class="nav-item"><span class="nav-ico">$</span>Custos</div>
+    <div class="nav-item"><span class="nav-ico">✓</span>SLA</div>
+    <div class="nav-item"><span class="nav-ico">▤</span>Relatórios</div>
+    <div class="last-update">Última atualização<br><b id="lastUpdate"></b></div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><h2>Painel Gestor Locator</h2><div class="subtitle">Visão consolidada por cliente, locator e hora a hora</div></div>
+      <div class="filters">
+        <div class="filter"><label>Data inicial</label><input type="date" id="dtIni"></div>
+        <div class="filter"><label>Data final</label><input type="date" id="dtFim"></div>
+        <div class="filter"><label>Cliente</label><select id="fCliente"></select></div>
+        <div class="filter"><label>NomeCampanha</label><select id="fCampanha"></select></div>
+        <div class="actions"><button class="btn" onclick="exportConsolidado()">Exportar</button><button class="btn alt" onclick="resetFilters()">Limpar</button></div>
+        <div class="filter"><label>CampaignId</label><select id="fCampaignId"></select></div>
+        <div class="filter"><label>WayInboundCampaignId</label><select id="fWayId"></select></div>
+      </div>
+    </div>
+    <section class="kpis" id="kpis"></section>
+    <section class="panel">
+      <div class="panel-head"><div><div class="panel-title">Consolidado de todos os locators</div><div class="hint">Resumo por Cliente + Locator, com mailing calculado pelo maior valor da base filtrada</div></div><div class="mini-actions">⇩ ⛶ ⋮</div></div>
+      <div class="table-wrap"><table id="tblConsolidado"></table></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><div class="panel-title">Hora a hora por locator</div><div class="hint">Agrupamento expansível: abrir e fechar por cliente e locator</div></div><div class="legend"><span><i class="dot d-orange"></i>Abandono elevado</span><span><i class="dot d-red"></i>Perda elevada</span><span><i class="dot d-green"></i>Hit Rate alto</span></div></div>
+      <div class="split"><div class="accordion" id="accordion"></div><div class="hour-box"><div class="table-wrap" style="max-height:515px"><table id="tblHora"></table></div></div></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><div class="panel-title">Dia a dia dos indicadores</div><div class="hint">Resumo por data considerando todos os filtros selecionados</div></div><div class="mini-actions"><button class="btn alt" onclick="exportDiaDia()">Exportar dia a dia</button></div></div>
+      <div class="table-wrap" style="max-height:430px"><table id="tblDiaDia"></table></div>
+    </section>
+    <div class="footer-note" id="baseStatus">Sugestão visual baseada na base gestor locator com filtro de Cliente.</div>
+  </main>
+</div>
+<script>
+const RAW_DATA = {{ raw_data|tojson }};
+const BASE_STATUS = {{ (base_status|default({}))|tojson }};
+const num = v => Number(v || 0);
+const fmtInt = v => Math.round(num(v)).toLocaleString('pt-BR');
+const fmtPct = v => (isFinite(v) ? (v*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%' : '0,00%');
+const fmtMoney = v => num(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const uniq = arr => [...new Set(arr.filter(v => v !== null && v !== undefined && v !== ''))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR',{numeric:true}));
+let selectedKey = null;
+const expandedDates = new Set();
+function getFiltered(){
+  const dtIni=document.getElementById('dtIni').value, dtFim=document.getElementById('dtFim').value;
+  const cli=document.getElementById('fCliente').value, camp=document.getElementById('fCampanha').value, cid=document.getElementById('fCampaignId').value, wid=document.getElementById('fWayId').value;
+  return RAW_DATA.filter(r=>(!dtIni||r.Data>=dtIni)&&(!dtFim||r.Data<=dtFim)&&(!cli||r.Cliente==cli)&&(!camp||r.NomeCampanha==camp)&&(!cid||String(r.CampaignId)==cid)&&(!wid||String(r.WayInboundCampaignId)==wid));
+}
+function fillSelect(id, vals, label='Todos'){
+  const el=document.getElementById(id); const old=el.value; el.innerHTML=`<option value="">${label}</option>`+vals.map(v=>`<option value="${String(v).replaceAll('"','&quot;')}">${v}</option>`).join('');
+  if(vals.map(String).includes(String(old))) el.value=old;
+}
+function setupFilters(){
+  const dates=uniq(RAW_DATA.map(r=>r.Data)); document.getElementById('dtIni').value=dates[0]||''; document.getElementById('dtFim').value=dates[dates.length-1]||'';
+  fillSelect('fCliente', uniq(RAW_DATA.map(r=>r.Cliente))); fillSelect('fCampanha', uniq(RAW_DATA.map(r=>r.NomeCampanha))); fillSelect('fCampaignId', uniq(RAW_DATA.map(r=>r.CampaignId))); fillSelect('fWayId', uniq(RAW_DATA.map(r=>r.WayInboundCampaignId)));
+  ['dtIni','dtFim','fCliente','fCampanha','fCampaignId','fWayId'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{selectedKey=null; render();}));
+  document.getElementById('lastUpdate').innerText = new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+  const statusEl=document.getElementById('baseStatus'); if(statusEl){statusEl.innerText = BASE_STATUS && BASE_STATUS.msg ? `${BASE_STATUS.msg} · ${BASE_STATUS.rows||0} linhas` : `Base carregada · ${RAW_DATA.length} linhas`;}
+}
+function groupBy(rows, keyFn){const m=new Map(); rows.forEach(r=>{const k=keyFn(r); if(!m.has(k)) m.set(k,[]); m.get(k).push(r);}); return m;}
+function mediaMaximoDiario(rows, field){
+  /*
+    Regra Gestor Locator:
+    1) Para cada Cliente + Locator + CampaignId + WayInboundCampaignId + Data, pega o maior valor do dia.
+    2) Se houver mais de um dia filtrado, calcula a média desses máximos diários por locator.
+    3) Em visões consolidadas com vários locators, soma a média calculada de cada locator.
+  */
+  const porEntidadeDia = new Map();
+  rows.forEach(r=>{
+    const data = String(r.Data || '');
+    const entidade = `${r.Cliente}|${r.NomeCampanha}|${r.CampaignId}|${r.WayInboundCampaignId}`;
+    const k = `${entidade}|${data}`;
+    porEntidadeDia.set(k, Math.max(porEntidadeDia.get(k) || 0, num(r[field])));
+  });
+
+  const porEntidade = new Map();
+  porEntidadeDia.forEach((valor,k)=>{
+    const partes = k.split('|');
+    const entidade = partes.slice(0,4).join('|');
+    if(!porEntidade.has(entidade)) porEntidade.set(entidade, []);
+    porEntidade.get(entidade).push(valor);
+  });
+
+  let total = 0;
+  porEntidade.forEach(vals=>{
+    total += vals.reduce((a,b)=>a+b,0) / (vals.length || 1);
+  });
+  return total;
+}
+function calc(rows){
+  const s={
+    locators:new Set(rows.map(r=>r.NomeCampanha)).size,
+    clientes:new Set(rows.map(r=>r.Cliente)).size,
+    mailing:mediaMaximoDiario(rows,'Mailing'),
+    ad:mediaMaximoDiario(rows,'AD'),
+    ath:mediaMaximoDiario(rows,'ATH'),
+    tent:0,atend:0,transf:0,perda:0,aband:0,sucesso:0,custo:0
+  };
+  rows.forEach(r=>{s.tent+=num(r.Tentativas);s.atend+=num(r.Atendidas);s.transf+=num(r.Transferencia);s.perda+=num(r.Perda);s.aband+=num(r.Abandono);s.sucesso+=num(r.Sucesso_Negocio);s.custo+=num(r.Custo);});
+  s.hit=s.atend/s.tent; s.sucessoRate=s.sucesso/s.atend; s.perdaRate=s.perda/s.atend; s.abandRate=s.aband/s.atend; return s;
+}
+function renderKpis(rows){const s=calc(rows); const data=[['👥','Clientes',s.clientes],['⌖','Total de Locators',s.locators],['✉','Mailing Méd. Máx/Dia',fmtInt(s.mailing)],['📣','AD Méd. Máx/Dia',fmtInt(s.ad)],['🎧','ATH Méd. Máx/Dia',fmtInt(s.ath)],['📞','Tentativas',fmtInt(s.tent)],['✅','Atendidas',fmtInt(s.atend)],['↪','Transferências',fmtInt(s.transf)],['🏆','Sucesso',fmtInt(s.sucesso)],['🎯','Hit Rate',fmtPct(s.hit)],['💰','Custo Total',fmtMoney(s.custo)]];
+  document.getElementById('kpis').style.gridTemplateColumns='repeat(11,minmax(112px,1fr))';
+  document.getElementById('kpis').innerHTML=data.map(x=>`<div class="kpi"><div class="label"><span>${x[0]}</span><span>${x[1]}</span></div><div class="value">${x[2]}</div></div>`).join('');}
+function consolidated(rows){
+  const out=[]; groupBy(rows,r=>`${r.Cliente}|${r.NomeCampanha}|${r.CampaignId}|${r.WayInboundCampaignId}`).forEach((arr,k)=>{const [cliente,nome,cid,wid]=k.split('|'); const s=calc(arr); out.push({cliente,nome,cid,wid,...s});});
+  return out.sort((a,b)=>b.tent-a.tent);
+}
+function rateClass(v,type='hit'){ if(type==='hit') return v>=.08?'green':(v<.015?'red':'orange'); return v>.08?'red':(v>.03?'orange':'green'); }
+function renderConsolidado(rows){
+  const data=consolidated(rows); const heads=['Cliente','Locator','CampaignId','WayId','Mailing','AD','ATH','Tentativas','Atendidas','Transferência','Sucesso','Perda','Abandono','Hit Rate','Sucesso Interação','% Perda','% Abandono','Custo'];
+  let html='<thead><tr>'+heads.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+  if(!data.length) html += `<tr><td colspan="18" class="empty">Sem dados para os filtros selecionados.</td></tr>`;
+  data.forEach(r=>{html+=`<tr>
+    <td><span class="client-tag">${r.cliente}</span></td><td class="locator-name">${r.nome}</td><td>${r.cid}</td><td>${r.wid}</td><td>${fmtInt(r.mailing)}</td><td>${fmtInt(r.ad)}</td><td>${fmtInt(r.ath)}</td><td>${fmtInt(r.tent)}</td><td>${fmtInt(r.atend)}</td><td>${fmtInt(r.transf)}</td><td><span class="pill green">${fmtInt(r.sucesso)}</span></td><td><span class="pill ${rateClass(r.perdaRate,'bad')}">${fmtInt(r.perda)}</span></td><td><span class="pill ${rateClass(r.abandRate,'bad')}">${fmtInt(r.aband)}</span></td><td><span class="pill ${rateClass(r.hit)}">${fmtPct(r.hit)}</span></td><td>${fmtPct(r.sucessoRate)}</td><td>${fmtPct(r.perdaRate)}</td><td>${fmtPct(r.abandRate)}</td><td>${fmtMoney(r.custo)}</td></tr>`;});
+  html+='</tbody>'; document.getElementById('tblConsolidado').innerHTML=html;
+}
+function renderAccordion(rows){
+  const data=consolidated(rows); const acc=document.getElementById('accordion'); if(!data.length){acc.innerHTML='<div class="empty">Sem locators.</div>'; document.getElementById('tblHora').innerHTML=''; return;}
+  if(!selectedKey) selectedKey=`${data[0].cliente}|${data[0].nome}|${data[0].cid}|${data[0].wid}`;
+  acc.innerHTML=data.map(r=>{const k=`${r.cliente}|${r.nome}|${r.cid}|${r.wid}`; return `<div class="acc-item ${k===selectedKey?'open':''}"><button class="acc-btn" onclick="selectedKey='${k.replaceAll("'","\'")}'; renderAccordion(getFiltered())"><span>▸ ${r.nome}<small>${r.cliente} · ${fmtInt(r.tent)} tent.</small></span><span class="acc-arrow">${k===selectedKey?'⌃':'›'}</span></button></div>`;}).join('');
+  renderHora(rows);
+}
+function renderHora(rows){
+  const [cliente,nome,cid,wid]=(selectedKey||'|||').split('|'); const filtered=rows.filter(r=>r.Cliente==cliente&&r.NomeCampanha==nome&&String(r.CampaignId)==cid&&String(r.WayInboundCampaignId)==wid);
+  const byHour=[]; groupBy(filtered,r=>String(r.Hora).padStart(2,'0')).forEach((arr,h)=>{const s=calc(arr); byHour.push({h,...s});}); byHour.sort((a,b)=>Number(a.h)-Number(b.h));
+  const heads=['Hora','Mailing Méd. Máx/Dia','AD Méd. Máx/Dia','ATH Méd. Máx/Dia','Tentativas','Atendidas','Transferência','Sucesso','Perda','Abandono','Hit Rate','% Abandono','Custo'];
+  let html='<thead><tr>'+heads.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+  if(!byHour.length) html += `<tr><td colspan="13" class="empty">Selecione um locator.</td></tr>`;
+  byHour.forEach(r=>{html+=`<tr><td><b>${r.h}</b></td><td>${fmtInt(r.mailing)}</td><td>${fmtInt(r.ad)}</td><td>${fmtInt(r.ath)}</td><td>${fmtInt(r.tent)}</td><td>${fmtInt(r.atend)}</td><td>${fmtInt(r.transf)}</td><td><span class="pill green">${fmtInt(r.sucesso)}</span></td><td><span class="pill ${rateClass(r.perdaRate,'bad')}">${fmtInt(r.perda)}</span></td><td><span class="pill ${rateClass(r.abandRate,'bad')}">${fmtInt(r.aband)}</span></td><td><span class="pill ${rateClass(r.hit)}">${fmtPct(r.hit)}</span></td><td>${fmtPct(r.abandRate)}</td><td>${fmtMoney(r.custo)}</td></tr>`;});
+  html+='</tbody>'; document.getElementById('tblHora').innerHTML=html;
+}
+function diaDia(rows){
+  const out=[];
+  groupBy(rows,r=>r.Data || '').forEach((arr,data)=>{const s=calc(arr); out.push({data,...s});});
+  return out.sort((a,b)=>String(a.data).localeCompare(String(b.data),'pt-BR',{numeric:true}));
+}
+function diaDiaClientes(rows, dataRef){
+  const rowsDia = rows.filter(r => String(r.Data||'') === String(dataRef||''));
+  const out=[];
+  groupBy(rowsDia,r=>String(r.Cliente || 'Sem cliente')).forEach((arr,cliente)=>{
+    const s=calc(arr);
+    out.push({cliente,...s});
+  });
+  return out.sort((a,b)=>b.tent-a.tent || String(a.cliente).localeCompare(String(b.cliente),'pt-BR',{numeric:true}));
+}
+function toggleDia(dataRef){
+  const k=String(dataRef||'');
+  if(expandedDates.has(k)) expandedDates.delete(k); else expandedDates.add(k);
+  renderDiaDia(getFiltered());
+}
+function renderDiaDia(rows){
+  const data=diaDia(rows);
+  const heads=['Data','Clientes','Locators','Mailing Méd. Máx/Dia','AD Méd. Máx/Dia','ATH Méd. Máx/Dia','Tentativas','Atendidas','Transferência','Sucesso','Perda','Abandono','Hit Rate','Sucesso Interação','% Perda','% Abandono','Custo'];
+  let html='<thead><tr>'+heads.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+  if(!data.length) html += `<tr><td colspan="17" class="empty">Sem dados para os filtros selecionados.</td></tr>`;
+  data.forEach(r=>{
+    const opened = expandedDates.has(String(r.data));
+    const detalhes = diaDiaClientes(rows, r.data);
+    const clientChips = detalhes.map(x=>`<span class="client-chip">${x.cliente}</span>`).join('');
+    const detailTable = `<div class="detail-box"><div class="detail-title">Clientes do dia ${r.data}</div><div class="client-list">${clientChips || '<span class="client-chip">Sem clientes</span>'}</div><div class="table-wrap" style="max-height:260px"><table class="mini-table"><thead><tr><th>Cliente</th><th>Locators</th><th>Mailing</th><th>AD</th><th>ATH</th><th>Tentativas</th><th>Atendidas</th><th>Transferência</th><th>Sucesso</th><th>Perda</th><th>Abandono</th><th>Hit Rate</th><th>Custo</th></tr></thead><tbody>${detalhes.map(x=>`<tr><td>${x.cliente}</td><td>${fmtInt(x.locators)}</td><td>${fmtInt(x.mailing)}</td><td>${fmtInt(x.ad)}</td><td>${fmtInt(x.ath)}</td><td>${fmtInt(x.tent)}</td><td>${fmtInt(x.atend)}</td><td>${fmtInt(x.transf)}</td><td>${fmtInt(x.sucesso)}</td><td>${fmtInt(x.perda)}</td><td>${fmtInt(x.aband)}</td><td>${fmtPct(x.hit)}</td><td>${fmtMoney(x.custo)}</td></tr>`).join('')}</tbody></table></div></div>`;
+    html+=`<tr>
+      <td><button class="date-toggle ${opened?'open':''}" onclick="toggleDia('${String(r.data).replaceAll("'","\'")}')"><span class="chev">▶</span><span>${r.data}</span></button></td>
+      <td>${fmtInt(r.clientes)}</td><td>${fmtInt(r.locators)}</td><td>${fmtInt(r.mailing)}</td><td>${fmtInt(r.ad)}</td><td>${fmtInt(r.ath)}</td><td>${fmtInt(r.tent)}</td><td>${fmtInt(r.atend)}</td><td>${fmtInt(r.transf)}</td><td><span class="pill green">${fmtInt(r.sucesso)}</span></td><td><span class="pill ${rateClass(r.perdaRate,'bad')}">${fmtInt(r.perda)}</span></td><td><span class="pill ${rateClass(r.abandRate,'bad')}">${fmtInt(r.aband)}</span></td><td><span class="pill ${rateClass(r.hit)}">${fmtPct(r.hit)}</span></td><td>${fmtPct(r.sucessoRate)}</td><td>${fmtPct(r.perdaRate)}</td><td>${fmtPct(r.abandRate)}</td><td>${fmtMoney(r.custo)}</td></tr>`;
+    if(opened){ html += `<tr class="detail-row"><td colspan="17">${detailTable}</td></tr>`; }
+  });
+  html+='</tbody>'; document.getElementById('tblDiaDia').innerHTML=html;
+}
+function refreshFilterOptions(rows){ /* mantém simples para evitar apagar seleção em cascata */ }
+function render(){const rows=getFiltered(); renderKpis(rows); renderConsolidado(rows); renderAccordion(rows); renderDiaDia(rows);}
+function resetFilters(){const dates=uniq(RAW_DATA.map(r=>r.Data)); document.getElementById('dtIni').value=dates[0]||''; document.getElementById('dtFim').value=dates[dates.length-1]||''; ['fCliente','fCampanha','fCampaignId','fWayId'].forEach(id=>document.getElementById(id).value=''); selectedKey=null; render();}
+function buildCsv(rows, header, mapFn){
+  return [header.join(';')].concat(rows.map(r=>mapFn(r).map(v=>String(v??'').replaceAll(';',',')).join(';'))).join('\n');
+}
+function downloadCsv(csv, filename){
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
+}
+function exportConsolidado(){
+  const rows=consolidated(getFiltered());
+  const header=['Cliente','Locator','CampaignId','WayInboundCampaignId','Mailing','AD','ATH','Tentativas','Atendidas','Transferencia','Sucesso','Perda','Abandono','HitRate','SucessoInteracao','%Perda','%Abandono','Custo'];
+  const csv=buildCsv(rows, header, r=>[r.cliente,r.nome,r.cid,r.wid,fmtInt(r.mailing),fmtInt(r.ad),fmtInt(r.ath),fmtInt(r.tent),fmtInt(r.atend),fmtInt(r.transf),fmtInt(r.sucesso),fmtInt(r.perda),fmtInt(r.aband),fmtPct(r.hit),fmtPct(r.sucessoRate),fmtPct(r.perdaRate),fmtPct(r.abandRate),fmtMoney(r.custo)]);
+  downloadCsv(csv,'gestor_locator_consolidado.csv');
+}
+function exportDiaDia(){
+  const rows=diaDia(getFiltered());
+  const header=['Data','Clientes','Locators','Mailing','AD','ATH','Tentativas','Atendidas','Transferencia','Sucesso','Perda','Abandono','HitRate','SucessoInteracao','%Perda','%Abandono','Custo'];
+  const csv=buildCsv(rows, header, r=>[r.data,fmtInt(r.clientes),fmtInt(r.locators),fmtInt(r.mailing),fmtInt(r.ad),fmtInt(r.ath),fmtInt(r.tent),fmtInt(r.atend),fmtInt(r.transf),fmtInt(r.sucesso),fmtInt(r.perda),fmtInt(r.aband),fmtPct(r.hit),fmtPct(r.sucessoRate),fmtPct(r.perdaRate),fmtPct(r.abandRate),fmtMoney(r.custo)]);
+  downloadCsv(csv,'gestor_locator_dia_a_dia.csv');
+}
+setupFilters(); render();
+</script>
+</body>
+</html>
