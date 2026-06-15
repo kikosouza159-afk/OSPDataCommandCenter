@@ -25,11 +25,11 @@ USUARIOS = {
 # Use o slug do cliente, o mesmo valor usado na URL /cliente/<slug>.
 USUARIO_CLIENTES = {
     "admin": ["*"],
-    "gerber": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "elvis.santos@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "nubia.gomes@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "eduardo.molina@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "michele.silva@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
+    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
+    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
+    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
+    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
 
     "sky": ["sky-negocie-online"],
     "negocie_online": ["sky-negocie-online"],
@@ -205,7 +205,7 @@ CLIENTES = [
         "slug": "aranha-e-ferreira",
         "sigla": "AEF",
         "domain": "",
-        "logo_url": "https://afalaw.com.br/wp-content/uploads/2024/12/afalaw-logo-cinza.png"
+        "logo_url": ""
     },
     {
         "nome": "ARAUZ - SOLUCZ",
@@ -513,7 +513,7 @@ CLIENTES = [
         "slug": "ferreira-e-chagas",
         "sigla": "FEC",
         "domain": "",
-        "logo_url": "https://ferreiraechagas.com.br/wp-content/uploads/2019/07/logo-fc-branca2.png"
+        "logo_url": ""
     },
     {
         "nome": "Folha",
@@ -695,7 +695,7 @@ CLIENTES = [
         "slug": "link",
         "sigla": "LIN",
         "domain": "",
-        "logo_url": "https://www.linksolucoes.com.br/logos/logo.png"
+        "logo_url": ""
     },
     {
         "nome": "LOCALCRED",
@@ -779,7 +779,7 @@ CLIENTES = [
         "slug": "millennium",
         "sigla": "MIL",
         "domain": "",
-        "logo_url": "https://www.millenniumcobrancas.com.br/wp-content/uploads/2022/06/cropped-logo_millennium02-ai.png"
+        "logo_url": ""
     },
     {
         "nome": "Mutant",
@@ -814,7 +814,7 @@ CLIENTES = [
         "slug": "nw-advogados",
         "sigla": "NA",
         "domain": "",
-        "logo_url": "https://nwadv.com.br/wp-content/themes/nwadv/img/logo-header-nwadv.svg"
+        "logo_url": ""
     },
     {
         "nome": "OLIVEIRA E ANTUNES",
@@ -967,8 +967,8 @@ CLIENTES = [
         "nome": "RENAC",
         "slug": "renac",
         "sigla": "REN",
-        "domain": "",
-        "logo_url": "https://www.gruporenac.com.br/wp-content/themes/gruporenac/dist/images/logo.png?ver=1"
+        "domain": "renac.com.br",
+        "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=renac.com.br"
     },
     {
         "nome": "RENNER",
@@ -1031,7 +1031,7 @@ CLIENTES = [
         "slug": "setra",
         "sigla": "SET",
         "domain": "",
-        "logo_url": "https://www.setrabpo.com.br/assets/Logo%20Setra%20BPO-CT7qy7uc.png"
+        "logo_url": ""
     },
     {
         "nome": "SHULZE",
@@ -1073,7 +1073,7 @@ CLIENTES = [
         "slug": "syscob",
         "sigla": "SYS",
         "domain": "",
-        "logo_url": "https://syscob.com.br/images/logo_siscob.png"
+        "logo_url": ""
     },
     {
         "nome": "TAHTO",
@@ -1208,15 +1208,7 @@ CLIENTES = [
         "domain": "yamaha-motor.com.br",
         "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=yamaha-motor.com.br"
     },
-    {
-        "nome": "NOVA GESTÕES",
-        "slug": "nova-gestoes",
-        "sigla": "NG",
-        "domain": "",
-        "logo_url": ""
-    }
 ]
-
 
 
 
@@ -1230,13 +1222,14 @@ if not any(c.get("slug") == "sky-negocie-online" for c in CLIENTES):
         "logo_url": "https://skycms.s3.amazonaws.com/images/0/Logo-Menu.svg"
     })
 
+# Painel Gestor Locator integrado ao Cockpit
 if not any(c.get("slug") == "gestor-locator" for c in CLIENTES):
     CLIENTES.insert(1, {
         "nome": "GESTOR LOCATOR",
         "slug": "gestor-locator",
         "sigla": "GL",
         "domain": "",
-        "logo_url": "https://i.imgur.com/15rWePl.pnghttps://i.imgur.com/15rWePl.png"
+        "logo_url": "https://i.imgur.com/15rWePl.png"
     })
 
 @app.route("/", methods=["GET", "POST"])
@@ -3922,6 +3915,23 @@ LINK_COLUMNS = [
     "SLA", "Custo"
 ]
 
+# Segunda aba opcional dentro de cada base Locator.
+# Nome recomendado: Funil_2. Aceita também Comparativo ou a segunda sheet do arquivo.
+FUNIL2_COLUMNS = [
+    "Data", "Hora", "NomeCampanha", "Mailing", "Logados", "AD", "ATH", "Tentativas", "Atendidas", "Cpc",
+    "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio", "TMA_LOCATOR", "TMA_ATH", "HitRate", "SucessoInteracao",
+    "Loc", "Conver", "%Perda", "Abandono", "%Abandono", "Custo"
+]
+FUNIL2_SHEET_NAMES = ["Funil_2", "Comparativo", "Sheet2"]
+FUNIL3_COLUMNS = [
+    "Data", "NomeCampanha", "Mailing", "AD", "ATH", "Tentativas", "Atendidas", "Transferencia",
+    "Perda", "Atend_ATH", "Sucesso_Negocio", "TMA_LOCATOR", "TMA_ATH", "HitRate", "SucessoInteracao",
+    "%Perda", "Abandono", "%Abandono", "SLA", "Custo"
+]
+FUNIL3_SHEET_NAMES = ["Funil_3", "Way", "Sheet3"]
+FUNIL2_CACHE = {}
+FUNIL3_CACHE = {}
+
 
 def _link_texto(valor):
     if pd.isna(valor):
@@ -3930,19 +3940,6 @@ def _link_texto(valor):
 
 
 def _link_num(valor):
-    # Proteção extra: quando o Excel vem com colunas duplicadas, pandas pode entregar uma Series aqui.
-    # Nesse caso usamos o primeiro valor preenchido para evitar o erro "truth value of a Series is ambiguous".
-    if isinstance(valor, (pd.Series, list, tuple, np.ndarray)):
-        for item in list(valor):
-            try:
-                if not pd.isna(item):
-                    valor = item
-                    break
-            except Exception:
-                valor = item
-                break
-        else:
-            return 0.0
     if pd.isna(valor):
         return 0.0
     if isinstance(valor, (int, float, np.integer, np.floating)):
@@ -4078,6 +4075,380 @@ def preparar_base_link(df):
     return df
 
 
+def preparar_base_funil2(df):
+    """Normaliza a aba Funil_2 usada como campanha B do comparativo executivo.
+    Aceita tanto uma estrutura Humano/AD quanto uma estrutura Way semelhante ao Locator.
+    """
+    df = df.copy()
+    aliases = {
+        "dt": "Data", "data": "Data", "date": "Data",
+        "hour": "Hora", "hora": "Hora",
+        "nomecampanha": "NomeCampanha", "nome_campanha": "NomeCampanha", "campanha": "NomeCampanha",
+        "mailing": "Mailing",
+        "logados": "Logados", "logado": "Logados",
+        "ad": "AD", "ath": "ATH",
+        "tentativas": "Tentativas", "discado": "Tentativas",
+        "atendidas": "Atendidas", "contato": "Atendidas",
+        "cpc": "Cpc", "cpc_": "Cpc",
+        "transferencia": "Transferencia", "transferência": "Transferencia",
+        "atend_ath": "Atend_ATH", "atendath": "Atend_ATH",
+        "sucesso_negocio": "Sucesso_Negocio", "sucessonegocio": "Sucesso_Negocio", "acordo": "Sucesso_Negocio",
+        "tma_locator": "TMA_LOCATOR", "tmalocator": "TMA_LOCATOR",
+        "tma_ath": "TMA_ATH", "tmaath": "TMA_ATH",
+        "hitrate": "HitRate", "hit_rate": "HitRate",
+        "sucessointeracao": "SucessoInteracao", "sucesso_interacao": "SucessoInteracao",
+        "loc": "Loc", "localizacao": "Loc", "localização": "Loc",
+        "conver": "Conver", "conversao": "Conver", "conversão": "Conver",
+        "%perda": "%Perda", "pctperda": "%Perda", "pct_perda": "%Perda",
+        "abandono": "Abandono", "%abandono": "%Abandono", "pctabandono": "%Abandono", "pct_abandono": "%Abandono",
+        "custo": "Custo"
+    }
+    renomear = {}
+    for col in df.columns:
+        chave = str(col).strip().lower().replace(" ", "_").replace("-", "_").replace(".", "_")
+        renomear[col] = aliases.get(chave, str(col).strip())
+    df = df.rename(columns=renomear)
+    for col in FUNIL2_COLUMNS:
+        if col not in df.columns:
+            df[col] = np.nan if col in ["TMA_LOCATOR", "TMA_ATH", "HitRate", "SucessoInteracao", "Loc", "Conver", "%Perda", "%Abandono"] else 0
+    df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+    df = df.dropna(subset=["Data"]).copy()
+    df["Hora"] = pd.to_numeric(df["Hora"], errors="coerce").fillna(0).astype(int)
+    df["NomeCampanha"] = df["NomeCampanha"].fillna("").astype(str).str.strip()
+    for col in ["Mailing", "Logados", "AD", "ATH", "Tentativas", "Atendidas", "Cpc", "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio", "Abandono", "Custo"]:
+        df[col] = df[col].apply(_link_num)
+    for col in ["HitRate", "SucessoInteracao", "Loc", "Conver", "%Perda", "%Abandono"]:
+        df[col] = df[col].apply(_link_pct)
+    for col in ["TMA_LOCATOR", "TMA_ATH"]:
+        df[col] = df[col].apply(_link_segundos)
+    return df
+
+
+def preparar_base_funil3(df):
+    """Normaliza a aba Funil_3 usada como campanha B no modo Way.
+    A coluna Hora não é necessária: o comparativo Way consolida por período.
+    """
+    df = df.copy()
+    aliases = {
+        "dt": "Data", "data": "Data", "date": "Data",
+        "nomecampanha": "NomeCampanha", "nome_campanha": "NomeCampanha", "campanha": "NomeCampanha",
+        "mailing": "Mailing", "ad": "AD", "ath": "ATH",
+        "tentativas": "Tentativas", "discado": "Tentativas",
+        "atendidas": "Atendidas", "contato": "Atendidas",
+        "transferencia": "Transferencia", "transferência": "Transferencia",
+        "perda": "Perda", "atend_ath": "Atend_ATH", "atendath": "Atend_ATH",
+        "sucesso_negocio": "Sucesso_Negocio", "sucessonegocio": "Sucesso_Negocio", "acordo": "Sucesso_Negocio",
+        "tma_locator": "TMA_LOCATOR", "tmalocator": "TMA_LOCATOR",
+        "tma_ath": "TMA_ATH", "tmaath": "TMA_ATH",
+        "hitrate": "HitRate", "hit_rate": "HitRate",
+        "sucessointeracao": "SucessoInteracao", "sucesso_interacao": "SucessoInteracao",
+        "%perda": "%Perda", "pctperda": "%Perda", "pct_perda": "%Perda",
+        "abandono": "Abandono", "%abandono": "%Abandono", "pctabandono": "%Abandono", "pct_abandono": "%Abandono",
+        "sla": "SLA", "custo": "Custo"
+    }
+    renomear = {}
+    for col in df.columns:
+        chave = str(col).strip().lower().replace(" ", "_").replace("-", "_").replace(".", "_")
+        renomear[col] = aliases.get(chave, str(col).strip())
+    df = df.rename(columns=renomear)
+    for col in FUNIL3_COLUMNS:
+        if col not in df.columns:
+            df[col] = np.nan if col in ["TMA_LOCATOR", "TMA_ATH", "HitRate", "SucessoInteracao", "%Perda", "%Abandono", "SLA"] else 0
+    df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+    df = df.dropna(subset=["Data"]).copy()
+    df["NomeCampanha"] = df["NomeCampanha"].fillna("").astype(str).str.strip()
+    for col in ["Mailing", "AD", "ATH", "Tentativas", "Atendidas", "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio", "Abandono", "Custo"]:
+        df[col] = df[col].apply(_link_num)
+    for col in ["HitRate", "SucessoInteracao", "%Perda", "%Abandono", "SLA"]:
+        df[col] = df[col].apply(_link_pct)
+    for col in ["TMA_LOCATOR", "TMA_ATH"]:
+        df[col] = df[col].apply(_link_segundos)
+    return df
+
+
+def carregar_base_funil2_arquivo(arquivo, cache_key):
+    """Lê a segunda sheet da base do cliente para alimentar o Funil B."""
+    vazio = preparar_base_funil2(pd.DataFrame(columns=FUNIL2_COLUMNS))
+    if not arquivo.exists():
+        return vazio
+    mtime = arquivo.stat().st_mtime
+    cache = FUNIL2_CACHE.setdefault(cache_key, {"mtime": None, "df": None})
+    if cache.get("df") is not None and cache.get("mtime") == mtime:
+        return cache["df"].copy()
+    try:
+        excel = pd.ExcelFile(arquivo)
+        sheet = next((nome for nome in FUNIL2_SHEET_NAMES if nome in excel.sheet_names), None)
+        if sheet is None and len(excel.sheet_names) > 1:
+            sheet = excel.sheet_names[1]
+        if sheet is None:
+            return vazio
+        df = pd.read_excel(arquivo, sheet_name=sheet)
+        df = preparar_base_funil2(df)
+        cache["mtime"] = mtime
+        cache["df"] = df.copy()
+        return df.copy()
+    except Exception:
+        return vazio
+
+
+def carregar_base_funil3_arquivo(arquivo, cache_key):
+    """Lê a terceira sheet da base do cliente para alimentar o Funil B no modo Way."""
+    vazio = preparar_base_funil3(pd.DataFrame(columns=FUNIL3_COLUMNS))
+    if not arquivo.exists():
+        return vazio
+    mtime = arquivo.stat().st_mtime
+    cache = FUNIL3_CACHE.setdefault(cache_key, {"mtime": None, "df": None})
+    if cache.get("df") is not None and cache.get("mtime") == mtime:
+        return cache["df"].copy()
+    try:
+        excel = pd.ExcelFile(arquivo)
+        sheet = next((nome for nome in FUNIL3_SHEET_NAMES if nome in excel.sheet_names), None)
+        if sheet is None and len(excel.sheet_names) > 2:
+            sheet = excel.sheet_names[2]
+        if sheet is None:
+            return vazio
+        df = pd.read_excel(arquivo, sheet_name=sheet)
+        df = preparar_base_funil3(df)
+        cache["mtime"] = mtime
+        cache["df"] = df.copy()
+        return df.copy()
+    except Exception:
+        return vazio
+
+
+def agregar_funil2(df):
+    """Consolida a campanha humana/AD da aba Funil_2 por data/campanha."""
+    if df is None or df.empty:
+        return {
+            "mailing": 0, "logados": 0, "tentativas": 0, "atendidas": 0, "cpc": 0, "sucesso": 0,
+            "tentativas_logado": 0, "hit": 0, "loc": 0, "conver": 0, "tma_ath_sec": 0
+        }
+    mailing_diario = (
+        df.assign(_DATA_DIA=df["Data"].dt.normalize())
+          .groupby("_DATA_DIA", dropna=True)["Mailing"]
+          .max()
+    ) if "Mailing" in df.columns else pd.Series(dtype=float)
+    total = {
+        "mailing": float(mailing_diario.sum()) if len(mailing_diario) else float(df["Mailing"].max()) if "Mailing" in df.columns else 0,
+        "logados": _link_media_valida(df["Logados"]),
+        "tentativas": float(df["Tentativas"].sum()),
+        "atendidas": float(df["Atendidas"].sum()),
+        "cpc": float(df["Cpc"].sum()),
+        "sucesso": float(df["Sucesso_Negocio"].sum()),
+    }
+    total["tentativas_logado"] = total["tentativas"] / total["logados"] if total["logados"] else 0
+    total["hit"] = total["atendidas"] / total["tentativas"] * 100 if total["tentativas"] else _link_media_valida(df["HitRate"])
+    total["loc"] = total["cpc"] / total["atendidas"] * 100 if total["atendidas"] else _link_media_valida(df["Loc"])
+    total["conver"] = total["sucesso"] / total["cpc"] * 100 if total["cpc"] else _link_media_valida(df["Conver"])
+    total["tma_ath_sec"] = _link_tma_ponderado(df, "TMA_ATH", "Atendidas")
+    return total
+
+
+def agregar_funil2_way(df):
+    """Consolida a campanha Way da aba Funil_2 no mesmo conceito do Locator.
+    Workbooks antigos podem não possuir campos opcionais como Perda, Abandono ou Custo.
+    Esses campos são preenchidos com zero para manter compatibilidade sem quebrar o painel.
+    """
+    if df is None:
+        return agregar_link_periodo(df)
+    df = df.copy()
+    defaults_zero = [
+        "Mailing", "AD", "ATH", "Tentativas", "Atendidas", "Transferencia", "Perda",
+        "Atend_ATH", "Sucesso_Negocio", "Abandono", "Custo"
+    ]
+    defaults_nan = ["%Perda", "%Abandono", "TMA_LOCATOR", "TMA_ATH"]
+    for col in defaults_zero:
+        if col not in df.columns:
+            df[col] = 0.0
+    for col in defaults_nan:
+        if col not in df.columns:
+            df[col] = np.nan
+    return agregar_link_periodo(df)
+
+
+def _funil2_card(total):
+    return {
+        **total,
+        "mailing_fmt": _link_num_fmt(total.get("mailing", 0)),
+        "logados_fmt": _link_num_fmt(total.get("logados", 0), 2),
+        "tentativas_fmt": _link_num_fmt(total.get("tentativas", 0)),
+        "atendidas_fmt": _link_num_fmt(total.get("atendidas", 0)),
+        "cpc_fmt": _link_num_fmt(total.get("cpc", 0)),
+        "sucesso_fmt": _link_num_fmt(total.get("sucesso", 0)),
+        "tentativas_logado_fmt": _link_num_fmt(total.get("tentativas_logado", 0), 2),
+        "hit_fmt": _link_pct_fmt(total.get("hit", 0)),
+        "loc_fmt": _link_pct_fmt(total.get("loc", 0)),
+        "conver_fmt": _link_pct_fmt(total.get("conver", 0)),
+        "tma_ath_fmt": _link_tempo_fmt(total.get("tma_ath_sec", 0)),
+    }
+
+
+def _comparativo_variacao(valor_a, valor_b, tem_b):
+    """Calcula a variação percentual solicitada: (A / B) - 1."""
+    try:
+        a = float(valor_a or 0)
+        b = float(valor_b or 0)
+    except Exception:
+        a, b = 0.0, 0.0
+    if not tem_b or b == 0:
+        return {"valor": None, "fmt": "--", "classe": "neutro"}
+    variacao = (a / b - 1) * 100
+    sinal = "+" if variacao > 0 else ""
+    classe = "positivo" if variacao > 0 else "negativo" if variacao < 0 else "neutro"
+    return {"valor": variacao, "fmt": sinal + _link_num_fmt(variacao, 2) + "%", "classe": classe}
+
+
+def _comparativo_variacoes(comp_a, comp_b, tem_b, modo_b="humano_ad"):
+    if modo_b == "way":
+        return {
+            "tentativas": _comparativo_variacao(comp_a.get("tentativas"), comp_b.get("tentativas"), tem_b),
+            "atendidas": _comparativo_variacao(comp_a.get("atendidas"), comp_b.get("atendidas"), tem_b),
+            "transferencia": _comparativo_variacao(comp_a.get("transferencia"), comp_b.get("transferencia"), tem_b),
+            "atend_humano": _comparativo_variacao(comp_a.get("atend_ath"), comp_b.get("atend_ath"), tem_b),
+            "sucesso": _comparativo_variacao(comp_a.get("sucesso"), comp_b.get("sucesso"), tem_b),
+            "conversao": _comparativo_variacao(comp_a.get("conversao"), comp_b.get("conversao"), tem_b),
+        }
+    return {
+        "tentativas": _comparativo_variacao(comp_a.get("tentativas"), comp_b.get("tentativas"), tem_b),
+        "atendidas": _comparativo_variacao(comp_a.get("atendidas"), comp_b.get("atendidas"), tem_b),
+        "transferencia_cpc": _comparativo_variacao(comp_a.get("transferencia"), comp_b.get("cpc"), tem_b),
+        "sucesso": _comparativo_variacao(comp_a.get("sucesso"), comp_b.get("sucesso"), tem_b),
+        "interacao_loc": _comparativo_variacao(comp_a.get("interacao"), comp_b.get("loc"), tem_b),
+        "conversao": _comparativo_variacao(comp_a.get("conversao"), comp_b.get("conver"), tem_b),
+    }
+
+
+def _comparativo_metric_meta(modo_b="humano_ad"):
+    if modo_b == "way":
+        return {
+            "tentativas": {"titulo": "Tentativas", "a_key": "tentativas_fmt", "b_key": "tentativas_fmt"},
+            "atendidas": {"titulo": "Atendidas", "a_key": "atendidas_fmt", "b_key": "atendidas_fmt"},
+            "transferencia": {"titulo": "Transferências", "a_key": "transferencia_fmt", "b_key": "transferencia_fmt"},
+            "atend_humano": {"titulo": "Atend. humano", "a_key": "atend_ath_fmt", "b_key": "atend_ath_fmt"},
+            "sucesso": {"titulo": "Sucesso negócio", "a_key": "sucesso_fmt", "b_key": "sucesso_fmt"},
+            "conversao": {"titulo": "% Sucesso de negócio", "a_key": "conversao_fmt", "b_key": "conversao_fmt"},
+        }
+    return {
+        "tentativas": {"titulo": "Tentativas", "a_key": "tentativas_fmt", "b_key": "tentativas_fmt"},
+        "atendidas": {"titulo": "Atendidas", "a_key": "atendidas_fmt", "b_key": "atendidas_fmt"},
+        "transferencia_cpc": {"titulo": "Transferência / CPC", "a_key": "transferencia_fmt", "b_key": "cpc_fmt"},
+        "sucesso": {"titulo": "Sucesso negócio", "a_key": "sucesso_fmt", "b_key": "sucesso_fmt"},
+        "interacao_loc": {"titulo": "Sucesso de interação / % Loc", "a_key": "interacao_fmt", "b_key": "loc_fmt"},
+        "conversao": {"titulo": "% Sucesso de negócio", "a_key": "conversao_fmt", "b_key": "conver_fmt"},
+    }
+
+
+def _comparativo_exec(comp_a, comp_b, tem_b, variacoes, modo_b="humano_ad"):
+    meta = _comparativo_metric_meta(modo_b)
+    cards = []
+    delta_labels = []
+    delta_values = []
+    for key, cfg in meta.items():
+        var = variacoes.get(key, {"valor": None, "fmt": "--", "classe": "neutro"})
+        cards.append({
+            "titulo": cfg["titulo"],
+            "a_valor": comp_a.get(cfg["a_key"], "--"),
+            "b_valor": comp_b.get(cfg["b_key"], "--") if tem_b else "--",
+            "variacao": var,
+            "leitura": "melhor" if var.get("valor") is not None and var.get("valor") > 0 else "atenção" if var.get("valor") is not None and var.get("valor") < 0 else "sem base",
+        })
+        delta_labels.append(cfg["titulo"])
+        delta_values.append(var.get("valor"))
+
+    valid_vars = [(k, v) for k, v in variacoes.items() if v.get("valor") is not None]
+    if valid_vars:
+        best_key, best = max(valid_vars, key=lambda kv: kv[1]["valor"])
+        worst_key, worst = min(valid_vars, key=lambda kv: kv[1]["valor"])
+        best_title = meta[best_key]["titulo"]
+        worst_title = meta[worst_key]["titulo"]
+        ganho = {"titulo": best_title, "valor_fmt": best["fmt"], "texto": f"Maior vantagem do Locator em {best_title.lower()}."}
+        atencao = {"titulo": worst_title, "valor_fmt": worst["fmt"], "texto": f"Ponto de atenção do Locator em {worst_title.lower()}."}
+    else:
+        ganho = {"titulo": "Aguardando Campanha -1", "valor_fmt": "--", "texto": "Preencha a sheet Funil_2 para habilitar a comparação executiva."}
+        atencao = {"titulo": "Sem base comparativa", "valor_fmt": "--", "texto": "A variação percentual aparece quando houver campanha e data válidas nos dois lados."}
+
+    conv = variacoes.get("conversao", {}).get("valor")
+    tent = variacoes.get("tentativas", {}).get("valor")
+    meio_key = "interacao_loc" if modo_b != "way" else "transferencia"
+    meio = variacoes.get(meio_key, {}).get("valor")
+    if conv is not None and conv > 0:
+        oportunidade = {"titulo": "Escalar eficiência", "valor_fmt": variacoes["conversao"]["fmt"], "texto": "O Locator está convertendo melhor no fundo do funil e pode ganhar escala com monitoramento de hit rate."}
+    elif meio is not None and meio > 0:
+        oportunidade = {"titulo": "Ajustar topo do funil", "valor_fmt": variacoes[meio_key]["fmt"], "texto": "A jornada do Locator é eficiente no meio do funil; a oportunidade é elevar atendidas sem perder qualidade."}
+    elif tent is not None and tent > 0:
+        oportunidade = {"titulo": "Manter pressão", "valor_fmt": variacoes["tentativas"]["fmt"], "texto": "O Locator pressiona mais a base; revise discurso e targeting para capturar mais atendidas."}
+    else:
+        oportunidade = {"titulo": "Revisar estratégia", "valor_fmt": "--", "texto": "Compare outros dias ou campanhas para identificar a melhor alavanca executiva."}
+
+    def _safe_pct(v):
+        try:
+            return float(v or 0)
+        except Exception:
+            return 0.0
+    def _norm(a, b):
+        m = max(float(a or 0), float(b or 0), 1.0)
+        return round(float(a or 0) / m * 100, 2), round(float(b or 0) / m * 100, 2)
+
+    alc_a, alc_b = _norm(comp_a.get("tentativas"), comp_b.get("tentativas"))
+    suc_a, suc_b = _norm(comp_a.get("sucesso"), comp_b.get("sucesso"))
+    hit_a, hit_b = _norm(_safe_pct(comp_a.get("hit")), _safe_pct(comp_b.get("hit")))
+    if modo_b == "way":
+        meio_a, meio_b = _norm(_safe_pct(comp_a.get("interacao")), _safe_pct(comp_b.get("interacao")))
+        conv_a, conv_b = _norm(_safe_pct(comp_a.get("conversao")), _safe_pct(comp_b.get("conversao")))
+        radar_labels = ["Alcance", "Hit Rate", "Interação", "Conversão final", "Velocidade ATH", "Volume sucesso"]
+    else:
+        meio_a, meio_b = _norm(_safe_pct(comp_a.get("interacao")), _safe_pct(comp_b.get("loc")))
+        conv_a, conv_b = _norm(_safe_pct(comp_a.get("conversao")), _safe_pct(comp_b.get("conver")))
+        radar_labels = ["Alcance", "Hit Rate", "Interação", "Conversão final", "Velocidade ATH", "Volume sucesso"]
+    tma_a = float(comp_a.get("tma_ath_sec") or 0)
+    tma_b = float(comp_b.get("tma_ath_sec") or 0)
+    if tma_a <= 0 and tma_b <= 0:
+        vel_a = vel_b = 0.0
+    else:
+        valid = [x for x in [tma_a, tma_b] if x > 0]
+        min_tma = min(valid) if valid else 1.0
+        vel_a = round((min_tma / tma_a) * 100, 2) if tma_a > 0 else 0.0
+        vel_b = round((min_tma / tma_b) * 100, 2) if tma_b > 0 else 0.0
+
+    radar = {"labels": radar_labels, "a": [alc_a, hit_a, meio_a, conv_a, vel_a, suc_a], "b": [alc_b, hit_b, meio_b, conv_b, vel_b, suc_b]}
+
+    resumo = []
+    leituras = {
+        "tentativas": "maior pressão de discagem",
+        "atendidas": "capacidade de localizar contatos",
+        "transferencia_cpc": "avanço no meio do funil",
+        "transferencia": "avanço no meio do funil",
+        "atend_humano": "recebimento no humano",
+        "sucesso": "resultado absoluto do dia",
+        "interacao_loc": "eficiência da localização/interação",
+        "conversao": "aproveitamento no fundo do funil",
+    }
+    for key, cfg in meta.items():
+        resumo.append({
+            "indicador": cfg["titulo"],
+            "a_valor": comp_a.get(cfg["a_key"], "--"),
+            "b_valor": comp_b.get(cfg["b_key"], "--") if tem_b else "--",
+            "variacao": variacoes.get(key, {"fmt": "--", "classe": "neutro"}),
+            "leitura": leituras.get(key, "leitura executiva") if tem_b else "aguardando base comparativa",
+        })
+
+    matriz = [
+        {"titulo": "Alcance", "classe": variacoes.get("tentativas", {}).get("classe", "neutro"), "valor_fmt": variacoes.get("tentativas", {}).get("fmt", "--"), "texto": "Compara a pressão de tentativas entre Locator e Campanha -1."},
+        {"titulo": "Localização", "classe": variacoes.get("atendidas", {}).get("classe", "neutro"), "valor_fmt": variacoes.get("atendidas", {}).get("fmt", "--"), "texto": "Mostra quem gera mais atendidas no período comparado."},
+        {"titulo": "Interação", "classe": variacoes.get(meio_key, {}).get("classe", "neutro"), "valor_fmt": variacoes.get(meio_key, {}).get("fmt", "--"), "texto": "Lê a eficiência do meio do funil na jornada comparada."},
+        {"titulo": "Conversão final", "classe": variacoes.get("conversao", {}).get("classe", "neutro"), "valor_fmt": variacoes.get("conversao", {}).get("fmt", "--"), "texto": "Compara o aproveitamento do fundo do funil em cada jornada."},
+    ]
+
+    return {
+        "cards": cards,
+        "delta": {"labels": delta_labels, "values": delta_values},
+        "radar": radar,
+        "insights": {"ganho": ganho, "atencao": atencao, "oportunidade": oportunidade},
+        "resumo": resumo,
+        "matriz": matriz,
+    }
+
+
 def carregar_base_link():
     if not LINK_ARQUIVO_BASE.exists():
         return preparar_base_link(pd.DataFrame(columns=LINK_COLUMNS))
@@ -4112,12 +4483,13 @@ def agregar_link(df):
         return {
             "mailing": 0, "ad": 0, "ath": 0, "tentativas": 0, "atendidas": 0, "transferencia": 0,
             "perda": 0, "atend_ath": 0, "sucesso": 0, "abandono": 0, "custo": 0,
-            "spin": 0, "hit": 0, "interacao": 0, "pct_perda": 0, "pct_abandono": 0,
+            "spin": 0, "hit": 0, "interacao": 0, "recebimento": 0, "conversao": 0, "pct_perda": 0, "pct_abandono": 0,
             "tma_locator_sec": 0, "tma_ath_sec": 0
         }
     total = {
         "mailing": float(df["Mailing"].max()),
-        "ad": float(df["AD"].sum()), "ath": float(df["ATH"].sum()),
+        # AD e ATH representam capacidade por hora. Nos cards e consolidados, usar média horária, não soma.
+        "ad": _link_media_valida(df["AD"]), "ath": _link_media_valida(df["ATH"]),
         "tentativas": float(df["Tentativas"].sum()), "atendidas": float(df["Atendidas"].sum()),
         "transferencia": float(df["Transferencia"].sum()), "perda": float(df["Perda"].sum()),
         "atend_ath": float(df["Atend_ATH"].sum()), "sucesso": float(df["Sucesso_Negocio"].sum()),
@@ -4126,6 +4498,8 @@ def agregar_link(df):
     total["spin"] = total["tentativas"] / total["mailing"] if total["mailing"] else 0
     total["hit"] = total["atendidas"] / total["tentativas"] * 100 if total["tentativas"] else 0
     total["interacao"] = total["transferencia"] / total["atendidas"] * 100 if total["atendidas"] else 0
+    total["recebimento"] = total["atend_ath"] / total["transferencia"] * 100 if total["transferencia"] else 0
+    total["conversao"] = total["sucesso"] / total["atend_ath"] * 100 if total["atend_ath"] else 0
     # Perda consolidada: usa o percentual já entregue pela base, por média horária, quando disponível.
     total["pct_perda"] = _link_media_valida(df["%Perda"])
     # Regra solicitada: %Abandono já vem calculado na base. O card Daily deve usar média das horas válidas.
@@ -4138,12 +4512,13 @@ def agregar_link(df):
 def _link_card_total(total):
     return {
         **total,
-        "mailing_fmt": _link_num_fmt(total["mailing"]), "tentativas_fmt": _link_num_fmt(total["tentativas"]),
-        "atendidas_fmt": _link_num_fmt(total["atendidas"]), "transferencia_fmt": _link_num_fmt(total["transferencia"]),
-        "atend_ath_fmt": _link_num_fmt(total["atend_ath"]), "sucesso_fmt": _link_num_fmt(total["sucesso"]),
+        "mailing_fmt": _link_num_fmt(total["mailing"]), "ad_fmt": _link_num_fmt(total["ad"], 2), "ath_fmt": _link_num_fmt(total["ath"], 2),
+        "tentativas_fmt": _link_num_fmt(total["tentativas"]), "atendidas_fmt": _link_num_fmt(total["atendidas"]),
+        "transferencia_fmt": _link_num_fmt(total["transferencia"]), "atend_ath_fmt": _link_num_fmt(total["atend_ath"]), "sucesso_fmt": _link_num_fmt(total["sucesso"]),
         "abandono_fmt": _link_num_fmt(total["abandono"]), "perda_fmt": _link_num_fmt(total["perda"]),
         "spin_fmt": _link_num_fmt(total["spin"], 2), "hit_fmt": _link_pct_fmt(total["hit"]),
-        "interacao_fmt": _link_pct_fmt(total["interacao"]), "pct_perda_fmt": _link_pct_fmt(total["pct_perda"]),
+        "interacao_fmt": _link_pct_fmt(total["interacao"]), "recebimento_fmt": _link_pct_fmt(total["recebimento"]),
+        "conversao_fmt": _link_pct_fmt(total["conversao"]), "pct_perda_fmt": _link_pct_fmt(total["pct_perda"]),
         "pct_abandono_fmt": _link_pct_fmt(total["pct_abandono"]), "tma_locator_fmt": _link_tempo_fmt(total["tma_locator_sec"]),
         "tma_ath_fmt": _link_tempo_fmt(total["tma_ath_sec"]), "custo_fmt": _link_money_fmt(total["custo"]),
         "alerta_perda": total["pct_perda"] > 5, "alerta_abandono": total["pct_abandono"] > 5,
@@ -4170,47 +4545,145 @@ def _link_hourly(df):
     return sorted(dados, key=lambda x: x["hora"])
 
 
+def _link_data_arg(nome, padrao=""):
+    """Valida datas YYYY-MM-DD recebidas pela URL e aplica fallback seguro."""
+    valor = str(request.args.get(nome) or "").strip()
+    try:
+        return pd.to_datetime(valor, format="%Y-%m-%d", errors="raise").strftime("%Y-%m-%d") if valor else padrao
+    except Exception:
+        return padrao
+
+
+def _link_periodo_ordenado(data_inicio, data_fim):
+    """Garante que o intervalo esteja em ordem crescente."""
+    if not data_inicio and not data_fim:
+        return "", ""
+    if not data_inicio:
+        data_inicio = data_fim
+    if not data_fim:
+        data_fim = data_inicio
+    return (data_inicio, data_fim) if data_inicio <= data_fim else (data_fim, data_inicio)
+
+
+def _link_filtrar_periodo(df, data_inicio, data_fim):
+    if df is None or df.empty or not data_inicio or not data_fim:
+        return df.iloc[0:0].copy() if df is not None else pd.DataFrame()
+    serie_data = df["Data"].dt.strftime("%Y-%m-%d")
+    return df[(serie_data >= data_inicio) & (serie_data <= data_fim)].copy()
+
+
+def _link_periodo_label(data_inicio, data_fim):
+    def fmt(valor):
+        try:
+            return pd.to_datetime(valor).strftime("%d/%m/%Y")
+        except Exception:
+            return "--"
+    return fmt(data_inicio) if data_inicio == data_fim else f"{fmt(data_inicio)} a {fmt(data_fim)}"
+
+def _tipo_funil_b_arg():
+    valor = str(request.args.get("tipo_b") or "humano_ad").strip().lower()
+    return "way" if valor == "way" else "humano_ad"
+
+
+def _tipo_funil_b_label(valor):
+    return "Way" if valor == "way" else "Humano/AD"
+
+
+def agregar_link_periodo(df):
+    """Consolida um intervalo do Locator. Mailing soma o maior valor diário por campanha."""
+    if df is None or df.empty:
+        return agregar_link(df)
+    total = agregar_link(df)
+    mailing_diario = (
+        df.assign(_DATA_DIA=df["Data"].dt.normalize())
+          .groupby("_DATA_DIA", dropna=True)["Mailing"]
+          .max()
+    )
+    total["mailing"] = float(mailing_diario.sum()) if len(mailing_diario) else 0.0
+    total["spin"] = total["tentativas"] / total["mailing"] if total["mailing"] else 0
+    return total
+
+
 def montar_dashboard_link():
     base = carregar_base_link()
+    base_funil2 = carregar_base_funil2_arquivo(LINK_ARQUIVO_BASE, "link")
+    base_funil3 = carregar_base_funil3_arquivo(LINK_ARQUIVO_BASE, "link")
     if base.empty:
         return {"erro": f"Base não encontrada ou vazia: {LINK_ARQUIVO_BASE}", "filtros": {}, "daily": [], "hourly": []}
 
     datas = sorted(base["Data"].dt.strftime("%Y-%m-%d").dropna().unique().tolist())
     campanhas = sorted([c for c in base["NomeCampanha"].dropna().unique().tolist() if str(c).strip()])
     locator = [c for c in campanhas if "locator" in c.lower()]
-    ativas = [c for c in campanhas if "locator" not in c.lower()]
-    campanha_a = request.args.get("campanha_a") or (locator[0] if locator else campanhas[0])
+    tipo_b = _tipo_funil_b_arg()
+    base_funil_b = base_funil3 if tipo_b == "way" else base_funil2
+    datas_b = sorted(base_funil_b["Data"].dt.strftime("%Y-%m-%d").dropna().unique().tolist()) if not base_funil_b.empty else []
+    ativas = sorted([c for c in base_funil_b["NomeCampanha"].dropna().unique().tolist() if str(c).strip()]) if not base_funil_b.empty else []
+    campanha_a = request.args.get("campanha_a") or (locator[0] if locator else (campanhas[0] if campanhas else ""))
     campanha_b = request.args.get("campanha_b") or (ativas[0] if ativas else "")
-    data_sel = request.args.get("date") or (datas[-1] if datas else "")
+    padrao_a = datas[-1] if datas else ""
+    padrao_b = padrao_a if padrao_a in datas_b else (datas_b[-1] if datas_b else "")
+    data_a_ini = _link_data_arg("date_a_ini", _link_data_arg("date_a", padrao_a))
+    data_a_fim = _link_data_arg("date_a_fim", _link_data_arg("date_a", padrao_a))
+    data_b_ini = _link_data_arg("date_b_ini", _link_data_arg("date_b", padrao_b))
+    data_b_fim = _link_data_arg("date_b_fim", _link_data_arg("date_b", padrao_b))
+    data_a_ini, data_a_fim = _link_periodo_ordenado(data_a_ini, data_a_fim)
+    data_b_ini, data_b_fim = _link_periodo_ordenado(data_b_ini, data_b_fim)
 
-    df_a_hist = base[base["NomeCampanha"] == campanha_a].copy()
-    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_sel].copy()
-    df_b_dia = base[(base["NomeCampanha"] == campanha_b) & (base["Data"].dt.strftime("%Y-%m-%d") == data_sel)].copy() if campanha_b else base.iloc[0:0].copy()
+    df_a_hist = base[base["NomeCampanha"] == campanha_a].copy() if campanha_a else base.iloc[0:0].copy()
+    df_a_periodo = _link_filtrar_periodo(df_a_hist, data_a_ini, data_a_fim)
+    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_a_fim].copy()
+    df_b_base = base_funil_b[base_funil_b["NomeCampanha"] == campanha_b].copy() if campanha_b else base_funil_b.iloc[0:0].copy()
+    df_b_periodo = _link_filtrar_periodo(df_b_base, data_b_ini, data_b_fim)
 
     current = _link_card_total(agregar_link(df_a_dia))
-    comp_a = current
-    comp_b = _link_card_total(agregar_link(df_b_dia))
+    comp_a = _link_card_total(agregar_link_periodo(df_a_periodo))
+    if tipo_b == "way":
+        comp_b = _link_card_total(agregar_funil2_way(df_b_periodo))
+    else:
+        comp_b = _funil2_card(agregar_funil2(df_b_periodo))
+    tem_b = bool(campanha_b and not df_b_periodo.empty)
+    variacoes = _comparativo_variacoes(comp_a, comp_b, tem_b, tipo_b)
+    comparativo_exec = _comparativo_exec(comp_a, comp_b, tem_b, variacoes, tipo_b)
     daily = _link_daily(df_a_hist)
     hourly = _link_hourly(df_a_dia)
 
-    def funnel(total):
+    def funnel_a(total):
         return [
-            {"label": "Mailing", "value": total["mailing_fmt"]},
-            {"label": "Tentativas", "value": total["tentativas_fmt"]},
-            {"label": "Atendidas", "value": total["atendidas_fmt"]},
-            {"label": "Transferências", "value": total["transferencia_fmt"]},
-            {"label": "Atend. humano", "value": total["atend_ath_fmt"]},
-            {"label": "Sucesso negócio", "value": total["sucesso_fmt"]},
+            {"label": "Mailing", "value": total["mailing_fmt"], "taxa": "Base diária"},
+            {"label": "Tentativas", "value": total["tentativas_fmt"], "taxa": "Spin " + total["spin_fmt"]},
+            {"label": "Atendidas", "value": total["atendidas_fmt"], "taxa": "Hit " + total["hit_fmt"]},
+            {"label": "Transferências", "value": total["transferencia_fmt"], "taxa": "Interação " + total["interacao_fmt"]},
+            {"label": "Atend. humano", "value": total["atend_ath_fmt"], "taxa": "Recebimento " + total["recebimento_fmt"]},
+            {"label": "Sucesso negócio", "value": total["sucesso_fmt"], "taxa": "Conversão " + total["conversao_fmt"]},
+        ]
+
+    def funnel_b(total):
+        if tipo_b == "way":
+            return [
+                {"label": "Mailing", "value": total["mailing_fmt"], "taxa": "Base do período"},
+                {"label": "Tentativas", "value": total["tentativas_fmt"], "taxa": "Spin " + total["spin_fmt"]},
+                {"label": "Atendidas", "value": total["atendidas_fmt"], "taxa": "Hit " + total["hit_fmt"]},
+                {"label": "Transferências", "value": total["transferencia_fmt"], "taxa": "Interação " + total["interacao_fmt"]},
+                {"label": "Atend. humano", "value": total["atend_ath_fmt"], "taxa": "Recebimento " + total["recebimento_fmt"]},
+                {"label": "Sucesso negócio", "value": total["sucesso_fmt"], "taxa": "Conversão " + total["conversao_fmt"]},
+            ]
+        return [
+            {"label": "Mailing", "value": total["mailing_fmt"], "taxa": "Base do período"},
+            {"label": "Tentativas", "value": total["tentativas_fmt"], "taxa": "Tent./logado " + total["tentativas_logado_fmt"]},
+            {"label": "Atendidas", "value": total["atendidas_fmt"], "taxa": "Hit " + total["hit_fmt"]},
+            {"label": "CPC", "value": total["cpc_fmt"], "taxa": "% Loc " + total["loc_fmt"]},
+            {"label": "Acordo", "value": total["sucesso_fmt"], "taxa": "Conversão " + total["conver_fmt"]},
         ]
 
     campanha_ids = sorted([x for x in df_a_hist["CampaignId"].unique().tolist() if x])
     inbound_ids = sorted([x for x in df_a_hist["WayInboundCampaignId"].unique().tolist() if x])
     return {
+        "cliente_nome": "LINK", "arquivo_base": "base_link.xlsx",
         "erro": None,
-        "filtros": {"datas": datas, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_sel, "campanha_a": campanha_a, "campanha_b": campanha_b},
+        "filtros": {"datas": datas, "datas_b": datas_b, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_a_fim, "data_a": data_a_fim, "data_b": data_b_fim, "data_a_ini": data_a_ini, "data_a_fim": data_a_fim, "data_b_ini": data_b_ini, "data_b_fim": data_b_fim, "periodo_a_label": _link_periodo_label(data_a_ini, data_a_fim), "periodo_b_label": _link_periodo_label(data_b_ini, data_b_fim), "campanha_a": campanha_a, "campanha_b": campanha_b, "tipo_b": tipo_b, "tipo_b_label": _tipo_funil_b_label(tipo_b)},
         "campaign_ids": campanha_ids, "inbound_ids": inbound_ids,
         "current": current, "daily": daily, "hourly": hourly,
-        "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel(comp_a), "funnel_b": funnel(comp_b), "tem_b": bool(campanha_b and not df_b_dia.empty)},
+        "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel_a(comp_a), "funnel_b": funnel_b(comp_b), "tem_b": tem_b, "tem_sheet": not base_funil_b.empty, "tem_sheet_funil2": not base_funil2.empty, "tem_sheet_funil3": not base_funil3.empty, "tipo_b": tipo_b, "tipo_b_label": _tipo_funil_b_label(tipo_b), "variacoes": variacoes, "exec": comparativo_exec},
         "alerta_daily_perda": any(x["pct_perda"] > 5 for x in daily),
         "alerta_daily_abandono": any(x["pct_abandono"] > 5 for x in daily),
         "alerta_hour_perda": any(x["pct_perda"] > 5 for x in hourly),
@@ -4263,11 +4736,23 @@ def carregar_base_locator_cliente(slug):
     return df.copy()
 
 
+def carregar_base_funil2_locator_cliente(slug):
+    arquivo = _locator_cliente_arquivo(slug)
+    return carregar_base_funil2_arquivo(arquivo, slug)
+
+
+def carregar_base_funil3_locator_cliente(slug):
+    arquivo = _locator_cliente_arquivo(slug)
+    return carregar_base_funil3_arquivo(arquivo, slug)
+
+
 def montar_dashboard_locator_cliente(slug):
     config = LOCATOR_CLIENTES_CONFIG.get(slug)
     if not config:
         return {"erro": "Cliente não configurado.", "filtros": {}, "daily": [], "hourly": []}
     base = carregar_base_locator_cliente(slug)
+    base_funil2 = carregar_base_funil2_locator_cliente(slug)
+    base_funil3 = carregar_base_funil3_locator_cliente(slug)
     arquivo = config["arquivo"]
     metadata = {"cliente_slug": slug, "cliente_nome": config["nome"], "arquivo_base": arquivo}
     if base.empty:
@@ -4276,29 +4761,65 @@ def montar_dashboard_locator_cliente(slug):
     datas = sorted(base["Data"].dt.strftime("%Y-%m-%d").dropna().unique().tolist())
     campanhas = sorted([c for c in base["NomeCampanha"].dropna().unique().tolist() if str(c).strip()])
     locator = [c for c in campanhas if "locator" in c.lower()]
-    ativas = [c for c in campanhas if "locator" not in c.lower()]
+    tipo_b = _tipo_funil_b_arg()
+    base_funil_b = base_funil3 if tipo_b == "way" else base_funil2
+    datas_b = sorted(base_funil_b["Data"].dt.strftime("%Y-%m-%d").dropna().unique().tolist()) if not base_funil_b.empty else []
+    ativas = sorted([c for c in base_funil_b["NomeCampanha"].dropna().unique().tolist() if str(c).strip()]) if not base_funil_b.empty else []
     campanha_a = request.args.get("campanha_a") or (locator[0] if locator else (campanhas[0] if campanhas else ""))
     campanha_b = request.args.get("campanha_b") or (ativas[0] if ativas else "")
-    data_sel = request.args.get("date") or (datas[-1] if datas else "")
+    padrao_a = datas[-1] if datas else ""
+    padrao_b = padrao_a if padrao_a in datas_b else (datas_b[-1] if datas_b else "")
+    data_a_ini = _link_data_arg("date_a_ini", _link_data_arg("date_a", padrao_a))
+    data_a_fim = _link_data_arg("date_a_fim", _link_data_arg("date_a", padrao_a))
+    data_b_ini = _link_data_arg("date_b_ini", _link_data_arg("date_b", padrao_b))
+    data_b_fim = _link_data_arg("date_b_fim", _link_data_arg("date_b", padrao_b))
+    data_a_ini, data_a_fim = _link_periodo_ordenado(data_a_ini, data_a_fim)
+    data_b_ini, data_b_fim = _link_periodo_ordenado(data_b_ini, data_b_fim)
 
     df_a_hist = base[base["NomeCampanha"] == campanha_a].copy() if campanha_a else base.iloc[0:0].copy()
-    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_sel].copy()
-    df_b_dia = base[(base["NomeCampanha"] == campanha_b) & (base["Data"].dt.strftime("%Y-%m-%d") == data_sel)].copy() if campanha_b else base.iloc[0:0].copy()
+    df_a_periodo = _link_filtrar_periodo(df_a_hist, data_a_ini, data_a_fim)
+    df_a_dia = df_a_hist[df_a_hist["Data"].dt.strftime("%Y-%m-%d") == data_a_fim].copy()
+    df_b_base = base_funil_b[base_funil_b["NomeCampanha"] == campanha_b].copy() if campanha_b else base_funil_b.iloc[0:0].copy()
+    df_b_periodo = _link_filtrar_periodo(df_b_base, data_b_ini, data_b_fim)
 
     current = _link_card_total(agregar_link(df_a_dia))
-    comp_a = current
-    comp_b = _link_card_total(agregar_link(df_b_dia))
+    comp_a = _link_card_total(agregar_link_periodo(df_a_periodo))
+    if tipo_b == "way":
+        comp_b = _link_card_total(agregar_funil2_way(df_b_periodo))
+    else:
+        comp_b = _funil2_card(agregar_funil2(df_b_periodo))
+    tem_b = bool(campanha_b and not df_b_periodo.empty)
+    variacoes = _comparativo_variacoes(comp_a, comp_b, tem_b, tipo_b)
+    comparativo_exec = _comparativo_exec(comp_a, comp_b, tem_b, variacoes, tipo_b)
     daily = _link_daily(df_a_hist)
     hourly = _link_hourly(df_a_dia)
 
-    def funnel(total):
+    def funnel_a(total):
         return [
-            {"label": "Mailing", "value": total["mailing_fmt"]},
-            {"label": "Tentativas", "value": total["tentativas_fmt"]},
-            {"label": "Atendidas", "value": total["atendidas_fmt"]},
-            {"label": "Transferências", "value": total["transferencia_fmt"]},
-            {"label": "Atend. humano", "value": total["atend_ath_fmt"]},
-            {"label": "Sucesso negócio", "value": total["sucesso_fmt"]},
+            {"label": "Mailing", "value": total["mailing_fmt"], "taxa": "Base diária"},
+            {"label": "Tentativas", "value": total["tentativas_fmt"], "taxa": "Spin " + total["spin_fmt"]},
+            {"label": "Atendidas", "value": total["atendidas_fmt"], "taxa": "Hit " + total["hit_fmt"]},
+            {"label": "Transferências", "value": total["transferencia_fmt"], "taxa": "Interação " + total["interacao_fmt"]},
+            {"label": "Atend. humano", "value": total["atend_ath_fmt"], "taxa": "Recebimento " + total["recebimento_fmt"]},
+            {"label": "Sucesso negócio", "value": total["sucesso_fmt"], "taxa": "Conversão " + total["conversao_fmt"]},
+        ]
+
+    def funnel_b(total):
+        if tipo_b == "way":
+            return [
+                {"label": "Mailing", "value": total["mailing_fmt"], "taxa": "Base do período"},
+                {"label": "Tentativas", "value": total["tentativas_fmt"], "taxa": "Spin " + total["spin_fmt"]},
+                {"label": "Atendidas", "value": total["atendidas_fmt"], "taxa": "Hit " + total["hit_fmt"]},
+                {"label": "Transferências", "value": total["transferencia_fmt"], "taxa": "Interação " + total["interacao_fmt"]},
+                {"label": "Atend. humano", "value": total["atend_ath_fmt"], "taxa": "Recebimento " + total["recebimento_fmt"]},
+                {"label": "Sucesso negócio", "value": total["sucesso_fmt"], "taxa": "Conversão " + total["conversao_fmt"]},
+            ]
+        return [
+            {"label": "Mailing", "value": total["mailing_fmt"], "taxa": "Base do período"},
+            {"label": "Tentativas", "value": total["tentativas_fmt"], "taxa": "Tent./logado " + total["tentativas_logado_fmt"]},
+            {"label": "Atendidas", "value": total["atendidas_fmt"], "taxa": "Hit " + total["hit_fmt"]},
+            {"label": "CPC", "value": total["cpc_fmt"], "taxa": "% Loc " + total["loc_fmt"]},
+            {"label": "Acordo", "value": total["sucesso_fmt"], "taxa": "Conversão " + total["conver_fmt"]},
         ]
 
     campanha_ids = sorted([x for x in df_a_hist["CampaignId"].unique().tolist() if x])
@@ -4306,10 +4827,10 @@ def montar_dashboard_locator_cliente(slug):
     return {
         **metadata,
         "erro": None,
-        "filtros": {"datas": datas, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_sel, "campanha_a": campanha_a, "campanha_b": campanha_b},
+        "filtros": {"datas": datas, "datas_b": datas_b, "campanhas": campanhas, "locator": locator, "ativas": ativas, "data": data_a_fim, "data_a": data_a_fim, "data_b": data_b_fim, "data_a_ini": data_a_ini, "data_a_fim": data_a_fim, "data_b_ini": data_b_ini, "data_b_fim": data_b_fim, "periodo_a_label": _link_periodo_label(data_a_ini, data_a_fim), "periodo_b_label": _link_periodo_label(data_b_ini, data_b_fim), "campanha_a": campanha_a, "campanha_b": campanha_b, "tipo_b": tipo_b, "tipo_b_label": _tipo_funil_b_label(tipo_b)},
         "campaign_ids": campanha_ids, "inbound_ids": inbound_ids,
         "current": current, "daily": daily, "hourly": hourly,
-        "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel(comp_a), "funnel_b": funnel(comp_b), "tem_b": bool(campanha_b and not df_b_dia.empty)},
+        "comparativo": {"a": comp_a, "b": comp_b, "funnel_a": funnel_a(comp_a), "funnel_b": funnel_b(comp_b), "tem_b": tem_b, "tem_sheet": not base_funil_b.empty, "tem_sheet_funil2": not base_funil2.empty, "tem_sheet_funil3": not base_funil3.empty, "tipo_b": tipo_b, "tipo_b_label": _tipo_funil_b_label(tipo_b), "variacoes": variacoes, "exec": comparativo_exec},
         "alerta_daily_perda": any(x["pct_perda"] > 5 for x in daily),
         "alerta_daily_abandono": any(x["pct_abandono"] > 5 for x in daily),
         "alerta_hour_perda": any(x["pct_perda"] > 5 for x in hourly),
@@ -4340,8 +4861,7 @@ def locator_cliente_api(slug):
     return jsonify(montar_dashboard_locator_cliente(slug))
 
 
-
-# ===== GESTOR LOCATOR | Painel consolidado por Excel =====
+# ===== GESTOR LOCATOR | Visão geral integrada =====
 GESTOR_LOCATOR_EXCEL = Path(os.getenv("GESTOR_LOCATOR_EXCEL_PATH", BASE_DIR / "data" / "base_gestor_locator.xlsx"))
 GESTOR_LOCATOR_CACHE = {"mtime": None, "records": None, "status": None}
 
@@ -4488,6 +5008,7 @@ def gestor_locator_api():
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'gestor-locator'):
         return jsonify({"error": "forbidden"}), 403
     return jsonify({"data": _gestor_locator_records(), "status": _gestor_locator_status(), "arquivo_base": "data/base_gestor_locator.xlsx"})
+
 
 
 if __name__ == '__main__':

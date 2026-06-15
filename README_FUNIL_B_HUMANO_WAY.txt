@@ -19,12 +19,13 @@ A estrutura comparativa agora é separada por tipo de jornada.
    Usada exclusivamente quando o filtro Tipo Funil B = Way.
 
    Cabeçalho recomendado:
-   Data | Hora | NomeCampanha | Mailing | AD | ATH | Tentativas | Atendidas | Transferencia | Atend_ATH | Sucesso_Negocio | TMA_LOCATOR | TMA_ATH | HitRate | SucessoInteracao | Perda | %Perda | Abandono | %Abandono | SLA | Custo
+   Data | NomeCampanha | Mailing | AD | ATH | Tentativas | Atendidas | Transferencia | Atend_ATH | Sucesso_Negocio | TMA_LOCATOR | TMA_ATH | HitRate | SucessoInteracao | Perda | %Perda | Abandono | %Abandono | SLA | Custo
 
    Funil exibido:
    Mailing > Tentativas > Atendidas > Transferencias > Atend. humano > Sucesso negocio
 
 Observacoes:
+- No modo Way, a coluna Hora nao e necessaria. O comparativo consolida os dados por periodo.
 - No modo Way, os campos Perda, %Perda, Abandono, %Abandono, SLA e Custo podem ficar vazios quando nao estiverem disponiveis.
 - O painel cria valores padrao para campos opcionais ausentes para evitar erro de carregamento.
 - Os periodos do Funil A e Funil B continuam independentes.
