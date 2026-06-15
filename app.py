@@ -1218,7 +1218,7 @@ CLIENTES = [
     {
         "nome": "Gestor Locator",
         "slug": "Gestor Locator",
-        "sigla": "GN",
+        "sigla": "GL",
         "domain": "",
         "logo_url": "https://i.imgur.com/15rWePl.png"
     }
@@ -1243,7 +1243,7 @@ if not any(c.get("slug") == "gestor-locator" for c in CLIENTES):
         "slug": "gestor-locator",
         "sigla": "GL",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://i.imgur.com/15rWePl.png"
     })
 
 @app.route("/", methods=["GET", "POST"])
