@@ -25,17 +25,17 @@ USUARIOS = {
 # Use o slug do cliente, o mesmo valor usado na URL /cliente/<slug>.
 USUARIO_CLIENTES = {
     "admin": ["*"],
-    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
-    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "gerber": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "elvis.santos@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "nubia.gomes@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "eduardo.molina@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
+    "michele.silva@olos.com.br": ["gestor-locator", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira"],
 
     "sky": ["sky-negocie-online"],
     "negocie_online": ["sky-negocie-online"],
     "talentos": ["talentos"],
     "link": ["link"],
-    "sky_talentos": ["sky-negocie-online", "talentos", "link"],
+    "sky_talentos": ["sky-negocie-online", "talentos", "link", "gestor-locator"],
 }
 
 
@@ -1222,6 +1222,15 @@ if not any(c.get("slug") == "sky-negocie-online" for c in CLIENTES):
         "logo_url": "https://skycms.s3.amazonaws.com/images/0/Logo-Menu.svg"
     })
 
+if not any(c.get("slug") == "gestor-locator" for c in CLIENTES):
+    CLIENTES.insert(1, {
+        "nome": "GESTOR LOCATOR",
+        "slug": "gestor-locator",
+        "sigla": "GL",
+        "domain": "",
+        "logo_url": ""
+    })
+
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -1273,6 +1282,9 @@ def cliente(slug):
 
     if slug == "link":
         return redirect(url_for("link_index"))
+
+    if slug == "gestor-locator":
+        return redirect(url_for("gestor_locator_index"))
 
     if slug in LOCATOR_CLIENTES_CONFIG:
         return redirect(url_for("locator_cliente_index", slug=slug))
@@ -3910,6 +3922,19 @@ def _link_texto(valor):
 
 
 def _link_num(valor):
+    # Proteção extra: quando o Excel vem com colunas duplicadas, pandas pode entregar uma Series aqui.
+    # Nesse caso usamos o primeiro valor preenchido para evitar o erro "truth value of a Series is ambiguous".
+    if isinstance(valor, (pd.Series, list, tuple, np.ndarray)):
+        for item in list(valor):
+            try:
+                if not pd.isna(item):
+                    valor = item
+                    break
+            except Exception:
+                valor = item
+                break
+        else:
+            return 0.0
     if pd.isna(valor):
         return 0.0
     if isinstance(valor, (int, float, np.integer, np.floating)):
@@ -4305,6 +4330,156 @@ def locator_cliente_api(slug):
     if not usuario_pode_acessar_cliente(session.get('usuario'), slug):
         return jsonify({"error": "forbidden"}), 403
     return jsonify(montar_dashboard_locator_cliente(slug))
+
+
+
+# ===== GESTOR LOCATOR | Painel consolidado por Excel =====
+GESTOR_LOCATOR_EXCEL = Path(os.getenv("GESTOR_LOCATOR_EXCEL_PATH", BASE_DIR / "data" / "base_gestor_locator.xlsx"))
+GESTOR_LOCATOR_CACHE = {"mtime": None, "records": None, "status": None}
+
+
+def _gestor_locator_clean_value(valor):
+    if pd.isna(valor):
+        return None
+    if hasattr(valor, "strftime"):
+        try:
+            return valor.strftime("%Y-%m-%d")
+        except Exception:
+            return str(valor)
+    if isinstance(valor, (np.integer,)):
+        return int(valor)
+    if isinstance(valor, (np.floating,)):
+        return float(valor)
+    return valor
+
+
+def _gestor_locator_norm_col(col):
+    """Normaliza cabeçalho do Excel para evitar painel vazio por acento/espaço."""
+    import unicodedata
+    txt = str(col or "").strip()
+    txt = unicodedata.normalize("NFKD", txt).encode("ascii", "ignore").decode("ascii")
+    return "".join(ch for ch in txt.lower() if ch.isalnum())
+
+
+def _gestor_locator_read_excel():
+    """Lê a primeira aba com dados da base do Gestor Locator."""
+    xls = pd.ExcelFile(GESTOR_LOCATOR_EXCEL)
+    for sheet in xls.sheet_names:
+        df = pd.read_excel(GESTOR_LOCATOR_EXCEL, sheet_name=sheet)
+        if not df.empty:
+            return df, sheet
+    return pd.DataFrame(), (xls.sheet_names[0] if xls.sheet_names else "")
+
+
+def _gestor_locator_records():
+    if not GESTOR_LOCATOR_EXCEL.exists():
+        GESTOR_LOCATOR_CACHE["status"] = {"ok": False, "msg": f"Arquivo não encontrado: {GESTOR_LOCATOR_EXCEL}", "rows": 0}
+        return []
+
+    mtime = GESTOR_LOCATOR_EXCEL.stat().st_mtime
+    if GESTOR_LOCATOR_CACHE.get("records") is not None and GESTOR_LOCATOR_CACHE.get("mtime") == mtime:
+        return list(GESTOR_LOCATOR_CACHE["records"])
+
+    try:
+        df, sheet_name = _gestor_locator_read_excel()
+    except Exception as exc:
+        GESTOR_LOCATOR_CACHE["mtime"] = mtime
+        GESTOR_LOCATOR_CACHE["records"] = []
+        GESTOR_LOCATOR_CACHE["status"] = {"ok": False, "msg": f"Erro ao ler Excel: {exc}", "rows": 0}
+        return []
+
+    # Remove colunas totalmente vazias e espaços nos nomes.
+    df = df.dropna(axis=1, how="all")
+    df.columns = [str(c).strip() for c in df.columns]
+
+    aliases_norm = {
+        "dt": "Data", "data": "Data", "date": "Data", "dia": "Data",
+        "hora": "Hora", "hour": "Hora", "hr": "Hora",
+        "campaignid": "CampaignId", "idcampanha": "CampaignId",
+        "wayinboundcampaignid": "WayInboundCampaignId", "wayid": "WayInboundCampaignId", "wayinboundid": "WayInboundCampaignId",
+        "nomecampanha": "NomeCampanha", "campanha": "NomeCampanha", "nomecamp": "NomeCampanha", "locator": "NomeCampanha",
+        "mailing": "Mailing", "ad": "AD", "ath": "ATH",
+        "tentativas": "Tentativas", "discado": "Tentativas", "discadas": "Tentativas",
+        "atendidas": "Atendidas", "atendida": "Atendidas", "atendimento": "Atendidas",
+        "transferencia": "Transferencia", "transferencias": "Transferencia", "transferida": "Transferencia",
+        "perda": "Perda", "perdas": "Perda",
+        "atendath": "Atend_ATH", "atendidasath": "Atend_ATH",
+        "sucesso": "Sucesso_Negocio", "sucessonegocio": "Sucesso_Negocio", "sucessodenegocio": "Sucesso_Negocio", "sucessos": "Sucesso_Negocio",
+        "tmalocator": "TMA_LOCATOR", "tmaath": "TMA_ATH",
+        "hitrate": "HitRate",
+        "sucessointeracao": "SucessoInteracao", "sucessointeracao": "SucessoInteracao",
+        "perda": "Perda", "percentualperda": "%Perda", "perdapct": "%Perda",
+        "abandono": "Abandono", "abandonos": "Abandono", "percentualabandono": "%Abandono", "abandonopct": "%Abandono",
+        "sla": "SLA", "custo": "Custo", "cliente": "Cliente", "clientes": "Cliente",
+    }
+
+    rename_map = {}
+    for c in df.columns:
+        canonical = aliases_norm.get(_gestor_locator_norm_col(c))
+        if canonical:
+            rename_map[c] = canonical
+    df = df.rename(columns=rename_map)
+
+    # Algumas bases podem vir com duas colunas que viram o mesmo nome após tratar acento/espaço
+    # (ex.: "Sucesso" e "Sucesso_Negocio"). Isso fazia df[col] virar DataFrame e quebrava o painel.
+    if df.columns.duplicated().any():
+        dedup = pd.DataFrame(index=df.index)
+        for col in dict.fromkeys(df.columns):
+            bloco = df.loc[:, df.columns == col]
+            if bloco.shape[1] == 1:
+                dedup[col] = bloco.iloc[:, 0]
+            else:
+                dedup[col] = bloco.bfill(axis=1).iloc[:, 0]
+        df = dedup
+
+    expected = ["Data", "Hora", "CampaignId", "WayInboundCampaignId", "NomeCampanha", "Mailing", "AD", "ATH", "Tentativas", "Atendidas", "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio", "TMA_LOCATOR", "TMA_ATH", "HitRate", "SucessoInteracao", "%Perda", "Abandono", "%Abandono", "SLA", "Custo", "Cliente"]
+    for col in expected:
+        if col not in df.columns:
+            df[col] = None
+
+    # Se não existir Cliente na base, deixa um nome padrão para não sumir no agrupamento.
+    df["Cliente"] = df["Cliente"].apply(lambda x: "Gestor Locator" if pd.isna(x) or str(x).strip() == "" else str(x).strip())
+    df["NomeCampanha"] = df["NomeCampanha"].apply(lambda x: "Sem Campanha" if pd.isna(x) or str(x).strip() == "" else str(x).strip())
+
+    df["Data"] = pd.to_datetime(df["Data"], errors="coerce", dayfirst=True).dt.strftime("%Y-%m-%d")
+    df = df[df["Data"].notna()].copy()
+
+    numeric_cols = ["Hora", "CampaignId", "WayInboundCampaignId", "Mailing", "AD", "ATH", "Tentativas", "Atendidas", "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio", "HitRate", "SucessoInteracao", "%Perda", "Abandono", "%Abandono", "SLA", "Custo"]
+    for col in numeric_cols:
+        df[col] = df[col].apply(_link_num)
+
+    records = []
+    for row in df[expected].to_dict(orient="records"):
+        records.append({k: _gestor_locator_clean_value(v) for k, v in row.items()})
+
+    GESTOR_LOCATOR_CACHE["mtime"] = mtime
+    GESTOR_LOCATOR_CACHE["records"] = records
+    GESTOR_LOCATOR_CACHE["status"] = {"ok": True, "msg": f"Base carregada: {sheet_name}", "rows": len(records), "arquivo": "data/base_gestor_locator.xlsx"}
+    return list(records)
+
+
+def _gestor_locator_status():
+    _gestor_locator_records()
+    return dict(GESTOR_LOCATOR_CACHE.get("status") or {})
+
+
+@app.route('/cliente/gestor-locator/painel')
+def gestor_locator_index():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if not usuario_pode_acessar_cliente(session.get('usuario'), 'gestor-locator'):
+        return acesso_negado()
+    records = _gestor_locator_records()
+    return render_template('gestor_locator_cockpit.html', raw_data=records, base_status=_gestor_locator_status(), usuario=session.get('usuario'))
+
+
+@app.route('/cliente/gestor-locator/painel/api')
+def gestor_locator_api():
+    if 'usuario' not in session:
+        return jsonify({"error": "unauthorized"}), 401
+    if not usuario_pode_acessar_cliente(session.get('usuario'), 'gestor-locator'):
+        return jsonify({"error": "forbidden"}), 403
+    return jsonify({"data": _gestor_locator_records(), "status": _gestor_locator_status(), "arquivo_base": "data/base_gestor_locator.xlsx"})
 
 
 if __name__ == '__main__':
