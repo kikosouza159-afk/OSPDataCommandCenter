@@ -1213,7 +1213,7 @@ CLIENTES = [
         "slug": "nova-gestoes",
         "sigla": "NG",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://i.imgur.com/15rWePl.png"
     }
 ]
 
