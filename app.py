@@ -1213,6 +1213,13 @@ CLIENTES = [
         "slug": "nova-gestoes",
         "sigla": "NG",
         "domain": "",
+        "logo_url": ""
+    }
+    {
+        "nome": "Gestor Locator",
+        "slug": "Gestor Locator",
+        "sigla": "GN",
+        "domain": "",
         "logo_url": "https://i.imgur.com/15rWePl.png"
     }
 ]
