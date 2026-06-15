@@ -1214,7 +1214,7 @@ CLIENTES = [
         "sigla": "NG",
         "domain": "",
         "logo_url": ""
-    }
+    },
     {
         "nome": "Gestor Locator",
         "slug": "Gestor Locator",
