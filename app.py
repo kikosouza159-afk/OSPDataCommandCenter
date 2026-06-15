@@ -205,7 +205,7 @@ CLIENTES = [
         "slug": "aranha-e-ferreira",
         "sigla": "AEF",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://afalaw.com.br/wp-content/uploads/2024/12/afalaw-logo-cinza.png"
     },
     {
         "nome": "ARAUZ - SOLUCZ",
@@ -513,7 +513,7 @@ CLIENTES = [
         "slug": "ferreira-e-chagas",
         "sigla": "FEC",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://ferreiraechagas.com.br/wp-content/uploads/2019/07/logo-fc-branca2.png"
     },
     {
         "nome": "Folha",
@@ -695,7 +695,7 @@ CLIENTES = [
         "slug": "link",
         "sigla": "LIN",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://www.linksolucoes.com.br/logos/logo.png"
     },
     {
         "nome": "LOCALCRED",
@@ -779,7 +779,7 @@ CLIENTES = [
         "slug": "millennium",
         "sigla": "MIL",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://www.millenniumcobrancas.com.br/wp-content/uploads/2022/06/cropped-logo_millennium02-ai.png"
     },
     {
         "nome": "Mutant",
@@ -814,7 +814,7 @@ CLIENTES = [
         "slug": "nw-advogados",
         "sigla": "NA",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://nwadv.com.br/wp-content/themes/nwadv/img/logo-header-nwadv.svg"
     },
     {
         "nome": "OLIVEIRA E ANTUNES",
@@ -967,8 +967,8 @@ CLIENTES = [
         "nome": "RENAC",
         "slug": "renac",
         "sigla": "REN",
-        "domain": "renac.com.br",
-        "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=renac.com.br"
+        "domain": "",
+        "logo_url": "https://www.gruporenac.com.br/wp-content/themes/gruporenac/dist/images/logo.png?ver=1"
     },
     {
         "nome": "RENNER",
@@ -1031,7 +1031,7 @@ CLIENTES = [
         "slug": "setra",
         "sigla": "SET",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://www.setrabpo.com.br/assets/Logo%20Setra%20BPO-CT7qy7uc.png"
     },
     {
         "nome": "SHULZE",
@@ -1073,7 +1073,7 @@ CLIENTES = [
         "slug": "syscob",
         "sigla": "SYS",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://syscob.com.br/images/logo_siscob.png"
     },
     {
         "nome": "TAHTO",
@@ -1208,7 +1208,15 @@ CLIENTES = [
         "domain": "yamaha-motor.com.br",
         "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=yamaha-motor.com.br"
     },
+    {
+        "nome": "NOVA GESTÕES",
+        "slug": "nova-gestoes",
+        "sigla": "NG",
+        "domain": "",
+        "logo_url": ""
+    }
 ]
+
 
 
 
@@ -1228,7 +1236,7 @@ if not any(c.get("slug") == "gestor-locator" for c in CLIENTES):
         "slug": "gestor-locator",
         "sigla": "GL",
         "domain": "",
-        "logo_url": ""
+        "logo_url": "https://i.imgur.com/15rWePl.pnghttps://i.imgur.com/15rWePl.png"
     })
 
 @app.route("/", methods=["GET", "POST"])
