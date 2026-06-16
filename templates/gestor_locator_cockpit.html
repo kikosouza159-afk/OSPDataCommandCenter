@@ -76,6 +76,16 @@
   font-weight:800;
   outline:none;
 }
+    .order-select{
+  height:40px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:0 10px;
+  background:#fff;
+  color:var(--navy);
+  font-weight:800;
+  outline:none;
+}
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:430px}
     table{width:100%;border-collapse:collapse;font-size:13px;min-width:1180px;background:white}
     th{position:sticky;top:0;background:linear-gradient(180deg,var(--navy2),var(--navy));color:#fff;text-align:right;padding:9px 10px;font-size:12px;z-index:1;white-space:nowrap}
@@ -151,7 +161,27 @@
     </div>
     <section class="kpis" id="kpis"></section>
     <section class="panel">
-      <div class="panel-head"><div><div class="panel-title">Consolidado de todos os locators</div><div class="hint">Resumo por Cliente + Locator, com mailing calculado pelo maior valor da base filtrada</div></div><div class="mini-actions">⇩ ⛶ ⋮</div></div>
+      <div class="panel-head">
+  <div>
+    <div class="panel-title">Consolidado de todos os locators</div>
+    <div class="hint">Resumo por Cliente + Locator, com mailing calculado pelo maior valor da base filtrada</div>
+  </div>
+
+  <div class="mini-actions">
+    <select id="ordemConsolidado" class="order-select" onchange="render()">
+      <option value="tentativas">Ordenar: Tentativas</option>
+      <option value="cliente_az">Cliente A-Z</option>
+      <option value="cliente_za">Cliente Z-A</option>
+      <option value="locator_az">Locator A-Z</option>
+      <option value="locator_za">Locator Z-A</option>
+      <option value="sucesso">Sucesso</option>
+      <option value="custo">Custo</option>
+      <option value="hitrate">Hit Rate</option>
+    </select>
+
+    <button class="btn alt" onclick="exportConsolidado()">Exportar</button>
+  </div>
+</div>
       <div class="table-wrap"><table id="tblConsolidado"></table></div>
     </section>
     <section class="panel">
@@ -254,8 +284,54 @@ function renderKpis(rows){const s=calc(rows); const data=[['👥','Clientes',s.c
   document.getElementById('kpis').style.gridTemplateColumns='repeat(11,minmax(112px,1fr))';
   document.getElementById('kpis').innerHTML=data.map(x=>`<div class="kpi"><div class="label"><span>${x[0]}</span><span>${x[1]}</span></div><div class="value">${x[2]}</div></div>`).join('');}
 function consolidated(rows){
-  const out=[]; groupBy(rows,r=>`${r.Cliente}|${r.NomeCampanha}|${r.CampaignId}|${r.WayInboundCampaignId}`).forEach((arr,k)=>{const [cliente,nome,cid,wid]=k.split('|'); const s=calc(arr); out.push({cliente,nome,cid,wid,...s});});
-  return out.sort((a,b)=>b.tent-a.tent);
+  const out=[];
+
+  groupBy(rows,r=>`${r.Cliente}|${r.NomeCampanha}|${r.CampaignId}|${r.WayInboundCampaignId}`).forEach((arr,k)=>{
+    const [cliente,nome,cid,wid]=k.split('|');
+    const s=calc(arr);
+    out.push({cliente,nome,cid,wid,...s});
+  });
+
+  const ordemEl = document.getElementById('ordemConsolidado');
+  const ordem = ordemEl ? ordemEl.value : 'tentativas';
+
+  if (ordem === 'cliente_az') {
+    return out.sort((a,b)=>
+      String(a.cliente).localeCompare(String(b.cliente),'pt-BR',{numeric:true})
+    );
+  }
+
+  if (ordem === 'cliente_za') {
+    return out.sort((a,b)=>
+      String(b.cliente).localeCompare(String(a.cliente),'pt-BR',{numeric:true})
+    );
+  }
+
+  if (ordem === 'locator_az') {
+    return out.sort((a,b)=>
+      String(a.nome).localeCompare(String(b.nome),'pt-BR',{numeric:true})
+    );
+  }
+
+  if (ordem === 'locator_za') {
+    return out.sort((a,b)=>
+      String(b.nome).localeCompare(String(a.nome),'pt-BR',{numeric:true})
+    );
+  }
+
+  if (ordem === 'sucesso') {
+    return out.sort((a,b)=>b.sucesso - a.sucesso);
+  }
+
+  if (ordem === 'custo') {
+    return out.sort((a,b)=>b.custo - a.custo);
+  }
+
+  if (ordem === 'hitrate') {
+    return out.sort((a,b)=>b.hit - a.hit);
+  }
+
+  return out.sort((a,b)=>b.tent - a.tent);
 }
 function rateClass(v,type='hit'){ if(type==='hit') return v>=.08?'green':(v<.015?'red':'orange'); return v>.08?'red':(v>.03?'orange':'green'); }
 function renderConsolidado(rows){
