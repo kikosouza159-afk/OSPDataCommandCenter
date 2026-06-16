@@ -66,6 +66,16 @@
     .panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
     .panel-title{font-size:19px;color:var(--navy);font-weight:900;margin:0} .hint{font-size:12px;color:var(--muted);font-weight:650;margin-top:3px}
     .mini-actions{display:flex;gap:8px;color:var(--muted);font-weight:900}
+    .order-select{
+  height:40px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:0 10px;
+  background:#fff;
+  color:var(--navy);
+  font-weight:800;
+  outline:none;
+}
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:430px}
     table{width:100%;border-collapse:collapse;font-size:13px;min-width:1180px;background:white}
     th{position:sticky;top:0;background:linear-gradient(180deg,var(--navy2),var(--navy));color:#fff;text-align:right;padding:9px 10px;font-size:12px;z-index:1;white-space:nowrap}
@@ -149,7 +159,24 @@
       <div class="split"><div class="accordion" id="accordion"></div><div class="hour-box"><div class="table-wrap" style="max-height:515px"><table id="tblHora"></table></div></div></div>
     </section>
     <section class="panel">
-      <div class="panel-head"><div><div class="panel-title">Dia a dia dos indicadores</div><div class="hint">Resumo por data considerando todos os filtros selecionados</div></div><div class="mini-actions"><button class="btn alt" onclick="exportDiaDia()">Exportar dia a dia</button></div></div>
+    <div class="panel-head">
+  <div>
+    <div class="panel-title">Dia a dia dos indicadores</div>
+    <div class="hint">Resumo por data considerando todos os filtros selecionados</div>
+  </div>
+
+  <div class="mini-actions">
+    <select id="ordemClienteDia" class="order-select" onchange="renderDiaDia(getFiltered())">
+      <option value="tentativas">Ordenar: Tentativas</option>
+      <option value="cliente_az">Cliente A-Z</option>
+      <option value="cliente_za">Cliente Z-A</option>
+      <option value="sucesso">Sucesso</option>
+      <option value="custo">Custo</option>
+    </select>
+
+    <button class="btn alt" onclick="exportDiaDia()">Exportar dia a dia</button>
+  </div>
+</div>
       <div class="table-wrap" style="max-height:430px"><table id="tblDiaDia"></table></div>
     </section>
     <div class="footer-note" id="baseStatus">Sugestão visual baseada na base gestor locator com filtro de Cliente.</div>
@@ -262,12 +289,40 @@ function diaDia(rows){
 function diaDiaClientes(rows, dataRef){
   const rowsDia = rows.filter(r => String(r.Data||'') === String(dataRef||''));
   const out=[];
+
   groupBy(rowsDia,r=>String(r.Cliente || 'Sem cliente')).forEach((arr,cliente)=>{
     const s=calc(arr);
     out.push({cliente,...s});
   });
-  return out.sort((a,b)=>b.tent-a.tent || String(a.cliente).localeCompare(String(b.cliente),'pt-BR',{numeric:true}));
+
+  const ordemEl = document.getElementById('ordemClienteDia');
+  const ordem = ordemEl ? ordemEl.value : 'tentativas';
+
+  if (ordem === 'cliente_az') {
+    return out.sort((a,b)=>
+      String(a.cliente).localeCompare(String(b.cliente),'pt-BR',{numeric:true})
+    );
+  }
+
+  if (ordem === 'cliente_za') {
+    return out.sort((a,b)=>
+      String(b.cliente).localeCompare(String(a.cliente),'pt-BR',{numeric:true})
+    );
+  }
+
+  if (ordem === 'sucesso') {
+    return out.sort((a,b)=>b.sucesso - a.sucesso);
+  }
+
+  if (ordem === 'custo') {
+    return out.sort((a,b)=>b.custo - a.custo);
+  }
+
+  return out.sort((a,b)=>b.tent - a.tent);
 }
+  return out.sort((a,b)=>
+  String(a.cliente).localeCompare(String(b.cliente),'pt-BR',{numeric:true})
+);
 function toggleDia(dataRef){
   const k=String(dataRef||'');
   if(expandedDates.has(k)) expandedDates.delete(k); else expandedDates.add(k);
