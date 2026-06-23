@@ -10,6 +10,7 @@ USUARIOS = {
     "nubia.gomes@olos.com.br": "olos@2026",
     "eduardo.molina@olos.com.br": "olos@2026",
     "michele.silva@olos.com.br": "olos@2026",
+    "amanda.nascimento@olos.com.br": "olos@2026",
 
 
     # Usuários restritos por cliente
@@ -30,6 +31,7 @@ USUARIO_CLIENTES = {
     "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
     "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
     "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
+    "amanda.nascimento@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
 
     "sky": ["sky-negocie-online"],
     "negocie_online": ["sky-negocie-online"],
