@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cockpit | Rede Brasil • Locator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='rede_brasil_locator.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="bg-content" aria-hidden="true">
+        <div class="background"></div><div class="bg-grid"></div><div class="orb one"></div><div class="orb two"></div><div class="scanline"></div>
+        <div class="electric"><svg viewBox="0 0 1000 600" preserveAspectRatio="none"><path d="M0 120 H180 V230 H390 V90 H610 V280 H820 V160 H1000"/><path d="M0 420 H210 V320 H470 V500 H690 V370 H1000"/><path d="M80 0 V130 H300 V260 H520 V150 H770 V330 H940 V600"/></svg></div>
+        <div class="data-rain"><span class="code">1010011010</span><span class="code">0101100110</span><span class="code">1100101011</span><span class="code">0011010101</span><span class="code">1011100100</span><span class="code">0110011101</span><span class="code">1101010010</span></div>
+    </div>
+    <nav class="cockpit-nav">
+      <div class="cockpit-brand"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><div><strong>OSP Data Command Center</strong><small>Rede Brasil • Locator</small></div></div>
+      <div class="cockpit-actions"><a href="{{ url_for('dashboard') }}">← Cockpit</a><a href="{{ url_for('logout') }}">Sair</a></div>
+    </nav>
+
+    <main class="app-shell">
+        <header class="hero">
+            <div class="hero-left">
+                <div class="brand-mark">
+                    <img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Logo Olos">
+                </div>
+                <div class="hero-text">
+                    <div class="hero-badge">OSP • Data Command Center • Rede Brasil</div>
+                    <h1>Rede Brasil • Funil Locator x Campanha Comparativa</h1>
+                    <p>Funil executivo integrado ao cockpit para leitura operacional, benchmarking e análise por hora.</p>
+                </div>
+            </div>
+        </header>
+
+        <section class="locator-command-strip">
+            <div class="locator-overview-cards">
+                <article class="overview-card blue"><span class="overview-icon">👥</span><div><small>ATH médio Locator</small><strong id="ovAth">0</strong></div></article>
+                <article class="overview-card cyan"><span class="overview-icon">↗</span><div><small>Tentativas</small><strong id="ovTentativas">0</strong></div></article>
+                <article class="overview-card orange"><span class="overview-icon">☎</span><div><small>Atendidas</small><strong id="ovAtendidas">0</strong></div></article>
+                <article class="overview-card green"><span class="overview-icon">◎</span><div><small>Transferências / CPC</small><strong id="ovCpc">0</strong></div></article>
+                <article class="overview-card amber"><span class="overview-icon">✓</span><div><small>Sucesso Negócio / Acordo</small><strong id="ovAcordo">0</strong></div></article>
+                <article class="overview-card violet"><span class="overview-icon">⏱</span><div><small>TMA Locator</small><strong id="ovTma">00:00:00</strong></div></article>
+            </div>
+
+            <div class="compact-filter-bar glass">
+                <label class="compact-filter">
+                    <span>📅 Período</span>
+                    <select id="filterData"></select>
+                </label>
+                <label class="compact-filter">
+                    <span>🎯 Campanha Locator</span>
+                    <select id="filterLocator"></select>
+                </label>
+                <label class="compact-filter">
+                    <span>⚖️ Campanha Comparativa</span>
+                    <select id="filterComparativa"></select>
+                </label>
+                <button id="btnReload" class="reload-btn compact-reload" type="button" title="Atualizar painel">↻</button>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+            <aside class="panel funnel-panel">
+                <div class="panel-title">
+                    <span class="icon">⌯</span>
+                    <div>
+                        <h2>Funil Comparativo</h2>
+                        <small>Visual HTML/CSS no modelo ADA</small>
+                    </div>
+                </div>
+
+                <div class="dual-funnel-head">
+                    <div>
+                        <small>Locator</small>
+                        <div class="campaign-chip" id="locatorName">-</div>
+                    </div>
+                    <div>
+                        <small>Comparativa</small>
+                        <div class="campaign-chip orange" id="compName">-</div>
+                    </div>
+                </div>
+
+                <div id="locatorFunnelPlot" class="funnel-plot"></div>
+
+                <div class="mini-kpis">
+                    <article class="kpi-card blue">
+                        <span class="kpi-icon">◎</span>
+                        <small>Hit Rate</small>
+                        <strong id="kpiHit">0,00%</strong>
+                    </article>
+                    <article class="kpi-card orange">
+                        <span class="kpi-icon">◉</span>
+                        <small>Sucesso Interação</small>
+                        <strong id="kpiInteracao">0,00%</strong>
+                    </article>
+                    <article class="kpi-card red">
+                        <span class="kpi-icon">↓</span>
+                        <small>% Perda</small>
+                        <strong id="kpiPerda">0,00%</strong>
+                    </article>
+                    <article class="kpi-card amber">
+                        <span class="kpi-icon">↪</span>
+                        <small>% Abandono</small>
+                        <strong id="kpiAbandono">0,00%</strong>
+                    </article>
+                    <article class="kpi-card green">
+                        <span class="kpi-icon">✓</span>
+                        <small>SLA</small>
+                        <strong id="kpiSla">0,00%</strong>
+                    </article>
+                    <article class="kpi-card cyan">
+                        <span class="kpi-icon">R$</span>
+                        <small>Custo</small>
+                        <strong id="kpiCusto">R$ 0,00</strong>
+                    </article>
+                </div>
+            </aside>
+
+            <section class="panel chart-panel">
+                <div class="panel-title">
+                    <span class="icon">⌁</span>
+                    <div>
+                        <h2>Evolução por hora</h2>
+                        <small>Tentativas, Atendidas, Transferidas e Sucesso de Negócio</small>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="hourlyChart"></canvas>
+                </div>
+            </section>
+
+            <section class="right-stack">
+                <article class="panel compare-panel">
+                    <div class="panel-title">
+                        <span class="icon">⚖</span>
+                        <div>
+                            <h2>Comparativo com campanha espelho</h2>
+                            <small>Comparação direta entre Locator e campanha benchmark</small>
+                        </div>
+                    </div>
+
+                    <div class="versus">
+                        <div>
+                            <small>Locator selecionado</small>
+                            <strong id="locatorSelected">-</strong>
+                        </div>
+                        <span>X</span>
+                        <div>
+                            <small>Campanha comparativa</small>
+                            <strong id="compSelected">-</strong>
+                        </div>
+                    </div>
+
+                    <div class="table-scroll">
+                        <table class="compare-table">
+                            <thead>
+                                <tr>
+                                    <th>Indicador</th>
+                                    <th>Locator</th>
+                                    <th>Comparativa</th>
+                                    <th>Variação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="variationRows"></tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel comp-kpis-panel">
+                    <div class="panel-title">
+                        <span class="icon">▟</span>
+                        <div>
+                            <h2>Resumo da campanha espelho</h2>
+                            <small>Indicadores principais da campanha comparativa selecionada</small>
+                        </div>
+                    </div>
+
+                    <div class="comp-kpis comp-kpis-five">
+                        <div class="metric"><span>◫</span><small>Mailing</small><strong id="compMailing">0</strong></div>
+                        <div class="metric"><span>↗</span><small>Tentativas</small><strong id="compTentativas">0</strong></div>
+                        <div class="metric"><span>☎</span><small>Atendidas</small><strong id="compAtendidas">0</strong></div>
+                        <div class="metric"><span>◎</span><small>CPC</small><strong id="compCpc">0</strong></div>
+                        <div class="metric"><span>✓</span><small>Acordo</small><strong id="compAcordo">0</strong></div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="panel hourly-consolidated-panel">
+                <div class="panel-title">
+                    <span class="icon">◷</span>
+                    <div>
+                        <h2>Consolidado do dia • Hora a hora</h2>
+                        <small>Campanha espelho selecionada • produtividade por logados e aproveitamento do mailing</small>
+                    </div>
+                </div>
+                <div class="table-scroll">
+                    <table class="hourly-consolidated-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Logados</th>
+                                <th>Mailing</th>
+                                <th>Tentativas</th>
+                                <th>Atendidas</th>
+                                <th>CPC</th>
+                                <th>Acordo</th>
+                                <th>CPC / Logados</th>
+                                <th>Acordo / Logados</th>
+                                <th>Acordo / Mailing</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hourlyConsolidatedRows"></tbody>
+                        <tfoot id="hourlyConsolidatedTotal"></tfoot>
+                    </table>
+                </div>
+            </section>
+
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='rede_brasil_locator.js') }}"></script>
+</body>
+</html>

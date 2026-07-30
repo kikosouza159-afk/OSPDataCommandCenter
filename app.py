@@ -26,18 +26,18 @@ USUARIOS = {
 # Use o slug do cliente, o mesmo valor usado na URL /cliente/<slug>.
 USUARIO_CLIENTES = {
     "admin": ["*"],
-    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
-    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
-    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
-    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
-    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
-    "amanda.nascimento@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator"],
+    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
+    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
+    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
+    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
+    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
+    "amanda.nascimento@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
 
     "sky": ["sky-negocie-online"],
     "negocie_online": ["sky-negocie-online"],
     "talentos": ["talentos"],
     "link": ["link"],
-    "sky_talentos": ["sky-negocie-online", "talentos", "link", "gestor-locator"],
+    "sky_talentos": ["sky-negocie-online", "talentos", "link", "gestor-locator", "rede-brasil"],
 }
 
 
@@ -1295,6 +1295,9 @@ def cliente(slug):
 
     if slug == "gestor-locator":
         return redirect(url_for("gestor_locator_index"))
+
+    if slug == "rede-brasil":
+        return redirect(url_for("rede_brasil_locator_index"))
 
     if slug in LOCATOR_CLIENTES_CONFIG:
         return redirect(url_for("locator_cliente_index", slug=slug))
@@ -5020,5 +5023,318 @@ def gestor_locator_api():
 
 
 
+# ===== REDE BRASIL | Locator x Campanha Comparativa =====
+# Integrado a partir do projeto painel_locator_comparativo_osp.
+REDE_BRASIL_EXCEL = Path(os.getenv("REDE_BRASIL_EXCEL_PATH", BASE_DIR / "data" / "base_rede_brasil.xlsx"))
+REDE_BRASIL_CACHE = {"mtime": None, "locator": None, "comparativo": None, "status": None}
+
+
+def _rb_parse_number(value):
+    if value is None:
+        return 0.0
+    text = str(value).strip()
+    if not text or text.lower() == "nan":
+        return 0.0
+    text = text.replace("R$", "").replace("%", "").strip()
+    if "," in text:
+        text = text.replace(".", "").replace(",", ".")
+    try:
+        return float(text)
+    except Exception:
+        return 0.0
+
+
+def _rb_fmt_int(value):
+    try:
+        return f"{int(round(float(value))):,}".replace(",", ".")
+    except Exception:
+        return "0"
+
+
+def _rb_fmt_dec(value, casas=1):
+    try:
+        return f"{float(value):.{casas}f}".replace(".", ",")
+    except Exception:
+        return "0"
+
+
+def _rb_fmt_pct(value, casas=2):
+    return f"{_rb_fmt_dec(value, casas)}%"
+
+
+def _rb_fmt_money(value):
+    try:
+        return "R$ " + f"{float(value):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return "R$ 0,00"
+
+
+def _rb_avg_time(series):
+    seconds = []
+    for item in series.dropna().astype(str):
+        parts = item.strip().split(":")
+        if len(parts) != 3:
+            continue
+        try:
+            h, m, s = [int(float(p)) for p in parts]
+            seconds.append(h * 3600 + m * 60 + s)
+        except Exception:
+            continue
+    if not seconds:
+        return "00:00:00"
+    avg = int(round(sum(seconds) / len(seconds)))
+    return f"{avg // 3600:02d}:{(avg % 3600) // 60:02d}:{avg % 60:02d}"
+
+
+def _rb_prepare_locator(df):
+    if df.empty:
+        return df
+    df = df.copy()
+    for col in ["Hora", "CampaignId", "WayInboundCampaignId", "Mailing", "AD", "ATH", "Tentativas", "Atendidas", "Transferencia", "Perda", "Atend_ATH", "Sucesso_Negocio", "Custo"]:
+        if col in df.columns:
+            df[col] = df[col].apply(_rb_parse_number)
+    for col in ["HitRate", "SucessoInteracao", "%Perda", "%Abandono", "SLA"]:
+        if col in df.columns:
+            df[col + "_num"] = df[col].apply(_rb_parse_number)
+    if "Custo" in df.columns:
+        df["Custo_num"] = df["Custo"].apply(_rb_parse_number)
+    if "Data" in df.columns:
+        df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.strftime("%Y-%m-%d")
+    return df
+
+
+def _rb_prepare_comparativo(df):
+    if df.empty:
+        return df
+    df = df.copy()
+    for col in ["Hora", "CampaignId", "Logados", "Mailing", "Tentativas", "Atendidas", "Cpc", "Acordo", "TELECOM"]:
+        if col in df.columns:
+            df[col] = df[col].apply(_rb_parse_number)
+    for col in ["HitRate", "Loc", "Conver"]:
+        if col in df.columns:
+            df[col + "_num"] = df[col].apply(_rb_parse_number)
+    if "Data" in df.columns:
+        df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.strftime("%Y-%m-%d")
+    return df
+
+
+def _rb_load_bases():
+    if not REDE_BRASIL_EXCEL.exists():
+        return pd.DataFrame(), pd.DataFrame(), {"ok": False, "msg": "Base Rede Brasil não encontrada.", "base_dir": str(REDE_BRASIL_EXCEL), "arquivos_lidos": 0, "source": "excel"}
+    mtime = REDE_BRASIL_EXCEL.stat().st_mtime
+    if REDE_BRASIL_CACHE.get("mtime") == mtime and REDE_BRASIL_CACHE.get("locator") is not None:
+        return REDE_BRASIL_CACHE["locator"].copy(), REDE_BRASIL_CACHE["comparativo"].copy(), dict(REDE_BRASIL_CACHE["status"])
+    try:
+        xls = pd.ExcelFile(REDE_BRASIL_EXCEL)
+        locator = pd.read_excel(REDE_BRASIL_EXCEL, sheet_name="Locator")
+        comparativo = pd.read_excel(REDE_BRASIL_EXCEL, sheet_name="Comparativo")
+        locator.columns = [str(c).strip() for c in locator.columns]
+        comparativo.columns = [str(c).strip() for c in comparativo.columns]
+        locator = _rb_prepare_locator(locator)
+        comparativo = _rb_prepare_comparativo(comparativo)
+        status = {"ok": True, "msg": "Base Rede Brasil carregada", "base_dir": "data/base_rede_brasil.xlsx", "arquivos_lidos": 1, "source": "excel", "sheets": xls.sheet_names}
+        REDE_BRASIL_CACHE.update({"mtime": mtime, "locator": locator.copy(), "comparativo": comparativo.copy(), "status": status})
+        return locator, comparativo, dict(status)
+    except Exception as exc:
+        return pd.DataFrame(), pd.DataFrame(), {"ok": False, "msg": str(exc), "base_dir": "data/base_rede_brasil.xlsx", "arquivos_lidos": 0, "source": "excel"}
+
+
+def _rb_filter(df, data=None, campanha=None, hora=None):
+    if df.empty:
+        return df
+    out = df.copy()
+    if data and "Data" in out.columns:
+        out = out[out["Data"] == data]
+    if campanha and campanha != "__all__" and "NomeCampanha" in out.columns:
+        out = out[out["NomeCampanha"] == campanha]
+    if hora and hora != "__all__" and "Hora" in out.columns:
+        out = out[out["Hora"].fillna(-1).astype(int).astype(str) == str(hora)]
+    return out
+
+
+def _rb_list(df, col):
+    if df.empty or col not in df.columns:
+        return []
+    return sorted(df[col].dropna().astype(str).unique().tolist())
+
+
+def _rb_choose(df, requested):
+    items = _rb_list(df, "NomeCampanha")
+    if not items:
+        return "__all__"
+    if requested in items:
+        return requested
+    mode = df["NomeCampanha"].mode()
+    return str(mode.iloc[0]) if len(mode) else items[0]
+
+
+def _rb_locator_summary(df):
+    if df.empty:
+        raw = {}
+        return {"Mailing":"0","AD médio":"0","ATH médio":"0","Tentativas":"0","Atendidas":"0","Transferências":"0","Atendidas ATH":"0","Sucesso Negócio":"0","Hit Rate":"0,00%","Sucesso Interação":"0,00%","% Perda":"0,00%","% Abandono":"0,00%","SLA":"0,00%","Custo":"R$ 0,00","TMA Locator":"00:00:00","TMA ATH":"00:00:00","_raw":raw}
+    raw = {
+        "Mailing": df["Mailing"].max() if "Mailing" in df else 0,
+        "AD médio": df["AD"].mean() if "AD" in df else 0,
+        "ATH médio": df["ATH"].mean() if "ATH" in df else 0,
+        "Tentativas": df["Tentativas"].sum() if "Tentativas" in df else 0,
+        "Atendidas": df["Atendidas"].sum() if "Atendidas" in df else 0,
+        "Transferências": df["Transferencia"].sum() if "Transferencia" in df else 0,
+        "Atendidas ATH": df["Atend_ATH"].sum() if "Atend_ATH" in df else 0,
+        "Sucesso Negócio": df["Sucesso_Negocio"].sum() if "Sucesso_Negocio" in df else 0,
+        "Hit Rate": df["HitRate_num"].mean() if "HitRate_num" in df else 0,
+        "Sucesso Interação": df["SucessoInteracao_num"].mean() if "SucessoInteracao_num" in df else 0,
+        "% Perda": df["%Perda_num"].mean() if "%Perda_num" in df else 0,
+        "% Abandono": df["%Abandono_num"].mean() if "%Abandono_num" in df else 0,
+        "SLA": df["SLA_num"].mean() if "SLA_num" in df else 0,
+        "Custo": df["Custo_num"].sum() if "Custo_num" in df else 0,
+    }
+    return {"Mailing":_rb_fmt_int(raw["Mailing"]),"AD médio":_rb_fmt_dec(raw["AD médio"]),"ATH médio":_rb_fmt_dec(raw["ATH médio"]),"Tentativas":_rb_fmt_int(raw["Tentativas"]),"Atendidas":_rb_fmt_int(raw["Atendidas"]),"Transferências":_rb_fmt_int(raw["Transferências"]),"Atendidas ATH":_rb_fmt_int(raw["Atendidas ATH"]),"Sucesso Negócio":_rb_fmt_int(raw["Sucesso Negócio"]),"Hit Rate":_rb_fmt_pct(raw["Hit Rate"]*100 if abs(raw["Hit Rate"]) <= 1 else raw["Hit Rate"]),"Sucesso Interação":_rb_fmt_pct(raw["Sucesso Interação"]*100 if abs(raw["Sucesso Interação"]) <= 1 else raw["Sucesso Interação"]),"% Perda":_rb_fmt_pct(raw["% Perda"]*100 if abs(raw["% Perda"]) <= 1 else raw["% Perda"]),"% Abandono":_rb_fmt_pct(raw["% Abandono"]*100 if abs(raw["% Abandono"]) <= 1 else raw["% Abandono"]),"SLA":_rb_fmt_pct(raw["SLA"]*100 if abs(raw["SLA"]) <= 1 else raw["SLA"]),"Custo":_rb_fmt_money(raw["Custo"]),"TMA Locator":_rb_avg_time(df["TMA_LOCATOR"]) if "TMA_LOCATOR" in df else "00:00:00","TMA ATH":_rb_avg_time(df["TMA_ATH"]) if "TMA_ATH" in df else "00:00:00","_raw":raw}
+
+
+def _rb_comp_summary(df):
+    if df.empty:
+        return {"Mailing":"0","Logados médios":"0","Tentativas":"0","Atendidas":"0","CPC":"0","Acordo":"0","Hit Rate":"0,00%","LOC":"0,00%","Conversão":"0,00%","TMA":"00:00:00","_raw":{}}
+    raw={"Mailing":df["Mailing"].max() if "Mailing" in df else 0,"Logados médios":df["Logados"].mean() if "Logados" in df else 0,"Tentativas":df["Tentativas"].sum() if "Tentativas" in df else 0,"Atendidas":df["Atendidas"].sum() if "Atendidas" in df else 0,"CPC":df["Cpc"].sum() if "Cpc" in df else 0,"Acordo":df["Acordo"].sum() if "Acordo" in df else 0,"Hit Rate":df["HitRate_num"].mean() if "HitRate_num" in df else 0,"LOC":df["Loc_num"].mean() if "Loc_num" in df else 0,"Conversão":df["Conver_num"].mean() if "Conver_num" in df else 0}
+    pct=lambda v:_rb_fmt_pct(v*100 if abs(v)<=1 else v)
+    return {"Mailing":_rb_fmt_int(raw["Mailing"]),"Logados médios":_rb_fmt_dec(raw["Logados médios"]),"Tentativas":_rb_fmt_int(raw["Tentativas"]),"Atendidas":_rb_fmt_int(raw["Atendidas"]),"CPC":_rb_fmt_int(raw["CPC"]),"Acordo":_rb_fmt_int(raw["Acordo"]),"Hit Rate":pct(raw["Hit Rate"]),"LOC":pct(raw["LOC"]),"Conversão":pct(raw["Conversão"]),"TMA":_rb_avg_time(df["TMA"]) if "TMA" in df else "00:00:00","_raw":raw}
+
+
+def _rb_variation(loc_raw, comp_raw):
+    """Comparação executiva entre Locator e campanha espelho.
+
+    No Locator, Transferências representam o CPC entregue para o atendimento humano
+    e Sucesso Negócio representa o Acordo, deixando os dois funis comparáveis.
+    """
+    rows=[]
+    indicadores = [
+        ("ATH / Logados", "ATH médio", "Logados médios"),
+        ("Mailing", "Mailing", "Mailing"),
+        ("Tentativas", "Tentativas", "Tentativas"),
+        ("Atendidas", "Atendidas", "Atendidas"),
+        ("CPC", "Transferências", "CPC"),
+        ("Acordo", "Sucesso Negócio", "Acordo"),
+    ]
+    for label, lk, ck in indicadores:
+        lv=float(loc_raw.get(lk,0) or 0)
+        cv=float(comp_raw.get(ck,0) or 0)
+        delta=((lv-cv)/cv*100) if cv else (100.0 if lv > 0 else 0.0)
+        txt=f"{'+' if delta>=0 else ''}{_rb_fmt_dec(delta,1)}%"
+        rows.append({
+            "indicador":label,
+            "locator":_rb_fmt_int(lv),
+            "comparativa":_rb_fmt_int(cv),
+            "variacao":txt,
+            "sinal":"up" if delta>=0 else "down"
+        })
+    return rows
+
+
+def _rb_comp_hourly_consolidated(df):
+    """Consolidado hora a hora da campanha espelho selecionada."""
+    if df.empty or "Hora" not in df.columns:
+        return {"rows": [], "total": {}}
+
+    agg = {}
+    for col in ["Logados", "Tentativas", "Atendidas", "Cpc", "Acordo"]:
+        if col in df.columns:
+            agg[col] = "sum" if col != "Logados" else "mean"
+    if "Mailing" in df.columns:
+        agg["Mailing"] = "max"
+
+    g = df.groupby("Hora", dropna=True).agg(agg).reset_index().sort_values("Hora")
+
+    def calc_row(row):
+        logados = float(row.get("Logados", 0) or 0)
+        mailing = float(row.get("Mailing", 0) or 0)
+        cpc = float(row.get("Cpc", 0) or 0)
+        acordo = float(row.get("Acordo", 0) or 0)
+        return {
+            "Hora": str(int(row.get("Hora", 0))),
+            "Logados": _rb_fmt_dec(logados, 1),
+            "Mailing": _rb_fmt_int(mailing),
+            "Tentativas": _rb_fmt_int(row.get("Tentativas", 0)),
+            "Atendidas": _rb_fmt_int(row.get("Atendidas", 0)),
+            "CPC": _rb_fmt_int(cpc),
+            "Acordo": _rb_fmt_int(acordo),
+            "CPC/Logados": _rb_fmt_dec(cpc / logados, 2) if logados else "0,00",
+            "Acordo/Logados": _rb_fmt_dec(acordo / logados, 2) if logados else "0,00",
+            "Acordo/Mailing": _rb_fmt_pct((acordo / mailing) * 100, 3) if mailing else "0,000%",
+        }
+
+    rows = [calc_row(r) for _, r in g.iterrows()]
+
+    logados_medio = float(df["Logados"].mean()) if "Logados" in df.columns and len(df) else 0
+    mailing_dia = float(df["Mailing"].max()) if "Mailing" in df.columns and len(df) else 0
+    tentativas = float(df["Tentativas"].sum()) if "Tentativas" in df.columns else 0
+    atendidas = float(df["Atendidas"].sum()) if "Atendidas" in df.columns else 0
+    cpc = float(df["Cpc"].sum()) if "Cpc" in df.columns else 0
+    acordo = float(df["Acordo"].sum()) if "Acordo" in df.columns else 0
+
+    total = {
+        "Hora": "TOTAL DIA",
+        "Logados": _rb_fmt_dec(logados_medio, 1),
+        "Mailing": _rb_fmt_int(mailing_dia),
+        "Tentativas": _rb_fmt_int(tentativas),
+        "Atendidas": _rb_fmt_int(atendidas),
+        "CPC": _rb_fmt_int(cpc),
+        "Acordo": _rb_fmt_int(acordo),
+        "CPC/Logados": _rb_fmt_dec(cpc / logados_medio, 2) if logados_medio else "0,00",
+        "Acordo/Logados": _rb_fmt_dec(acordo / logados_medio, 2) if logados_medio else "0,00",
+        "Acordo/Mailing": _rb_fmt_pct((acordo / mailing_dia) * 100, 3) if mailing_dia else "0,000%",
+    }
+    return {"rows": rows, "total": total}
+
+
+def _rb_hourly(df):
+    if df.empty or "Hora" not in df.columns:
+        return {"horas":[],"tentativas":[],"atendidas":[],"transferencias":[],"sucesso_negocio":[]}
+    cols={c:"sum" for c in ["Tentativas","Atendidas","Transferencia","Sucesso_Negocio"] if c in df.columns}
+    g=df.groupby("Hora",dropna=True).agg(cols).reset_index().sort_values("Hora")
+    def vals(c): return [int(x) for x in g[c].tolist()] if c in g.columns else []
+    return {"horas":[str(int(h)) for h in g["Hora"].tolist()],"tentativas":vals("Tentativas"),"atendidas":vals("Atendidas"),"transferencias":vals("Transferencia"),"sucesso_negocio":vals("Sucesso_Negocio")}
+
+
+@app.route('/cliente/rede-brasil/painel')
+def rede_brasil_locator_index():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if not usuario_pode_acessar_cliente(session.get('usuario'), 'rede-brasil'):
+        return acesso_negado()
+    return render_template('rede_brasil_locator.html', usuario=session.get('usuario'))
+
+
+@app.route('/cliente/rede-brasil/painel/api/options')
+def rede_brasil_locator_options():
+    if 'usuario' not in session:
+        return jsonify({"error":"unauthorized"}),401
+    if not usuario_pode_acessar_cliente(session.get('usuario'),'rede-brasil'):
+        return jsonify({"error":"forbidden"}),403
+    loc,comp,meta=_rb_load_bases()
+    datas=sorted(set(_rb_list(loc,"Data")+_rb_list(comp,"Data")))
+    horas=sorted(set([str(int(h)) for h in loc.get("Hora",pd.Series(dtype=float)).dropna().tolist()]+[str(int(h)) for h in comp.get("Hora",pd.Series(dtype=float)).dropna().tolist()]), key=lambda x:int(x))
+    return jsonify({"datas":datas,"clientes":["REDE BRASIL"],"locator_campaigns":_rb_list(loc,"NomeCampanha"),"comparativa_campaigns":_rb_list(comp,"NomeCampanha"),"horas":horas,"meta":meta})
+
+
+@app.route('/cliente/rede-brasil/painel/api/data')
+def rede_brasil_locator_data():
+    if 'usuario' not in session:
+        return jsonify({"error":"unauthorized"}),401
+    if not usuario_pode_acessar_cliente(session.get('usuario'),'rede-brasil'):
+        return jsonify({"error":"forbidden"}),403
+    data=request.args.get("data"); loc_req=request.args.get("locator_campaign"); comp_req=request.args.get("comparativa_campaign"); hora="__all__"
+    loc,comp,meta=_rb_load_bases()
+    if not data:
+        dates=sorted(set(_rb_list(loc,"Data")+_rb_list(comp,"Data"))); data=dates[-1] if dates else None
+    loc_pool=_rb_filter(loc,data); comp_pool=_rb_filter(comp,data)
+    loc_camp=_rb_choose(loc_pool,loc_req); comp_camp=_rb_choose(comp_pool,comp_req)
+    loc_f=_rb_filter(loc,data,loc_camp,hora); comp_f=_rb_filter(comp,data,comp_camp,hora)
+    loc_sum=_rb_locator_summary(loc_f); comp_sum=_rb_comp_summary(comp_f)
+    # Consolidado do dia da campanha espelho: respeita data e campanha, mas não o filtro de hora.
+    comp_day_selected = _rb_filter(comp, data, comp_camp, "__all__")
+    hourly_consolidated = _rb_comp_hourly_consolidated(comp_day_selected)
+    horas=sorted(set([str(int(h)) for h in loc_pool.get("Hora",pd.Series(dtype=float)).dropna().tolist()]+[str(int(h)) for h in comp_pool.get("Hora",pd.Series(dtype=float)).dropna().tolist()]), key=lambda x:int(x))
+    return jsonify({"selected":{"data":data,"cliente":"REDE BRASIL","locator_campaign":loc_camp,"comparativa_campaign":comp_camp,"hora":hora},"available":{"locator_campaigns":_rb_list(loc_pool,"NomeCampanha"),"comparativa_campaigns":_rb_list(comp_pool,"NomeCampanha"),"horas":horas},"locator":loc_sum,"comparativa":comp_sum,"variation":_rb_variation(loc_sum["_raw"],comp_sum["_raw"]),"hourly":_rb_hourly(loc_f),"hourly_consolidated":hourly_consolidated,"meta":meta})
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
