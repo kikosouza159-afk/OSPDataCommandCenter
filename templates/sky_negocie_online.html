@@ -363,6 +363,49 @@ to { background-position: 0 55px; } }
     .value { font-size: 22px; font-weight: 900; line-height: 1; margin-bottom: 8px; }
     .ratio { color: var(--muted); font-size: 12px; font-weight: 700; }
 
+    /* ===== SKY UNIQUE ===== */
+    .unique-panel { padding: 22px; margin-bottom: 22px; border-color: rgba(0,229,255,.22); }
+    .unique-header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; margin-bottom: 16px; }
+    .unique-title-wrap { display: flex; align-items: center; gap: 12px; }
+    .unique-title-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: linear-gradient(135deg, rgba(0,229,255,.18), rgba(47,107,255,.16)); border: 1px solid rgba(0,229,255,.24); color: #67e8f9; flex: 0 0 42px; }
+    .unique-title-icon svg { width: 21px; height: 21px; }
+    .unique-header h2 { margin: 0 0 5px; font-size: 20px; }
+    .unique-header p { margin: 0; color: var(--muted); font-size: 12px; }
+    .unique-period { color: #9eefff; font-size: 11px; font-weight: 800; border: 1px solid rgba(0,229,255,.18); background: rgba(0,229,255,.06); border-radius: 999px; padding: 8px 11px; white-space: nowrap; }
+    .unique-cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .unique-card { min-width: 0; padding: 14px; border-radius: 17px; border: 1px solid rgba(148,163,184,.15); background: linear-gradient(180deg, rgba(12,28,48,.86), rgba(7,18,34,.84)); }
+    .unique-card-top { display: flex; align-items: center; gap: 8px; color: #a9bed1; font-size: 10px; font-weight: 800; margin-bottom: 10px; }
+    .unique-card-top svg { width: 16px; height: 16px; color: #67e8f9; }
+    .unique-card-value { font-size: 19px; font-weight: 900; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .unique-efficiency { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .unique-eff { padding: 11px 13px; border-radius: 15px; background: rgba(34,197,94,.065); border: 1px solid rgba(34,197,94,.15); }
+    .unique-eff span { display: block; color: #a9bed1; font-size: 10px; font-weight: 800; margin-bottom: 5px; }
+    .unique-eff strong { font-size: 18px; }
+    .unique-eff small { display: block; color: #738ba2; font-size: 9px; margin-top: 4px; }
+    .unique-details { margin-top: 4px; border-top: 1px solid rgba(148,163,184,.10); padding-top: 12px; }
+    .unique-details summary { cursor: pointer; color: #bfeaf2; font-size: 12px; font-weight: 800; user-select: none; width: fit-content; }
+    .unique-table-wrap { margin-top: 10px; max-height: 285px; overflow: auto; border: 1px solid rgba(148,163,184,.12); border-radius: 14px; }
+    .unique-table { min-width: 1000px; font-size: 12px; }
+    .unique-table th, .unique-table td { padding: 9px 10px; }
+    .unique-empty { padding: 16px; text-align: center; color: var(--muted); font-size: 12px; border: 1px dashed rgba(148,163,184,.18); border-radius: 14px; }
+
+    /* ===== SKY VISÃO ESFORÇO ===== */
+    .effort-panel { border-color: rgba(251,92,40,.24); background: linear-gradient(180deg, rgba(9,20,37,.96), rgba(6,15,29,.94)); }
+    .effort-title-icon { color: #ff9b78; background: linear-gradient(135deg, rgba(251,92,40,.20), rgba(255,176,74,.10)); border-color: rgba(251,92,40,.28); }
+    .effort-cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .effort-card { border-color: rgba(251,92,40,.13); }
+    .effort-emoji { width: 18px; height: 18px; display: inline-grid; place-items: center; font-size: 15px; line-height: 1; }
+    .effort-card-ratio { margin-top: 7px; color: #8fa5b9; font-size: 10px; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .effort-section-label { display: flex; align-items: center; gap: 8px; margin: 16px 0 10px; color: #d7e7f3; font-size: 12px; font-weight: 900; letter-spacing: .02em; }
+    .effort-section-label svg { width: 16px; height: 16px; color: #ff9b78; }
+    .effort-efficiency { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .effort-eff { background: rgba(251,92,40,.055); border-color: rgba(251,92,40,.14); }
+    .effort-eff strong { color: #f8fbff; }
+    .effort-details summary { color: #ffd0bf; }
+    .effort-table-wrap { max-height: 340px; }
+    .effort-table th:first-child, .effort-table td:first-child { position: sticky; left: 0; z-index: 3; background: rgba(10,22,39,.98); }
+    .effort-table thead th:first-child { z-index: 4; }
+
     .grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 22px; }
     .funnel-indicators { display: flex; gap: 12px; align-items: stretch; }
     .indicator-main { min-width: 0; flex: 1; }
@@ -410,6 +453,9 @@ to { background-position: 0 55px; } }
       .flow { min-width: 960px; grid-template-columns: repeat(6, minmax(145px, 1fr)); }
       .top-strip { grid-template-columns: repeat(3, minmax(220px, 1fr)); min-width: 760px; }
       .mini-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+      .unique-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .unique-efficiency { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .effort-efficiency { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .map-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 1100px) {
@@ -422,6 +468,8 @@ to { background-position: 0 55px; } }
     }
     @media (max-width: 760px) {
       .topbar, .hero { align-items: flex-start; flex-direction: column; }
+      .unique-header { flex-direction: column; }
+      .unique-cards, .unique-efficiency, .effort-efficiency { grid-template-columns: 1fr; }
       .field, .field.dates { min-width: 100%; }
       .folium-wrapper, .folium-wrapper iframe { height: 560px !important; }
     }
@@ -1701,10 +1749,20 @@ to { background-position: 0 55px; } }
     <form class="panel filters filters-compact" method="get">
       <input type="hidden" name="tab" id="active-tab-input" value="{{ request.args.get('tab', 'daily') }}">
       <div class="filter-grid">
+        <div class="field">
+          <label>Mês</label>
+          <select name="mes" id="filtro-mes-daily">
+            <option value="">Todos os meses</option>
+            {% for mes in dashboard.filtros.meses %}
+            <option value="{{ mes.value }}" {% if request.args.get('mes') == mes.value %}selected{% endif %}>{{ mes.label }}</option>
+            {% endfor %}
+          </select>
+          <small class="filter-help">Filtra o Daily e a Visão Unique pelo mês selecionado.</small>
+        </div>
         <div class="field dates">
           <label>Datas</label>
           <input type="text" id="datas-multiplas" class="date-filter multi-date-picker" name="datas" placeholder="Selecione as datas" value="{{ request.args.get('datas', '') }}">
-          <small class="filter-help">Selecione uma ou mais datas no calendário.</small>
+          <small class="filter-help">Opcional: refine o mês selecionando dias específicos.</small>
         </div>
         <div class="field">
           <label>Faixa atraso</label>
@@ -1739,43 +1797,135 @@ to { background-position: 0 55px; } }
 
       
 
-      <section class="panel flow-panel">
-        <div class="flow">
+      <section class="panel unique-panel effort-panel">
+        <div class="unique-header">
+          <div class="unique-title-wrap">
+            <div class="unique-title-icon effort-title-icon"><i data-lucide="gauge"></i></div>
+            <div>
+              <h2>Visão Esforço</h2>
+              <p>Leitura consolidada do esforço operacional, eficiência do funil e evolução diária.</p>
+            </div>
+          </div>
+          <div class="unique-period">{{ dashboard.periodo }}</div>
+        </div>
+
+        <div class="unique-cards effort-cards">
           {% for item in dashboard.flow %}
-            <div class="step">
-              <div>
-                <div class="icon">{{ item.icon }}</div>
-                <h3>{{ item.label }}</h3>
+            <div class="unique-card effort-card">
+              <div class="unique-card-top">
+                <span class="effort-emoji">{{ item.icon }}</span>
+                <span>{{ item.label }}</span>
               </div>
-              <div>
-                <div class="value">{{ item.value }}</div>
-                <div class="ratio">{{ item.ratio }}</div>
-              </div>
+              <div class="unique-card-value" title="{{ item.value }}">{{ item.value }}</div>
+              <div class="effort-card-ratio">{{ item.ratio }}</div>
             </div>
           {% endfor %}
         </div>
+
+        <div class="effort-section-label"><i data-lucide="activity"></i><span>Indicadores de eficiência</span></div>
+        <div class="unique-efficiency effort-efficiency">
+          {% for key, value in dashboard.extras.items() %}
+            <div class="unique-eff effort-eff">
+              <span>{{ key }}</span>
+              <strong>{{ value }}</strong>
+              {% if key == 'HIT %' %}<small>Contato ÷ Discado</small>
+              {% elif key == 'CPC %' %}<small>CPC ÷ Contato</small>
+              {% elif key == 'Conversão' %}<small>Acordo ÷ CPC</small>
+              {% elif key == 'Contato / Mailing' %}<small>Contato ÷ Mailing</small>
+              {% elif key == 'CPC / Discado' %}<small>CPC ÷ Discado</small>
+              {% elif key == 'Acordo / Discado' %}<small>Acordo ÷ Discado</small>
+              {% elif key == 'TMA' %}<small>Tempo médio de atendimento</small>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <details class="unique-details effort-details">
+          <summary>Ver detalhamento diário do esforço</summary>
+          <div class="unique-table-wrap effort-table-wrap">
+            <table class="unique-table effort-table">
+              <thead>
+                <tr>
+                  <th>Data</th><th>Mailing</th><th>Discado</th><th>Contato</th><th>CPC</th><th>Acordo</th><th>HangUp</th><th>Spin</th><th>HIT %</th><th>CPC %</th><th>Conversão</th><th>TMA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for linha in dashboard.tabela %}
+                  <tr>
+                    <td>{{ linha.data }}</td><td>{{ linha.mailing }}</td><td>{{ linha.discado }}</td><td>{{ linha.contato }}</td><td>{{ linha.cpc }}</td><td>{{ linha.acordo }}</td><td>{{ linha.hangup }}</td><td>{{ linha.spin }}</td><td>{{ linha.hit }}</td><td>{{ linha.cpc_perc }}</td><td>{{ linha.conversao }}</td><td>{{ linha.tma }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel unique-panel">
+        <div class="unique-header">
+          <div class="unique-title-wrap">
+            <div class="unique-title-icon"><i data-lucide="fingerprint"></i></div>
+            <div>
+              <h2>Visão Unique</h2>
+              <p>Leitura exclusiva da aba Unique, sem duplicidade de registros no funil.</p>
+            </div>
+          </div>
+          {% if dashboard.unique.disponivel %}
+            <div class="unique-period"><strong>{{ dashboard.unique.modo }}</strong> · {{ dashboard.unique.periodo }}</div>
+          {% endif %}
+        </div>
+
+        {% if dashboard.unique.disponivel %}
+          <div class="unique-cards">
+            {% for card in dashboard.unique.cards %}
+              <div class="unique-card">
+                <div class="unique-card-top"><i data-lucide="{{ card.icon }}"></i><span>{{ card.label }}</span></div>
+                <div class="unique-card-value" title="{{ card.value }}">{{ card.value }}</div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="unique-efficiency">
+            {% for item in dashboard.unique.eficiencia %}
+              <div class="unique-eff">
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
+                <small>{{ item.desc }}</small>
+              </div>
+            {% endfor %}
+          </div>
+
+          <details class="unique-details">
+            <summary>Ver detalhamento diário Unique</summary>
+            <div class="unique-table-wrap">
+              <table class="unique-table">
+                <thead>
+                  <tr>
+                    <th>Data</th><th>Mailing</th><th>Discado</th><th>Contato</th><th>CPC</th><th>Acordo</th><th>Valor Acordo</th><th>Penetração</th><th>Alô</th><th>Loc</th><th>Conversão</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in dashboard.unique.linhas %}
+                    <tr>
+                      <td>{{ row.data }}</td><td>{{ row.mailing }}</td><td>{{ row.discado }}</td><td>{{ row.contato }}</td><td>{{ row.cpc }}</td><td>{{ row.acordo }}</td><td>{{ row.valor_acordo }}</td><td>{{ row.penetracao }}</td><td>{{ row.alo }}</td><td>{{ row.loc }}</td><td>{{ row.conversao }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        {% else %}
+          {% if dashboard.unique.motivo == 'selecione_mes' %}
+            <div class="unique-empty">Selecione um <strong>mês</strong> no filtro acima para visualizar a Visão Unique.</div>
+          {% elif dashboard.unique.motivo == 'sem_dados' %}
+            <div class="unique-empty">Não há dados da <strong>Visão Unique</strong> para o mês/data selecionado.</div>
+          {% else %}
+            <div class="unique-empty">Adicione a aba <strong>Unique</strong> na Base_Dashboard_Sky.xlsx para ativar esta visão.</div>
+          {% endif %}
+        {% endif %}
       </section>
 
       <section class="grid">
-        <div class="panel card">
-          <h2 class="section-title">Indicadores de eficiência</h2>
-          <div class="funnel-indicators">
-            <div class="indicator-main">
-              <div class="mini-grid">
-                {% for key, value in dashboard.extras.items() %}
-                  <div class="mini"><div class="k">{{ key }}</div><div class="v">{{ value }}</div></div>
-                {% endfor %}
-              </div>
-            </div>
-            <aside class="abandono-legenda">
-              <h3>Regra de leitura</h3>
-              <p><strong>HIT%</strong>: Contato dividido por Discado.</p>
-              <p><strong>CPC%</strong>: CPC dividido por Contato.</p>
-              <p><strong>Conversão</strong>: Acordo dividido por CPC.</p>
-            </aside>
-          </div>
-        </div>
-
         <div class="panel faixa-card">
           <h2 class="section-title">Funil por faixa de atraso</h2>
           <p class="faixa-subtitle">Leitura do volume e eficiência por régua de atraso. A barra considera o maior volume entre Discado e CPC para facilitar a comparação visual.</p>
@@ -1806,31 +1956,6 @@ to { background-position: 0 55px; } }
 
       </section>
 
-      <section class="panel table-panel">
-        <h2 class="section-title">Visão dia a dia</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Indicador</th>
-                {% for data in dashboard.datas %}
-                <th>{{ data }}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for linha in dashboard.tabela %}
-              <tr>
-                <td>{{ linha.indicador }}</td>
-                {% for valor in linha.valores %}
-                <td>{{ valor }}</td>
-                {% endfor %}
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
     </section>
 
 

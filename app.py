@@ -2636,17 +2636,25 @@ SKY_SHEETS = {
     "daily": "Funil_Sumarizado",
     "hora": "Funil_Hora",
     "uf": "Funil_UF_Dia",
+    # Visão de indicadores únicos. O carregador também aceita aliases como
+    # Funil_Unique e Visao_Unique para facilitar a manutenção do Excel.
+    "unique": "Unique",
+}
+
+SKY_SHEET_ALIASES = {
+    "unique": ["Unique", "Funil_Unique", "Visao_Unique", "Visão Unique"],
 }
 
 def _normalizar_nome_sheet(nome):
     return str(nome or "").strip().lower().replace(" ", "_").replace("-", "_")
 
-def _resolver_sheet(xls, nome_preferido):
-    alvo = _normalizar_nome_sheet(nome_preferido)
+def _resolver_sheet(xls, nome_preferido, aliases=None):
+    candidatos = [nome_preferido] + list(aliases or [])
+    alvos = {_normalizar_nome_sheet(nome) for nome in candidatos}
     for sheet in xls.sheet_names:
-        if _normalizar_nome_sheet(sheet) == alvo:
+        if _normalizar_nome_sheet(sheet) in alvos:
             return sheet
-    return nome_preferido
+    return None
 
 def _valor_percentual_para_decimal(serie):
     def conv(v):
@@ -2685,6 +2693,273 @@ def _tempo_para_segundos(valor):
         return float(txt.replace(",", "."))
     except Exception:
         return 0
+
+
+def _valor_monetario_para_float(valor):
+    if pd.isna(valor):
+        return 0.0
+    if isinstance(valor, (int, float, np.integer, np.floating)):
+        return float(valor)
+    txt = str(valor).strip().replace("R$", "").replace(" ", "")
+    if not txt or txt.lower() in ["nan", "none"]:
+        return 0.0
+    # Formato brasileiro: 24.646,35 -> 24646.35
+    if "," in txt:
+        txt = txt.replace(".", "").replace(",", ".")
+    try:
+        return float(txt)
+    except Exception:
+        return 0.0
+
+
+def preparar_base_unique_sky(df):
+    """Normaliza a aba Unique sem exigir colunas das demais visões SKY."""
+    df = normalizar_colunas(df.copy())
+
+    # Colunas específicas da visão Unique que não fazem parte do normalizador geral.
+    mapa_extra = {}
+    for col in df.columns:
+        key = _normalizar_nome_sheet(col)
+        if key in ["valor_acordo", "valor_do_acordo", "valoracordo"]:
+            mapa_extra[col] = "Valor_Acordo"
+        elif key in ["penetracao", "penetração"]:
+            mapa_extra[col] = "Penetracao"
+        elif key in ["alo", "alô"]:
+            mapa_extra[col] = "Alo"
+        elif key in ["loc", "localizacao", "localização"]:
+            mapa_extra[col] = "Loc"
+        elif key in ["conversao", "conversão"]:
+            mapa_extra[col] = "Conversao"
+        elif key in ["abertura", "tipo_abertura", "visao", "visão"]:
+            mapa_extra[col] = "Abertura"
+    if mapa_extra:
+        df = df.rename(columns=mapa_extra)
+
+    colunas = ["DATA", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "Valor_Acordo", "Penetracao", "Alo", "Loc", "Conversao", "Abertura"]
+    for col in colunas:
+        if col not in df.columns:
+            df[col] = "" if col == "Abertura" else 0
+
+    df["Abertura"] = df["Abertura"].fillna("").astype(str).str.strip()
+
+    # A coluna DATA da aba Unique aceita dois formatos:
+    #   Unique Dia -> 01/08/2026 (data normal)
+    #   Unique Mês -> 202608 (AAAAMM)
+    # Normalizamos o mensal para o primeiro dia do mês apenas internamente,
+    # preservando a referência correta para os filtros do painel.
+    def _parse_data_unique(valor, abertura):
+        if pd.isna(valor):
+            return pd.NaT
+        txt = str(valor).strip()
+        abertura_norm = str(abertura or "").strip().lower()
+
+        # Excel pode entregar 202608 como número/float (202608.0).
+        txt_num = re.sub(r"\.0+$", "", txt)
+        if abertura_norm in ["unique mês", "unique mes"] and re.fullmatch(r"\d{6}", txt_num):
+            try:
+                return pd.Timestamp(year=int(txt_num[:4]), month=int(txt_num[4:6]), day=1)
+            except Exception:
+                return pd.NaT
+
+        # Também aceita AAAAMM mesmo se Abertura vier com grafia diferente.
+        if re.fullmatch(r"\d{6}", txt_num):
+            try:
+                return pd.Timestamp(year=int(txt_num[:4]), month=int(txt_num[4:6]), day=1)
+            except Exception:
+                return pd.NaT
+
+        return pd.to_datetime(valor, errors="coerce", dayfirst=True)
+
+    df["DATA"] = [
+        _parse_data_unique(valor, abertura)
+        for valor, abertura in zip(df["DATA"], df["Abertura"])
+    ]
+    df["DATA"] = pd.to_datetime(df["DATA"], errors="coerce")
+    df = df.dropna(subset=["DATA"]).copy()
+
+    for col in ["MAILING", "Discado", "Contato", "Cpc", "Acordo"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype("float64")
+    df["Valor_Acordo"] = df["Valor_Acordo"].apply(_valor_monetario_para_float).astype("float64")
+    for col in ["Penetracao", "Alo", "Loc", "Conversao"]:
+        df[col] = _valor_percentual_para_decimal(df[col]).astype("float64")
+
+    return df.sort_values("DATA")
+
+
+def _datas_selecionadas_sky():
+    datas = request.args.get("datas", "").strip()
+    if not datas:
+        return []
+    partes = [p.strip() for p in re.split(r"[;,]", datas) if p.strip()]
+    resultado = []
+    for p in partes:
+        dt = pd.to_datetime(p, errors="coerce", dayfirst=True)
+        if pd.notna(dt):
+            normalizada = dt.normalize()
+            if normalizada not in resultado:
+                resultado.append(normalizada)
+    return resultado
+
+
+def _normalizar_abertura_unique(series):
+    return (
+        series.fillna("")
+        .astype(str)
+        .str.strip()
+        .str.lower()
+        .str.replace("ê", "e", regex=False)
+        .str.replace("é", "e", regex=False)
+        .str.replace("ã", "a", regex=False)
+        .str.replace("ç", "c", regex=False)
+    )
+
+
+def aplicar_filtro_data_unique_sky(df):
+    """
+    Regra da Visão Unique:
+    - o filtro de Mês é obrigatório quando houver mais de um mês na aba Unique;
+    - com Mês selecionado + exatamente 1 data marcada -> Unique Dia daquela data;
+    - com Mês selecionado + nenhuma data ou 2+ datas marcadas -> Unique Mes;
+    - Faixa/Campanha e demais filtros não zeram nem alteram a Unique.
+    """
+    if df is None or df.empty:
+        return pd.DataFrame(columns=df.columns if isinstance(df, pd.DataFrame) else []), "Unique Mês", "sem_base"
+
+    mes = request.args.get("mes", "").strip()
+    if not mes:
+        # Não escolhemos automaticamente o mês mais recente, pois a base Unique
+        # pode conter vários consolidados mensais. O usuário deve indicar o mês.
+        return df.iloc[0:0].copy(), "Unique Mês", "selecione_mes"
+
+    work = df.copy()
+    datas_convertidas = _datas_selecionadas_sky()
+    modo_dia = len(datas_convertidas) == 1
+    abertura_alvo = "unique dia" if modo_dia else "unique mes"
+
+    if "Abertura" in work.columns and work["Abertura"].fillna("").astype(str).str.strip().ne("").any():
+        abertura_norm = _normalizar_abertura_unique(work["Abertura"])
+        work = work[abertura_norm == abertura_alvo].copy()
+
+    try:
+        periodo = pd.Period(mes, freq="M")
+        work = work[work["DATA"].dt.to_period("M") == periodo]
+    except Exception:
+        pass
+
+    if modo_dia:
+        data_alvo = datas_convertidas[0]
+        work = work[work["DATA"].dt.normalize() == data_alvo]
+
+    return work.copy(), ("Unique Dia" if modo_dia else "Unique Mês"), "ok"
+
+
+def _linhas_detalhe_unique(df_detalhe):
+    linhas = []
+    if df_detalhe is None or df_detalhe.empty:
+        return linhas
+
+    for _, r in df_detalhe.sort_values("DATA", ascending=False).iterrows():
+        penetracao = r["Penetracao"] if r["Penetracao"] > 0 else safe_div(r["Discado"], r["MAILING"])
+        alo = r["Alo"] if r["Alo"] > 0 else safe_div(r["Contato"], r["Discado"])
+        loc = r["Loc"] if r["Loc"] > 0 else safe_div(r["Cpc"], r["Contato"])
+        conv = r["Conversao"] if r["Conversao"] > 0 else safe_div(r["Acordo"], r["Cpc"])
+        linhas.append({
+            "data": r["DATA"].strftime("%d/%m/%Y"),
+            "mailing": br_number(r["MAILING"]),
+            "discado": br_number(r["Discado"]),
+            "contato": br_number(r["Contato"]),
+            "cpc": br_number(r["Cpc"]),
+            "acordo": br_number(r["Acordo"]),
+            "valor_acordo": br_money(r["Valor_Acordo"]),
+            "penetracao": br_percent(penetracao),
+            "alo": br_percent(alo),
+            "loc": br_percent(loc),
+            "conversao": br_percent(conv),
+        })
+    return linhas
+
+
+def montar_visao_unique_sky(df_unique):
+    if not isinstance(df_unique, pd.DataFrame) or df_unique.empty:
+        return {
+            "disponivel": False, "cards": [], "eficiencia": [], "linhas": [],
+            "periodo": "-", "modo": "Unique Mês", "motivo": "sem_base"
+        }
+
+    dfu, modo, motivo = aplicar_filtro_data_unique_sky(df_unique)
+    if motivo == "selecione_mes":
+        return {
+            "disponivel": False, "cards": [], "eficiencia": [], "linhas": [],
+            "periodo": "-", "modo": modo, "motivo": motivo
+        }
+
+    if dfu.empty:
+        return {
+            "disponivel": False, "cards": [], "eficiencia": [], "linhas": [],
+            "periodo": "-", "modo": modo, "motivo": "sem_dados"
+        }
+
+    totais = {
+        "MAILING": float(dfu["MAILING"].sum()),
+        "Discado": float(dfu["Discado"].sum()),
+        "Contato": float(dfu["Contato"].sum()),
+        "Cpc": float(dfu["Cpc"].sum()),
+        "Acordo": float(dfu["Acordo"].sum()),
+        "Valor_Acordo": float(dfu["Valor_Acordo"].sum()),
+    }
+    totais["Penetracao"] = safe_div(totais["Discado"], totais["MAILING"])
+    totais["Alo"] = safe_div(totais["Contato"], totais["Discado"])
+    totais["Loc"] = safe_div(totais["Cpc"], totais["Contato"])
+    totais["Conversao"] = safe_div(totais["Acordo"], totais["Cpc"])
+
+    cards = [
+        {"label": "Mailing Unique", "value": br_number(totais["MAILING"]), "icon": "database"},
+        {"label": "Discado Unique", "value": br_number(totais["Discado"]), "icon": "phone-outgoing"},
+        {"label": "Contato Unique", "value": br_number(totais["Contato"]), "icon": "users"},
+        {"label": "CPC Unique", "value": br_number(totais["Cpc"]), "icon": "badge-check"},
+        {"label": "Acordo Unique", "value": br_number(totais["Acordo"]), "icon": "handshake"},
+        {"label": "Valor Acordo", "value": br_money(totais["Valor_Acordo"]), "icon": "circle-dollar-sign"},
+    ]
+    eficiencia = [
+        {"label": "Penetração", "value": br_percent(totais["Penetracao"]), "desc": "Discado / Mailing"},
+        {"label": "Alô", "value": br_percent(totais["Alo"]), "desc": "Contato / Discado"},
+        {"label": "Localização", "value": br_percent(totais["Loc"]), "desc": "CPC / Contato"},
+        {"label": "Conversão", "value": br_percent(totais["Conversao"]), "desc": "Acordo / CPC"},
+    ]
+
+    # O card pode estar no consolidado mensal, mas o detalhamento sempre deve
+    # mostrar as linhas Unique Dia do mês escolhido. Em modo diário, mantém só
+    # o dia selecionado para o detalhe acompanhar o card.
+    mes = request.args.get("mes", "").strip()
+    detalhe = df_unique.copy()
+    if "Abertura" in detalhe.columns and detalhe["Abertura"].fillna("").astype(str).str.strip().ne("").any():
+        detalhe = detalhe[_normalizar_abertura_unique(detalhe["Abertura"]) == "unique dia"].copy()
+    try:
+        periodo_mes = pd.Period(mes, freq="M")
+        detalhe = detalhe[detalhe["DATA"].dt.to_period("M") == periodo_mes]
+    except Exception:
+        pass
+    if modo == "Unique Dia":
+        datas_convertidas = _datas_selecionadas_sky()
+        if len(datas_convertidas) == 1:
+            detalhe = detalhe[detalhe["DATA"].dt.normalize() == datas_convertidas[0]]
+
+    linhas = _linhas_detalhe_unique(detalhe)
+
+    if modo == "Unique Mês":
+        periodo_texto = pd.Period(mes, freq="M").strftime("%m/%Y") if mes else "-"
+    else:
+        periodo_texto = f"{dfu['DATA'].min().strftime('%d/%m/%Y')} até {dfu['DATA'].max().strftime('%d/%m/%Y')}"
+
+    return {
+        "disponivel": True,
+        "cards": cards,
+        "eficiencia": eficiencia,
+        "linhas": linhas,
+        "periodo": periodo_texto,
+        "modo": modo,
+        "motivo": "ok",
+    }
 
 def preparar_base_sky(df, origem="daily"):
     df = normalizar_colunas(df.copy())
@@ -2756,7 +3031,7 @@ def carregar_bases_sky():
                         "HangUp": 1, "Tempo": 800, "Custo_Telecom": 3.2
                     })
         demo = preparar_base_sky(pd.DataFrame(rows))
-        return {"daily": demo, "hora": demo, "uf": demo}
+        return {"daily": demo, "hora": demo, "uf": demo, "unique": pd.DataFrame()}
 
     mtime = SKY_ARQUIVO_BASE.stat().st_mtime
     if SKY_BASE_CACHE.get("bases") is not None and SKY_BASE_CACHE.get("mtime") == mtime:
@@ -2765,8 +3040,15 @@ def carregar_bases_sky():
     xls = pd.ExcelFile(SKY_ARQUIVO_BASE)
     bases = {}
     for chave, sheet_preferida in SKY_SHEETS.items():
-        sheet_real = _resolver_sheet(xls, sheet_preferida)
-        bases[chave] = preparar_base_sky(pd.read_excel(SKY_ARQUIVO_BASE, sheet_name=sheet_real), origem=chave)
+        sheet_real = _resolver_sheet(xls, sheet_preferida, SKY_SHEET_ALIASES.get(chave, []))
+        if sheet_real is None:
+            # A visão Unique é opcional para manter compatibilidade com bases antigas.
+            if chave == "unique":
+                bases[chave] = pd.DataFrame()
+                continue
+            raise ValueError(f"Aba obrigatória da SKY não encontrada: {sheet_preferida}")
+        raw = pd.read_excel(SKY_ARQUIVO_BASE, sheet_name=sheet_real)
+        bases[chave] = preparar_base_unique_sky(raw) if chave == "unique" else preparar_base_sky(raw, origem=chave)
 
     # Fallbacks para qualquer aba ausente/vazia.
     if bases.get("daily", pd.DataFrame()).empty:
@@ -2812,8 +3094,16 @@ def adicionar_uf(df):
 
 def aplicar_filtros(df):
     datas = request.args.get("datas", "").strip()
+    mes = request.args.get("mes", "").strip()
     faixa = request.args.get("faixa", "")
     campaign_id = request.args.get("campaign_id", "")
+
+    if mes:
+        try:
+            periodo = pd.Period(mes, freq="M")
+            df = df[df["DATA"].dt.to_period("M") == periodo]
+        except Exception:
+            pass
 
     if datas:
         partes = [p.strip() for p in re.split(r"[;,]", datas) if p.strip()]
@@ -3612,18 +3902,30 @@ def consolidar(df):
         df = bases.get("daily", pd.DataFrame()).copy()
         df_hora_base = bases.get("hora", df).copy()
         df_uf_base = bases.get("uf", df).copy()
+        df_unique_base = bases.get("unique", pd.DataFrame()).copy()
     else:
         df = df.copy()
         df_hora_base = df.copy()
         df_uf_base = df.copy()
+        df_unique_base = pd.DataFrame()
 
     df = adicionar_uf(df)
     df_hora_base = adicionar_uf(df_hora_base)
     df_uf_base = adicionar_uf(df_uf_base)
 
+    meses_pt = {
+        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+        5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+        9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+    }
+    periodos_mes = sorted(df["DATA"].dropna().dt.to_period("M").unique(), reverse=True) if len(df) else []
     filtros = {
         "min_data": df["DATA"].min().strftime("%Y-%m-%d") if len(df) else "",
         "max_data": df["DATA"].max().strftime("%Y-%m-%d") if len(df) else "",
+        "meses": [
+            {"value": str(p), "label": f"{meses_pt.get(p.month, p.month)} / {p.year}"}
+            for p in periodos_mes
+        ],
         "faixas": sorted([f for f in df["Faixa_Atraso"].dropna().astype(str).unique().tolist() if f]),
         "campaigns": sorted([str(int(c)) for c in df["CampaignId"].dropna().unique().tolist() if pd.notna(c) and float(c) != 0]) if "CampaignId" in df.columns else []
     }
@@ -3648,7 +3950,7 @@ def consolidar(df):
             "cards": [], "capacity": [], "flow": [], "extras": {},
             "datas": [], "tabela": [], "chart": {},
             "insight": "Sem dados para os filtros selecionados.",
-            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "hora_a_hora": {"labels": [], "chart": {}, "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df)
+            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "hora_a_hora": {"labels": [], "chart": {}, "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df), "unique": montar_visao_unique_sky(df_unique_base)
         }
 
     daily_metricas = (
@@ -3761,21 +4063,21 @@ def consolidar(df):
 
     datas = [d.strftime("%d/%m") for d in daily["DATA"]]
     tabela = []
-    for label, coluna, tipo in indicadores:
-        linha = {"indicador": label, "valores": []}
-        for _, row in daily.iterrows():
-            value = row[coluna]
-            if tipo == "money":
-                linha["valores"].append(br_money(value))
-            elif tipo == "percent":
-                linha["valores"].append(br_percent(value))
-            elif tipo == "decimal":
-                linha["valores"].append(br_number(value, 2))
-            elif tipo == "time":
-                linha["valores"].append(seconds_to_hhmmss(value))
-            else:
-                linha["valores"].append(br_number(value))
-        tabela.append(linha)
+    for _, row in daily.sort_values("DATA", ascending=False).iterrows():
+        tabela.append({
+            "data": row["DATA"].strftime("%d/%m/%Y"),
+            "mailing": br_number(row["MAILING"]),
+            "discado": br_number(row["Discado"]),
+            "contato": br_number(row["Contato"]),
+            "cpc": br_number(row["Cpc"]),
+            "acordo": br_number(row["Acordo"]),
+            "hangup": br_number(row["HangUp"]),
+            "spin": br_number(row["Spin"], 2),
+            "hit": br_percent(row["Hit"]),
+            "cpc_perc": br_percent(row["CpcPerc"]),
+            "conversao": br_percent(row["Conversao"]),
+            "tma": seconds_to_hhmmss(row["TMA"]),
+        })
 
     chart = {
         "labels": datas,
@@ -3857,6 +4159,9 @@ def consolidar(df):
     # Hora a hora também monta vários gráficos/tabelas. Carrega apenas quando a aba estiver ativa.
     hora_a_hora = montar_visao_hora_a_hora(df_hora_filtrado) if active_tab == "hora" else {"labels": [], "chart": {}, "tabela": []}
 
+    # Visão Unique, alimentada pela aba dedicada do Excel e filtrada pelas datas do Daily.
+    unique = montar_visao_unique_sky(df_unique_base)
+
     # Funil por faixa de atraso usado na visão Daily.
     faixa_atraso = montar_faixa_atraso(df)
 
@@ -3874,6 +4179,7 @@ def consolidar(df):
         "hora_a_hora": hora_a_hora,
         "funil_comparativo": funil_comparativo,
         "faixa_atraso": faixa_atraso,
+        "unique": unique,
         "insight": insight,
         "periodo": f"{df['DATA'].min().strftime('%d/%m/%Y')} até {df['DATA'].max().strftime('%d/%m/%Y')}",
         "mapa_html": mapa_html,
