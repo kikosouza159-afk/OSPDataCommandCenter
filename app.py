@@ -2605,6 +2605,7 @@ def normalizar_colunas(df):
             "atendida": "Contato",
 
             "cpc": "Cpc",
+            "ndoc": "NDOC",
             "acordo": "Acordo",
 
             "hangup": "HangUp",
@@ -2973,7 +2974,7 @@ def preparar_base_sky(df, origem="daily"):
 
     colunas = [
         "DATA", "HOUR", "CampaignId", "UF", "UF_DDD", "Faixa_Atraso", "Tabulacao", "Classificado",
-        "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"
+        "MAILING", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo", "Custo_Telecom"
     ]
 
     for col in colunas:
@@ -2987,7 +2988,7 @@ def preparar_base_sky(df, origem="daily"):
     df = df.dropna(subset=["DATA"]).copy()
 
     # A nova base da Sky já vem sumarizada. Mantemos o padrão antigo de nomes para não quebrar o HTML.
-    for col in ["HOUR", "CampaignId", "UF_DDD", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]:
+    for col in ["HOUR", "CampaignId", "UF_DDD", "MAILING", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
 
     # Quando Tempo vier zerado mas existir TMA_GERAL, estima Tempo = TMA * Contato.
@@ -3007,7 +3008,7 @@ def preparar_base_sky(df, origem="daily"):
     # Reduz tipos numéricos para deixar filtros/agregações mais leves.
     for col in ["HOUR", "CampaignId", "UF_DDD"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype("int32")
-    for col in ["MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]:
+    for col in ["MAILING", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype("float64")
 
     df["Faixa_Atraso"] = df["Faixa_Atraso"].fillna("Sem faixa").astype(str).str.strip()
@@ -3027,7 +3028,7 @@ def carregar_bases_sky():
                     rows.append({
                         "DATA": d, "HOUR": hour, "CampaignId": 202, "UF_DDD": ddd,
                         "Faixa_Atraso": faixas[(ddd + hour) % len(faixas)],
-                        "MAILING": 1000, "Discado": 100, "Contato": 20, "Cpc": 8, "Acordo": 2,
+                        "MAILING": 1000, "Discado": 100, "Contato": 20, "Cpc": 8, "NDOC": 3, "Acordo": 2,
                         "HangUp": 1, "Tempo": 800, "Custo_Telecom": 3.2
                     })
         demo = preparar_base_sky(pd.DataFrame(rows))
@@ -3274,6 +3275,7 @@ def montar_visao_hora_a_hora(df):
                 "Discado": "sum",
                 "Contato": "sum",
                 "Cpc": "sum",
+                "NDOC": "sum",
                 "Acordo": "sum",
                 "HangUp": "sum",
                 "Tempo": "sum"
@@ -3290,7 +3292,7 @@ def montar_visao_hora_a_hora(df):
 
     hourly = hourly_metricas.merge(mailing_hora, on="HOUR", how="left")
     hourly["MAILING"] = hourly["MAILING"].fillna(0)
-    cols_hourly = ["HOUR", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo"]
+    cols_hourly = ["HOUR", "MAILING", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo"]
     hourly = hourly[cols_hourly].sort_values("HOUR")
 
     hourly["Spin"] = hourly.apply(lambda x: safe_div(x["Discado"], x["MAILING"]), axis=1)
@@ -3324,6 +3326,7 @@ def montar_visao_hora_a_hora(df):
         ("Contato", "Contato", "number"),
         ("HIT %", "Hit", "percent"),
         ("CPC", "Cpc", "number"),
+        ("NDOC", "NDOC", "number"),
         ("CPC %", "CpcPerc", "percent"),
         ("Acordo", "Acordo", "number"),
         ("Conversão %", "Conversao", "percent"),
@@ -3956,7 +3959,7 @@ def consolidar(df):
     daily_metricas = (
         df.groupby("DATA", as_index=False)
           .agg({
-              "Discado":"sum", "Contato":"sum", "Cpc":"sum",
+              "Discado":"sum", "Contato":"sum", "Cpc":"sum", "NDOC":"sum",
               "Acordo":"sum", "HangUp":"sum", "Tempo":"sum", "Custo_Telecom":"sum"
           })
           .sort_values("DATA")
@@ -3971,7 +3974,7 @@ def consolidar(df):
 
     daily = daily_metricas.merge(mailing_daily, on="DATA", how="left")
     daily["MAILING"] = daily["MAILING"].fillna(0)
-    daily = daily[["DATA", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]].sort_values("DATA")
+    daily = daily[["DATA", "MAILING", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo", "Custo_Telecom"]].sort_values("DATA")
 
     daily["Spin"] = daily.apply(lambda x: safe_div(x["Discado"], x["MAILING"]), axis=1)
     daily["Hit"] = daily.apply(lambda x: safe_div(x["Contato"], x["Discado"]), axis=1)
@@ -3987,6 +3990,7 @@ def consolidar(df):
         "Discado": daily["Discado"].sum(),
         "Contato": daily["Contato"].sum(),
         "Cpc": daily["Cpc"].sum(),
+        "NDOC": daily["NDOC"].sum(),
         "Acordo": daily["Acordo"].sum(),
         "HangUp": daily["HangUp"].sum(),
         "Tempo": daily["Tempo"].sum(),
@@ -4052,6 +4056,7 @@ def consolidar(df):
         ("Discado","Discado","number"),
         ("Contato","Contato","number"),
         ("CPC","Cpc","number"),
+        ("NDOC","NDOC","number"),
         ("Acordo","Acordo","number"),
         ("HangUp","HangUp","number"),
         ("Spin","Spin","decimal"),
@@ -4070,6 +4075,7 @@ def consolidar(df):
             "discado": br_number(row["Discado"]),
             "contato": br_number(row["Contato"]),
             "cpc": br_number(row["Cpc"]),
+            "ndoc": br_number(row["NDOC"]),
             "acordo": br_number(row["Acordo"]),
             "hangup": br_number(row["HangUp"]),
             "spin": br_number(row["Spin"], 2),
@@ -4099,7 +4105,7 @@ def consolidar(df):
     uf_metricas = (
         base_uf_visao.groupby("UF", as_index=False)
           .agg({
-              "Discado":"sum", "Contato":"sum", "Cpc":"sum",
+              "Discado":"sum", "Contato":"sum", "Cpc":"sum", "NDOC":"sum",
               "Acordo":"sum", "HangUp":"sum", "Tempo":"sum", "Custo_Telecom":"sum"
           })
     )

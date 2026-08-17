@@ -1846,13 +1846,13 @@ to { background-position: 0 55px; } }
             <table class="unique-table effort-table">
               <thead>
                 <tr>
-                  <th>Data</th><th>Mailing</th><th>Discado</th><th>Contato</th><th>CPC</th><th>Acordo</th><th>HangUp</th><th>Spin</th><th>HIT %</th><th>CPC %</th><th>Conversão</th><th>TMA</th>
+                  <th>Data</th><th>Mailing</th><th>Discado</th><th>Contato</th><th>CPC</th><th>NDOC</th><th>Acordo</th><th>HangUp</th><th>Spin</th><th>HIT %</th><th>CPC %</th><th>Conversão</th><th>TMA</th>
                 </tr>
               </thead>
               <tbody>
                 {% for linha in dashboard.tabela %}
                   <tr>
-                    <td>{{ linha.data }}</td><td>{{ linha.mailing }}</td><td>{{ linha.discado }}</td><td>{{ linha.contato }}</td><td>{{ linha.cpc }}</td><td>{{ linha.acordo }}</td><td>{{ linha.hangup }}</td><td>{{ linha.spin }}</td><td>{{ linha.hit }}</td><td>{{ linha.cpc_perc }}</td><td>{{ linha.conversao }}</td><td>{{ linha.tma }}</td>
+                    <td>{{ linha.data }}</td><td>{{ linha.mailing }}</td><td>{{ linha.discado }}</td><td>{{ linha.contato }}</td><td>{{ linha.cpc }}</td><td>{{ linha.ndoc }}</td><td>{{ linha.acordo }}</td><td>{{ linha.hangup }}</td><td>{{ linha.spin }}</td><td>{{ linha.hit }}</td><td>{{ linha.cpc_perc }}</td><td>{{ linha.conversao }}</td><td>{{ linha.tma }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
