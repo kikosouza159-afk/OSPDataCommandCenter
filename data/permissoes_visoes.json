@@ -1,0 +1,72 @@
+{
+  "admin": {
+    "sky-negocie-online": [
+      "daily",
+      "hora",
+      "mapa",
+      "funil"
+    ]
+  },
+  "gerber": {
+    "sky-negocie-online": [
+      "daily",
+      "hora",
+      "mapa",
+      "funil"
+    ]
+  },
+  "elvis.santos@olos.com.br": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "nubia.gomes@olos.com.br": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "eduardo.molina@olos.com.br": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "michele.silva@olos.com.br": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "amanda.nascimento@olos.com.br": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "sky": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "negocie_online": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "talentos": {
+    "sky-negocie-online": []
+  },
+  "sky_talentos": {
+    "sky-negocie-online": [
+      "daily",
+      "hora"
+    ]
+  },
+  "link": {
+    "sky-negocie-online": []
+  }
+}

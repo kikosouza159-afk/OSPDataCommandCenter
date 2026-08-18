@@ -1780,10 +1780,10 @@ to { background-position: 0 55px; } }
     </form>
 
     <nav class="tabs">
-      <button class="tab-btn active" type="button" data-tab="daily">Daily</button>
-      <button class="tab-btn" type="button" data-tab="hora">Hora a Hora</button>
-      <button class="tab-btn" type="button" data-tab="mapa">Mapa Brasil</button>
-      <button class="tab-btn" type="button" data-tab="funil">Funil Comparativo</button>
+      {% if 'daily' in visoes_permitidas %}<button class="tab-btn" type="button" data-tab="daily">Daily</button>{% endif %}
+      {% if 'hora' in visoes_permitidas %}<button class="tab-btn" type="button" data-tab="hora">Hora a Hora</button>{% endif %}
+      {% if 'mapa' in visoes_permitidas %}<button class="tab-btn" type="button" data-tab="mapa">Mapa Brasil</button>{% endif %}
+      {% if 'funil' in visoes_permitidas %}<button class="tab-btn" type="button" data-tab="funil">Funil Comparativo</button>{% endif %}
     </nav>
 
     <section id="daily" class="tab-content active">
@@ -2277,8 +2277,9 @@ to { background-position: 0 55px; } }
 
     
     function activateTab(tabName) {
-      const fallback = 'daily';
-      const targetName = document.getElementById(tabName) ? tabName : fallback;
+      const allowedTabs = {{ visoes_permitidas | tojson }};
+      const fallback = allowedTabs.length ? allowedTabs[0] : 'daily';
+      const targetName = allowedTabs.includes(tabName) && document.getElementById(tabName) ? tabName : fallback;
       const currentTab = new URLSearchParams(window.location.search).get('tab') || 'daily';
 
       // Para acelerar o painel, mapa e hora a hora são carregados sob demanda.
@@ -2315,7 +2316,7 @@ to { background-position: 0 55px; } }
       }, 120);
     }
 
-    const initialTab = new URLSearchParams(window.location.search).get('tab') || 'daily';
+    const initialTab = new URLSearchParams(window.location.search).get('tab') || ({{ visoes_permitidas | tojson }}[0] || 'daily');
     activateTab(initialTab);
 
     document.querySelectorAll('.tab-btn').forEach(btn => {

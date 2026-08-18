@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+import json
+from pathlib import Path
 
 app = Flask(__name__)
 app.secret_key = "chave_secreta_cockpit_v1_3"
@@ -26,12 +28,12 @@ USUARIOS = {
 # Use o slug do cliente, o mesmo valor usado na URL /cliente/<slug>.
 USUARIO_CLIENTES = {
     "admin": ["*"],
-    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
-    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
-    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
-    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
-    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
-    "amanda.nascimento@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil"],
+    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
+    "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
+    "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
+    "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
+    "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
+    "amanda.nascimento@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
 
     "sky": ["sky-negocie-online"],
     "negocie_online": ["sky-negocie-online"],
@@ -57,6 +59,100 @@ def clientes_permitidos(usuario):
         return CLIENTES
     permissoes = USUARIO_CLIENTES.get(usuario, [])
     return [cliente for cliente in CLIENTES if cliente.get("slug") in permissoes]
+
+
+
+# ===== ADMINISTRAÇÃO DE PERMISSÕES POR VISÃO =====
+# A estrutura já suporta novos clientes/visões no futuro.
+ADMIN_USUARIOS = {"admin", "gerber"}
+
+DASHBOARD_VISOES = {
+    "sky-negocie-online": [
+        {"id": "daily", "nome": "Daily"},
+        {"id": "hora", "nome": "Hora a Hora"},
+        {"id": "mapa", "nome": "Mapa Brasil"},
+        {"id": "funil", "nome": "Funil Comparativo"},
+    ],
+}
+
+PERMISSOES_ARQUIVO = Path(__file__).resolve().parent / "data" / "permissoes_visoes.json"
+
+
+def usuario_e_admin(usuario):
+    return bool(usuario) and usuario in ADMIN_USUARIOS
+
+
+def _permissoes_padrao():
+    """Padrão seguro: administradores veem tudo; demais SKY veem Daily/Hora."""
+    padrao = {}
+    for usuario in USUARIOS:
+        padrao[usuario] = {}
+        for cliente, visoes in DASHBOARD_VISOES.items():
+            if usuario_e_admin(usuario):
+                permitidas = [v["id"] for v in visoes]
+            elif usuario_pode_acessar_cliente(usuario, cliente):
+                permitidas = ["daily", "hora"] if cliente == "sky-negocie-online" else [v["id"] for v in visoes]
+            else:
+                permitidas = []
+            padrao[usuario][cliente] = permitidas
+    return padrao
+
+
+def carregar_permissoes_visoes():
+    padrao = _permissoes_padrao()
+    if not PERMISSOES_ARQUIVO.exists():
+        return padrao
+    try:
+        dados = json.loads(PERMISSOES_ARQUIVO.read_text(encoding="utf-8"))
+        if not isinstance(dados, dict):
+            return padrao
+        # Mescla com o padrão para novos usuários/novas visões não quebrarem o painel.
+        for usuario, clientes in dados.items():
+            if usuario not in padrao or not isinstance(clientes, dict):
+                continue
+            for cliente, permitidas in clientes.items():
+                if cliente in padrao[usuario] and isinstance(permitidas, list):
+                    ids_validos = {v["id"] for v in DASHBOARD_VISOES.get(cliente, [])}
+                    padrao[usuario][cliente] = [v for v in permitidas if v in ids_validos]
+        return padrao
+    except Exception:
+        return padrao
+
+
+def salvar_permissoes_visoes(dados):
+    PERMISSOES_ARQUIVO.parent.mkdir(parents=True, exist_ok=True)
+    temporario = PERMISSOES_ARQUIVO.with_suffix('.json.tmp')
+    temporario.write_text(json.dumps(dados, ensure_ascii=False, indent=2), encoding="utf-8")
+    temporario.replace(PERMISSOES_ARQUIVO)
+
+
+def visoes_permitidas(usuario, cliente):
+    visoes = DASHBOARD_VISOES.get(cliente, [])
+    if usuario_e_admin(usuario):
+        return [v["id"] for v in visoes]
+    if not usuario_pode_acessar_cliente(usuario, cliente):
+        return []
+    dados = carregar_permissoes_visoes()
+    return dados.get(usuario, {}).get(cliente, [])
+
+
+def usuario_pode_acessar_visao(usuario, cliente, visao):
+    return visao in visoes_permitidas(usuario, cliente)
+
+
+def filtrar_payload_sky_por_permissao(payload, usuario):
+    """Remove dados das visões bloqueadas também no backend/API."""
+    if not isinstance(payload, dict):
+        return payload
+    permitidas = set(visoes_permitidas(usuario, "sky-negocie-online"))
+    if "mapa" not in permitidas:
+        payload["mapa_html"] = ""
+        payload["ranking_uf"] = []
+    if "funil" not in permitidas:
+        payload["funil_comparativo"] = {"cards": [], "tabela": []}
+    if "hora" not in permitidas:
+        payload["hora_a_hora"] = {"labels": [], "chart": {}, "tabela": []}
+    return payload
 
 
 def acesso_negado():
@@ -1241,6 +1337,16 @@ if not any(c.get("slug") == "gestor-locator" for c in CLIENTES):
         "logo_url": "https://i.imgur.com/15rWePl.png"
     })
 
+# Cliente KOVI | Painel de Disparo WhatsApp
+if not any(c.get("slug") == "kovi" for c in CLIENTES):
+    CLIENTES.insert(2, {
+        "nome": "KOVI",
+        "slug": "kovi",
+        "sigla": "KOV",
+        "domain": "kovi.com.br",
+        "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=kovi.com.br"
+    })
+
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -1250,15 +1356,96 @@ def login():
         senha = request.form.get("senha")
         if usuario in USUARIOS and USUARIOS[usuario] == senha:
             session["usuario"] = usuario
+
+            # Login assíncrono: o navegador mantém a transição Olos visível
+            # enquanto o servidor já prepara/renderiza o Cockpit em segundo plano.
+            # Assim evitamos vídeo -> nova espera de carregamento.
+            if request.headers.get("X-Olos-Async-Transition") == "1":
+                session.pop("show_login_transition", None)
+                return render_template(
+                    "dashboard.html",
+                    usuario=session["usuario"],
+                    clientes=clientes_permitidos(session["usuario"]),
+                    is_admin=usuario_e_admin(session["usuario"]),
+                    show_login_transition=False,
+                )
+
+            # Fallback sem JavaScript: mantém o fluxo tradicional.
+            session["show_login_transition"] = True
             return redirect(url_for("dashboard"))
+
         erro = "Usuário ou senha inválidos"
+        if request.headers.get("X-Olos-Async-Transition") == "1":
+            return render_template("login.html", erro=erro), 401
     return render_template("login.html", erro=erro)
 
 @app.route("/dashboard")
 def dashboard():
     if "usuario" not in session:
         return redirect(url_for("login"))
-    return render_template("dashboard.html", usuario=session["usuario"], clientes=clientes_permitidos(session["usuario"]))
+    show_login_transition = bool(session.pop("show_login_transition", False))
+    return render_template(
+        "dashboard.html",
+        usuario=session["usuario"],
+        clientes=clientes_permitidos(session["usuario"]),
+        is_admin=usuario_e_admin(session["usuario"]),
+        show_login_transition=show_login_transition,
+    )
+
+
+@app.route('/admin/permissoes', methods=['GET', 'POST'])
+def admin_permissoes():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if not usuario_e_admin(session.get('usuario')):
+        return acesso_negado()
+
+    dados = carregar_permissoes_visoes()
+    mensagem = None
+    erro = None
+
+    usuario_sel = request.values.get('usuario_sel') or next((u for u in USUARIOS if not usuario_e_admin(u)), list(USUARIOS)[0])
+    cliente_sel = request.values.get('cliente_sel') or 'sky-negocie-online'
+
+    if request.method == 'POST':
+        if usuario_sel not in USUARIOS:
+            erro = 'Usuário inválido.'
+        elif cliente_sel not in DASHBOARD_VISOES:
+            erro = 'Dashboard inválido.'
+        elif usuario_e_admin(usuario_sel):
+            erro = 'Administradores mantêm acesso total às visões.'
+        else:
+            visoes_validas = {v['id'] for v in DASHBOARD_VISOES[cliente_sel]}
+            selecionadas = [v for v in request.form.getlist('visoes') if v in visoes_validas]
+            dados.setdefault(usuario_sel, {})[cliente_sel] = selecionadas
+            try:
+                salvar_permissoes_visoes(dados)
+                mensagem = 'Permissões salvas com sucesso.'
+                dados = carregar_permissoes_visoes()
+            except Exception as exc:
+                erro = f'Não foi possível salvar as permissões: {exc}'
+
+    visoes_cliente = DASHBOARD_VISOES.get(cliente_sel, [])
+    permitidas = set(dados.get(usuario_sel, {}).get(cliente_sel, []))
+    clientes_admin = [
+        {'slug': slug, 'nome': 'SKY - Negocie Online' if slug == 'sky-negocie-online' else slug}
+        for slug in DASHBOARD_VISOES
+    ]
+
+    return render_template(
+        'admin_permissoes.html',
+        usuario=session.get('usuario'),
+        usuarios=list(USUARIOS.keys()),
+        usuario_sel=usuario_sel,
+        cliente_sel=cliente_sel,
+        clientes_admin=clientes_admin,
+        visoes_cliente=visoes_cliente,
+        permitidas=permitidas,
+        admin_usuarios=ADMIN_USUARIOS,
+        mensagem=mensagem,
+        erro=erro,
+    )
+
 
 # ===== CLIENTES LOCATOR | Painel executivo compartilhado =====
 # Cada cliente possui uma base Excel isolada em data/<arquivo>.
@@ -1299,6 +1486,9 @@ def cliente(slug):
     if slug == "rede-brasil":
         return redirect(url_for("rede_brasil_locator_index"))
 
+    if slug == "kovi":
+        return redirect(url_for("kovi_whatsapp_index"))
+
     if slug in LOCATOR_CLIENTES_CONFIG:
         return redirect(url_for("locator_cliente_index", slug=slug))
 
@@ -1309,6 +1499,239 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+
+
+
+# ===== KOVI | Painel de Disparo WhatsApp =====
+KOVI_WHATSAPP_EXCEL = Path(__file__).resolve().parent / 'data' / 'base_kovi_whatsapp.xlsx'
+
+
+def _kovi_numero(valor):
+    if valor is None or (isinstance(valor, float) and pd.isna(valor)):
+        return 0.0
+    if isinstance(valor, (int, float)):
+        return float(valor)
+    s = str(valor).strip().replace('R$', '').replace('%', '').replace(' ', '')
+    if not s:
+        return 0.0
+    if ',' in s and '.' in s:
+        s = s.replace('.', '').replace(',', '.')
+    elif ',' in s:
+        s = s.replace(',', '.')
+    try:
+        return float(s)
+    except Exception:
+        return 0.0
+
+
+def _kovi_carregar_base():
+    colunas = ['Arquivo', 'Data do Disparo', 'Entregues', 'Enviados', 'Taxa']
+    if not KOVI_WHATSAPP_EXCEL.exists():
+        return pd.DataFrame(columns=colunas + ['Empresa', 'Janela'])
+    try:
+        df = pd.read_excel(KOVI_WHATSAPP_EXCEL, sheet_name=0)
+    except Exception:
+        return pd.DataFrame(columns=colunas + ['Empresa', 'Janela'])
+
+    df.columns = [str(c).strip() for c in df.columns]
+    for c in colunas:
+        if c not in df.columns:
+            df[c] = None
+
+    df['Data do Disparo'] = pd.to_datetime(df['Data do Disparo'], dayfirst=True, errors='coerce')
+    df['Entregues'] = df['Entregues'].apply(_kovi_numero)
+    df['Enviados'] = df['Enviados'].apply(_kovi_numero)
+    df['Arquivo'] = df['Arquivo'].fillna('').astype(str).str.strip()
+
+    # A praça e a janela são inferidas do nome do arquivo.
+    nome_upper = df['Arquivo'].str.upper()
+    df['Empresa'] = nome_upper.apply(lambda x: 'POA' if 'POA' in x else ('SP' if 'SP' in x else 'OUTROS'))
+    df['Janela'] = df['Arquivo'].str.extract(r'(\d{1,2}:\d{2})', expand=False).fillna('Sem janela')
+    df = df[df['Data do Disparo'].notna()].copy()
+    return df
+
+
+def _kovi_fmt_int(v):
+    return f"{int(round(float(v or 0))):,}".replace(',', '.')
+
+
+def _kovi_fmt_pct(v):
+    return f"{float(v or 0):.1f}%".replace('.', ',')
+
+
+def _kovi_dashboard():
+    df = _kovi_carregar_base()
+    if df.empty:
+        return {
+            'vazio': True,
+            'filtros': {'datas': [], 'empresas': [], 'arquivos': [], 'janelas': []},
+            'selecionado': {}, 'cards': {}, 'diario': [], 'pracas': [], 'chart': {'points': [], 'labels': []}
+        }
+
+    data_min = df['Data do Disparo'].min().date()
+    data_max = df['Data do Disparo'].max().date()
+    inicio_txt = request.args.get('inicio') or data_min.isoformat()
+    fim_txt = request.args.get('fim') or data_max.isoformat()
+    try:
+        inicio = pd.to_datetime(inicio_txt, errors='raise').date()
+    except Exception:
+        inicio = data_min
+    try:
+        fim = pd.to_datetime(fim_txt, errors='raise').date()
+    except Exception:
+        fim = data_max
+    if inicio > fim:
+        inicio, fim = fim, inicio
+
+    empresa = (request.args.get('empresa') or 'Todas').strip()
+    arquivo = (request.args.get('arquivo') or 'Todos').strip()
+    janela = (request.args.get('janela') or 'Todos').strip()
+
+    mask = (df['Data do Disparo'].dt.date >= inicio) & (df['Data do Disparo'].dt.date <= fim)
+    filtrado = df.loc[mask].copy()
+    if empresa != 'Todas':
+        filtrado = filtrado[filtrado['Empresa'] == empresa]
+    if arquivo != 'Todos':
+        filtrado = filtrado[filtrado['Arquivo'] == arquivo]
+    if janela != 'Todos':
+        filtrado = filtrado[filtrado['Janela'] == janela]
+
+    enviados = float(filtrado['Enviados'].sum())
+    entregues = float(filtrado['Entregues'].sum())
+    taxa = (entregues / enviados * 100) if enviados else 0.0
+    janelas = int(filtrado[['Data do Disparo', 'Arquivo']].drop_duplicates().shape[0])
+
+    # Mantém a data como coluna real antes do groupby.
+    # Isso evita o FutureWarning do pandas e garante que o campo exista
+    # depois da agregação, independentemente da versão instalada.
+    diario_base = filtrado.assign(Data_Dia=filtrado['Data do Disparo'].dt.normalize())
+    diario_df = (
+        diario_base
+        .groupby('Data_Dia', as_index=False)[['Enviados', 'Entregues']]
+        .sum()
+        .sort_values('Data_Dia')
+    )
+    diario = []
+    for _, r in diario_df.iterrows():
+        data_dia = pd.Timestamp(r['Data_Dia'])
+        ev = float(r['Enviados'])
+        et = float(r['Entregues'])
+        tx = (et/ev*100) if ev else 0.0
+        diario.append({
+            'data_iso': data_dia.date().isoformat(),
+            'data': data_dia.strftime('%d/%m/%Y'),
+            'data_curta': data_dia.strftime('%d/%m'),
+            'enviados': _kovi_fmt_int(ev),
+            'entregues': _kovi_fmt_int(et),
+            'taxa': _kovi_fmt_pct(tx),
+            'taxa_num': round(tx, 2),
+        })
+
+    pracas = []
+    for praca, g in filtrado.groupby('Empresa'):
+        ev = float(g['Enviados'].sum())
+        et = float(g['Entregues'].sum())
+        tx = (et/ev*100) if ev else 0.0
+        pracas.append({
+            'nome': praca,
+            'enviados': _kovi_fmt_int(ev),
+            'entregues': _kovi_fmt_int(et),
+            'taxa': _kovi_fmt_pct(tx),
+            'taxa_num': round(tx,2),
+            'bom': tx >= taxa if enviados else True,
+        })
+    pracas.sort(key=lambda x: x['taxa_num'], reverse=True)
+
+    # Coordenadas do gráfico em um plano fixo para evitar distorção visual.
+    taxas = [d['taxa_num'] for d in diario]
+    chart_points = []
+    chart_ticks = []
+    avg_taxa = round((sum(taxas) / len(taxas)), 2) if taxas else 0.0
+    best_day = max(diario, key=lambda x: x['taxa_num']) if diario else None
+    worst_day = min(diario, key=lambda x: x['taxa_num']) if diario else None
+
+    chart_w = 780
+    chart_h = 280
+    pad_l = 58
+    pad_r = 24
+    pad_t = 18
+    pad_b = 42
+
+    if taxas:
+        min_tx = min(taxas)
+        max_tx = max(taxas)
+        lo = max(0, (int((min_tx - 1.0) // 1) - 1))
+        hi = min(100, (int((max_tx + 1.0) // 1) + 2))
+        if (hi - lo) < 8:
+            centro = (hi + lo) / 2
+            lo = max(0, round(centro - 4))
+            hi = min(100, round(centro + 4))
+        plot_w = chart_w - pad_l - pad_r
+        plot_h = chart_h - pad_t - pad_b
+        n = len(taxas)
+        for i, tx in enumerate(taxas):
+            x = pad_l + (plot_w * i / max(1, n - 1))
+            ratio = 0 if hi == lo else ((tx - lo) / (hi - lo))
+            y = pad_t + plot_h - (ratio * plot_h)
+            chart_points.append({
+                'x': round(x, 2),
+                'y': round(y, 2),
+                'taxa': _kovi_fmt_pct(tx),
+                'label': diario[i]['data_curta'],
+            })
+        tick_count = 5
+        for idx in range(tick_count):
+            tick_value = lo + ((hi - lo) * idx / (tick_count - 1))
+            tick_y = pad_t + plot_h - ((tick_value - lo) / (hi - lo) * plot_h if hi != lo else 0)
+            chart_ticks.append({'y': round(tick_y, 2), 'value': _kovi_fmt_pct(round(tick_value, 1))})
+    else:
+        lo, hi = 75, 90
+
+    return {
+        'vazio': False,
+        'filtros': {
+            'empresas': sorted([x for x in df['Empresa'].dropna().unique().tolist() if x]),
+            'arquivos': sorted([x for x in df['Arquivo'].dropna().unique().tolist() if x]),
+            'janelas': sorted([x for x in df['Janela'].dropna().unique().tolist() if x]),
+        },
+        'selecionado': {
+            'inicio': inicio.isoformat(), 'fim': fim.isoformat(), 'empresa': empresa,
+            'arquivo': arquivo, 'janela': janela,
+            'periodo': f"{inicio.strftime('%d/%m/%Y')} - {fim.strftime('%d/%m/%Y')}"
+        },
+        'cards': {
+            'enviados': _kovi_fmt_int(enviados), 'entregues': _kovi_fmt_int(entregues),
+            'taxa': _kovi_fmt_pct(taxa), 'taxa_num': round(taxa,2), 'janelas': _kovi_fmt_int(janelas),
+        },
+        'diario': diario, 'pracas': pracas,
+        'chart': {
+            'points': chart_points,
+            'ticks': chart_ticks,
+            'lo': round(lo,1),
+            'hi': round(hi,1),
+            'avg_taxa': _kovi_fmt_pct(avg_taxa),
+            'avg_taxa_num': avg_taxa,
+            'best_day': best_day,
+            'worst_day': worst_day,
+            'viewbox': f'0 0 {chart_w} {chart_h}',
+            'width': chart_w,
+            'height': chart_h,
+            'pad_l': pad_l,
+            'pad_r': pad_r,
+            'pad_t': pad_t,
+            'pad_b': pad_b,
+            'base_y': chart_h - pad_b,
+        }
+    }
+
+
+@app.route('/cliente/kovi/painel')
+def kovi_whatsapp_index():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if not usuario_pode_acessar_cliente(session.get('usuario'), 'kovi'):
+        return acesso_negado()
+    return render_template('kovi_whatsapp.html', usuario=session.get('usuario'), dashboard=_kovi_dashboard())
 
 
 # ===== TALENTOS | Locator Dashboard integrado na V1.4 =====
@@ -4211,9 +4634,20 @@ def sky_negocie_online_index() -> str:
         return redirect(url_for('login'))
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return acesso_negado()
+    usuario = session.get('usuario')
+    permitidas = visoes_permitidas(usuario, 'sky-negocie-online')
+    active_tab = request.args.get('tab', 'daily')
+    if active_tab not in permitidas:
+        fallback = next((v for v in ['daily', 'hora', 'mapa', 'funil'] if v in permitidas), None)
+        if fallback is None:
+            return acesso_negado()
+        args = request.args.to_dict(flat=False)
+        args['tab'] = [fallback]
+        flat_args = {k: (v if len(v) > 1 else v[0]) for k, v in args.items()}
+        return redirect(url_for('sky_negocie_online_index', **flat_args))
     bases = carregar_bases_sky()
-    dashboard = consolidar(bases)
-    return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=session.get('usuario'))
+    dashboard = filtrar_payload_sky_por_permissao(consolidar(bases), usuario)
+    return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=usuario, visoes_permitidas=permitidas, is_admin=usuario_e_admin(usuario))
 
 
 @app.route('/cliente/sky-negocie-online/painel/api')
@@ -4222,8 +4656,12 @@ def sky_negocie_online_api():
         return jsonify({"error": "unauthorized"}), 401
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'sky-negocie-online'):
         return jsonify({"error": "forbidden"}), 403
+    usuario = session.get('usuario')
+    active_tab = request.args.get('tab')
+    if active_tab and active_tab in {'daily', 'hora', 'mapa', 'funil'} and not usuario_pode_acessar_visao(usuario, 'sky-negocie-online', active_tab):
+        return jsonify({"error": "forbidden_view"}), 403
     bases = carregar_bases_sky()
-    return jsonify(consolidar(bases))
+    return jsonify(filtrar_payload_sky_por_permissao(consolidar(bases), usuario))
 
 
 

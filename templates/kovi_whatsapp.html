@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOVI | Disparo WhatsApp</title>
+<style>
+:root{
+  --bg:#020814;
+  --panel:rgba(4,20,37,.78);
+  --panel-strong:linear-gradient(145deg,rgba(5,25,45,.91),rgba(2,15,29,.93));
+  --sidebar:linear-gradient(180deg,rgba(2,10,22,.96),rgba(2,17,35,.88));
+  --line:rgba(30,154,225,.34);
+  --line-strong:rgba(28,178,239,.50);
+  --blue:#20a9ff;
+  --blue-soft:#7ad8ff;
+  --green:#51e67c;
+  --orange:#ff5a16;
+  --text:#f7fbff;
+  --muted:#a8bfd0;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+@keyframes koviPanelEnter{from{opacity:.15}to{opacity:1}}
+body{
+  margin:0;
+  animation:koviPanelEnter .32s ease-out both;
+  color:var(--text);
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:transparent;
+}
+.bg-content { position: fixed; inset: 0; z-index: -1; pointer-events:none; }
+.background { position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0, 229, 255, .16), transparent 30%), radial-gradient(circle at 80% 70%, rgba(0, 106, 255, .18), transparent 34%), linear-gradient(135deg, #020814 0%, #07172a 50%, #020814 100%); z-index: -1; }
+.bg-grid{position:absolute;inset:-80px;background-image:linear-gradient(rgba(0,229,255,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.10) 1px,transparent 1px);background-size:55px 55px;transform:perspective(500px) rotateX(62deg);transform-origin:center bottom;animation:gridMove 5s linear infinite;opacity:.42}
+@keyframes gridMove{from{background-position:0 0}to{background-position:0 55px}}
+.orb{position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(0,229,255,.10);filter:blur(35px);animation:floatOrb 7s ease-in-out infinite alternate}
+.orb.one{top:12%;left:12%}.orb.two{right:10%;bottom:12%;background:rgba(0,102,255,.13);animation-delay:1.5s}
+@keyframes floatOrb{from{transform:translate(0,0) scale(1)}to{transform:translate(45px,-30px) scale(1.25)}}
+.scanline{position:absolute;left:0;right:0;height:130px;background:linear-gradient(transparent,rgba(0,229,255,.08),transparent);animation:scan 6s ease-in-out infinite}
+@keyframes scan{from{top:-150px}to{top:110vh}}
+.electric{position:absolute;inset:0;opacity:.35;filter:drop-shadow(0 0 10px rgba(0,229,255,.8))}
+.electric svg{width:100%;height:100%}
+.electric path{fill:none;stroke:rgba(0,229,255,.45);stroke-width:1.4;stroke-dasharray:12 900;animation:electricRun 3.2s linear infinite}
+.electric path:nth-child(2){animation-delay:1.4s;stroke:rgba(0,120,255,.5)}
+.electric path:nth-child(3){animation-delay:2.2s;stroke:rgba(120,240,255,.42)}
+@keyframes electricRun{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
+.data-rain{position:absolute;inset:0;overflow:hidden}
+.code{position:absolute;top:-120px;font-size:13px;color:rgba(0,229,255,.55);text-shadow:0 0 12px rgba(0,229,255,.8);writing-mode:vertical-rl;letter-spacing:4px;animation:rain linear infinite;user-select:none}
+.code:nth-child(1){left:6%;animation-duration:8s;animation-delay:0s}.code:nth-child(2){left:16%;animation-duration:11s;animation-delay:1s}.code:nth-child(3){left:29%;animation-duration:9s;animation-delay:2s}.code:nth-child(4){left:43%;animation-duration:13s;animation-delay:.5s}.code:nth-child(5){left:58%;animation-duration:10s;animation-delay:2.8s}.code:nth-child(6){left:72%;animation-duration:12s;animation-delay:1.7s}.code:nth-child(7){left:88%;animation-duration:8.5s;animation-delay:.8s}
+@keyframes rain{from{transform:translateY(-140px);opacity:0}10%{opacity:.9}80%{opacity:.75}to{transform:translateY(120vh);opacity:0}}
+a{text-decoration:none}
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh;position:relative;z-index:2}
+.sidebar{
+  border-right:1px solid rgba(35,143,216,.28);
+  background:var(--sidebar);
+  padding:28px 18px;
+  position:relative;
+  z-index:4;
+  backdrop-filter:blur(16px);
+}
+.olos{width:170px;max-width:100%;margin:3px 0 10px;display:block}
+.osp{font-size:13px;color:#c3cfda;margin:4px 4px 38px}
+.menu-item{
+  display:flex;align-items:center;gap:12px;padding:16px;border-radius:14px;
+  color:var(--orange);font-weight:700;background:linear-gradient(90deg,rgba(255,90,22,.12),transparent);
+  border:1px solid rgba(255,90,22,.14);border-left:4px solid var(--orange);
+}
+.menu-ico{
+  width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(255,90,22,.12);border:1px solid rgba(255,90,22,.24);color:var(--orange);
+}
+.back{position:absolute;bottom:25px;left:18px;color:#d9e7f5;font-size:13px}
+.main{padding:18px 20px 28px;position:relative;z-index:2;min-width:0}
+.top{
+  min-height:66px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(43,155,231,.34);margin-bottom:14px;gap:12px;flex-wrap:wrap;
+  position:relative;padding:2px 0 12px;overflow:hidden;
+}
+.top-car-track{position:absolute;left:320px;right:86px;top:0;height:54px;pointer-events:none;z-index:1;overflow:visible}
+.top-car-track::before{content:'';position:absolute;left:0;right:0;top:33px;border-top:2px dashed rgba(64,199,255,.18);filter:drop-shadow(0 0 4px rgba(64,199,255,.08))}
+.top-car-mover{position:absolute;left:0;top:0;transform-origin:left top;will-change:transform}
+.top-car-mover[data-kind="hatch"]{width:102px;height:37px;top:10px;z-index:1}
+.top-car-mover[data-kind="sedan"]{width:128px;height:39px;top:7px;z-index:2}
+.top-car-mover[data-kind="suv"]{width:138px;height:47px;top:1px;z-index:3}
+.top-car-facing{width:100%;height:100%;transform-origin:center center;will-change:transform;transition:transform .28s ease}
+.top-car{position:relative;width:100%;height:100%;filter:drop-shadow(0 6px 5px rgba(0,0,0,.42)) drop-shadow(0 0 7px rgba(62,174,255,.20))}
+.top-car svg{width:100%;height:100%;display:block;overflow:visible}
+.top-car .car-shadow{fill:rgba(8,103,170,.18);filter:blur(1.6px)}
+.top-car .paint-main{stroke:#a9dfff;stroke-width:.65}
+.top-car .paint-dark{opacity:.96}
+.top-car .glass-main{stroke:rgba(224,246,255,.82);stroke-width:.45}
+.top-car .glass-shade{fill:rgba(12,50,76,.48)}
+.top-car .trim{fill:none;stroke:rgba(218,240,255,.68);stroke-width:.48;stroke-linecap:round;stroke-linejoin:round}
+.top-car .trim-dark{fill:none;stroke:rgba(1,20,34,.58);stroke-width:.72;stroke-linecap:round}
+.top-car .highlight{fill:none;stroke:rgba(255,255,255,.68);stroke-width:.7;stroke-linecap:round;opacity:.78}
+.top-car .handle{fill:#bfe8ff;opacity:.82}
+.top-car .headlight{filter:drop-shadow(0 0 2px rgba(215,245,255,.8))}
+.top-car .taillight{filter:drop-shadow(0 0 2px rgba(255,75,52,.55))}
+.top-car .grille{fill:#071722;stroke:#6eaed1;stroke-width:.35}
+.top-car .wheel-group{transform-box:view-box;transform-origin:center;transform:rotate(var(--wheel-rotation,0deg))}
+.top-car .tire{fill:#071019;stroke:#263b4d;stroke-width:1.2}
+.top-car .rim-outer{stroke:#d8efff;stroke-width:.55}
+.top-car .rim-inner{fill:#1a3448;stroke:#8ccdf2;stroke-width:.4}
+.top-car .spoke{stroke:#d8f0ff;stroke-width:1.2;stroke-linecap:round;opacity:.88}
+.top-car .hub{fill:#8fd4ff;stroke:#e5f7ff;stroke-width:.35}
+.top-car .mirror{stroke:#b8e4ff;stroke-width:.45}
+.top-car .wheel-arch{fill:none;stroke:rgba(1,19,31,.72);stroke-width:1.3}
+.top-car .ground-glow{opacity:.58;filter:blur(2px)}
+.top-car.is-paused{filter:drop-shadow(0 5px 4px rgba(0,0,0,.40)) drop-shadow(0 0 5px rgba(62,174,255,.15))}
+@media (prefers-reduced-motion: reduce){.top-car-mover{transform:translate3d(0,0,0)!important}.top-car-facing{transform:none!important}}
+.crumb{display:flex;align-items:center;gap:12px;color:#d7e5f2;font-size:14px;flex-wrap:wrap;position:relative;z-index:2}
+.crumb b{padding:7px 12px;border:1px solid rgba(40,156,228,.36);border-radius:10px;color:#bfe5ff;background:#061629}
+.user{display:flex;align-items:center;gap:14px;position:relative;z-index:2}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.38);background:rgba(255,255,255,.06);font-weight:700}
+.logout{color:#c8d9e8;font-size:12px}
+.frame{
+  border:1px solid var(--line-strong);border-radius:22px;padding:18px;
+  background:var(--panel-strong);box-shadow:0 0 34px rgba(0,152,255,.08);
+  backdrop-filter:blur(18px);
+}
+.header-row{
+  display:grid;grid-template-columns:minmax(280px,1fr) minmax(580px,1.6fr);
+  align-items:start;gap:18px;margin-bottom:18px;
+}
+.title{display:flex;align-items:center;gap:16px;min-width:0}
+.wa{
+  width:76px;height:76px;border-radius:50%;
+  display:grid;place-items:center;flex:0 0 auto;
+  background:radial-gradient(circle at 30% 30%, #4cf08b 0%, #23d366 60%, #0da34d 100%);
+  border:3px solid rgba(230,255,239,.92);
+  box-shadow:0 0 0 3px rgba(35,211,102,.18),0 0 16px rgba(35,211,102,.28);
+}
+.wa svg{width:42px;height:42px;display:block}
+.title h1{margin:0;font-size:31px;letter-spacing:-.7px;line-height:1.05}
+.subtitle{margin-top:6px;color:#40c7ff;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.subtitle svg{width:14px;height:14px;fill:#40c7ff}
+.filter-panel{
+  border:1px solid rgba(30,154,225,.28);border-radius:18px;
+  background:rgba(4,20,37,.55);padding:14px;
+}
+.filters{
+  display:grid;grid-template-columns:minmax(320px,1.55fr) repeat(3,minmax(140px,1fr)) 58px;
+  gap:12px;align-items:end;
+}
+.field{min-width:0}
+.field label{display:block;font-size:11px;color:#d1dfeb;margin:0 0 6px 8px;font-weight:700;letter-spacing:.2px}
+.input,.select,.btn{
+  width:100%;height:42px;border-radius:12px;border:1px solid rgba(42,140,209,.38);
+  background:rgba(6,24,43,.94);color:white;padding:0 12px;outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+.select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#bfe5ff 50%),linear-gradient(135deg,#bfe5ff 50%,transparent 50%);background-position:calc(100% - 18px) calc(1em + 2px),calc(100% - 12px) calc(1em + 2px);background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:30px}
+.period{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{
+  padding:0;border-color:rgba(30,165,236,.52);display:grid;place-items:center;
+  background:linear-gradient(135deg,rgba(8,33,58,.98),rgba(6,29,52,.98));cursor:pointer;
+  font-size:0;
+}
+.btn:hover{border-color:#22c3ff;box-shadow:0 0 0 2px rgba(34,195,255,.12)}
+.btn svg{width:18px;height:18px;stroke:#dff6ff;stroke-width:2;fill:none}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.card{
+  min-height:108px;border-radius:16px;border:1px solid rgba(30,154,225,.38);
+  background:linear-gradient(145deg,rgba(8,33,57,.92),rgba(5,20,36,.94));padding:18px;
+  display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;
+}
+.card::after{content:"";position:absolute;right:-25px;bottom:-52px;width:140px;height:100px;border-radius:50%;background:rgba(19,108,235,.22)}
+.card.warn::after{background:rgba(255,75,12,.28)}
+.card-ico{
+  width:54px;height:54px;border-radius:50%;border:1px solid rgba(28,137,255,.72);
+  display:grid;place-items:center;background:rgba(12,63,126,.35);color:#dff2ff;flex:0 0 auto;
+}
+.card-ico svg{width:24px;height:24px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.card.warn .card-ico{border-color:rgba(255,92,15,.82);color:var(--orange);background:rgba(116,43,15,.26)}
+.card-label{font-size:12px;color:#d7e4ef}
+.card-value{font-size:31px;font-weight:800;margin-top:4px;letter-spacing:.2px}
+.warn .card-value{color:var(--orange)}
+.middle{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(340px,1fr);gap:14px;margin-bottom:14px}
+.box{border:1px solid rgba(30,154,225,.34);border-radius:16px;background:rgba(4,20,37,.78);padding:15px;min-width:0}
+.box-title{font-size:17px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.box-title svg{width:18px;height:18px;stroke:#9ddcff;stroke-width:1.9;fill:none}
+.chart-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.chart-metas{display:flex;gap:10px;flex-wrap:wrap}
+.chart-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;border:1px solid rgba(30,154,225,.28);background:rgba(6,24,43,.72);font-size:12px;color:#cfe8f7}
+.chart-chip strong{color:#ffffff}.chart-chip.up strong{color:#61ea78}.chart-chip.down strong{color:#ff8a65}
+.chart-wrap{height:300px;position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,rgba(7,24,45,.45),rgba(4,20,37,.08))}
+.chart-wrap svg{width:100%;height:100%;overflow:visible;display:block}
+.gridline{stroke:rgba(141,177,204,.20);stroke-dasharray:5 6;stroke-width:1}
+.axis-line{stroke:rgba(141,177,204,.18);stroke-width:1}
+.y-label,.date-label{fill:#b8ccdc;font-size:12px}
+.line{fill:none;stroke:#49a5ff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(47,149,255,.5))}
+.area{fill:url(#areaFill);opacity:.75}
+.dot{fill:#147dff;stroke:#eff9ff;stroke-width:3}
+.dot-label{fill:#fff;font-size:12px;font-weight:700}
+.pracas{display:flex;flex-direction:column;gap:10px}
+.praca{display:grid;grid-template-columns:54px minmax(90px,.8fr) 1fr 1fr 42px;align-items:center;gap:10px;border:1px solid rgba(29,115,184,.37);border-radius:14px;padding:12px;min-width:0}
+.praca-ico{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#062c55;border:1px solid #1d83ff;color:#b9e4ff;overflow:hidden;padding:0}
+.praca-ico svg{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.praca:nth-child(2) .praca-ico{background:#56240a;border-color:#ff6419;color:#ffd3c2}
+.flag-badge{width:100%;height:100%;display:block}
+.kovi-accent{display:inline-flex;align-items:center;gap:10px;margin-top:8px;color:#9fdcff;font-size:12px;opacity:.95;flex-wrap:wrap}
+.kovi-accent .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(30,154,225,.28);background:rgba(6,24,43,.56)}
+.kovi-accent svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pname{font-size:18px;font-weight:800}
+.metric small{display:block;color:#a8bfd0;font-size:10px;margin-bottom:3px}
+.metric strong{font-size:18px}
+.rate{color:#20a9ff}
+.praca:nth-child(2) .rate{color:#ff5a16}
+.trend{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(82,231,125,.32);color:var(--green);background:rgba(17,86,46,.25);font-size:18px;font-weight:700}
+.trend.down{color:#ff6544;border-color:rgba(255,101,68,.35);background:rgba(94,31,22,.25)}
+.table-box{padding:0;overflow:hidden}
+.table-title{padding:14px 18px;border-bottom:1px solid rgba(30,154,225,.26);font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
+.table-title svg{width:18px;height:18px;stroke:#9ddcff;stroke-width:1.9;fill:none}
+.table-scroll{overflow:auto;max-height:330px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+th,td{padding:12px 18px;border-bottom:1px solid rgba(61,111,148,.27);text-align:left}
+th{color:#dbe7f1;background:rgba(7,26,46,.96);position:sticky;top:0}
+td:nth-child(n+2),th:nth-child(n+2){text-align:center}
+.rate-good{color:#61ea78;font-weight:800}.rate-low{color:#ff5b21;font-weight:800}
+.footer-note{padding:13px 18px;color:#a8bfd0;font-size:12px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.footer-note .chip{display:inline-flex;align-items:center;gap:6px}
+.footer-note svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+.empty{padding:45px;text-align:center;color:#91acc0}.empty b{display:block;color:white;font-size:20px;margin-bottom:8px}
+@media (max-width:1500px){
+  .header-row{grid-template-columns:1fr}
+  .filters{grid-template-columns:minmax(260px,1.4fr) repeat(3,minmax(130px,1fr)) 58px}
+}
+@media (max-width:1180px){
+  .shell{grid-template-columns:190px 1fr}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .middle{grid-template-columns:1fr}
+  .filters{grid-template-columns:repeat(2,minmax(180px,1fr))}
+  .filters .field:first-child{grid-column:1 / -1}
+  .top-car-track{display:none}
+}
+@media (max-width:850px){
+  .shell{display:block}
+  .sidebar{display:none}
+  .main{padding:10px}
+  .cards{grid-template-columns:1fr}
+  .filters{grid-template-columns:1fr}
+  .period{grid-template-columns:1fr}
+  .title h1{font-size:24px}
+  .title{align-items:flex-start}
+  .praca{grid-template-columns:46px 1fr}
+  .praca .metric,.trend{grid-column:2}
+  .top-car-track{display:none}
+}
+</style>
+</head>
+<body>
+{% include 'background.html' %}
+<div class="shell">
+  <aside class="sidebar">
+    <img class="olos" src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos">
+    <div class="osp">OSP Data Command Center</div>
+    <div class="menu-item">
+      <span class="menu-ico">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M17.47 14.38c-.27-.14-1.61-.79-1.86-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.31.2-.58.07-.27-.14-1.12-.41-2.13-1.31-.79-.7-1.32-1.57-1.47-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.41-.47.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.47-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.45-.61-.46h-.52c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.26s.97 2.61 1.11 2.79c.14.18 1.91 2.91 4.62 4.08.65.28 1.15.45 1.54.57.65.21 1.24.18 1.7.11.52-.08 1.61-.66 1.84-1.3.23-.63.23-1.18.16-1.29-.06-.11-.25-.18-.52-.31z" fill="currentColor" stroke="none"></path>
+          <path d="M20 11.94A8 8 0 0 1 8.12 18.88L4 20l1.16-4A8 8 0 1 1 20 11.94Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </span>
+      WhatsApp Disparo
+    </div>
+    <a class="back" href="{{ url_for('dashboard') }}">‹ &nbsp; Voltar aos clientes</a>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div class="crumb">⌂ <span>›</span> Clientes <span>›</span> Cliente: <b>KOVI</b></div>
+      <div class="top-car-track" aria-hidden="true" id="koviCarTrack">
+        <div class="top-car-mover" data-kind="hatch" id="koviCarHatchMover">
+          <div class="top-car-facing" id="koviCarHatchFacing">
+            <div class="top-car" id="koviTopCarHatch">
+              <svg viewBox="0 0 166 58" role="presentation">
+                <defs>
+                  <linearGradient id="hatchPaint" x1="0" y1="0" x2="0.78" y2="1">
+                    <stop offset="0%" stop-color="#ffe7c9"/>
+                    <stop offset="18%" stop-color="#ffb25a"/>
+                    <stop offset="46%" stop-color="#f57c20"/>
+                    <stop offset="76%" stop-color="#cc5712"/>
+                    <stop offset="100%" stop-color="#7f2905"/>
+                  </linearGradient>
+                  <linearGradient id="hatchLower" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#823610"/>
+                    <stop offset="100%" stop-color="#2f1204"/>
+                  </linearGradient>
+                  <linearGradient id="hatchGlass" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#fff7ef"/>
+                    <stop offset="30%" stop-color="#d9c7b6"/>
+                    <stop offset="75%" stop-color="#5f5146"/>
+                    <stop offset="100%" stop-color="#27211c"/>
+                  </linearGradient>
+                  <linearGradient id="hatchRim" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#f5fbff"/>
+                    <stop offset="42%" stop-color="#8cabbf"/>
+                    <stop offset="100%" stop-color="#35556b"/>
+                  </linearGradient>
+                  <linearGradient id="hatchHeadlight" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#fffef7"/>
+                    <stop offset="68%" stop-color="#ffe2a8"/>
+                    <stop offset="100%" stop-color="#ffb246"/>
+                  </linearGradient>
+                  <radialGradient id="hatchGroundGlow">
+                    <stop offset="0%" stop-color="#2aaaff" stop-opacity=".34"/>
+                    <stop offset="100%" stop-color="#2aaaff" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+
+                <ellipse class="ground-glow" fill="url(#hatchGroundGlow)" cx="82" cy="49.5" rx="62" ry="4.4"/>
+                <ellipse class="car-shadow" cx="82" cy="49.1" rx="58" ry="3.6"/>
+                <path class="paint-main" fill="url(#hatchPaint)" d="M10.8 36.1c1-4.5 4.2-7.3 9.4-8.6l17.4-4.1 12.8-11.6c3.8-3.4 8.7-5.3 13.9-5.3h27.3c7 0 13 2.3 18 6.8l12.1 10.9 18.1 3.1c6.5 1.1 10.5 4.9 11.2 10l.6 4.1c.5 3.2-1.9 6.1-5.2 6.1H16c-3.8 0-6.5-3.5-5.8-7.2l.6-4.2Z"/>
+                <path class="paint-dark" fill="url(#hatchLower)" d="M12.5 40.1c9.6 1.4 19.9 2 31 1.8 27-.5 56.7-.6 89-.3 10.2.1 18.9-.7 26.1-2.4l.3 2.3c.5 3.6-2 6.7-5.6 6.7H16c-3.4 0-6.1-2.8-6.1-6.2 0-.6.1-1.2.3-1.9l2.3 0Z"/>
+                <path class="glass-main" fill="url(#hatchGlass)" d="M51.8 12.2c2.4-2.2 5.7-3.5 9-3.5h13.4l-2 14H39.9l11.9-10.5Z"/>
+                <path class="glass-main" fill="url(#hatchGlass)" d="M77.3 8.7h16.5c5.7 0 10.7 1.6 14.6 5.1l12.1 8.9H75.6l1.7-14Z"/>
+                <path class="glass-shade" d="M79.3 10.2h14.1c5 0 9.1 1.4 12.3 4.2l8.4 6.4H77.8l1.5-10.6Z"/>
+                <path class="trim" d="M38.7 23.1h81.5M74.2 9.1l-1.8 14.5m2.7.2.3 19.8m-33.8-19.1-4.1 16.5m74.5-16.8 4.6 18.2"/>
+                <path class="trim-dark" d="M18.3 34.5c25.9-4.1 85.8-4.4 125.2-.2"/>
+                <path class="highlight" d="M20.9 28.8c22.5-6.4 70.1-7.6 115-.8"/>
+                <path d="M47.4 10.2h47.8c3.6 0 7.3 1.1 10.4 3.4l9.1 6.6H74.8L47.4 10.2Z" fill="rgba(12,17,24,.72)"/>
+                <path d="M25.6 23.8l7.1-1.2 2.6 2.1-9.5 1.4Z" fill="rgba(12,17,24,.62)"/>
+                <rect class="handle" x="83.2" y="26.1" width="7.4" height="1.45" rx=".72"/>
+                <rect class="handle" x="111.9" y="26.5" width="7" height="1.4" rx=".7"/>
+                <path class="mirror" fill="url(#hatchPaint)" d="M119.9 20.1c5.2-.4 8.4 1 10 4.1-3.6 1.1-6.9.9-10.2-.4l.2-3.7Z"/>
+                <path class="headlight" fill="url(#hatchHeadlight)" d="M141.5 29.1l8.9 1.8c1.6.3 2.6 1.5 2.8 2.9l-11.4-.6-.3-4.1Z"/>
+                <path class="taillight" fill="#ff5a42" d="M15.6 29.9l7.1-1.7-.7 5.3-7.8.6 1.4-4.2Z"/>
+                <path class="grille" d="M144.3 36.9h8.8l.4 2.7-9.9-.1.7-2.6Z"/>
+                <path class="trim" d="M144.7 37.8h7.3m-7.4 1.3h7.7"/>
+                <path class="trim-dark" d="M16.9 44.8h129.9"/>
+                <path class="wheel-arch" d="M30.3 45.6a12.6 12.6 0 0 1 25.2 0M108.4 45.6a12.6 12.6 0 0 1 25.2 0"/>
+                <g class="wheel-group" style="transform-origin:121px 45.6px">
+                  <circle class="tire" cx="121" cy="45.6" r="10.9"/>
+                  <circle class="rim-outer" fill="url(#hatchRim)" cx="121" cy="45.6" r="7"/>
+                  <circle class="rim-inner" cx="121" cy="45.6" r="4.4"/>
+                  <path class="spoke" d="M121 39.4v4.4m0 3.5v4.4m-6.2-6.1h4.5m3.6 0h4.5m-4.4-4.4-3.2 3.2m-2.4 2.4-3.2 3.2m8.8 0-3.2-3.2m-2.4-2.4-3.2-3.2"/>
+                  <circle class="hub" cx="121" cy="45.6" r="1.4"/>
+                </g>
+                <g class="wheel-group" style="transform-origin:42.8px 45.6px">
+                  <circle class="tire" cx="42.8" cy="45.6" r="10.9"/>
+                  <circle class="rim-outer" fill="url(#hatchRim)" cx="42.8" cy="45.6" r="7"/>
+                  <circle class="rim-inner" cx="42.8" cy="45.6" r="4.4"/>
+                  <path class="spoke" d="M42.8 39.4v4.4m0 3.5v4.4m-6.2-6.1h4.5m3.6 0h4.5m-4.4-4.4-3.2 3.2m-2.4 2.4-3.2 3.2m8.8 0-3.2-3.2m-2.4-2.4-3.2-3.2"/>
+                  <circle class="hub" cx="42.8" cy="45.6" r="1.4"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="top-car-mover" data-kind="sedan" id="koviCarSedanMover">
+          <div class="top-car-facing" id="koviCarSedanFacing">
+            <div class="top-car" id="koviTopCarSedan">
+              <svg viewBox="0 0 186 60" role="presentation">
+                <defs>
+                  <linearGradient id="sedanPaint" x1="0" y1="0" x2="0.78" y2="1">
+                    <stop offset="0%" stop-color="#f5f9ff"/>
+                    <stop offset="18%" stop-color="#d7e1ee"/>
+                    <stop offset="46%" stop-color="#a2b0c1"/>
+                    <stop offset="76%" stop-color="#68798f"/>
+                    <stop offset="100%" stop-color="#364354"/>
+                  </linearGradient>
+                  <linearGradient id="sedanLower" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#5f6d7c"/>
+                    <stop offset="100%" stop-color="#1e2733"/>
+                  </linearGradient>
+                  <linearGradient id="sedanGlass" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#f8fbff"/>
+                    <stop offset="30%" stop-color="#c3cfdd"/>
+                    <stop offset="75%" stop-color="#536274"/>
+                    <stop offset="100%" stop-color="#202733"/>
+                  </linearGradient>
+                  <linearGradient id="sedanRim" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#f5fbff"/>
+                    <stop offset="42%" stop-color="#8cabbf"/>
+                    <stop offset="100%" stop-color="#35556b"/>
+                  </linearGradient>
+                  <linearGradient id="sedanHeadlight" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="68%" stop-color="#c7f0ff"/>
+                    <stop offset="100%" stop-color="#6dd7ff"/>
+                  </linearGradient>
+                  <radialGradient id="sedanGroundGlow">
+                    <stop offset="0%" stop-color="#2aaaff" stop-opacity=".34"/>
+                    <stop offset="100%" stop-color="#2aaaff" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+
+                <ellipse class="ground-glow" fill="url(#sedanGroundGlow)" cx="94" cy="51.5" rx="73" ry="4.8"/>
+                <ellipse class="car-shadow" cx="94" cy="51" rx="68" ry="3.9"/>
+                <path class="paint-main" fill="url(#sedanPaint)" d="M12.6 37.5c1-5 4.7-8 10.5-9.4l20.3-4.4 17.7-12.9c4.2-3.1 9.2-4.8 14.4-4.8h29.3c9.2 0 16.6 2.6 22.1 8l11.2 11 24.5 3.4c7.4 1 11.9 5.1 12.7 10.9l.6 4.5c.5 3.4-2.1 6.4-5.5 6.4H17.7c-4.2 0-7.1-3.8-6.4-7.9l1.3-5.2Z"/>
+                <path class="paint-dark" fill="url(#sedanLower)" d="M14.6 41.3c10.4 1.4 23.3 1.9 39.1 1.7 34.2-.5 70.3-.8 108.2-.7l13-1.8.3 2.5c.5 4.1-2.2 7.5-6 7.5H18.5c-4 0-7-3.5-6.2-7.3l.3-1.9 2 .1Z"/>
+                <path class="glass-main" fill="url(#sedanGlass)" d="M63 11.5c2.5-2 5.7-3.2 9-3.2h20.4l-2.8 15.2H48.6L63 11.5Z"/>
+                <path class="glass-main" fill="url(#sedanGlass)" d="M95.6 8.3h17.3c8.1 0 13.4 1.8 18 6.3l10.5 8.9H92.8l2.8-15.2Z"/>
+                <path class="glass-shade" d="M97.2 10.2h14.9c7 0 11.6 1.5 15.7 5.2l7.6 6.4h-39.8l1.6-11.6Z"/>
+                <path class="trim" d="M46.8 24h93.4M92.5 8.6l-2 15.3m2.6.2-.1 21.1m-37.2-20.4-5.3 17.7m81.2-18.1 4.7 19.4"/>
+                <path class="trim-dark" d="M21.8 35.4c32.4-4.5 98.9-4.8 141.9-.2"/>
+                <path class="highlight" d="M25.4 29.8c28.4-7 82.6-8.3 129.5-.8"/>
+                <path class="highlight" d="M53.8 14.2h31.2" opacity=".4"/>
+                <path d="M126.4 17.8h18.4l5.4 4.5h-23.6Z" fill="rgba(233,240,248,.18)"/>
+                <path d="M144.2 23.2h13.1" stroke="rgba(244,248,252,.58)" stroke-width=".8" stroke-linecap="round"/>
+                <rect class="handle" x="101.6" y="27.4" width="7.8" height="1.5" rx=".75"/>
+                <rect class="handle" x="133.1" y="27.8" width="7.5" height="1.5" rx=".75"/>
+                <path class="mirror" fill="url(#sedanPaint)" d="M142 20.8c5.5-.4 8.8 1.1 10.5 4.4-3.7 1.1-7.3 1-10.8-.4l.3-4Z"/>
+                <path class="headlight" fill="url(#sedanHeadlight)" d="M163.3 29.8l10.1 1.9c1.8.3 3 1.6 3.1 3.1l-12.9-.6-.3-4.4Z"/>
+                <path class="taillight" fill="#ff5a42" d="M17.8 31.2l7.8-1.8-.6 5.4-8.5.6 1.3-4.2Z"/>
+                <path class="grille" d="M166.5 38h8.4l.5 2.7-9.7-.1.8-2.6Z"/>
+                <path class="trim" d="M166.9 38.9h7.2m-7.5 1.4h7.9"/>
+                <path class="trim-dark" d="M18.4 46.1h150.8"/>
+                <path class="wheel-arch" d="M35.5 47.4a13.7 13.7 0 0 1 27.4 0M127.8 47.4a13.7 13.7 0 0 1 27.4 0"/>
+                <g class="wheel-group" style="transform-origin:141.5px 47.4px">
+                  <circle class="tire" cx="141.5" cy="47.4" r="11.8"/>
+                  <circle class="rim-outer" fill="url(#sedanRim)" cx="141.5" cy="47.4" r="7.6"/>
+                  <circle class="rim-inner" cx="141.5" cy="47.4" r="4.8"/>
+                  <path class="spoke" d="M141.5 40.7v4.8m0 3.8v4.8m-6.8-6.7h4.9m3.9 0h4.9m-4.8-4.8-3.5 3.5m-2.6 2.6-3.5 3.5m9.6 0-3.5-3.5m-2.6-2.6-3.5-3.5"/>
+                  <circle class="hub" cx="141.5" cy="47.4" r="1.5"/>
+                </g>
+                <g class="wheel-group" style="transform-origin:49.2px 47.4px">
+                  <circle class="tire" cx="49.2" cy="47.4" r="11.8"/>
+                  <circle class="rim-outer" fill="url(#sedanRim)" cx="49.2" cy="47.4" r="7.6"/>
+                  <circle class="rim-inner" cx="49.2" cy="47.4" r="4.8"/>
+                  <path class="spoke" d="M49.2 40.7v4.8m0 3.8v4.8m-6.8-6.7h4.9m3.9 0h4.9m-4.8-4.8-3.5 3.5m-2.6 2.6-3.5 3.5m9.6 0-3.5-3.5m-2.6-2.6-3.5-3.5"/>
+                  <circle class="hub" cx="49.2" cy="47.4" r="1.5"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="top-car-mover" data-kind="suv" id="koviCarSuvMover">
+          <div class="top-car-facing" id="koviCarSuvFacing">
+            <div class="top-car" id="koviTopCarSuv">
+              <svg viewBox="0 0 180 62" role="presentation">
+                <defs>
+                  <linearGradient id="suvPaint" x1="0" y1="0" x2="0.78" y2="1">
+                    <stop offset="0%" stop-color="#cffff0"/>
+                    <stop offset="16%" stop-color="#7fe3c9"/>
+                    <stop offset="46%" stop-color="#19b7a2"/>
+                    <stop offset="76%" stop-color="#0e7e8e"/>
+                    <stop offset="100%" stop-color="#084c66"/>
+                  </linearGradient>
+                  <linearGradient id="suvLower" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0b6671"/>
+                    <stop offset="100%" stop-color="#052731"/>
+                  </linearGradient>
+                  <linearGradient id="suvGlass" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#effffc"/>
+                    <stop offset="30%" stop-color="#a5e3dc"/>
+                    <stop offset="75%" stop-color="#2f6770"/>
+                    <stop offset="100%" stop-color="#12323d"/>
+                  </linearGradient>
+                  <linearGradient id="suvRim" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#f5fbff"/>
+                    <stop offset="42%" stop-color="#8cabbf"/>
+                    <stop offset="100%" stop-color="#35556b"/>
+                  </linearGradient>
+                  <linearGradient id="suvHeadlight" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="68%" stop-color="#c7f0ff"/>
+                    <stop offset="100%" stop-color="#6dd7ff"/>
+                  </linearGradient>
+                  <radialGradient id="suvGroundGlow">
+                    <stop offset="0%" stop-color="#2aaaff" stop-opacity=".34"/>
+                    <stop offset="100%" stop-color="#2aaaff" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+
+                <ellipse class="ground-glow" fill="url(#suvGroundGlow)" cx="91" cy="53.2" rx="72" ry="5.2"/>
+                <ellipse class="car-shadow" cx="91" cy="53" rx="68" ry="4"/>
+                <path class="paint-main" fill="url(#suvPaint)" d="M13 38.8c.8-5.8 4.7-9.4 11.2-10.9l18.2-4.2 14.9-15.2c3.6-3.7 8.4-5.8 13.6-5.8h35.5c6.7 0 12.7 2.1 17.7 6.5l16.2 14.2 19.2 3.9c6.1 1.3 9.9 5.5 10.6 11.1l.6 5.4c.4 3.7-2.5 6.9-6.2 6.9H18.9c-4.3 0-7.5-3.9-6.8-8.1l.9-3.8Z"/>
+                <path class="paint-dark" fill="url(#suvLower)" d="M14.1 42.1c11.3 1.7 21.8 2.3 31.7 2.1 27.8-.6 58.3-.8 91.2-.4 12.8.2 23.5-.9 32.7-3.3l.4 3.2c.4 3.8-2.5 7-6.3 7H19c-3.7 0-6.6-3-6.6-6.6 0-.7.1-1.3.3-2l1.4 0Z"/>
+                <path class="glass-main" fill="url(#suvGlass)" d="M60.1 10.4c2.7-2.7 6.4-4.2 10.2-4.2h12.9l-2 16.1H46.8l13.3-11.9Z"/>
+                <path class="glass-main" fill="url(#suvGlass)" d="M86.4 6.2h18.8c5.4 0 10.1 1.5 14.2 5l12.5 11.1H84.5l1.9-16.1Z"/>
+                <path class="glass-shade" d="M88.2 8.1h16.3c4.8 0 8.9 1.4 12.5 4.4l8.5 7.5H86.8l1.4-11.9Z"/>
+                <path class="trim" d="M45 23.8h92.4M82.9 6.8l-1.7 16.7m2.8.3.4 22.7m-38.8-21.8-4.3 18.6m83.6-18.8 5 20.4"/>
+                <path class="trim-dark" d="M22 36.5c27.7-4.8 96.2-5.2 139.8-.3"/>
+                <path class="highlight" d="M23.5 30.3c23.5-7.4 79.4-8.9 128.2-.9"/>
+                <path class="highlight" d="M51.8 13.8h27.6" opacity=".42"/>
+                <path d="M67.4 6.1h18.3m21.7 0h18.8" stroke="rgba(235,248,246,.76)" stroke-width="1.35" stroke-linecap="round"/>
+                <path d="M71.6 5v3.6m10.2-3.6v3.6m30.4-3.6v3.6m10.1-3.6v3.6" stroke="rgba(12,40,48,.78)" stroke-width="1" stroke-linecap="round"/>
+                <rect class="handle" x="93" y="27.3" width="8.6" height="1.7" rx=".85"/>
+                <rect class="handle" x="126.2" y="27.7" width="8.1" height="1.6" rx=".8"/>
+                <path class="mirror" fill="url(#suvPaint)" d="M132.2 20.5c6-.4 9.7 1.2 11.6 4.9-4.2 1.2-8.2 1.1-12-.4l.4-4.5Z"/>
+                <path class="headlight" fill="url(#suvHeadlight)" d="M154.9 30.1l11.2 2.6c1.8.4 2.8 1.7 2.9 3.5l-14.2-.9.1-5.2Z"/>
+                <path class="taillight" fill="#ff5a42" d="M16.9 31.6l8.5-2.2-.4 6.1-9.2.8 1.1-4.7Z"/>
+                <path class="grille" d="M158.3 39.2h11.4l.4 3.5-12.7-.2.9-3.3Z"/>
+                <path class="trim" d="M158.7 40.2h9.1m-9.5 1.5h10.1"/>
+                <path class="trim-dark" d="M18.8 47h145.9"/>
+                <path class="wheel-arch" d="M31.4 48.8a15.1 15.1 0 0 1 30.2 0M122.8 48.8a15.1 15.1 0 0 1 30.2 0"/>
+                <g class="wheel-group" style="transform-origin:137.9px 48.8px">
+                  <circle class="tire" cx="137.9" cy="48.8" r="12.7"/>
+                  <circle class="rim-outer" fill="url(#suvRim)" cx="137.9" cy="48.8" r="8.1"/>
+                  <circle class="rim-inner" cx="137.9" cy="48.8" r="5.1"/>
+                  <path class="spoke" d="M137.9 41.6v5.2m0 4v5.2m-7.2-7.2h5.2m4 0h5.2m-5.1-5.1-3.7 3.7m-2.8 2.8-3.7 3.7m10.2 0-3.7-3.7m-2.8-2.8-3.7-3.7"/>
+                  <circle class="hub" cx="137.9" cy="48.8" r="1.6"/>
+                </g>
+                <g class="wheel-group" style="transform-origin:46.5px 48.8px">
+                  <circle class="tire" cx="46.5" cy="48.8" r="12.7"/>
+                  <circle class="rim-outer" fill="url(#suvRim)" cx="46.5" cy="48.8" r="8.1"/>
+                  <circle class="rim-inner" cx="46.5" cy="48.8" r="5.1"/>
+                  <path class="spoke" d="M46.5 41.6v5.2m0 4v5.2m-7.2-7.2h5.2m4 0h5.2m-5.1-5.1-3.7 3.7m-2.8 2.8-3.7 3.7m10.2 0-3.7-3.7m-2.8-2.8-3.7-3.7"/>
+                  <circle class="hub" cx="46.5" cy="48.8" r="1.6"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="user"><div class="avatar">{{ usuario[:2]|upper }}</div><a class="logout" href="{{ url_for('logout') }}">Sair</a></div>
+    </div>
+
+    <section class="frame">
+      <div class="header-row">
+        <div class="title">
+          <div class="wa" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M17.47 14.38c-.27-.14-1.61-.79-1.86-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.31.2-.58.07-.27-.14-1.12-.41-2.13-1.31-.79-.7-1.32-1.57-1.47-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.41-.47.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.47-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.45-.61-.46h-.52c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.26s.97 2.61 1.11 2.79c.14.18 1.91 2.91 4.62 4.08.65.28 1.15.45 1.54.57.65.21 1.24.18 1.7.11.52-.08 1.61-.66 1.84-1.3.23-.63.23-1.18.16-1.29-.06-.11-.25-.18-.52-.31z" fill="#ffffff" stroke="none"></path>
+              <path d="M20 11.94A8 8 0 0 1 8.12 18.88L4 20l1.16-4A8 8 0 1 1 20 11.94Z" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div>
+            <h1>Painel de Disparo WhatsApp</h1>
+            <div class="subtitle">
+              <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-7"/></svg>
+              Monitoramento de entregas
+            </div>
+            <div class="kovi-accent">
+              <span class="pill"><svg viewBox="0 0 24 24"><path d="M3 16h18"/><path d="M5 16l1.5-5A2 2 0 0 1 8.4 9.5h7.2a2 2 0 0 1 1.9 1.5L19 16"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg> Segmento mobilidade / locação</span>
+              <span class="pill"><svg viewBox="0 0 24 24"><path d="M12 21s7-4.35 7-10a7 7 0 1 0-14 0c0 5.65 7 10 7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg> Praças monitoradas: SP e POA</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-panel">
+          <form class="filters" method="get">
+            <div class="field">
+              <label>Período</label>
+              <div class="period">
+                <input class="input" type="date" name="inicio" value="{{ dashboard.selecionado.inicio }}">
+                <input class="input" type="date" name="fim" value="{{ dashboard.selecionado.fim }}">
+              </div>
+            </div>
+            <div class="field">
+              <label>Empresa</label>
+              <select class="select" name="empresa">
+                <option>Todas</option>
+                {% for x in dashboard.filtros.empresas %}<option value="{{ x }}" {% if x==dashboard.selecionado.empresa %}selected{% endif %}>{{ x }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label>Arquivo</label>
+              <select class="select" name="arquivo">
+                <option>Todos</option>
+                {% for x in dashboard.filtros.arquivos %}<option value="{{ x }}" {% if x==dashboard.selecionado.arquivo %}selected{% endif %}>{{ x }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label>Janela</label>
+              <select class="select" name="janela">
+                <option>Todos</option>
+                {% for x in dashboard.filtros.janelas %}<option value="{{ x }}" {% if x==dashboard.selecionado.janela %}selected{% endif %}>{{ x }}</option>{% endfor %}
+              </select>
+            </div>
+            <button class="btn" title="Aplicar filtros" aria-label="Aplicar filtros">
+              <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15.55-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15.55 6.36L3 16"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {% if dashboard.vazio %}
+        <div class="empty"><b>Base KOVI sem dados</b>Preencha o arquivo <code>data/base_kovi_whatsapp.xlsx</code> com Arquivo, Data do Disparo, Entregues, Enviados e Taxa.</div>
+      {% else %}
+        <div class="cards">
+          <div class="card">
+            <div class="card-ico"><svg viewBox="0 0 24 24"><path d="M6 7h12"/><path d="M6 12h12"/><path d="M6 17h7"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg></div>
+            <div><div class="card-label">Enviado Total</div><div class="card-value">{{ dashboard.cards.enviados }}</div></div>
+          </div>
+          <div class="card">
+            <div class="card-ico"><svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></div>
+            <div><div class="card-label">Entregues</div><div class="card-value">{{ dashboard.cards.entregues }}</div></div>
+          </div>
+          <div class="card warn">
+            <div class="card-ico"><svg viewBox="0 0 24 24"><path d="M3 17 9 11l4 4 8-10"/><path d="M14 5h7v7"/></svg></div>
+            <div><div class="card-label">Taxa de Entrega</div><div class="card-value">{{ dashboard.cards.taxa }}</div></div>
+          </div>
+          <div class="card">
+            <div class="card-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg></div>
+            <div><div class="card-label">Janelas Monitoradas</div><div class="card-value">{{ dashboard.cards.janelas }}</div></div>
+          </div>
+        </div>
+
+        <div class="middle">
+          <div class="box">
+            <div class="chart-header">
+              <div class="box-title"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-7"/></svg> Taxa de entrega por dia</div>
+              <div class="chart-metas">
+                <span class="chart-chip">Média do período <strong>{{ dashboard.chart.avg_taxa }}</strong></span>
+                {% if dashboard.chart.best_day %}<span class="chart-chip up">Melhor dia <strong>{{ dashboard.chart.best_day.data_curta }} · {{ dashboard.chart.best_day.taxa }}</strong></span>{% endif %}
+                {% if dashboard.chart.worst_day %}<span class="chart-chip down">Menor dia <strong>{{ dashboard.chart.worst_day.data_curta }} · {{ dashboard.chart.worst_day.taxa }}</strong></span>{% endif %}
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <svg viewBox="{{ dashboard.chart.viewbox }}" preserveAspectRatio="xMidYMid meet" aria-label="Gráfico de taxa de entrega por dia">
+                <defs>
+                  <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#147dff" stop-opacity=".72"/>
+                    <stop offset="1" stop-color="#147dff" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                {% for t in dashboard.chart.ticks %}
+                  <line class="gridline" x1="{{ dashboard.chart.pad_l }}" y1="{{ t.y }}" x2="{{ dashboard.chart.width - dashboard.chart.pad_r }}" y2="{{ t.y }}"/>
+                  <text class="y-label" x="{{ dashboard.chart.pad_l - 10 }}" y="{{ t.y + 4 }}" text-anchor="end">{{ t.value }}</text>
+                {% endfor %}
+                <line class="axis-line" x1="{{ dashboard.chart.pad_l }}" y1="{{ dashboard.chart.base_y }}" x2="{{ dashboard.chart.width - dashboard.chart.pad_r }}" y2="{{ dashboard.chart.base_y }}"/>
+                {% if dashboard.chart.points %}
+                  <polygon class="area" points="{% for p in dashboard.chart.points %}{{ p.x }},{{ p.y }} {% endfor %} {{ dashboard.chart.points[-1].x }},{{ dashboard.chart.base_y }} {{ dashboard.chart.points[0].x }},{{ dashboard.chart.base_y }}"/>
+                  <polyline class="line" points="{% for p in dashboard.chart.points %}{{ p.x }},{{ p.y }} {% endfor %}"/>
+                  {% for p in dashboard.chart.points %}
+                    <circle class="dot" cx="{{ p.x }}" cy="{{ p.y }}" r="6"/>
+                    <text class="dot-label" x="{{ p.x }}" y="{{ p.y - 12 }}" text-anchor="middle">{{ p.taxa }}</text>
+                    <text class="date-label" x="{{ p.x }}" y="{{ dashboard.chart.height - 12 }}" text-anchor="middle">{{ p.label }}</text>
+                  {% endfor %}
+                {% endif %}
+              </svg>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-title"><svg viewBox="0 0 24 24"><path d="M12 21s7-4.35 7-10a7 7 0 1 0-14 0c0 5.65 7 10 7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg> Desempenho por praça</div>
+            <div class="pracas">
+              {% for p in dashboard.pracas %}
+                <div class="praca">
+                  <div class="praca-ico">
+                    {% if p.nome == 'SP' %}
+                      <svg class="flag-badge" viewBox="0 0 46 46" aria-hidden="true">
+                        <defs><clipPath id="clip-sp"><circle cx="23" cy="23" r="23"/></clipPath></defs>
+                        <g clip-path="url(#clip-sp)">
+                          <rect width="46" height="46" fill="#ffffff"/>
+                          <rect y="4" width="46" height="4" fill="#111827"/>
+                          <rect y="12" width="46" height="4" fill="#111827"/>
+                          <rect y="20" width="46" height="4" fill="#111827"/>
+                          <rect y="28" width="46" height="4" fill="#111827"/>
+                          <rect y="36" width="46" height="4" fill="#111827"/>
+                          <rect x="0" y="0" width="18" height="18" fill="#d72828"/>
+                          <path d="M3 14l12-10" stroke="#ffffff" stroke-width="2"/>
+                          <path d="M5 15l11-9" stroke="#ffffff" stroke-width="1" opacity=".8"/>
+                        </g>
+                      </svg>
+                    {% elif p.nome == 'POA' %}
+                      <svg class="flag-badge" viewBox="0 0 46 46" aria-hidden="true">
+                        <defs><clipPath id="clip-rs"><circle cx="23" cy="23" r="23"/></clipPath></defs>
+                        <g clip-path="url(#clip-rs)">
+                          <rect width="46" height="46" fill="#1f7a3d"/>
+                          <polygon points="0,0 46,0 0,46" fill="#1787c9"/>
+                          <polygon points="46,46 46,0 0,46" fill="#c83737"/>
+                          <polygon points="0,20 20,0 46,26 26,46" fill="#f2c94c"/>
+                          <circle cx="23" cy="23" r="6" fill="#2d3f63" stroke="#ffffff" stroke-width="1"/>
+                        </g>
+                      </svg>
+                    {% else %}
+                      <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/><path d="M7 7l10 10"/><path d="M17 7 7 17"/></svg>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <div class="pname">{{ p.nome }}</div>
+                    <div class="metric"><small>Entregues</small><strong>{{ p.entregues }}</strong></div>
+                  </div>
+                  <div class="metric"><small>Enviado</small><strong>{{ p.enviados }}</strong></div>
+                  <div class="metric"><small>Taxa de Entrega</small><strong class="rate">{{ p.taxa }}</strong></div>
+                  <div class="trend {% if not p.bom %}down{% endif %}">{% if p.bom %}↑{% else %}↓{% endif %}</div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="box table-box">
+          <div class="table-title"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M9 4v18"/></svg> Resumo diário</div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Data</th><th>Enviado</th><th>Entregues</th><th>Taxa</th></tr>
+              </thead>
+              <tbody>
+                {% for d in dashboard.diario %}
+                  <tr>
+                    <td>{{ d.data }}</td>
+                    <td>{{ d.enviados }}</td>
+                    <td>{{ d.entregues }}</td>
+                    <td class="{% if d.taxa_num >= dashboard.cards.taxa_num %}rate-good{% else %}rate-low{% endif %}">{{ d.taxa }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="footer-note">
+            <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 21s7-4.35 7-10a7 7 0 1 0-14 0c0 5.65 7 10 7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>Praças: {% for p in dashboard.pracas %}{{ p.nome }}{% if not loop.last %} e {% endif %}{% endfor %}</span>
+            <span class="chip" style="color:#5ae882"><svg viewBox="0 0 24 24"><path d="M17.47 14.38c-.27-.14-1.61-.79-1.86-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.31.2-.58.07-.27-.14-1.12-.41-2.13-1.31-.79-.7-1.32-1.57-1.47-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.41-.47.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.47-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.45-.61-.46h-.52c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.26s.97 2.61 1.11 2.79c.14.18 1.91 2.91 4.62 4.08.65.28 1.15.45 1.54.57.65.21 1.24.18 1.7.11.52-.08 1.61-.66 1.84-1.3.23-.63.23-1.18.16-1.29-.06-.11-.25-.18-.52-.31z" stroke="none" fill="currentColor"></path><path d="M20 11.94A8 8 0 0 1 8.12 18.88L4 20l1.16-4A8 8 0 1 1 20 11.94Z"/></svg>Canal: WhatsApp</span>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+</div>
+<script>
+(() => {
+  const topBar = document.querySelector('.top');
+  const crumb = document.querySelector('.crumb');
+  const user = document.querySelector('.user');
+  const track = document.getElementById('koviCarTrack');
+  const movers = [
+    { kind:'hatch', mover:document.getElementById('koviCarHatchMover'), facing:document.getElementById('koviCarHatchFacing'), car:document.getElementById('koviTopCarHatch'), width:102, trailForward:0, trailBackward:278, zFront:1, zBack:3 },
+    { kind:'sedan', mover:document.getElementById('koviCarSedanMover'), facing:document.getElementById('koviCarSedanFacing'), car:document.getElementById('koviTopCarSedan'), width:128, trailForward:132, trailBackward:146, zFront:2, zBack:2 },
+    { kind:'suv', mover:document.getElementById('koviCarSuvMover'), facing:document.getElementById('koviCarSuvFacing'), car:document.getElementById('koviTopCarSuv'), width:138, trailForward:274, trailBackward:0, zFront:3, zBack:1 }
+  ];
+  if (!topBar || !crumb || !user || !track || movers.some(v => !v.mover || !v.facing || !v.car)) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let maxBaseX = 0;
+  let direction = 1;
+  let legStart = performance.now();
+  let pauseUntil = 0;
+  let scale = 1;
+  const legDuration = 7200;
+  const pauseDuration = 560;
+  const fleetRawLength = 412;
+
+  movers.forEach(v => {
+    v.lastX = 0;
+    v.wheelRotation = 0;
+  });
+
+  function layoutTrack(){
+    const topRect = topBar.getBoundingClientRect();
+    const crumbRect = crumb.getBoundingClientRect();
+    const userRect = user.getBoundingClientRect();
+    const left = Math.max(0, crumbRect.right - topRect.left + 24);
+    const right = Math.max(0, topRect.right - userRect.left + 24);
+    track.style.left = left + 'px';
+    track.style.right = right + 'px';
+    const width = track.getBoundingClientRect().width;
+    if (width < 320){
+      track.style.display = 'none';
+      maxBaseX = 0;
+      return;
+    }
+    track.style.display = '';
+    scale = Math.max(.72, Math.min(1, (width - 18) / fleetRawLength));
+    const groupLength = fleetRawLength * scale;
+    maxBaseX = Math.max(0, width - groupLength);
+  }
+
+  function easeInOutCubic(t){
+    return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2;
+  }
+
+  function pauseCars(paused){
+    movers.forEach(v => v.car.classList.toggle('is-paused', paused));
+  }
+
+  function setFleet(baseX){
+    movers.forEach(v => {
+      const trail = direction === 1 ? v.trailForward : v.trailBackward;
+      const x = baseX + trail * scale;
+      const delta = x - v.lastX;
+      v.wheelRotation += delta * 3.1;
+      v.mover.style.transform = `translate3d(${x}px,0,0) scale(${scale})`;
+      v.facing.style.transform = `scaleX(${direction === 1 ? 1 : -1})`;
+      v.car.style.setProperty('--wheel-rotation', v.wheelRotation + 'deg');
+      v.mover.style.zIndex = String(direction === 1 ? v.zFront : v.zBack);
+      v.lastX = x;
+    });
+  }
+
+  function setRestingFleet(){
+    pauseCars(true);
+    const restingX = Math.min(Math.max(12, maxBaseX * .1), 28);
+    setFleet(restingX);
+    movers.forEach(v => v.facing.style.transform = 'scaleX(1)');
+  }
+
+  function frame(now){
+    if (reduceMotion.matches || maxBaseX <= 0 || track.style.display === 'none'){
+      setRestingFleet();
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    if (pauseUntil){
+      pauseCars(true);
+      if (now >= pauseUntil){
+        direction *= -1;
+        pauseUntil = 0;
+        legStart = now;
+        pauseCars(false);
+      }
+      requestAnimationFrame(frame);
+      return;
+    }
+
+    const t = Math.min(1, (now - legStart) / legDuration);
+    const eased = easeInOutCubic(t);
+    const baseX = direction === 1 ? maxBaseX * eased : maxBaseX * (1 - eased);
+    setFleet(baseX);
+
+    if (t >= 1){
+      pauseUntil = now + pauseDuration;
+      pauseCars(true);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  layoutTrack();
+  window.addEventListener('resize', layoutTrack, { passive:true });
+  if ('ResizeObserver' in window) new ResizeObserver(layoutTrack).observe(topBar);
+  reduceMotion.addEventListener?.('change', () => { legStart = performance.now(); pauseUntil = 0; });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

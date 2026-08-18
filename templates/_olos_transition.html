@@ -1,0 +1,15 @@
+<div class="olos-transition" id="olosTransition" aria-hidden="true"
+     data-auto-start="{{ '1' if show_login_transition else '0' }}"
+     data-auto-title="Carregando Cockpit..."
+     data-auto-subtitle="Inicializando ambiente e preparando os clientes">
+  <video class="olos-transition__video" muted playsinline preload="auto">
+    <source src="{{ url_for('static', filename='video/olos_capybara_loading.mp4') }}" type="video/mp4">
+  </video>
+  <div class="olos-transition__shade" aria-hidden="true"></div>
+  <div class="olos-transition__status" role="status" aria-live="polite">
+    <strong data-transition-title>Carregando dados...</strong>
+    <span data-transition-subtitle>Preparando sua visão no OSP Command Center</span>
+    <span class="olos-transition__loader" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="olos-transition__progress" aria-hidden="true"></div>
+  </div>
+</div>

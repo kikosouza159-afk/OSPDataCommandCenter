@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administração | Permissões</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;background:#020814;color:#e5e7eb}
+    body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(0,229,255,.11),transparent 30%),radial-gradient(circle at 80% 70%,rgba(0,106,255,.12),transparent 34%);pointer-events:none}
+    .wrap{position:relative;width:min(1180px,calc(100% - 34px));margin:auto;padding:28px 0 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 22px;margin-bottom:20px;border:1px solid rgba(0,229,255,.2);border-radius:24px;background:rgba(6,18,34,.8);box-shadow:0 0 34px rgba(0,229,255,.08)}
+    .brand{display:flex;gap:14px;align-items:center}.brand img{width:118px}.brand h1{margin:0;font-size:26px}.brand p{margin:4px 0 0;color:#94a3b8;font-size:13px}.actions{display:flex;gap:10px;align-items:center}.btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:0;border-radius:13px;padding:11px 14px;font-weight:900;cursor:pointer}.btn.secondary{color:#dbeafe;background:rgba(15,23,42,.85);border:1px solid rgba(148,163,184,.2)}.btn.primary{color:#00111f;background:linear-gradient(135deg,#00e5ff,#0077ff)}
+    .panel{border:1px solid rgba(148,163,184,.17);border-radius:24px;background:rgba(6,18,34,.78);padding:22px;box-shadow:0 18px 40px rgba(0,0,0,.25)}.head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:20px}.head h2{margin:0 0 7px;font-size:22px}.head p{margin:0;color:#94a3b8;line-height:1.45}.badge{padding:8px 11px;border-radius:999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.24);color:#bbf7d0;font-size:12px;font-weight:900}
+    .selectors{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;padding:16px;border-radius:18px;background:rgba(2,8,20,.62);border:1px solid rgba(0,229,255,.12);margin-bottom:18px}.field{display:grid;gap:7px}.field label{font-size:11px;font-weight:900;color:#bfd4ea;text-transform:uppercase;letter-spacing:.04em}.field select{height:43px;border-radius:13px;border:1px solid rgba(148,163,184,.2);background:#07172a;color:#f8fafc;padding:0 12px;font-weight:750;outline:none}
+    .views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}.view{position:relative;display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:linear-gradient(145deg,rgba(8,24,43,.82),rgba(4,12,24,.8));border:1px solid rgba(148,163,184,.16);cursor:pointer;transition:.18s}.view:hover{border-color:rgba(0,229,255,.38);transform:translateY(-1px)}.view input{width:19px;height:19px;accent-color:#00e5ff}.view strong{display:block;font-size:14px}.view span{display:block;color:#8297af;font-size:11px;margin-top:4px}.view .icon{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:rgba(0,229,255,.1);color:#67e8f9}.view.disabled{opacity:.5;cursor:not-allowed}.note{padding:13px 15px;border-radius:14px;background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.16);color:#fde68a;font-size:12px;line-height:1.45}.msg{margin-bottom:14px;padding:12px 14px;border-radius:13px;font-weight:800;font-size:13px}.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:#bbf7d0}.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);color:#fecaca}.footer{display:flex;justify-content:flex-end;margin-top:18px}
+    @media(max-width:760px){.top,.head{flex-direction:column}.selectors{grid-template-columns:1fr}.views{grid-template-columns:1fr}.actions{width:100%}.actions .btn{flex:1;justify-content:center}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos">
+      <div><h1>Administração</h1><p>Controle de acesso por usuário, cliente e visão</p></div>
+    </div>
+    <div class="actions">
+      <a class="btn secondary" href="{{ url_for('dashboard') }}"><i data-lucide="layout-dashboard"></i> Cockpit</a>
+      <a class="btn secondary" href="{{ url_for('logout') }}"><i data-lucide="log-out"></i> Sair</a>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="head">
+      <div><h2>Permissões das visões</h2><p>Marque somente as abas que o usuário poderá abrir. O bloqueio vale para o menu e também para acesso direto.</p></div>
+      <div class="badge">ADMIN</div>
+    </div>
+
+    {% if mensagem %}<div class="msg ok">{{ mensagem }}</div>{% endif %}
+    {% if erro %}<div class="msg err">{{ erro }}</div>{% endif %}
+
+    <form method="post" id="permissionForm">
+      <div class="selectors">
+        <div class="field">
+          <label>Usuário</label>
+          <select name="usuario_sel" id="usuarioSel" onchange="reloadSelection()">
+            {% for u in usuarios %}<option value="{{ u }}" {% if u == usuario_sel %}selected{% endif %}>{{ u }}{% if u in admin_usuarios %} · administrador{% endif %}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Dashboard / Cliente</label>
+          <select name="cliente_sel" id="clienteSel" onchange="reloadSelection()">
+            {% for c in clientes_admin %}<option value="{{ c.slug }}" {% if c.slug == cliente_sel %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}
+          </select>
+        </div>
+        <button class="btn primary" type="submit"><i data-lucide="save"></i> Salvar permissões</button>
+      </div>
+
+      <div class="views">
+        {% for visao in visoes_cliente %}
+        <label class="view {% if usuario_sel in admin_usuarios %}disabled{% endif %}">
+          <input type="checkbox" name="visoes" value="{{ visao.id }}" {% if visao.id in permitidas or usuario_sel in admin_usuarios %}checked{% endif %} {% if usuario_sel in admin_usuarios %}disabled{% endif %}>
+          <div class="icon"><i data-lucide="{% if visao.id == 'daily' %}calendar-days{% elif visao.id == 'hora' %}clock-3{% elif visao.id == 'mapa' %}map{% else %}git-compare-arrows{% endif %}"></i></div>
+          <div><strong>{{ visao.nome }}</strong><span>{% if visao.id in permitidas or usuario_sel in admin_usuarios %}Acesso liberado{% else %}Acesso bloqueado{% endif %}</span></div>
+        </label>
+        {% endfor %}
+      </div>
+
+      {% if usuario_sel in admin_usuarios %}<div class="note">Administradores possuem acesso total e não podem ter visões bloqueadas por esta tela.</div>{% else %}<div class="note">As permissões são aplicadas no próximo carregamento da página do usuário. Daily e Hora a Hora também podem ser bloqueadas, caso você queira criar um perfil ainda mais restrito.</div>{% endif %}
+    </form>
+  </section>
+</main>
+<script>
+lucide.createIcons();
+function reloadSelection(){
+  const u=document.getElementById('usuarioSel').value;
+  const c=document.getElementById('clienteSel').value;
+  const url=new URL(window.location.href);
+  url.searchParams.set('usuario_sel',u);url.searchParams.set('cliente_sel',c);
+  window.location.href=url.toString();
+}
+</script>
+</body>
+</html>
