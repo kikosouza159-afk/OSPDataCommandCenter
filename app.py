@@ -1,5 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, abort
 import json
+import io
+import re
+import zipfile
+from datetime import datetime
 from pathlib import Path
 
 app = Flask(__name__)
@@ -1732,6 +1736,288 @@ def kovi_whatsapp_index():
     if not usuario_pode_acessar_cliente(session.get('usuario'), 'kovi'):
         return acesso_negado()
     return render_template('kovi_whatsapp.html', usuario=session.get('usuario'), dashboard=_kovi_dashboard())
+
+
+# ===== KOVI | Central de Exportação de Arquivos =====
+KOVI_EXPORT_DIR = Path(__file__).resolve().parent / 'data' / 'kovi_exportacao'
+KOVI_EXPORT_EXTENSOES = {'.csv', '.xlsx', '.xlsm', '.xls', '.xlsb', '.zip', '.txt', '.tsv'}
+
+
+def _kovi_export_validar_acesso():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if not usuario_pode_acessar_cliente(session.get('usuario'), 'kovi'):
+        return acesso_negado()
+    return None
+
+
+def _kovi_export_data_arquivo(path: Path):
+    """Identifica a data preferencialmente pela pasta YYYY-MM-DD e depois pelo nome do arquivo."""
+    ano_fallback = datetime.fromtimestamp(path.stat().st_mtime).year
+
+    # Primeiro procura em TODAS as partes relativas a data/kovi_exportacao.
+    # Isso evita perder a data quando o arquivo está em subpastas como
+    # 2026-08-11/SP/lote/arquivo.csv.
+    try:
+        rel_parts = path.relative_to(KOVI_EXPORT_DIR).parts
+    except Exception:
+        rel_parts = path.parts
+
+    textos = list(rel_parts[:-1]) + [path.stem]
+
+    padroes = [
+        (re.compile(r'^(20\d{2})[-_.](0[1-9]|1[0-2])[-_.]([0-2]\d|3[01])$'), 'ymd'),
+        (re.compile(r'(?<!\d)(20\d{2})[-_.]?(0[1-9]|1[0-2])[-_.]?([0-2]\d|3[01])(?!\d)'), 'ymd'),
+        (re.compile(r'(?<!\d)([0-2]\d|3[01])[-_.](0[1-9]|1[0-2])[-_.](20\d{2})(?!\d)'), 'dmy'),
+        (re.compile(r'(?<!\d)([0-2]\d|3[01])(0[1-9]|1[0-2])(20\d{2})(?!\d)'), 'dmycompact'),
+        (re.compile(r'(?:^|[_-])([0-2]\d|3[01])(0[1-9]|1[0-2])(?:$|[_-])'), 'dm'),
+    ]
+
+    for texto in textos:
+        for rx, tipo in padroes:
+            m = rx.search(str(texto))
+            if not m:
+                continue
+            try:
+                if tipo == 'ymd':
+                    ano, mes, dia = map(int, m.groups())
+                elif tipo in {'dmy', 'dmycompact'}:
+                    dia, mes, ano = map(int, m.groups())
+                else:
+                    dia, mes = map(int, m.groups())
+                    ano = ano_fallback
+                return datetime(ano, mes, dia).date()
+            except ValueError:
+                pass
+
+    return datetime.fromtimestamp(path.stat().st_mtime).date()
+
+def _kovi_export_praca_arquivo(path: Path):
+    """Tenta identificar a praça pelo nome do arquivo e pelas pastas."""
+    texto = ' '.join([path.stem] + list(path.parts[-5:])).lower()
+    texto = texto.replace('-', ' ').replace('_', ' ')
+
+    if re.search(r'(^|\s)sp($|\s)', texto) or 'sao paulo' in texto or 'sampa' in texto:
+        return 'SP'
+    if re.search(r'(^|\s)poa($|\s)', texto) or 'porto alegre' in texto:
+        return 'POA'
+    return 'GERAL'
+
+
+def _kovi_export_fmt_tamanho(bytes_total):
+    valor = float(bytes_total or 0)
+    unidades = ['B', 'KB', 'MB', 'GB']
+    for unidade in unidades:
+        if valor < 1024 or unidade == unidades[-1]:
+            if unidade == 'B':
+                return f'{int(valor)} {unidade}'
+            return f'{valor:.1f} {unidade}'.replace('.', ',')
+        valor /= 1024
+
+
+def _kovi_export_contar_registros(path: Path):
+    """Conta linhas de CSV/TXT e registros da primeira planilha Excel sem carregar tudo na memória."""
+    try:
+        ext = path.suffix.lower()
+        if ext in {'.csv', '.txt'}:
+            with path.open('rb') as arq:
+                total = sum(1 for _ in arq)
+            return max(0, total - 1)
+        if ext in {'.xlsx', '.xlsm'}:
+            from openpyxl import load_workbook
+            wb = load_workbook(path, read_only=True, data_only=True)
+            ws = wb[wb.sheetnames[0]]
+            total = max(0, (ws.max_row or 1) - 1)
+            wb.close()
+            return total
+    except Exception:
+        return None
+    return None
+
+
+def _kovi_export_listar_arquivos():
+    KOVI_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+    itens = []
+    base_resolvida = KOVI_EXPORT_DIR.resolve()
+
+    for path in sorted(KOVI_EXPORT_DIR.rglob('*')):
+        if not path.is_file() or path.name.startswith('.'):
+            continue
+        if path.suffix.lower() not in KOVI_EXPORT_EXTENSOES:
+            continue
+        try:
+            resolvido = path.resolve()
+            resolvido.relative_to(base_resolvida)
+        except Exception:
+            continue
+
+        stat = path.stat()
+        data = _kovi_export_data_arquivo(path)
+        rel = path.relative_to(KOVI_EXPORT_DIR).as_posix()
+        pasta = path.parent.name if path.parent != KOVI_EXPORT_DIR else 'Raiz'
+        itens.append({
+            'relpath': rel,
+            'nome': path.name,
+            'pasta': pasta,
+            'data_obj': data,
+            'data_iso': data.isoformat(),
+            'data': data.strftime('%d/%m/%Y'),
+            'tipo': path.suffix.replace('.', '').upper() or 'ARQ',
+            'praca': _kovi_export_praca_arquivo(path),
+            'tamanho_bytes': stat.st_size,
+            'tamanho': _kovi_export_fmt_tamanho(stat.st_size),
+            'registros_num': _kovi_export_contar_registros(path),
+            'modificado': datetime.fromtimestamp(stat.st_mtime).strftime('%d/%m/%Y %H:%M'),
+        })
+
+    for item in itens:
+        r = item['registros_num']
+        item['registros'] = '-' if r is None else f'{r:,}'.replace(',', '.')
+    return itens
+
+
+def _kovi_export_dashboard():
+    todos = _kovi_export_listar_arquivos()
+
+    # Datas vindas dos arquivos + pastas YYYY-MM-DD existentes na raiz.
+    datas_set = {i['data_iso'] for i in todos}
+    KOVI_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+    for pasta in KOVI_EXPORT_DIR.iterdir():
+        if not pasta.is_dir():
+            continue
+        try:
+            dt = datetime.strptime(pasta.name, '%Y-%m-%d').date()
+            datas_set.add(dt.isoformat())
+        except Exception:
+            pass
+
+    datas_disponiveis = sorted(datas_set, reverse=True)
+    data_ref = (request.args.get('data_ref') or '').strip()
+    if not data_ref and datas_disponiveis:
+        data_ref = datas_disponiveis[0]
+    if data_ref and data_ref not in datas_disponiveis:
+        data_ref = datas_disponiveis[0] if datas_disponiveis else ''
+
+    praca = (request.args.get('praca') or 'Todas').strip().upper()
+    if praca not in {'TODAS', 'SP', 'POA'}:
+        praca = 'TODAS'
+
+    filtrados = []
+    for item in todos:
+        if data_ref and item['data_iso'] != data_ref:
+            continue
+        if praca != 'TODAS' and item.get('praca') != praca:
+            continue
+        filtrados.append(item)
+
+    filtrados.sort(key=lambda x: (x['pasta'], x['nome']))
+
+    datas_info = []
+    for data_iso in datas_disponiveis:
+        itens_data = [i for i in todos if i['data_iso'] == data_iso]
+        try:
+            label = datetime.strptime(data_iso, '%Y-%m-%d').strftime('%d/%m/%Y')
+        except Exception:
+            label = data_iso
+        datas_info.append({
+            'iso': data_iso,
+            'label': label,
+            'total': len(itens_data),
+        })
+
+    return {
+        'vazio_total': not bool(datas_disponiveis),
+        'arquivos': filtrados,
+        'datas': datas_info,
+        'selecionado': {
+            'data_ref': data_ref,
+            'praca': 'Todas' if praca == 'TODAS' else praca,
+        },
+        'resumo': {
+            'arquivos': len(filtrados),
+            'pastas': len({i['pasta'] for i in filtrados}),
+            'data': next((d['label'] for d in datas_info if d['iso'] == data_ref), ''),
+        }
+    }
+
+def _kovi_export_resolver(relpath):
+    base = KOVI_EXPORT_DIR.resolve()
+    alvo = (KOVI_EXPORT_DIR / relpath).resolve()
+    try:
+        alvo.relative_to(base)
+    except Exception:
+        abort(404)
+    if not alvo.is_file() or alvo.suffix.lower() not in KOVI_EXPORT_EXTENSOES:
+        abort(404)
+    return alvo
+
+
+@app.route('/cliente/kovi/exportacao')
+def kovi_exportacao_index():
+    acesso = _kovi_export_validar_acesso()
+    if acesso is not None:
+        return acesso
+    return render_template(
+        'kovi_exportacao.html',
+        usuario=session.get('usuario'),
+        dashboard=_kovi_export_dashboard(),
+    )
+
+
+@app.route('/cliente/kovi/exportacao/arquivo/<path:arquivo>')
+def kovi_exportar_arquivo(arquivo):
+    acesso = _kovi_export_validar_acesso()
+    if acesso is not None:
+        return acesso
+    alvo = _kovi_export_resolver(arquivo)
+    return send_file(alvo, as_attachment=True, download_name=alvo.name)
+
+
+@app.route('/cliente/kovi/exportacao/zip', methods=['POST'])
+def kovi_exportar_zip():
+    acesso = _kovi_export_validar_acesso()
+    if acesso is not None:
+        return acesso
+
+    data_ref = (request.form.get('data_ref') or '').strip()
+    praca = (request.form.get('praca') or 'Todas').strip().upper()
+    if praca not in {'TODAS', 'SP', 'POA'}:
+        praca = 'TODAS'
+
+    todos = _kovi_export_listar_arquivos()
+    validos = []
+    for item in todos:
+        if data_ref and item['data_iso'] != data_ref:
+            continue
+        if praca != 'TODAS' and item.get('praca') != praca:
+            continue
+        try:
+            alvo = _kovi_export_resolver(item['relpath'])
+        except Exception:
+            continue
+        validos.append((item, alvo))
+
+    if not validos:
+        return redirect(url_for('kovi_exportacao_index', data_ref=data_ref, praca='Todas' if praca == 'TODAS' else praca))
+
+    memoria = io.BytesIO()
+    with zipfile.ZipFile(memoria, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
+        for item, alvo in validos:
+            zf.write(alvo, arcname=item['relpath'])
+    memoria.seek(0)
+
+    try:
+        sufixo_data = datetime.strptime(data_ref, '%Y-%m-%d').strftime('%Y%m%d') if data_ref else datetime.now().strftime('%Y%m%d')
+    except Exception:
+        sufixo_data = datetime.now().strftime('%Y%m%d')
+    sufixo_praca = '' if praca == 'TODAS' else f'_{praca}'
+
+    return send_file(
+        memoria,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name=f'KOVI_Retorno_{sufixo_data}{sufixo_praca}.zip',
+    )
 
 
 # ===== TALENTOS | Locator Dashboard integrado na V1.4 =====
@@ -4647,21 +4933,7 @@ def sky_negocie_online_index() -> str:
         return redirect(url_for('sky_negocie_online_index', **flat_args))
     bases = carregar_bases_sky()
     dashboard = filtrar_payload_sky_por_permissao(consolidar(bases), usuario)
-    html = render_template('sky_negocie_online.html', dashboard=dashboard, usuario=usuario, visoes_permitidas=permitidas, is_admin=usuario_e_admin(usuario))
-
-    # Mantém o logo da Olos intacto e substitui somente o badge textual SKY
-    # pelo logo oficial da SKY no cabeçalho do painel.
-    sky_logo_html = '''
-        <div class="logo" style="background:transparent;box-shadow:none;padding:0;overflow:hidden;">
-            <img
-                src="https://skycms.s3.amazonaws.com/images/0/Logo-Menu.svg"
-                alt="SKY"
-                style="display:block;width:100%;height:100%;object-fit:contain;"
-            >
-        </div>
-    '''
-    html = html.replace('<div class="logo">SKY</div>', sky_logo_html, 1)
-    return html
+    return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=usuario, visoes_permitidas=permitidas, is_admin=usuario_e_admin(usuario))
 
 
 @app.route('/cliente/sky-negocie-online/painel/api')
