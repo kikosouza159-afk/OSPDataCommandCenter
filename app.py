@@ -1347,8 +1347,8 @@ if not any(c.get("slug") == "kovi" for c in CLIENTES):
         "nome": "KOVI",
         "slug": "kovi",
         "sigla": "KOV",
-        "domain": "",
-        "logo_url": "https://www.kovi.com.br/hubfs/Kovi-2024/Images/Logo%20preto%20-%20horizontal.svg"
+        "domain": "kovi.com.br",
+        "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=kovi.com.br"
     })
 
 @app.route("/", methods=["GET", "POST"])
@@ -4933,7 +4933,37 @@ def sky_negocie_online_index() -> str:
         return redirect(url_for('sky_negocie_online_index', **flat_args))
     bases = carregar_bases_sky()
     dashboard = filtrar_payload_sky_por_permissao(consolidar(bases), usuario)
-    return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=usuario, visoes_permitidas=permitidas, is_admin=usuario_e_admin(usuario))
+
+    # SKY | Exibe o logo oficial ao lado do logo Olos sem precisar alterar o template HTML.
+    html = render_template(
+        'sky_negocie_online.html',
+        dashboard=dashboard,
+        usuario=usuario,
+        visoes_permitidas=permitidas,
+        is_admin=usuario_e_admin(usuario)
+    )
+
+    sky_logo = (
+        '<img src="https://skycms.s3.amazonaws.com/images/0/Logo-Menu.svg" '
+        'alt="SKY" '
+        'style="width:72px;height:44px;object-fit:contain;margin-left:4px;margin-right:2px;'
+        'filter:drop-shadow(0 0 10px rgba(255,255,255,.12));">'
+    )
+
+    # Remove o bloco azul com texto SKY e posiciona o logo oficial junto ao logo Olos.
+    alvo = '<div class="brand">\n        <div class="logo">SKY</div>'
+    substituto = sky_logo + '<div class="brand">'
+    if alvo in html:
+        html = html.replace(alvo, substituto, 1)
+    else:
+        # Fallback para versões do template sem quebra de linha.
+        html = html.replace(
+            '<div class="brand"><div class="logo">SKY</div>',
+            sky_logo + '<div class="brand">',
+            1
+        )
+
+    return html
 
 
 @app.route('/cliente/sky-negocie-online/painel/api')
