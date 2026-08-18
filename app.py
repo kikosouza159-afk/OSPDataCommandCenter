@@ -4647,7 +4647,21 @@ def sky_negocie_online_index() -> str:
         return redirect(url_for('sky_negocie_online_index', **flat_args))
     bases = carregar_bases_sky()
     dashboard = filtrar_payload_sky_por_permissao(consolidar(bases), usuario)
-    return render_template('sky_negocie_online.html', dashboard=dashboard, usuario=usuario, visoes_permitidas=permitidas, is_admin=usuario_e_admin(usuario))
+    html = render_template('sky_negocie_online.html', dashboard=dashboard, usuario=usuario, visoes_permitidas=permitidas, is_admin=usuario_e_admin(usuario))
+
+    # Mantém o logo da Olos intacto e substitui somente o badge textual SKY
+    # pelo logo oficial da SKY no cabeçalho do painel.
+    sky_logo_html = '''
+        <div class="logo" style="background:transparent;box-shadow:none;padding:0;overflow:hidden;">
+            <img
+                src="https://skycms.s3.amazonaws.com/images/0/Logo-Menu.svg"
+                alt="SKY"
+                style="display:block;width:100%;height:100%;object-fit:contain;"
+            >
+        </div>
+    '''
+    html = html.replace('<div class="logo">SKY</div>', sky_logo_html, 1)
+    return html
 
 
 @app.route('/cliente/sky-negocie-online/painel/api')
