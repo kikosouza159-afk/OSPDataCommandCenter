@@ -1347,8 +1347,8 @@ if not any(c.get("slug") == "kovi" for c in CLIENTES):
         "nome": "KOVI",
         "slug": "kovi",
         "sigla": "KOV",
-        "domain": "kovi.com.br",
-        "logo_url": "https://www.google.com/s2/favicons?sz=128&domain=kovi.com.br"
+        "domain": "",
+        "logo_url": "https://www.kovi.com.br/hubfs/Kovi-2024/Images/Logo%20preto%20-%20horizontal.svg"
     })
 
 @app.route("/", methods=["GET", "POST"])
