@@ -45,7 +45,7 @@ USUARIO_CLIENTES = {
     "talentos": ["talentos"],
     "link": ["link"],
     "sky_talentos": ["sky-negocie-online", "talentos", "link", "gestor-locator", "rede-brasil"],
-    "kovi": ["Kovi"],
+    "kovi": ["kovi"],
 }
 
 
