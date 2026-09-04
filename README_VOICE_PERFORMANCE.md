@@ -2,28 +2,33 @@
 
 Integração do **Voice Performance Cockpit** como um novo cliente do menu executivo do OSP Data Command Center.
 
-## Como executar a versão integrada
+## Como executar
+
+O entry point histórico foi preservado. Não é necessário trocar o comando do projeto.
 
 Local:
 
 ```bash
 pip install -r requirements.txt
-python osp_app.py
+python app.py
 ```
 
 Render / Gunicorn:
 
 ```bash
-gunicorn osp_app:app
+gunicorn app:app
 ```
 
-O `osp_app.py` carrega o Cockpit existente e registra o Voice Performance no mesmo Flask. Isso preserva:
+O `app.py` agora funciona como uma camada fina de integração e carrega o Cockpit original de `core_app.py`. Assim o código do Cockpit existente permanece preservado, enquanto o Voice Performance é registrado no mesmo Flask.
+
+A integração mantém:
 
 - login e sessão existentes;
 - menu executivo de clientes;
 - transição OLOS ao abrir e voltar do cliente;
 - controle de acesso por usuário;
-- demais clientes e rotas atuais.
+- demais clientes e rotas atuais;
+- mesmo comando de inicialização do projeto.
 
 ## Rotas
 
