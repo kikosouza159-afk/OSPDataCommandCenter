@@ -5,4 +5,3 @@ openpyxl
 numpy
 folium
 branca
-psycopg2-binary
