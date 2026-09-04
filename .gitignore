@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+data/voice_performance_cache.db
