@@ -172,18 +172,54 @@ def _instalar_patch_template_sky():
                 html = html.replace(marcador_form, marcador_form + "\n          " + hidden, 1)
 
         # O filtro passa de 4 para 5 campos: Mês, Datas, Faixa, Carteira e Aplicar.
+        # O card ocupa toda a largura disponível para manter o botão dentro do painel.
         css = """
         <style id=\"sky-carteira-filter-style\">
-          .filters.filters-compact { max-width: 960px !important; }
+          .filters.filters-compact {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 14px 16px !important;
+            overflow: visible !important;
+          }
           .filters.filters-compact .filter-grid {
-            grid-template-columns: minmax(230px,1.45fr) minmax(230px,1.45fr) minmax(190px,1fr) minmax(145px,.75fr) minmax(145px,.75fr) !important;
+            display: grid !important;
+            grid-template-columns: minmax(180px,1fr) minmax(220px,1.2fr) minmax(180px,.9fr) minmax(150px,.8fr) minmax(170px,.9fr) !important;
+            gap: 12px !important;
+            align-items: end !important;
+          }
+          .filters.filters-compact .field {
+            min-width: 0 !important;
+            width: 100% !important;
+          }
+          .filters.filters-compact .field.dates {
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+          .filters.filters-compact .field input,
+          .filters.filters-compact .field select,
+          .filters.filters-compact .field button {
+            height: 42px !important;
+            min-height: 42px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+          }
+          .filters.filters-compact .field button {
+            margin-top: 20px !important;
+            border-radius: 14px !important;
           }
           @media (max-width: 1100px) {
-            .filters.filters-compact { max-width: 100% !important; }
-            .filters.filters-compact .filter-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+            .filters.filters-compact .filter-grid {
+              grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+            }
+            .filters.filters-compact .field button {
+              margin-top: 0 !important;
+            }
           }
           @media (max-width: 860px) {
-            .filters.filters-compact .filter-grid { grid-template-columns: 1fr !important; }
+            .filters.filters-compact .filter-grid {
+              grid-template-columns: 1fr !important;
+            }
           }
         </style>
         """
