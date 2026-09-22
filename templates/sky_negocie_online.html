@@ -384,6 +384,9 @@ to { background-position: 0 55px; } }
     .unique-eff small { display: block; color: #738ba2; font-size: 9px; margin-top: 4px; }
     .unique-details { margin-top: 4px; border-top: 1px solid rgba(148,163,184,.10); padding-top: 12px; }
     .unique-details summary { cursor: pointer; color: #bfeaf2; font-size: 12px; font-weight: 800; user-select: none; width: fit-content; }
+    .unique-accumulated-details { margin-top: 12px; }
+    .unique-accumulated-details summary { color: #ffb08f; }
+    .unique-accumulated-table { min-width: 1120px; }
     .unique-table-wrap { margin-top: 10px; max-height: 285px; overflow: auto; border: 1px solid rgba(148,163,184,.12); border-radius: 14px; }
     .unique-table { min-width: 1000px; font-size: 12px; }
     .unique-table th, .unique-table td { padding: 9px 10px; }
@@ -1913,6 +1916,36 @@ to { background-position: 0 55px; } }
                 </tbody>
               </table>
             </div>
+          </details>
+
+          <details class="unique-details unique-accumulated-details">
+            <summary>Ver Unique Acumulado</summary>
+            {% if dashboard.unique_acumulado.disponivel %}
+              <div class="unique-table-wrap">
+                <table class="unique-table unique-accumulated-table">
+                  <thead>
+                    <tr>
+                      <th>Data</th><th>Mailing</th><th>Discado</th><th>Contato</th><th>CPC</th><th>Acordo</th><th>Valor Acordo</th><th>Penetração</th><th>Alô</th><th>Loc</th><th>Conversão</th><th>TKM Acordo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in dashboard.unique_acumulado.linhas %}
+                      <tr>
+                        <td>{{ row.data }}</td><td>{{ row.mailing }}</td><td>{{ row.discado }}</td><td>{{ row.contato }}</td><td>{{ row.cpc }}</td><td>{{ row.acordo }}</td><td>{{ row.valor_acordo }}</td><td>{{ row.penetracao }}</td><td>{{ row.alo }}</td><td>{{ row.loc }}</td><td>{{ row.conversao }}</td><td>{{ row.tkm_acordo }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              {% if dashboard.unique_acumulado.motivo == 'selecione_mes' %}
+                <div class="unique-empty" style="margin-top:10px;">Selecione um <strong>mês</strong> para visualizar o Unique Acumulado.</div>
+              {% elif dashboard.unique_acumulado.motivo == 'sem_dados' %}
+                <div class="unique-empty" style="margin-top:10px;">Não há dados de <strong>Unique Acumulado</strong> para o período selecionado.</div>
+              {% else %}
+                <div class="unique-empty" style="margin-top:10px;">Adicione a aba <strong>Unique Acumulado</strong> na Base_Dashboard_Sky.xlsx para ativar esta visão.</div>
+              {% endif %}
+            {% endif %}
           </details>
         {% else %}
           {% if dashboard.unique.motivo == 'selecione_mes' %}
