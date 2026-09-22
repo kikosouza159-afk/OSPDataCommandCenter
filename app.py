@@ -3350,13 +3350,21 @@ SKY_SHEETS = {
     "daily": "Funil_Sumarizado",
     "hora": "Funil_Hora",
     "uf": "Funil_UF_Dia",
-    # Visão de indicadores únicos. O carregador também aceita aliases como
-    # Funil_Unique e Visao_Unique para facilitar a manutenção do Excel.
+    # Visões Unique. Ambas são opcionais para manter compatibilidade
+    # com bases antigas que ainda não possuem essas sheets.
     "unique": "Unique",
+    "unique_acumulado": "Unique Acumulado",
 }
 
 SKY_SHEET_ALIASES = {
     "unique": ["Unique", "Funil_Unique", "Visao_Unique", "Visão Unique"],
+    "unique_acumulado": [
+        "Unique Acumulado",
+        "Unique_Acumulado",
+        "Funil_Unique_Acumulado",
+        "Visao_Unique_Acumulado",
+        "Visão Unique Acumulado",
+    ],
 }
 
 def _normalizar_nome_sheet(nome):
@@ -3444,12 +3452,14 @@ def preparar_base_unique_sky(df):
             mapa_extra[col] = "Loc"
         elif key in ["conversao", "conversão"]:
             mapa_extra[col] = "Conversao"
+        elif key in ["tkm_acordo", "tkm", "ticket_medio", "ticket_medio_acordo", "ticket_médio", "ticket_médio_acordo"]:
+            mapa_extra[col] = "TKM_ACORDO"
         elif key in ["abertura", "tipo_abertura", "visao", "visão"]:
             mapa_extra[col] = "Abertura"
     if mapa_extra:
         df = df.rename(columns=mapa_extra)
 
-    colunas = ["DATA", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "Valor_Acordo", "Penetracao", "Alo", "Loc", "Conversao", "Abertura"]
+    colunas = ["DATA", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "Valor_Acordo", "Penetracao", "Alo", "Loc", "Conversao", "TKM_ACORDO", "Abertura"]
     for col in colunas:
         if col not in df.columns:
             df[col] = "" if col == "Abertura" else 0
@@ -3494,6 +3504,7 @@ def preparar_base_unique_sky(df):
     for col in ["MAILING", "Discado", "Contato", "Cpc", "Acordo"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype("float64")
     df["Valor_Acordo"] = df["Valor_Acordo"].apply(_valor_monetario_para_float).astype("float64")
+    df["TKM_ACORDO"] = df["TKM_ACORDO"].apply(_valor_monetario_para_float).astype("float64")
     for col in ["Penetracao", "Alo", "Loc", "Conversao"]:
         df[col] = _valor_percentual_para_decimal(df[col]).astype("float64")
 
@@ -3675,6 +3686,85 @@ def montar_visao_unique_sky(df_unique):
         "motivo": "ok",
     }
 
+
+def montar_visao_unique_acumulado_sky(df_unique_acumulado):
+    """
+    Visão acumulada do mês, já calculada na sheet do Excel.
+
+    Importante:
+    - não soma as linhas, pois cada data já representa o acumulado até aquele dia;
+    - o filtro de Mês limita a evolução ao mês escolhido;
+    - se houver datas selecionadas no filtro Daily, exibe somente os snapshots
+      correspondentes às datas selecionadas.
+    """
+    if not isinstance(df_unique_acumulado, pd.DataFrame) or df_unique_acumulado.empty:
+        return {
+            "disponivel": False,
+            "linhas": [],
+            "periodo": "-",
+            "motivo": "sem_base",
+        }
+
+    mes = request.args.get("mes", "").strip()
+    if not mes:
+        return {
+            "disponivel": False,
+            "linhas": [],
+            "periodo": "-",
+            "motivo": "selecione_mes",
+        }
+
+    work = df_unique_acumulado.copy()
+
+    try:
+        periodo = pd.Period(mes, freq="M")
+        work = work[work["DATA"].dt.to_period("M") == periodo].copy()
+    except Exception:
+        periodo = None
+
+    datas_convertidas = _datas_selecionadas_sky()
+    if datas_convertidas:
+        datas_normalizadas = {pd.Timestamp(d).normalize() for d in datas_convertidas}
+        work = work[work["DATA"].dt.normalize().isin(datas_normalizadas)].copy()
+
+    if work.empty:
+        return {
+            "disponivel": False,
+            "linhas": [],
+            "periodo": pd.Period(mes, freq="M").strftime("%m/%Y") if mes else "-",
+            "motivo": "sem_dados",
+        }
+
+    linhas = []
+    for _, r in work.sort_values("DATA", ascending=False).iterrows():
+        penetracao = r["Penetracao"] if r["Penetracao"] > 0 else safe_div(r["Discado"], r["MAILING"])
+        alo = r["Alo"] if r["Alo"] > 0 else safe_div(r["Contato"], r["Discado"])
+        loc = r["Loc"] if r["Loc"] > 0 else safe_div(r["Cpc"], r["Contato"])
+        conversao = r["Conversao"] if r["Conversao"] > 0 else safe_div(r["Acordo"], r["Cpc"])
+        tkm = r["TKM_ACORDO"] if r["TKM_ACORDO"] > 0 else safe_div(r["Valor_Acordo"], r["Acordo"])
+
+        linhas.append({
+            "data": r["DATA"].strftime("%d/%m/%Y"),
+            "mailing": br_number(r["MAILING"]),
+            "discado": br_number(r["Discado"]),
+            "contato": br_number(r["Contato"]),
+            "cpc": br_number(r["Cpc"]),
+            "acordo": br_number(r["Acordo"]),
+            "valor_acordo": br_money(r["Valor_Acordo"]),
+            "penetracao": br_percent(penetracao),
+            "alo": br_percent(alo),
+            "loc": br_percent(loc),
+            "conversao": br_percent(conversao),
+            "tkm_acordo": br_money(tkm),
+        })
+
+    return {
+        "disponivel": True,
+        "linhas": linhas,
+        "periodo": pd.Period(mes, freq="M").strftime("%m/%Y") if mes else "-",
+        "motivo": "ok",
+    }
+
 def preparar_base_sky(df, origem="daily"):
     df = normalizar_colunas(df.copy())
 
@@ -3745,7 +3835,13 @@ def carregar_bases_sky():
                         "HangUp": 1, "Tempo": 800, "Custo_Telecom": 3.2
                     })
         demo = preparar_base_sky(pd.DataFrame(rows))
-        return {"daily": demo, "hora": demo, "uf": demo, "unique": pd.DataFrame()}
+        return {
+            "daily": demo,
+            "hora": demo,
+            "uf": demo,
+            "unique": pd.DataFrame(),
+            "unique_acumulado": pd.DataFrame(),
+        }
 
     mtime = SKY_ARQUIVO_BASE.stat().st_mtime
     if SKY_BASE_CACHE.get("bases") is not None and SKY_BASE_CACHE.get("mtime") == mtime:
@@ -3756,13 +3852,13 @@ def carregar_bases_sky():
     for chave, sheet_preferida in SKY_SHEETS.items():
         sheet_real = _resolver_sheet(xls, sheet_preferida, SKY_SHEET_ALIASES.get(chave, []))
         if sheet_real is None:
-            # A visão Unique é opcional para manter compatibilidade com bases antigas.
-            if chave == "unique":
+            # As visões Unique são opcionais para manter compatibilidade com bases antigas.
+            if chave in {"unique", "unique_acumulado"}:
                 bases[chave] = pd.DataFrame()
                 continue
             raise ValueError(f"Aba obrigatória da SKY não encontrada: {sheet_preferida}")
         raw = pd.read_excel(SKY_ARQUIVO_BASE, sheet_name=sheet_real)
-        bases[chave] = preparar_base_unique_sky(raw) if chave == "unique" else preparar_base_sky(raw, origem=chave)
+        bases[chave] = preparar_base_unique_sky(raw) if chave in {"unique", "unique_acumulado"} else preparar_base_sky(raw, origem=chave)
 
     # Fallbacks para qualquer aba ausente/vazia.
     if bases.get("daily", pd.DataFrame()).empty:
@@ -4621,11 +4717,13 @@ def consolidar(df):
         df_hora_base = bases.get("hora", df).copy()
         df_uf_base = bases.get("uf", df).copy()
         df_unique_base = bases.get("unique", pd.DataFrame()).copy()
+        df_unique_acumulado_base = bases.get("unique_acumulado", pd.DataFrame()).copy()
     else:
         df = df.copy()
         df_hora_base = df.copy()
         df_uf_base = df.copy()
         df_unique_base = pd.DataFrame()
+        df_unique_acumulado_base = pd.DataFrame()
 
     df = adicionar_uf(df)
     df_hora_base = adicionar_uf(df_hora_base)
@@ -4668,7 +4766,7 @@ def consolidar(df):
             "cards": [], "capacity": [], "flow": [], "extras": {},
             "datas": [], "tabela": [], "chart": {},
             "insight": "Sem dados para os filtros selecionados.",
-            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "hora_a_hora": {"labels": [], "chart": {}, "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df), "unique": montar_visao_unique_sky(df_unique_base)
+            "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "hora_a_hora": {"labels": [], "chart": {}, "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df), "unique": montar_visao_unique_sky(df_unique_base), "unique_acumulado": montar_visao_unique_acumulado_sky(df_unique_acumulado_base)
         }
 
     daily_metricas = (
@@ -4883,8 +4981,9 @@ def consolidar(df):
     # Hora a hora também monta vários gráficos/tabelas. Carrega apenas quando a aba estiver ativa.
     hora_a_hora = montar_visao_hora_a_hora(df_hora_filtrado) if active_tab == "hora" else {"labels": [], "chart": {}, "tabela": []}
 
-    # Visão Unique, alimentada pela aba dedicada do Excel e filtrada pelas datas do Daily.
+    # Visões Unique, alimentadas por sheets dedicadas do Excel.
     unique = montar_visao_unique_sky(df_unique_base)
+    unique_acumulado = montar_visao_unique_acumulado_sky(df_unique_acumulado_base)
 
     # Funil por faixa de atraso usado na visão Daily.
     faixa_atraso = montar_faixa_atraso(df)
@@ -4904,6 +5003,7 @@ def consolidar(df):
         "funil_comparativo": funil_comparativo,
         "faixa_atraso": faixa_atraso,
         "unique": unique,
+        "unique_acumulado": unique_acumulado,
         "insight": insight,
         "periodo": f"{df['DATA'].min().strftime('%d/%m/%Y')} até {df['DATA'].max().strftime('%d/%m/%Y')}",
         "mapa_html": mapa_html,
