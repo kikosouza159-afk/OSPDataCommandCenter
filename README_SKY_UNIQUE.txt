@@ -12,7 +12,7 @@ Aliases também aceitos:
   Visão Unique
 
 Estrutura esperada:
-DATA | Mailing | Discado | Contato | Cpc | Acordo | Valor_Acordo | Penetracao | Alo | Loc | Conversao
+DATA | Mailing | Logados | Discado | Contato | Cpc | Acordo | Valor_Acordo | Penetracao | Alo | Loc | Conversao
 
 Exemplo:
 2026-08-01 | 33149 | 33149 | 7923 | 1693 | 130 | R$ 24.646,35 | 100% | 23,9% | 21,37% | 7,68%
@@ -21,6 +21,7 @@ Regras:
 - O filtro de DATA da visão Daily também filtra a visão Unique.
 - Faixa de atraso e CampaignId não são aplicados à Unique, pois não existem na estrutura informada.
 - No consolidado de vários dias, volumes e Valor_Acordo são somados.
+- Logados = valor da linha Unique Mês do mês selecionado (não soma linhas diárias)
 - Penetração = Discado / Mailing
 - Alô = Contato / Discado
 - Localização = CPC / Contato
