@@ -1326,7 +1326,7 @@ CLIENTES = [
 # Cliente Sky integrado ao Cockpit
 if not any(c.get("slug") == "sky-negocie-online" for c in CLIENTES):
     CLIENTES.insert(0, {
-        "nome": "Sky | Negocie Online",
+        "nome": "Sky | Assistpay",
         "slug": "sky-negocie-online",
         "sigla": "SKY",
         "domain": "",
@@ -1434,7 +1434,7 @@ def admin_permissoes():
     visoes_cliente = DASHBOARD_VISOES.get(cliente_sel, [])
     permitidas = set(dados.get(usuario_sel, {}).get(cliente_sel, []))
     clientes_admin = [
-        {'slug': slug, 'nome': 'SKY - Negocie Online' if slug == 'sky-negocie-online' else slug}
+        {'slug': slug, 'nome': 'SKY - Assistpay' if slug == 'sky-negocie-online' else slug}
         for slug in DASHBOARD_VISOES
     ]
 
@@ -3065,7 +3065,7 @@ def talentos_comparativo() -> str:
 
 
 
-# ===== SKY | Negocie Online integrado no Cockpit V1.6 =====
+# ===== SKY | Assistpay integrado no Cockpit V1.6 =====
 import re
 import numpy as np
 import folium
