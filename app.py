@@ -3459,7 +3459,7 @@ def preparar_base_unique_sky(df):
     if mapa_extra:
         df = df.rename(columns=mapa_extra)
 
-    colunas = ["DATA", "MAILING", "Discado", "Contato", "Cpc", "Acordo", "Valor_Acordo", "Penetracao", "Alo", "Loc", "Conversao", "TKM_ACORDO", "Abertura"]
+    colunas = ["DATA", "MAILING", "Logados", "Discado", "Contato", "Cpc", "Acordo", "Valor_Acordo", "Penetracao", "Alo", "Loc", "Conversao", "TKM_ACORDO", "Abertura"]
     for col in colunas:
         if col not in df.columns:
             df[col] = "" if col == "Abertura" else 0
@@ -3501,7 +3501,7 @@ def preparar_base_unique_sky(df):
     df["DATA"] = pd.to_datetime(df["DATA"], errors="coerce")
     df = df.dropna(subset=["DATA"]).copy()
 
-    for col in ["MAILING", "Discado", "Contato", "Cpc", "Acordo"]:
+    for col in ["MAILING", "Logados", "Discado", "Contato", "Cpc", "Acordo"]:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype("float64")
     df["Valor_Acordo"] = df["Valor_Acordo"].apply(_valor_monetario_para_float).astype("float64")
     df["TKM_ACORDO"] = df["TKM_ACORDO"].apply(_valor_monetario_para_float).astype("float64")
@@ -3624,8 +3624,33 @@ def montar_visao_unique_sky(df_unique):
             "periodo": "-", "modo": modo, "motivo": "sem_dados"
         }
 
+    # O card de Logados deve vir sempre da base "Unique Mês",
+    # mesmo quando o usuário seleciona uma data e a visão principal muda para Unique Dia.
+    mes = request.args.get("mes", "").strip()
+    logados_unique_mes = 0.0
+    base_logados = df_unique.copy()
+    if "Abertura" in base_logados.columns and base_logados["Abertura"].fillna("").astype(str).str.strip().ne("").any():
+        base_logados = base_logados[
+            _normalizar_abertura_unique(base_logados["Abertura"]) == "unique mes"
+        ].copy()
+    try:
+        periodo_logados = pd.Period(mes, freq="M")
+        base_logados = base_logados[
+            base_logados["DATA"].dt.to_period("M") == periodo_logados
+        ].copy()
+    except Exception:
+        pass
+
+    if not base_logados.empty and "Logados" in base_logados.columns:
+        # Unique Mês normalmente possui uma linha por mês. MAX evita duplicar
+        # o indicador caso existam linhas repetidas na sheet.
+        logados_unique_mes = float(
+            pd.to_numeric(base_logados["Logados"], errors="coerce").fillna(0).max()
+        )
+
     totais = {
         "MAILING": float(dfu["MAILING"].sum()),
+        "Logados": logados_unique_mes,
         "Discado": float(dfu["Discado"].sum()),
         "Contato": float(dfu["Contato"].sum()),
         "Cpc": float(dfu["Cpc"].sum()),
@@ -3639,6 +3664,7 @@ def montar_visao_unique_sky(df_unique):
 
     cards = [
         {"label": "Mailing Unique", "value": br_number(totais["MAILING"]), "icon": "database"},
+        {"label": "Logados Unique", "value": br_number(totais["Logados"]), "icon": "user-check"},
         {"label": "Discado Unique", "value": br_number(totais["Discado"]), "icon": "phone-outgoing"},
         {"label": "Contato Unique", "value": br_number(totais["Contato"]), "icon": "users"},
         {"label": "CPC Unique", "value": br_number(totais["Cpc"]), "icon": "badge-check"},
