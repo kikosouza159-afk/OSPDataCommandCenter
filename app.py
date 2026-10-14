@@ -1505,7 +1505,7 @@ def cliente(slug):
 
 
 # ===== J.A REZENDE | PERFORMANCE DAILY / HORA A HORA / TABULAÇÃO =====
-JA_REZENDE_XLSX = BASE_DIR / "data" / "base_ja_rezende.xlsx"
+JA_REZENDE_XLSX = Path(__file__).resolve().parent / "data" / "base_ja_rezende.xlsx"
 
 def _ja_rezende_guard():
     if "usuario" not in session:
