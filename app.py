@@ -33,7 +33,7 @@ USUARIOS = {
 # Use o slug do cliente, o mesmo valor usado na URL /cliente/<slug>.
 USUARIO_CLIENTES = {
     "admin": ["*"],
-    "gerber": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
+    "gerber": ["j-a-rezende", "sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
     "elvis.santos@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
     "nubia.gomes@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
     "eduardo.molina@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
@@ -1477,6 +1477,9 @@ def cliente(slug):
     if not usuario_pode_acessar_cliente(session.get("usuario"), slug):
         return acesso_negado()
 
+    if slug == "j-a-rezende":
+        return redirect(url_for("ja_rezende_index"))
+
     if slug == "sky-negocie-online":
         return redirect(url_for("sky_negocie_online_index"))
 
@@ -1499,6 +1502,101 @@ def cliente(slug):
         return redirect(url_for("locator_cliente_index", slug=slug))
 
     return render_template("cliente.html", usuario=session["usuario"], cliente=cliente_selecionado)
+
+
+# ===== J.A REZENDE | PERFORMANCE DAILY / HORA A HORA / TABULAÇÃO =====
+JA_REZENDE_XLSX = BASE_DIR / "data" / "base_ja_rezende.xlsx"
+
+def _ja_rezende_guard():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+    if not usuario_pode_acessar_cliente(session.get("usuario"), "j-a-rezende"):
+        return acesso_negado()
+    return None
+
+def _ja_rezende_load():
+    if not JA_REZENDE_XLSX.exists():
+        return {"Funil": [], "Tab": []}, "Nenhuma base carregada. Importe o arquivo Base_JA_Rezende.xlsx para iniciar."
+    import pandas as pd
+    xls = pd.ExcelFile(JA_REZENDE_XLSX)
+    if not {"Funil", "Tab"}.issubset(set(xls.sheet_names)):
+        return {"Funil": [], "Tab": []}, "Arquivo sem as abas obrigatórias Funil e Tab."
+    funil = pd.read_excel(xls, sheet_name="Funil")
+    tab = pd.read_excel(xls, sheet_name="Tab")
+    required_funil = {"DATA", "HORA", "IdCampanha", "Tentativas", "Atendidas", "Telefonia", "Cpc", "Acordo", "TELECOM"}
+    required_tab = {"Data", "CampaignId", "Classificado", "Description", "Quantidade"}
+    if not required_funil.issubset(funil.columns) or not required_tab.issubset(tab.columns):
+        return {"Funil": [], "Tab": []}, "Colunas obrigatórias não encontradas na base."
+    for df, col in ((funil, "DATA"), (tab, "Data")):
+        df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%Y-%m-%d")
+    for df in (funil, tab):
+        df.replace([float("inf"), float("-inf")], None, inplace=True)
+        df[:] = df.astype(object).where(pd.notna(df), None)
+    from datetime import date, datetime, time
+    def serial(v):
+        if isinstance(v, (datetime, date, time)):
+            return v.isoformat()
+        if hasattr(v, "item"):
+            return v.item()
+        return str(v)
+    import json
+    return json.loads(json.dumps({"Funil": funil.to_dict("records"), "Tab": tab.to_dict("records")}, default=serial, allow_nan=False)), None
+
+@app.route("/cliente/j-a-rezende/painel")
+def ja_rezende_index():
+    guard = _ja_rezende_guard()
+    if guard is not None:
+        return guard
+    try:
+        dados, erro = _ja_rezende_load()
+    except Exception as exc:
+        app.logger.exception("Erro lendo base J.A REZENDE")
+        dados, erro = {"Funil": [], "Tab": []}, "Não foi possível processar a planilha. Confira as abas e o formato do arquivo."
+    return render_template("ja_rezende_cockpit.html", dados=dados, erro=erro, can_upload=usuario_e_admin(session.get("usuario")))
+
+@app.route("/cliente/j-a-rezende/painel/importar", methods=["POST"])
+def ja_rezende_importar():
+    guard = _ja_rezende_guard()
+    if guard is not None:
+        return guard
+    if not usuario_e_admin(session.get("usuario")):
+        return acesso_negado()
+    arquivo = request.files.get("arquivo")
+    if not arquivo or not arquivo.filename.lower().endswith(".xlsx"):
+        return "Informe um arquivo Excel .xlsx válido.", 400
+    arquivo.stream.seek(0, 2)
+    tamanho = arquivo.stream.tell()
+    arquivo.stream.seek(0)
+    if tamanho > 20 * 1024 * 1024:
+        return "Arquivo maior que 20 MB.", 413
+    import io
+    import pandas as pd
+    bruto = arquivo.read()
+    try:
+        workbook = pd.ExcelFile(io.BytesIO(bruto))
+        if not {"Funil", "Tab"}.issubset(workbook.sheet_names):
+            return "A planilha deve conter as abas Funil e Tab.", 400
+        for aba, cols in {
+            "Funil": {"DATA", "HORA", "IdCampanha", "Tentativas", "Atendidas", "Cpc", "Acordo"},
+            "Tab": {"Data", "CampaignId", "Description", "Classificado", "Quantidade"}
+        }.items():
+            df = pd.read_excel(workbook, sheet_name=aba, nrows=1)
+            if not cols.issubset(df.columns):
+                return "Colunas obrigatórias ausentes na aba " + aba, 400
+    except Exception:
+        return "Não foi possível abrir o arquivo Excel.", 400
+    JA_REZENDE_XLSX.parent.mkdir(parents=True, exist_ok=True)
+    import os
+    import tempfile
+    fd, nome_temp = tempfile.mkstemp(dir=str(JA_REZENDE_XLSX.parent), suffix=".xlsx")
+    try:
+        with os.fdopen(fd, "wb") as output:
+            output.write(bruto)
+        os.replace(nome_temp, JA_REZENDE_XLSX)
+    finally:
+        if os.path.exists(nome_temp):
+            os.remove(nome_temp)
+    return redirect(url_for("ja_rezende_index"))
 
 @app.route("/logout")
 def logout():
