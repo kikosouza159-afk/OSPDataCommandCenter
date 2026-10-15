@@ -18,40 +18,202 @@ body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(#
 .classes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.class-card{background:#102341;border:1px solid #345076;border-radius:15px;padding:17px}.class-card b{display:block;font:900 28px Avenir;margin:9px 0}.class-card span,.class-card small{color:#a5b9d2}.donut{width:165px;height:165px;border-radius:50%;position:relative;margin:12px auto 20px}.donut:after{content:"";position:absolute;inset:35px;background:#0f1e3b;border-radius:50%}.donut-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}.donut-inner b{font:900 23px Avenir}.donut-inner small{color:#9caecc}.legend{display:flex;flex-wrap:wrap;gap:13px;justify-content:center;color:#b9cfe4;font-size:11px}.legend i{display:inline-block;height:9px;width:9px;border-radius:3px;margin-right:5px}
 .pills{display:flex;flex-wrap:wrap;gap:7px}.classbutton{background:#132948;color:#b4c9e4;border:1px solid #3c587a;padding:8px 11px;border-radius:8px;font:700 11px Asap;cursor:pointer}.classbutton.active{background:#573128;border-color:#FB5C28;color:#ffe3d3}
 .footer{color:#8298b8;font-size:11px;margin-top:22px}
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.grid2,.grid2.equal{grid-template-columns:1fr}.classes{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.shell{padding:12px}.head{flex-direction:column;align-items:flex-start}.tabs{display:grid;grid-template-columns:1fr 1fr}.tab{padding:11px 7px}.filters label,.filters select{width:100%}.kpis{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(2,1fr)}.step:nth-child(2):after{display:none}.classes{grid-template-columns:repeat(2,1fr)}.heading{flex-wrap:wrap}}</style></head><body><main class="shell"><header class="head"><div class="identity"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><div><div class="eyebrow">OSP · OLOS STRATEGY & PLANNING</div><h1>J.A REZENDE <span style="color:#fb926d">| Performance</span></h1><div class="muted">Cockpit de resultados · Visual Sky + Tabulações Talentos</div></div></div><div class="right"><span class="pill">BASE OPERACIONAL ATIVA</span><a class="back" href="/dashboard">← Voltar ao Cockpit</a></div></header><nav class="tabs"><button class="tab active" data-view="daily">◈ Performance Daily</button><button class="tab" data-view="hourly">◷ Hora a Hora</button><button class="tab" data-view="tabdaily">▦ Tabulação Dia a Dia</button><button class="tab" data-view="tabhourly">▤ Tabulação Hora a Hora</button></nav><section class="panel"><div class="filters"><label>PERÍODO<select id="date"></select></label><label>CAMPANHA<select id="camp"></select></label><label id="hourfilter">HORA<select id="hour"></select></label><span class="tag" id="status"></span></div>{% if can_upload %}<form class="upload" action="/cliente/j-a-rezende/painel/importar" enctype="multipart/form-data" method="post"><label>ATUALIZAR EXCEL<input type="file" name="arquivo" accept=".xlsx" required></label><button type="submit">Importar planilha</button><span class="muted">Para persistir atualizações, versione a base na pasta data.</span></form>{% endif %}</section>{% if erro %}<div class="notice">{{ erro }}</div>{% endif %}<div id="view"></div><footer class="footer">OSP · Fontes: Funil e Tab. A carga inicial é lida da pasta data. Taxas calculadas por volumes; mailing e logados não são somados entre horas. Tabulações horárias indisponíveis sem timestamp na base.</footer></main><script>const DB={{ dados | tojson }},F=DB.Funil||[],T=DB.Tab||[],$=x=>document.getElementById(x);
-let view='daily',cls='Todos';const colors=['#FB5C28','#345F99','#68d9c6','#988fe7','#e5a45f'];
-const n=(r,k)=>Number(r[k])||0,sum=(a,k)=>a.reduce((x,r)=>x+n(r,k),0),f=(v,d=0)=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}),money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),pc=(a,b)=>b?f(100*a/b,2)+'%':'0,00%',unique=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined))];
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function options(id,a,label){const e=$(id),old=e.value;e.innerHTML='<option value="all">Todos</option>'+a.map(x=>'<option value="'+esc(x)+'">'+esc(label?label(x):x)+'</option>').join('');if(a.map(String).includes(old))e.value=old}
-const names={};T.forEach(r=>{if(r.NomeCampanha)names[String(r.CampaignId)]=r.NomeCampanha});
-const dates=unique([...F.map(r=>r.DATA),...T.map(r=>r.Data)]).sort(),camps=unique([...F.map(r=>String(r.IdCampanha)),...T.map(r=>String(r.CampaignId))]).sort((a,b)=>Number(a)-Number(b)),hours=unique(F.map(r=>r.HORA)).sort((a,b)=>Number(a)-Number(b));
-function rows(){let date=$('date').value,camp=$('camp').value,hour=$('hour').value;return F.filter(r=>(date==='all'||r.DATA===date)&&(camp==='all'||String(r.IdCampanha)===camp)&&(view!=='hourly'||hour==='all'||String(r.HORA)===hour))}
-function tabs(){let date=$('date').value,camp=$('camp').value;return T.filter(r=>(date==='all'||r.Data===date)&&(camp==='all'||String(r.CampaignId)===camp))}
-function group(rows,k,metric){let g={};rows.forEach(r=>{let key=String(r[k]??'');g[key]=(g[key]||0)+n(r,metric)});return Object.entries(g).sort((a,b)=>k==='HORA'?Number(a[0])-Number(b[0]):a[0].localeCompare(b[0]))}
-const section=(s,sub='')=>'<div class="heading"><h2>'+s+'</h2><small>'+sub+'</small></div>',box=(title,inner,sub='')=>'<section class="panel"><div class="ptitle"><h3>'+title+'</h3><small>'+sub+'</small></div>'+inner+'</section>';
-function kpi(label,value,foot){return '<div class="kpi"><label>'+label+'</label><strong>'+value+'</strong><small>'+foot+'</small></div>'}
-function kpis(r){let at=sum(r,'Tentativas'),ans=sum(r,'Atendidas'),c=sum(r,'Cpc'),a=sum(r,'Acordo');return '<div class="kpis">'+kpi('TENTATIVAS',f(at),'Volume discado')+kpi('ATENDIDAS',f(ans),'Hit '+pc(ans,at))+kpi('CPC',f(c),'CPC / atendidas '+pc(c,ans))+kpi('ACORDOS',f(a),'Conversão '+pc(a,c))+kpi('HANGUP',f(sum(r,'Hangup')),'Desligamentos registrados')+kpi('CUSTO TELECOM',money(sum(r,'TELECOM')),'Custo do recorte')+'</div>'}
-function funnel(r){let a=sum(r,'Tentativas'),ans=sum(r,'Atendidas'),c=sum(r,'Cpc'),ac=sum(r,'Acordo');let steps=[['Tentativas',a,'Base de chamadas'],['Atendidas',ans,'Hit '+pc(ans,a)],['CPC',c,'CPC / atendidas '+pc(c,ans)],['Acordos',ac,'Conversão '+pc(ac,c)]];return '<div class="flow">'+steps.map(s=>'<div class="step"><span>'+s[0]+'</span><strong>'+f(s[1])+'</strong><small>'+s[2]+'</small><div class="progress"><i style="width:'+Math.max(1,a?100*s[1]/a:0)+'%"></i></div></div>').join('')+'</div>'}
-function barlist(items,limit=10,orange=false){items=items.slice(0,limit);let max=Math.max(1,...items.map(x=>x[1]));return items.length?'<div class="barlist">'+items.map(x=>'<div><div class="barlabel"><span title="'+esc(x[0])+'">'+esc(x[0])+'</span><b>'+f(x[1])+'</b></div><div class="barbg"><div class="'+(orange?'orange':'')+'" style="width:'+Math.max(1,100*x[1]/max)+'%"></div></div></div>').join('')+'</div>':'<div class="info">Sem dados neste filtro.</div>'}
-function graph(a){if(!a.length)return '<div class="info">Sem dados para esse período.</div>';let w=650,H=254,left=60,right=16,top=22,bottom=42,cw=w-left-right,ch=H-top-bottom,max=Math.max(1,...a.map(v=>v[1]));let xy=a.map((v,i)=>[left+(a.length===1?cw/2:i*cw/(a.length-1)),top+ch*(1-v[1]/max)]);let grid=[0,.25,.5,.75,1].map(x=>{let y=top+ch*(1-x);return '<line class="gr" x1="'+left+'" x2="'+(w-right)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(left-9)+'" y="'+(y+4)+'" text-anchor="end">'+f(max*x)+'</text>'}).join('');let path=xy.map((p,i)=>(i?'L':'M')+p.map(v=>v.toFixed(1)).join(',')).join(' ');let lbl=a.map((v,i)=>i%Math.max(1,Math.ceil(a.length/8))?'':'<text x="'+xy[i][0]+'" y="'+(H-12)+'" text-anchor="middle">'+esc(String(v[0]).slice(0,13))+'</text>').join('');let points=xy.map((p,i)=>'<circle class="pt" cx="'+p[0]+'" cy="'+p[1]+'" r="4"><title>'+esc(a[i][0])+': '+f(a[i][1])+'</title></circle>').join('');let bar=a.length===1?'<rect fill="#FB5C28" x="'+(xy[0][0]-20)+'" y="'+xy[0][1]+'" width="40" height="'+(top+ch-xy[0][1])+'" rx="5"/>':'';return '<div class="chart"><svg viewBox="0 0 '+w+' '+H+'" preserveAspectRatio="none">'+grid+(a.length>1?'<path class="ln" d="'+path+'"/>':'')+bar+points+lbl+'</svg></div>'}
-function table(r,cols){return r.length?'<div class="data"><table><thead><tr>'+cols.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr></thead><tbody>'+r.map(o=>'<tr>'+cols.map(x=>'<td>'+x[1](o)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'<div class="info">Sem registros para os filtros selecionados.</div>'}
-function campStats(r){let g={};r.forEach(x=>(g[x.IdCampanha]??=[]).push(x));return Object.entries(g).map(([id,a])=>({id,at:sum(a,'Tentativas'),ans:sum(a,'Atendidas'),cpc:sum(a,'Cpc'),deals:sum(a,'Acordo'),tel:sum(a,'TELECOM')}))}
-function performance(r){let cs=campStats(r),isHourly=view==='hourly',at=sum(r,'Tentativas'),c=sum(r,'Cpc');let dateCount=unique(r.map(x=>x.DATA)).length;
-let content=section(isHourly?'Monitoramento hora a hora':'Resumo executivo Daily','Funil + eficiência + resultados')+kpis(r)+section('Funil de resultados')+funnel(r);
-let volume=group(r,isHourly?'HORA':dateCount>1?'DATA':'HORA','Tentativas'),cpc=group(r,'HORA','Cpc'),agr=group(r,'HORA','Acordo');
-content+=section('Evolução operacional','Gráficos por períodos efetivamente disponíveis')+'<div class="grid2">'+box(isHourly?'Tentativas por hora':dateCount>1?'Tentativas por dia':'Tentativas por hora',graph(volume),dateCount>1?'Histórico diário':'Base contém uma data')+box('CPC por hora',graph(cpc),'Localização de clientes')+'</div>';
-content+=section('Resultados e performance')+'<div class="grid2 equal">'+box('Acordos por hora',graph(agr),'Negócios realizados')+box('Ranking de CPC por campanha',barlist(cs.sort((x,y)=>y.cpc-x.cpc).map(x=>['Campanha '+x.id,x.cpc]),10,true),'Campanhas em destaque')+'</div>';
-content+=section('Detalhamento por campanha')+box('Indicadores consolidados por campanha',table(cs.sort((x,y)=>Number(x.id)-Number(y.id)),[['Campanha',x=>'<span class="badge">'+esc(x.id)+'</span>'],['Tentativas',x=>f(x.at)],['Atendidas',x=>f(x.ans)],['CPC',x=>f(x.cpc)],['Acordo',x=>f(x.deals)],['Hit',x=>pc(x.ans,x.at)],['Conversão',x=>pc(x.deals,x.cpc)],['Telecom',x=>money(x.tel)]]),'Mailing e logados não somados');
-if(isHourly)content+=section('Visão detalhada de hora em hora')+box('Produtividade por horário e campanha',table([...r].sort((a,b)=>a.HORA-b.HORA),[['Hora',x=>String(x.HORA).padStart(2,'0')+':00'],['Campanha',x=>esc(x.IdCampanha)],['Mailing',x=>f(x.Mailing)],['Logados',x=>f(x.Logados)],['Tentativas',x=>f(x.Tentativas)],['Atendidas',x=>f(x.Atendidas)],['CPC',x=>f(x.Cpc)],['Acordos',x=>f(x.Acordo)],['Idle médio',x=>esc(x['Idle Medio']||'—')],['TMA geral',x=>esc(x.TMA_GERAL||'—')],['Telecom',x=>money(x.TELECOM)]]));
-return content}
-function tabulations(rows){let unavailable=view==='tabhourly',classes=unique(rows.map(r=>r.Classificado)),all=sum(rows,'Quantidade'),filtered=cls==='Todos'?rows:rows.filter(r=>r.Classificado===cls),total=sum(filtered,'Quantidade');let byCls=classes.map(c=>[c,sum(rows.filter(r=>r.Classificado===c),'Quantidade')]).sort((a,b)=>b[1]-a[1]),mot=group(filtered,'Description','Quantidade').sort((a,b)=>b[1]-a[1]);let html=unavailable?'<div class="notice"><b>Não há horário na aba Tab:</b> a base informa Data e Campanha, mas não hora da tabulação. Abaixo exibimos somente os valores diários reais.</div>':'';
-html+=section('Dashboard de tabulações','Modelo Talentos · Classificações e ofensores');
-if(!rows.length)return html+'<div class="info">Não há tabulações nesta campanha ou data. A carga inicial contém tabulações somente da campanha <b>1280 (SICOOB_01)</b>. Isso não significa zero desempenho nas demais.</div>';
-html+='<div class="classes">'+byCls.map(([k,v],i)=>'<div class="class-card"><span>'+esc(k.toUpperCase())+'</span><b>'+f(v)+'</b><small>'+pc(v,all)+' das tabulações</small><div class="progress"><i style="width:'+Math.max(1,100*v/all)+'%;background:'+colors[i%colors.length]+'"></i></div></div>').join('')+'</div>';
-let at=0,gradient=byCls.map(([k,v],i)=>{let x=at;at+=all?100*v/all:0;return colors[i%colors.length]+' '+x+'% '+at+'%'}).join(',');
-let donut='<div class="donut" style="background:conic-gradient('+gradient+')"><div class="donut-inner"><b>'+f(all)+'</b><small>tabulações</small></div></div><div class="legend">'+byCls.map(([k,v],i)=>'<span><i style="background:'+colors[i%colors.length]+'"></i>'+esc(k)+'</span>').join('')+'</div>';
-html+=section('Distribuição e classificação')+'<div class="grid2">'+box('Composição por classe',donut)+box('Motivos mais frequentes',barlist(mot,9,true),'Principais tabulações')+'</div>';
-html+=section('Análise detalhada por classificação')+box('Selecione a classificação','<div class="pills">'+['Todos',...classes].map(c=>'<button class="classbutton '+(c===cls?'active':'')+'" data-class="'+esc(c)+'">'+esc(c)+'</button>').join('')+'</div>')+'<div class="grid2 equal" style="margin-top:14px">'+box('Top 10 motivos',barlist(mot,10,true))+box('Evolução dia a dia',graph(group(filtered,'Data','Quantidade')))+'</div>';
-html+=section('Registros detalhados')+box('Tabulações por campanha e motivo',table([...filtered].sort((a,b)=>n(b,'Quantidade')-n(a,'Quantidade')),[['Data',x=>esc(x.Data)],['Campanha',x=>esc(x.NomeCampanha||x.CampaignId)],['Classe',x=>'<span class="badge">'+esc(x.Classificado)+'</span>'],['Tabulação',x=>esc(x.Description)],['Quantidade',x=>f(x.Quantidade)],['TMA',x=>esc(x.TMA||'—')]]),f(total)+' ocorrências');return html}
-function render(){$('hourfilter').style.display=view==='hourly'?'grid':'none';document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view));$('status').textContent=F.length+' registros de funil · '+T.length+' tabulações';$('view').innerHTML=view==='daily'||view==='hourly'?performance(rows()):tabulations(tabs());document.querySelectorAll('[data-class]').forEach(x=>x.onclick=()=>{cls=x.dataset.class;render()})}
-function init(){options('date',dates,x=>x.split('-').reverse().join('/'));options('camp',camps,x=>x+(names[x]?' · '+names[x]:''));options('hour',hours,x=>String(x).padStart(2,'0')+'h');document.querySelectorAll('[data-view]').forEach(x=>x.onclick=()=>{view=x.dataset.view;cls='Todos';render()});['date','camp','hour'].forEach(id=>$(id).onchange=()=>{cls='Todos';render()});render()}init();</script></body></html>
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.grid2,.grid2.equal{grid-template-columns:1fr}.classes{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.shell{padding:12px}.head{flex-direction:column;align-items:flex-start}.tabs{display:grid;grid-template-columns:1fr 1fr}.tab{padding:11px 7px}.filters label,.filters select{width:100%}.kpis{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(2,1fr)}.step:nth-child(2):after{display:none}.classes{grid-template-columns:repeat(2,1fr)}.heading{flex-wrap:wrap}}
+
+/* IDENTIDADE SKY + FUNDO COMPARTILHADO COM O COCKPIT */
+body{background:#020814;color:#e5edf9;font-family:Inter,'Segoe UI',Arial,sans-serif;overflow-x:hidden}
+body:before{display:none!important}
+.shell{z-index:2}
+.bg-content{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.background{position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(0,229,255,.16),transparent 30%),radial-gradient(circle at 80% 70%,rgba(0,106,255,.18),transparent 34%),linear-gradient(135deg,#020814 0%,#07172a 50%,#020814 100%)}
+.bg-grid{position:absolute;inset:-80px;background-image:linear-gradient(rgba(0,229,255,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.10) 1px,transparent 1px);background-size:55px 55px;transform:perspective(500px) rotateX(62deg);transform-origin:center bottom;animation:gridMove 5s linear infinite;opacity:.42}
+@keyframes gridMove{from{background-position:0 0}to{background-position:0 55px}}
+.orb{position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(0,229,255,.10);filter:blur(35px);animation:floatOrb 7s ease-in-out infinite alternate}.orb.one{top:12%;left:12%}.orb.two{right:10%;bottom:12%;background:rgba(0,102,255,.13);animation-delay:1.5s}
+@keyframes floatOrb{from{transform:translate(0,0) scale(1)}to{transform:translate(45px,-30px) scale(1.25)}}
+.scanline{position:absolute;left:0;right:0;height:130px;background:linear-gradient(transparent,rgba(0,229,255,.08),transparent);animation:scan 6s ease-in-out infinite}@keyframes scan{from{top:-150px}to{top:110vh}}
+.electric{position:absolute;inset:0;opacity:.35;filter:drop-shadow(0 0 10px rgba(0,229,255,.8))}.electric svg{width:100%;height:100%}.electric path{fill:none;stroke:rgba(0,229,255,.45);stroke-width:1.4;stroke-dasharray:12 900;animation:electricRun 3.2s linear infinite}.electric path:nth-child(2){animation-delay:1.4s;stroke:rgba(0,120,255,.5)}.electric path:nth-child(3){animation-delay:2.2s;stroke:rgba(120,240,255,.42)}
+@keyframes electricRun{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
+.data-rain{position:absolute;inset:0;overflow:hidden}.code{position:absolute;top:-120px;font-size:13px;color:rgba(0,229,255,.55);text-shadow:0 0 12px rgba(0,229,255,.8);writing-mode:vertical-rl;letter-spacing:4px;animation:rain linear infinite;user-select:none}
+.code:nth-child(1){left:6%;animation-duration:8s;animation-delay:0s}.code:nth-child(2){left:16%;animation-duration:11s;animation-delay:1s}.code:nth-child(3){left:29%;animation-duration:9s;animation-delay:2s}.code:nth-child(4){left:43%;animation-duration:13s;animation-delay:.5s}.code:nth-child(5){left:58%;animation-duration:10s;animation-delay:2.8s}.code:nth-child(6){left:72%;animation-duration:12s;animation-delay:1.7s}.code:nth-child(7){left:88%;animation-duration:8.5s;animation-delay:.8s}@keyframes rain{from{transform:translateY(-140px);opacity:0}10%{opacity:.9}80%{opacity:.75}to{transform:translateY(120vh);opacity:0}}
+.panel{background:rgba(6,18,34,.80);border:1px solid rgba(0,229,255,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 14px 32px rgba(0,0,0,.28)}
+.head{background:rgba(6,18,34,.78);border-color:rgba(0,229,255,.22);backdrop-filter:blur(16px)}
+.heading h2,.ptitle h3,.head h1,.kpi strong{font-family:Avenir,'Avenir Next',Asap,'Segoe UI',sans-serif}
+.kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
+.metric-switch{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.rank-switch{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.metric-card{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;padding:15px 14px;background:linear-gradient(155deg,#12223e,#0b162b);color:#c7d8ea;border:1px solid rgba(148,172,210,.23);border-radius:15px;cursor:pointer;text-align:left;position:relative;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.metric-card:after{content:"";position:absolute;inset:auto 10px 0;height:2px;background:linear-gradient(90deg,transparent,#345F99,transparent);opacity:.5}
+.metric-card:hover,.metric-card:focus-visible{transform:translateY(-2px);border-color:#6897cb;box-shadow:0 8px 24px #0005;outline:none}
+.metric-card.active{background:linear-gradient(150deg,#3c2d32,#182742);border-color:#FB5C28;box-shadow:0 0 25px #fb5c281c,inset 0 0 0 1px #fb5c2829}
+.metric-card.active:after{background:#fb5c28;opacity:1}
+.metric-card .metric-label{font-weight:800;font-size:11px;letter-spacing:.3px;color:#adc1dd}
+.metric-card .metric-value{font-size:clamp(16px,1.65vw,25px);line-height:1.1;font-family:Avenir,Asap,Arial;font-weight:900;color:white;white-space:nowrap}
+.metric-card .metric-ratio{font-size:10px;color:#80d8d1;white-space:nowrap}
+.metric-subline{color:#91b6cd;font-size:11px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 14px}
+.metric-subline strong{font-size:13px;color:#fcac8d}
+.graph-stage{height:auto;min-height:280px;position:relative;overflow:hidden}
+.graph-stage svg{display:block;width:100%;height:auto;max-height:400px;overflow:visible}
+.graph-stage svg .ggrid{stroke:rgba(122,156,195,.19);stroke-width:1;stroke-dasharray:4 6}
+.graph-stage svg .glabel{fill:#b0c6e3;font-size:11px;font-family:Asap,Arial}
+.graph-stage svg .bar{transition:opacity .16s,filter .16s;cursor:crosshair;outline:none}
+.graph-stage svg .bar:hover,.graph-stage svg .bar:focus{opacity:1;filter:brightness(1.38) drop-shadow(0 0 8px #FB5C286f)}
+.graph-stage svg .dot{fill:#ff9d79;stroke:#ffdbcc;stroke-width:1.5;pointer-events:none}
+.graph-stage svg .route{fill:none;stroke:#ff9d79;stroke-width:2.4;filter:drop-shadow(0 0 3px #FB5C2875);pointer-events:none}
+.graph-stage svg .datalabel{fill:#ffe8de;font-size:10px;font-weight:800;pointer-events:none}
+.graph-footer{display:flex;gap:15px;flex-wrap:wrap;justify-content:space-between;margin-top:8px;color:#9db5d3;font-size:11px}
+.graph-footer strong{color:#eaf3ff}
+.rank-list{display:grid;gap:14px}
+.rank-item{display:grid;grid-template-columns:130px minmax(0,1fr) 110px;align-items:center;gap:12px;padding:10px 9px;background:#1026408c;border:1px solid #294764;border-radius:12px;transition:border .15s,transform .15s}
+.rank-item:hover,.rank-item:focus-within{border-color:#FB5C28;transform:translateX(2px)}
+.rank-name{font-weight:800;font-size:12px}.rank-name small{display:block;font-weight:400;color:#9ab2cf;margin-top:4px}
+.rank-line{height:13px;background:#1a324e;border-radius:8px;overflow:hidden;position:relative}
+.rank-line>span{height:100%;display:block;border-radius:8px;background:linear-gradient(90deg,#345F99,#FB5C28);box-shadow:0 0 12px #FB5C2833;min-width:2px}
+.rank-number{text-align:right;font-family:Avenir,Asap,Arial;font-size:17px;font-weight:900}
+.rank-ratios{grid-column:2/4;display:flex;gap:7px;flex-wrap:wrap}
+.rate-pill{border:1px solid #345578;border-radius:6px;background:#1c3352;padding:4px 6px;font-size:10px;color:#b9d3ed}
+.rate-pill b{color:#dff4ff}
+.rank-empty{padding:16px;border:1px dashed #385979;border-radius:12px;color:#a8bfda}
+.class-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:15px 0}
+.class-tile{padding:16px;background:linear-gradient(135deg,#142b4b,#0b1a30);border:1px solid #315078;border-radius:14px;cursor:pointer;text-align:left;color:white;transition:border .15s,transform .15s}
+.class-tile:hover,.class-tile:focus-visible{border-color:#FB5C28;transform:translateY(-2px);outline:none}
+.class-tile.active{border-color:#FB5C28;background:linear-gradient(135deg,#3a2b35,#11223e)}
+.class-tile b{font:900 24px Avenir,Asap,Arial;display:block;margin:7px 0}
+.class-tile .name{font-size:11px;font-weight:900;color:#c4d4e6}
+.class-tile .share{font-size:11px;color:#92dccc}
+.class-matrix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.class-group{background:rgba(9,27,52,.84);border:1px solid #315174;border-radius:14px;padding:16px;min-width:0;transition:border .15s}
+.class-group:hover{border-color:#4c829e}
+.class-title{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;font-weight:800;margin-bottom:6px}
+.class-title small{color:#a2c0df;font-size:11px}
+.class-topline{color:#8eabc8;font-size:11px;margin-bottom:12px}
+.class-tabbars{display:flex;gap:2px;height:10px;overflow:hidden;border-radius:9px;background:#223954;margin:12px 0 15px}
+.class-tabbars span{min-width:1px;cursor:help;transition:filter .15s}
+.class-tabbars span:hover{filter:brightness(1.4)}
+.tab-mini{display:grid;gap:5px;padding:7px 0;border-bottom:1px solid #2a415d}
+.tab-mini .first{display:flex;justify-content:space-between;gap:9px;font-size:11px;color:#e0e9f8;align-items:baseline}
+.tab-mini .first span{max-width:76%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab-mini .first b{color:#ffb092;white-space:nowrap}
+.tab-mini .microbar{height:5px;background:#263d59;border-radius:9px;overflow:hidden}
+.tab-mini .microbar>i{display:block;height:100%;background:linear-gradient(90deg,#345F99,#FB5C28);border-radius:9px}
+.class-group details{margin-top:9px}.class-group summary{cursor:pointer;color:#ffae90;font-size:11px;font-weight:700;padding:5px 0}
+.class-group summary:hover{text-decoration:underline}
+.class-hint{font-size:11px;color:#89c3c0}
+.tooltip-osp{position:fixed;z-index:9999;max-width:290px;min-width:150px;pointer-events:none;background:rgba(2,12,29,.97);color:#e7f3ff;border:1px solid #FB5C28;border-radius:12px;box-shadow:0 12px 35px #0009,0 0 16px #fb5c2833;padding:12px 14px;font:12px/1.55 Asap,'Segoe UI',sans-serif;white-space:pre-line;opacity:0;visibility:hidden;transition:opacity .12s;transform:translate3d(0,0,0)}
+.tooltip-osp.show{opacity:1;visibility:visible}
+@media(max-width:1100px){.metric-switch{grid-template-columns:repeat(3,minmax(0,1fr))}.class-matrix{grid-template-columns:1fr}}
+@media(max-width:700px){.metric-switch,.rank-switch,.class-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.rank-item{grid-template-columns:95px minmax(0,1fr) 80px;gap:7px;padding:9px 7px}.rank-name{font-size:10px}.rank-number{font-size:13px}.rank-ratios{grid-column:1/4}.metric-card{padding:11px}.metric-card .metric-value{font-size:18px}.graph-stage{min-height:230px}.class-matrix{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.data-rain .code,.orb,.scanline,.electric path,.bg-grid{animation:none!important}.metric-card,.class-tile,.rank-item{transition:none}}
+
+</style></head><body>{% include "background.html" %}<main class="shell"><header class="head"><div class="identity"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><div><div class="eyebrow">OSP · OLOS STRATEGY & PLANNING</div><h1>J.A REZENDE <span style="color:#fb926d">| Performance</span></h1><div class="muted">Cockpit de resultados · Visual Sky + Tabulações Talentos</div></div></div><div class="right"><span class="pill">BASE OPERACIONAL ATIVA</span><a class="back" href="/dashboard">← Voltar ao Cockpit</a></div></header><nav class="tabs"><button class="tab active" data-view="daily">◈ Performance Daily</button><button class="tab" data-view="hourly">◷ Hora a Hora</button><button class="tab" data-view="tabdaily">▦ Tabulação Dia a Dia</button><button class="tab" data-view="tabhourly">▤ Tabulação Hora a Hora</button></nav><section class="panel"><div class="filters"><label>PERÍODO<select id="date"></select></label><label>CAMPANHA<select id="camp"></select></label><label id="hourfilter">HORA<select id="hour"></select></label><span class="tag" id="status"></span></div></section>{% if erro %}<div class="notice">{{ erro }}</div>{% endif %}<div id="view"></div><div id="osp-tooltip" class="tooltip-osp" role="tooltip" aria-hidden="true"></div><footer class="footer">OSP · Fontes: Funil e Tab. A carga inicial é lida da pasta data. Taxas calculadas por volumes; mailing e logados não são somados entre horas. Tabulações horárias indisponíveis sem timestamp na base.</footer></main><script>
+const DB={{ dados | tojson }},F=Array.isArray(DB.Funil)?DB.Funil:[],T=Array.isArray(DB.Tab)?DB.Tab:[],$=id=>document.getElementById(id);
+const field={tentativas:{label:'Tentativas',key:'Tentativas',rate:'Hit',from:'Atendidas',den:'Tentativas'},contato:{label:'Contato',key:'Atendidas',rate:'CPC / Contato',from:'Cpc',den:'Atendidas'},telefonia:{label:'Telefonia',key:'Telefonia',rate:'Telefonia / Contato',from:'Telefonia',den:'Atendidas'},cpc:{label:'CPC',key:'Cpc',rate:'Conversão em acordo',from:'Acordo',den:'Cpc'},acordo:{label:'Acordo',key:'Acordo',rate:'Acordo / CPC',from:'Acordo',den:'Cpc'},tabulacao:{label:'Tabulações',key:'Quantidade',rate:'Ocorrências',from:'Quantidade',den:'Quantidade'}};
+const rankKeys=['tentativas','telefonia','cpc','acordo'],colors=['#FB5C28','#345F99','#69d8ca','#a28cec','#d9a366'];
+let view='daily',cls='Todos',trendMetric='tentativas',rankMetric='cpc';
+const n=(r,k)=>Number(r[k])||0,sum=(a,k)=>a.reduce((v,r)=>v+n(r,k),0),num=(v,d=0)=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}),currency=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),ratio=(v,total)=>total?num(100*v/total,2)+'%':'0,00%',uniq=arr=>[...new Set(arr.filter(v=>v!==undefined&&v!==null))],esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const names={};T.forEach(r=>{if(r.NomeCampanha)names[String(r.CampaignId)]=String(r.NomeCampanha)});
+const dates=uniq(F.map(r=>r.DATA).concat(T.map(r=>r.Data))).sort(),camps=uniq(F.map(r=>String(r.IdCampanha)).concat(T.map(r=>String(r.CampaignId)))).sort((a,b)=>Number(a)-Number(b)),hours=uniq(F.map(r=>r.HORA)).sort((a,b)=>Number(a)-Number(b));
+function opts(id,vals,label){const e=$(id),old=e.value;e.innerHTML='<option value="all">Todos</option>'+vals.map(v=>'<option value="'+esc(v)+'">'+esc(label?label(v):v)+'</option>').join('');if(vals.map(String).includes(old))e.value=old}
+function rows(){return F.filter(r=>($('date').value==='all'||r.DATA===$('date').value)&&($('camp').value==='all'||String(r.IdCampanha)===$('camp').value)&&(view!=='hourly'||$('hour').value==='all'||String(r.HORA)===$('hour').value))}
+function tabs(){return T.filter(r=>($('date').value==='all'||r.Data===$('date').value)&&($('camp').value==='all'||String(r.CampaignId)===$('camp').value))}
+function series(r,key,metric){const groups=new Map();r.forEach(row=>{const k=String(row[key]??'');if(!groups.has(k))groups.set(k,[]);groups.get(k).push(row)});return [...groups.entries()].sort((a,b)=>key==='HORA'?Number(a[0])-Number(b[0]):a[0].localeCompare(b[0])).map(([name,data])=>({name,rows:data,val:sum(data,metric)}))}
+function campStats(r){const m=new Map();r.forEach(x=>{const id=String(x.IdCampanha);if(!m.has(id))m.set(id,[]);m.get(id).push(x)});return [...m.entries()].map(([id,a])=>({id,rows:a}));}
+const hdr=(name,hint='')=>'<div class="heading"><h2>'+name+'</h2><small>'+hint+'</small></div>';
+const box=(title,inside,sub='')=>'<section class="panel"><div class="ptitle"><h3>'+title+'</h3><small>'+sub+'</small></div>'+inside+'</section>';
+const kpi=(name,value,note)=>'<div class="kpi"><label>'+name+'</label><strong>'+value+'</strong><small>'+note+'</small></div>';
+function summary(r){const at=sum(r,'Tentativas'),a=sum(r,'Atendidas'),c=sum(r,'Cpc');return '<div class="kpis">'+kpi('TENTATIVAS',num(at),'Volume discado')+kpi('CONTATO',num(a),'Hit: '+ratio(a,at))+kpi('TELEFONIA',num(sum(r,'Telefonia')),'Telefonia / Contato: '+ratio(sum(r,'Telefonia'),a))+kpi('CPC',num(c),'CPC / Contato: '+ratio(c,a))+kpi('ACORDOS',num(sum(r,'Acordo')),'Conversão: '+ratio(sum(r,'Acordo'),c))+kpi('CUSTO TELECOM',currency(sum(r,'TELECOM')),'Custo do período')+'</div>'}
+function funnel(r){const at=sum(r,'Tentativas'),a=sum(r,'Atendidas'),c=sum(r,'Cpc'),ac=sum(r,'Acordo');return '<div class="flow">'+[['Tentativas',at,'Volume discado'],['Contato',a,'Hit: '+ratio(a,at)],['CPC',c,'CPC / Contato: '+ratio(c,a)],['Acordo',ac,'Acordo / CPC: '+ratio(ac,c)]].map(([label,val,rate])=>'<div class="step"><span>'+label+'</span><strong>'+num(val)+'</strong><small>'+rate+'</small><div class="progress"><i style="width:'+Math.max(1,at?100*val/at:0)+'%"></i></div></div>').join('')+'</div>'}
+function controls(keys,selected,kind,r){return '<div class="'+(kind==='trend'?'metric-switch':'rank-switch')+'" role="group" aria-label="Selecione um indicador">'+keys.map(key=>{const m=field[key],v=sum(r,m.key),rate=ratio(sum(r,m.from),sum(r,m.den));return '<button type="button" class="metric-card '+(selected===key?'active':'')+'" data-'+kind+'="'+key+'" aria-pressed="'+(selected===key)+'" data-tip="'+esc(m.label+'\nTotal: '+num(v)+'\n'+m.rate+': '+rate)+'"><span class="metric-label">'+m.label+'</span><span class="metric-value">'+num(v)+'</span><span class="metric-ratio">'+m.rate+': '+rate+'</span></button>'}).join('')+'</div>'}
+function chart(r,metric,periodKey){
+const m=field[metric],items=series(r,periodKey,m.key);
+if(!items.length)return '<div class="info">Não há resultados para os filtros selecionados.</div>';
+const W=990,H=340,L=64,R=24,TOP=36,B=57,cw=W-L-R,ch=H-TOP-B,max=Math.max(1,...items.map(x=>x.val)),slot=cw/items.length,bw=Math.max(8,Math.min(48,slot*.65));
+const grid=[0,.25,.5,.75,1].map(p=>{const y=TOP+ch*(1-p);return '<line class="ggrid" x1="'+L+'" y1="'+y+'" x2="'+(W-R)+'" y2="'+y+'"/><text class="glabel" text-anchor="end" x="'+(L-12)+'" y="'+(y+4)+'">'+num(max*p)+'</text>'}).join('');
+const pts=items.map((x,i)=>[L+slot*(i+.5),TOP+ch*(1-x.val/max)]);
+const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(2)+','+p[1].toFixed(2)).join(' ');
+const labelStep=Math.max(1,Math.ceil(items.length/15));
+const bars=items.map((x,i)=>{const p=pts[i],height=TOP+ch-p[1],r=m.from?ratio(sum(x.rows,m.from),sum(x.rows,m.den)):'—',name=periodKey==='HORA'?String(x.name).padStart(2,'0')+'h':x.name.split('-').reverse().join('/'),tip=m.label+' · '+name+'\nVolume: '+num(x.val)+'\n'+m.rate+': '+r+'\n'+(periodKey==='HORA'?'Horário da operação':'Data da operação');
+return '<rect class="bar" tabindex="0" role="img" aria-label="'+esc(tip.replace(/\n/g,'; '))+'" data-tip="'+esc(tip)+'" x="'+(p[0]-bw/2)+'" y="'+p[1]+'" width="'+bw+'" height="'+Math.max(1,height)+'" rx="6" fill="url(#ospBars)" opacity=".84"></rect>'+(i%labelStep===0||items.length<13?'<text class="datalabel" x="'+p[0]+'" y="'+Math.max(15,p[1]-11)+'" text-anchor="middle">'+num(x.val)+'</text>':'')+(i%labelStep===0?'<text class="glabel" x="'+p[0]+'" y="'+(H-15)+'" text-anchor="middle">'+esc(name)+'</text>':'')}).join('');
+const dots=pts.map(p=>'<circle class="dot" cx="'+p[0]+'" cy="'+p[1]+'" r="3"/>').join('');
+const first=items[0]?.val||0,last=items[items.length-1]?.val||0,change=items.length>1&&first?ratio(last-first,Math.abs(first)):'Sem comparação';
+return '<div class="graph-stage"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolução de '+esc(m.label)+'"><defs><linearGradient id="ospBars" x1="0" x2="0" y1="1" y2="0"><stop stop-color="#345F99"/><stop offset="1" stop-color="#FB5C28"/></linearGradient></defs>'+grid+bars+'<path class="route" d="'+path+'"/>'+dots+'</svg></div><div class="graph-footer"><span>Selecione outro card para trocar o indicador.</span><span><strong>'+items.length+'</strong> '+(periodKey==='HORA'?'faixas horárias':'datas')+' · Variação 1º/último: <strong>'+change+'</strong></span></div>';
+}
+function rateSet(r){const at=sum(r,'Tentativas'),a=sum(r,'Atendidas'),tel=sum(r,'Telefonia'),c=sum(r,'Cpc'),ac=sum(r,'Acordo');return [['Hit',ratio(a,at)],['Tx. Telefonia',ratio(tel,a)],['Tx. CPC',ratio(c,a)],['Conversão',ratio(ac,c)]]}
+function ranking(r){const metric=field[rankMetric],camp=campStats(r).sort((a,b)=>sum(b.rows,metric.key)-sum(a.rows,metric.key)),max=Math.max(1,...camp.map(x=>sum(x.rows,metric.key))),all=sum(r,metric.key);
+if(!camp.length)return '<div class="rank-empty">Nenhuma campanha disponível no período filtrado.</div>';
+return '<div class="rank-list">'+camp.map((x,i)=>{const vol=sum(x.rows,metric.key),rates=rateSet(x.rows),tooltip='Campanha '+x.id+(names[x.id]?' · '+names[x.id]:'')+'\n'+metric.label+': '+num(vol)+'\nRepresentatividade: '+ratio(vol,all)+'\n'+rates.map(z=>z[0]+': '+z[1]).join('\n');
+return '<div class="rank-item" data-tip="'+esc(tooltip)+'" tabindex="0"><div class="rank-name">'+(i+1)+'º · Campanha '+esc(x.id)+'<small>'+esc(names[x.id]||'Indicadores operacionais')+'</small></div><div class="rank-line"><span style="width:'+Math.max(1,100*vol/max)+'%"></span></div><div class="rank-number">'+num(vol)+'</div><div class="rank-ratios"><span class="rate-pill">Part.: <b>'+ratio(vol,all)+'</b></span>'+rates.map(z=>'<span class="rate-pill">'+z[0]+': <b>'+z[1]+'</b></span>').join('')+'</div></div>'
+}).join('')+'</div>';
+}
+function table(r,cols){return r.length?'<div class="data"><table><thead><tr>'+cols.map(x=>'<th>'+esc(x[0])+'</th>').join('')+'</tr></thead><tbody>'+r.map(o=>'<tr>'+cols.map(x=>'<td>'+x[1](o)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'<div class="info">Sem registros encontrados.</div>'}
+function performance(r){
+const cs=campStats(r),dateCount=uniq(r.map(x=>x.DATA)).length,period=view==='hourly'||dateCount<=1?'HORA':'DATA',m=field[trendMetric];
+let out=hdr(view==='hourly'?'Produtividade hora a hora':'Performance Daily','Resultados e indicadores do funil')+summary(r);
+out+=hdr('Funil de resultados','Etapas e conversões da operação')+funnel(r);
+out+=hdr('Evolução operacional','Um gráfico, vários indicadores')+
+box('Evolução · '+m.label,controls(Object.keys(field),trendMetric,'trend',r)+chart(r,trendMetric,period),period==='HORA'?'Evolução intradiária':'Evolução diária');
+out+=hdr('Ranking de campanha','Alterne o indicador para comparar todas as campanhas')+
+box('Ranking de campanha',controls(rankKeys,rankMetric,'rank',r)+ranking(r),'Taxas recalculadas por campanha');
+out+=hdr('Detalhamento operacional')+
+box('Indicadores por campanha',table(cs.sort((a,b)=>Number(a.id)-Number(b.id)),[
+['Campanha',x=>'<span class="badge">'+esc(x.id)+'</span>'],['Tentativas',x=>num(sum(x.rows,'Tentativas'))],['Contato',x=>num(sum(x.rows,'Atendidas'))],
+['Telefonia',x=>num(sum(x.rows,'Telefonia'))],['CPC',x=>num(sum(x.rows,'Cpc'))],['Acordo',x=>num(sum(x.rows,'Acordo'))],
+['Hit',x=>ratio(sum(x.rows,'Atendidas'),sum(x.rows,'Tentativas'))],
+['Tx Telefonia',x=>ratio(sum(x.rows,'Telefonia'),sum(x.rows,'Atendidas'))],
+['Tx CPC',x=>ratio(sum(x.rows,'Cpc'),sum(x.rows,'Atendidas'))],
+['Conversão',x=>ratio(sum(x.rows,'Acordo'),sum(x.rows,'Cpc'))],
+['Custo Telecom',x=>currency(sum(x.rows,'TELECOM'))]
+]),'Taxas por soma de volumes');
+if(view==='hourly')out+=hdr('Visão por faixa horária','Detalhamento auditável')+
+box('Produtividade por hora e campanha',table([...r].sort((a,b)=>Number(a.HORA)-Number(b.HORA)),[
+['Hora',x=>esc(String(x.HORA).padStart(2,'0')+':00')],['Campanha',x=>esc(x.IdCampanha)],['Mailing',x=>num(x.Mailing)],
+['Logados',x=>num(x.Logados)],['Tentativas',x=>num(x.Tentativas)],['Contato',x=>num(x.Atendidas)],['Telefonia',x=>num(x.Telefonia)],
+['CPC',x=>num(x.Cpc)],['Acordos',x=>num(x.Acordo)],['Telecom',x=>currency(x.TELECOM)]
+]),'Mailing e logados somente por registro, sem somas agregadas');
+return out;
+}
+function tabular(r,scope){const m=new Map();r.forEach(row=>{const key=String(row.Description||'Sem descrição');m.set(key,(m.get(key)||0)+n(row,'Quantidade'))});return [...m.entries()].sort((a,b)=>b[1]-a[1])}
+function tabBar(name,value,total,color){const percent=total?100*value/total:0;const tip=name+'\nQuantidade: '+num(value)+'\nRepresentatividade na classe: '+ratio(value,total);
+return '<div class="tab-mini" data-tip="'+esc(tip)+'" tabindex="0"><div class="first"><span title="'+esc(name)+'">'+esc(name)+'</span><b>'+num(value)+' · '+ratio(value,total)+'</b></div><div class="microbar"><i style="width:'+Math.max(.4,percent)+'%;background:'+color+'"></i></div></div>';
+}
+function classDetails(k,items,all,i){const own=sum(items,'Quantidade'),mot=tabular(items),col=colors[i%colors.length];let pos=0,stack=mot.map(([name,v],j)=>{const p=own?100*v/own:0;pos+=p;return '<span style="width:'+p+'%;background:'+colors[j%colors.length]+'" tabindex="0" data-tip="'+esc(k+' / '+name+'\n'+num(v)+' registros\n'+ratio(v,own)+' da classe')+'"></span>'}).join('');
+const best=mot.slice(0,5).map(([name,v])=>tabBar(name,v,own,col)).join(''),rest=mot.slice(5).map(([name,v])=>tabBar(name,v,own,col)).join('');
+return '<article class="class-group"><div class="class-title"><span>'+esc(k)+'</span><small>'+num(own)+' registros</small></div><div class="class-topline"><b>'+ratio(own,all)+'</b> do total de tabulações · <b>'+mot.length+'</b> motivos</div><div class="class-tabbars" role="group" aria-label="Composição da classe '+esc(k)+'">'+stack+'</div><div class="class-hint">Participação de cada tabulação dentro desta classe:</div>'+best+(rest?'<details><summary>Mostrar todos os '+mot.length+' motivos</summary>'+rest+'</details>':'')+'</article>';
+}
+function tabulations(r){
+const isHourly=view==='tabhourly',classes=uniq(r.map(x=>x.Classificado)),total=sum(r,'Quantidade'),per=classes.map(k=>({name:k,items:r.filter(x=>x.Classificado===k)})).sort((a,b)=>sum(b.items,'Quantidade')-sum(a.items,'Quantidade')),filtered=cls==='Todos'?r:r.filter(x=>x.Classificado===cls),mot=tabular(filtered),allTotal=sum(filtered,'Quantidade');
+let out=isHourly?'<div class="notice"><b>Hora a hora indisponível:</b> a aba Tab não contém HORA nem timestamp. São exibidos apenas dados diários observados, sem distribuição inventada.</div>':'';
+out+=hdr('Tabulações · Visão Talentos','Representatividade de cada motivo dentro da própria classificação');
+if(!r.length)return out+'<div class="info">Não há tabulações nos filtros atuais. A carga disponível possui tabulações somente da campanha 1280 (SICOOB_01). Isso não significa zero nas demais.</div>';
+out+='<div class="class-summary">'+per.map((x,i)=>{const own=sum(x.items,'Quantidade'),active=cls===x.name;return '<button type="button" class="class-tile '+(active?'active':'')+'" data-class="'+esc(x.name)+'" aria-pressed="'+active+'" data-tip="'+esc(x.name+'\n'+num(own)+' tabulações\n'+ratio(own,total)+' do total')+'"><span class="name">'+esc(x.name)+'</span><b>'+num(own)+'</b><span class="share">'+ratio(own,total)+' do total</span></button>'}).join('')+'</div>';
+out+=hdr('Composição por classe','Sem pizza · Barras proporcionais e rótulos de participação')+
+'<div class="class-matrix">'+per.map((x,i)=>classDetails(x.name,x.items,total,i)).join('')+'</div>';
+out+=hdr('Análise de motivos','Selecione uma classe para aprofundar')+
+box('Classificação selecionada','<div class="pills"><button type="button" class="classbutton '+(cls==='Todos'?'active':'')+'" data-class="Todos">Todas as classes</button>'+per.map(x=>'<button type="button" class="classbutton '+(cls===x.name?'active':'')+'" data-class="'+esc(x.name)+'">'+esc(x.name)+'</button>').join('')+'</div>')+
+'<div class="grid2 equal" style="margin-top:14px">'+box('Motivos de tabulação',
+'<div class="barlist">'+mot.slice(0,12).map(([k,v])=>{const tip=k+'\n'+num(v)+' ocorrências\n'+ratio(v,allTotal)+' do total filtrado';return '<div tabindex="0" data-tip="'+esc(tip)+'"><div class="barlabel"><span>'+esc(k)+'</span><b>'+num(v)+' · '+ratio(v,allTotal)+'</b></div><div class="barbg"><div class="orange" style="width:'+Math.max(.5,100*v/(mot[0]?.[1]||1))+'%"></div></div></div>'}).join('')+'</div>',num(allTotal)+' ocorrências')+
+box('Evolução diária',chart(filtered,'tabulacao','Data'),'Volume de tabulações por data')+'</div>';
+out+=hdr('Detalhamento analítico')+box('Tabulações por motivo e campanha',table([...filtered].sort((a,b)=>n(b,'Quantidade')-n(a,'Quantidade')),[['Data',x=>esc(x.Data)],['Campanha',x=>esc(x.NomeCampanha||x.CampaignId)],['Classificação',x=>'<span class="badge">'+esc(x.Classificado)+'</span>'],['Tabulação',x=>esc(x.Description)],['Quantidade',x=>num(x.Quantidade)],['TMA',x=>esc(x.TMA||'—')]]),num(allTotal)+' ocorrências');
+return out;
+}
+function render(){$('hourfilter').style.display=view==='hourly'?'grid':'none';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('status').textContent=F.length+' registros de funil · '+T.length+' registros de tabulação';$('view').innerHTML=(view==='daily'||view==='hourly')?performance(rows()):tabulations(tabs())}
+function init(){
+opts('date',dates,x=>x.split('-').reverse().join('/'));opts('camp',camps,x=>x+(names[x]?' · '+names[x]:''));opts('hour',hours,x=>String(x).padStart(2,'0')+'h');
+document.addEventListener('click',e=>{const button=e.target.closest('button');if(!button)return;
+if(button.dataset.view){view=button.dataset.view;cls='Todos';render()}
+else if(button.dataset.trend){trendMetric=button.dataset.trend;render()}
+else if(button.dataset.rank){rankMetric=button.dataset.rank;render()}
+else if(button.dataset.class){cls=cls===button.dataset.class&&cls!=='Todos'?'Todos':button.dataset.class;render()}});
+['date','camp','hour'].forEach(id=>$(id).addEventListener('change',()=>{cls='Todos';render()}));
+const tip=$('osp-tooltip');
+function hide(){tip.classList.remove('show');tip.setAttribute('aria-hidden','true')}
+function show(target,x,y){if(!target)return;tip.textContent=target.getAttribute('data-tip')||'';tip.classList.add('show');tip.setAttribute('aria-hidden','false');position(x,y)}
+function position(x,y){if(!tip.classList.contains('show'))return;const tw=tip.offsetWidth,th=tip.offsetHeight;tip.style.left=Math.max(8,Math.min(window.innerWidth-tw-8,x+14))+'px';tip.style.top=Math.max(8,Math.min(window.innerHeight-th-8,y+14))+'px'}
+document.addEventListener('pointerover',e=>{const el=e.target.closest('[data-tip]');if(el)show(el,e.clientX,e.clientY)});
+document.addEventListener('pointermove',e=>{if(e.target.closest('[data-tip]'))position(e.clientX,e.clientY)});
+document.addEventListener('pointerout',e=>{const el=e.target.closest('[data-tip]');if(el&&!el.contains(e.relatedTarget))hide()});
+document.addEventListener('focusin',e=>{const el=e.target.closest('[data-tip]');if(el){const r=el.getBoundingClientRect();show(el,r.left+r.width/2,r.bottom)}});
+document.addEventListener('focusout',e=>{if(e.target.closest('[data-tip]'))hide()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});
+render();
+}init();
+</script></body></html>
