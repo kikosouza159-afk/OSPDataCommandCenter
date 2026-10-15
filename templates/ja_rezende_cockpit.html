@@ -136,17 +136,17 @@ body:before{display:none!important}
 @media(max-width:850px){.tma-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:550px){.tma-toolbar{display:block}.tma-field{width:100%;max-width:none}.tma-filters{margin-bottom:12px}.tma-field select{max-width:none}.tma-row-line{grid-template-columns:minmax(0,1fr) auto}}
 
-</style></head><body>{% include "background.html" %}<main class="shell"><header class="head"><div class="identity"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><div><div class="eyebrow">OSP · OLOS STRATEGY & PLANNING</div><h1>J.A REZENDE <span style="color:#fb926d">| Performance</span></h1><div class="muted">Cockpit de resultados · Visual Sky + Tabulações Talentos</div></div></div><div class="right"><span class="pill">EXCEL · PASTA DATA</span><a class="back" href="/dashboard">← Voltar ao Cockpit</a></div></header><nav class="tabs"><button class="tab active" data-view="daily">◈ Performance Daily</button><button class="tab" data-view="hourly">◷ Hora a Hora</button><button class="tab" data-view="tabdaily">▦ Tabulação Dia a Dia</button><button class="tab" data-view="tabhourly">▤ Tabulação Hora a Hora</button></nav><section class="panel"><div class="filters"><label>PERÍODO<select id="date"></select></label><label>CAMPANHA<select id="camp"></select></label><label id="hourfilter">HORA<select id="hour"></select></label><span class="tag" id="status"></span></div></section>{% if erro %}<div class="notice">{{ erro }}</div>{% endif %}<div id="view"></div><div id="osp-tooltip" class="tooltip-osp" role="tooltip" aria-hidden="true"></div><footer class="footer">OSP · Fontes: Funil e Tab. Fonte: data/Base_JA_Rezende.xlsx (GitHub, versão publicada no Render). Taxas calculadas por volumes; mailing e logados não são somados entre horas. Tabulações horárias indisponíveis sem timestamp na base.</footer></main><script>
+</style></head><body>{% include "background.html" %}<main class="shell"><header class="head"><div class="identity"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><div><div class="eyebrow">OSP · OLOS STRATEGY & PLANNING</div><h1>J.A REZENDE <span style="color:#fb926d">| Performance</span></h1><div class="muted">Cockpit de resultados · Visual Sky + Tabulações Talentos</div></div></div><div class="right"><span class="pill">EXCEL · PASTA DATA</span><a class="back" href="/dashboard">← Voltar ao Cockpit</a></div></header><nav class="tabs"><button class="tab active" data-view="daily">◈ Performance Daily</button><button class="tab" data-view="hourly">◷ Hora a Hora</button><button class="tab" data-view="tabdaily">▦ Tabulação Dia a Dia</button><button class="tab" data-view="tabhourly">▤ Tabulação Hora a Hora</button></nav><section class="panel"><div class="filters"><label>PERÍODO<select id="date"></select></label><label>CAMPANHA<select id="camp"></select></label><label id="hourfilter">HORA<select id="hour"></select></label><span class="tag" id="status"></span></div></section>{% if erro %}<div class="notice">{{ erro }}</div>{% endif %}<div id="view"></div><div id="osp-tooltip" class="tooltip-osp" role="tooltip" aria-hidden="true"></div><footer class="footer">OSP · Fontes: Funil e Tab. Fonte: data/Base_JA_Rezende.xlsx (GitHub, versão publicada no Render). Taxas calculadas por volumes; mailing e logados não são somados entre horas. Tabulações hora a hora e TMA usam a coluna Hora da aba Tab.</footer></main><script>
 const DB={{ dados | tojson }},F=Array.isArray(DB.Funil)?DB.Funil:[],T=Array.isArray(DB.Tab)?DB.Tab:[],$=id=>document.getElementById(id);
 const field={tentativas:{label:'Tentativas',key:'Tentativas',rate:'Hit',from:'Atendidas',den:'Tentativas'},contato:{label:'Contato',key:'Atendidas',rate:'CPC / Contato',from:'Cpc',den:'Atendidas'},telefonia:{label:'Telefonia',key:'Telefonia',rate:'Telefonia / Contato',from:'Telefonia',den:'Atendidas'},cpc:{label:'CPC',key:'Cpc',rate:'Conversão em acordo',from:'Acordo',den:'Cpc'},acordo:{label:'Acordo',key:'Acordo',rate:'Acordo / CPC',from:'Acordo',den:'Cpc'},tabulacao:{label:'Tabulações',key:'Quantidade',rate:'Participação do período',from:'Quantidade',den:'Quantidade'}};
 const rankKeys=['tentativas','telefonia','cpc','acordo'],colors=['#FB5C28','#345F99','#69d8ca','#a28cec','#d9a366'];
 let view='daily',cls='Todos',trendMetric='tentativas',rankMetric='cpc';
 const n=(r,k)=>Number(r[k])||0,sum=(a,k)=>a.reduce((v,r)=>v+n(r,k),0),num=(v,d=0)=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}),currency=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),ratio=(v,total)=>total?num(100*v/total,2)+'%':'0,00%',uniq=arr=>[...new Set(arr.filter(v=>v!==undefined&&v!==null))],esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const names={};T.forEach(r=>{if(r.NomeCampanha)names[String(r.CampaignId)]=String(r.NomeCampanha)});
-const dates=uniq(F.map(r=>r.DATA).concat(T.map(r=>r.Data))).sort(),camps=uniq(F.map(r=>String(r.IdCampanha)).concat(T.map(r=>String(r.CampaignId)))).sort((a,b)=>Number(a)-Number(b)),hours=uniq(F.map(r=>r.HORA)).sort((a,b)=>Number(a)-Number(b));
+const dates=uniq(F.map(r=>r.DATA).concat(T.map(r=>r.Data))).sort(),camps=uniq(F.map(r=>String(r.IdCampanha)).concat(T.map(r=>String(r.CampaignId)))).sort((a,b)=>Number(a)-Number(b)),hours=uniq(F.map(r=>r.HORA).concat(T.map(r=>r.HORA))).sort((a,b)=>Number(a)-Number(b));
 function opts(id,vals,label){const e=$(id),old=e.value;e.innerHTML='<option value="all">Todos</option>'+vals.map(v=>'<option value="'+esc(v)+'">'+esc(label?label(v):v)+'</option>').join('');if(vals.map(String).includes(old))e.value=old}
 function rows(){return F.filter(r=>($('date').value==='all'||r.DATA===$('date').value)&&($('camp').value==='all'||String(r.IdCampanha)===$('camp').value)&&(view!=='hourly'||$('hour').value==='all'||String(r.HORA)===$('hour').value))}
-function tabs(){return T.filter(r=>($('date').value==='all'||r.Data===$('date').value)&&($('camp').value==='all'||String(r.CampaignId)===$('camp').value))}
+function tabs(){return T.filter(r=>($('date').value==='all'||r.Data===$('date').value)&&($('camp').value==='all'||String(r.CampaignId)===$('camp').value)&&(view!=='tabhourly'||$('hour').value==='all'||String(r.HORA)===$('hour').value))}
 function series(r,key,metric){const groups=new Map();r.forEach(row=>{const k=String(row[key]??'');if(!groups.has(k))groups.set(k,[]);groups.get(k).push(row)});return [...groups.entries()].sort((a,b)=>key==='HORA'?Number(a[0])-Number(b[0]):a[0].localeCompare(b[0])).map(([name,data])=>({name,rows:data,val:sum(data,metric)}))}
 function campStats(r){const m=new Map();r.forEach(x=>{const id=String(x.IdCampanha);if(!m.has(id))m.set(id,[]);m.get(id).push(x)});return [...m.entries()].map(([id,a])=>({id,rows:a}));}
 const hdr=(name,hint='')=>'<div class="heading"><h2>'+name+'</h2><small>'+hint+'</small></div>';
@@ -289,28 +289,56 @@ if(groups.length){content+='<div class="tma-chart">'+bars+'</div>';
 if(groups.length>12)content+='<button class="tma-action" type="button" data-tma-toggle="true">'+(tmaShowAll?'Mostrar somente top 12':'Ver todos os '+groups.length+' motivos')+'</button>';
 content+='<div class="tma-table">'+box('Tabela detalhada · TMA por tabulação',matrix,groups.length+' motivos')+'</div>';
 }else content+='<div class="tma-empty">Não existem tabulações com TMA válido para esses filtros. O volume sem TMA permanece identificado nos cards acima.</div>';
-content+='<div class="tma-note"><strong>Cálculo:</strong> Σ (TMA da linha × quantidade) ÷ Σ quantidade com TMA válido. A participação de cada motivo é calculada sobre todas as ocorrências do filtro. A base atual possui horários de TMA, mas não a hora de ocorrência da tabulação.</div>';
+content+='<div class="tma-note"><strong>Cálculo:</strong> Σ (TMA da linha × quantidade) ÷ Σ quantidade com TMA válido. A participação de cada motivo é calculada sobre todas as ocorrências do filtro. As visões horárias utilizam a coluna Hora da aba Tab, quando presente.</div>';
 return hdr('TMA por tabulação','Ranking interativo · filtros de campanha e classificação')+box('Análise de tempo médio de atendimento',content,'Passe o mouse para detalhar');
+}
+
+
+function hourlyTmaChart(rows){
+  const groups=new Map();
+  for(const item of rows){
+    if(item.HORA===null||item.HORA===undefined||item.HORA==='')continue;
+    const h=String(item.HORA);
+    if(!groups.has(h))groups.set(h,[]);
+    groups.get(h).push(item);
+  }
+  const ordered=[...groups.entries()].sort((a,b)=>Number(a[0])-Number(b[0]))
+    .map(([hour,part])=>({hour,...weightedTime(part),volume:sum(part,'Quantidade')}));
+  if(!ordered.length)return '<div class="tma-empty">Sem registros com Hora válida para o filtro selecionado.</div>';
+  const valid=ordered.filter(v=>v.avg!==null),max=Math.max(1,...valid.map(v=>v.avg));
+  if(!valid.length)return '<div class="tma-empty">As horas selecionadas não possuem TMA válido.</div>';
+  return '<div class="tma-chart">'+valid.map(item=>{
+    const label=String(item.hour).padStart(2,'0')+':00';
+    const tip='Horário '+label+'\nTMA médio ponderado: '+timeLabel(item.avg)+
+      '\nQuantidade total: '+num(item.volume)+'\nOcorrências com TMA: '+num(item.count)+
+      '\nSem TMA: '+num(item.ignored);
+    return '<div class="tma-row" tabindex="0" data-tip="'+esc(tip)+'"><div class="tma-row-line">'+
+      '<span class="tma-row-name">'+label+'</span><span class="tma-row-meta">'+timeLabel(item.avg)+
+      '</span></div><div class="tma-track"><span class="tma-fill" style="width:'+
+      Math.max(.5,100*item.avg/max)+'%"></span></div><div class="tma-row-foot">'+
+      '<span>'+num(item.volume)+' tabulações</span><span>'+num(item.count)+' com TMA válido</span>'+
+      '</div></div>';
+  }).join('')+'</div>';
 }
 
 function tabulations(r){
 const isHourly=view==='tabhourly',classes=uniq(r.map(x=>x.Classificado)),total=sum(r,'Quantidade'),per=classes.map(k=>({name:k,items:r.filter(x=>x.Classificado===k)})).sort((a,b)=>sum(b.items,'Quantidade')-sum(a.items,'Quantidade')),filtered=cls==='Todos'?r:r.filter(x=>x.Classificado===cls),mot=tabular(filtered),allTotal=sum(filtered,'Quantidade');
-let out=isHourly?'<div class="notice"><b>Hora a hora indisponível:</b> a aba Tab não contém HORA nem timestamp. São exibidos apenas dados diários observados, sem distribuição inventada.</div>':'';
-out+=hdr('Tabulações · Visão Talentos','Representatividade de cada motivo dentro da própria classificação');
+let out=isHourly&&!T.some(row=>row.HORA!==null&&row.HORA!==undefined)?'<div class="notice"><b>Sem dados horários:</b> a aba Tab deste arquivo não possui horas preenchidas. Confira a coluna Hora da base.</div>':'';
+out+=hdr(isHourly?'Tabulações · Hora a Hora':'Tabulações · Visão Talentos',isHourly?'Filtre por hora, campanha e classificação · participação por tabulação':'Representatividade de cada motivo dentro da própria classificação');
 if(!r.length)return out+'<div class="info">Não há tabulações para a campanha ou o período selecionado. Confira os filtros e os registros da aba Tab na base Excel.</div>';
 out+='<div class="class-summary">'+per.map((x,i)=>{const own=sum(x.items,'Quantidade'),active=cls===x.name;return '<button type="button" class="class-tile '+(active?'active':'')+'" data-class="'+esc(x.name)+'" aria-pressed="'+active+'" data-tip="'+esc(x.name+'\n'+num(own)+' tabulações\n'+ratio(own,total)+' do total')+'"><span class="name">'+esc(x.name)+'</span><b>'+num(own)+'</b><span class="share">'+ratio(own,total)+' do total</span></button>'}).join('')+'</div>';
 out+=hdr('Composição por classe','Sem pizza · Barras proporcionais e rótulos de participação')+
 '<div class="class-matrix">'+per.map((x,i)=>classDetails(x.name,x.items,total,i)).join('')+'</div>';
-out+='<div class="tma-section">'+tmaView(r)+'</div>';
+out+='<div class="tma-section">'+tmaView(r)+(isHourly?hdr('Evolução do TMA por hora','Média ponderada do TMA das tabulações em cada hora')+box('TMA horário por volume',hourlyTmaChart(r),'Passe o mouse para ver tempo médio e volume'):'')+'</div>';
 out+=hdr('Análise de motivos','Selecione uma classe para aprofundar')+
 box('Classificação selecionada','<div class="pills"><button type="button" class="classbutton '+(cls==='Todos'?'active':'')+'" data-class="Todos">Todas as classes</button>'+per.map(x=>'<button type="button" class="classbutton '+(cls===x.name?'active':'')+'" data-class="'+esc(x.name)+'">'+esc(x.name)+'</button>').join('')+'</div>')+
 '<div class="grid2 equal" style="margin-top:14px">'+box('Motivos de tabulação',
 '<div class="barlist">'+mot.slice(0,12).map(([k,v])=>{const tip=k+'\n'+num(v)+' ocorrências\n'+ratio(v,allTotal)+' do total filtrado';return '<div tabindex="0" data-tip="'+esc(tip)+'"><div class="barlabel"><span>'+esc(k)+'</span><b>'+num(v)+' · '+ratio(v,allTotal)+'</b></div><div class="barbg"><div class="orange" style="width:'+Math.max(.5,100*v/(mot[0]?.[1]||1))+'%"></div></div></div>'}).join('')+'</div>',num(allTotal)+' ocorrências')+
-box('Evolução diária',chart(filtered,'tabulacao','Data'),'Volume de tabulações por data')+'</div>';
-out+=hdr('Detalhamento analítico')+box('Tabulações por motivo e campanha',table([...filtered].sort((a,b)=>n(b,'Quantidade')-n(a,'Quantidade')),[['Data',x=>esc(x.Data)],['Campanha',x=>esc(x.NomeCampanha||x.CampaignId)],['Classificação',x=>'<span class="badge">'+esc(x.Classificado)+'</span>'],['Tabulação',x=>esc(x.Description)],['Quantidade',x=>num(x.Quantidade)],['TMA',x=>esc(x.TMA||'—')]]),num(allTotal)+' ocorrências');
+box(isHourly?'Evolução por hora':'Evolução diária',chart(filtered,'tabulacao',isHourly?'HORA':'Data'),isHourly?'Volume de tabulações por hora':'Volume de tabulações por data')+'</div>';
+out+=hdr('Detalhamento analítico')+box('Tabulações por motivo e campanha',table([...filtered].sort((a,b)=>n(b,'Quantidade')-n(a,'Quantidade')),[['Data',x=>esc(x.Data)],['Hora',x=>x.HORA===null||x.HORA===undefined?'—':esc(String(x.HORA).padStart(2,'0')+':00')],['Campanha',x=>esc(x.NomeCampanha||x.CampaignId)],['Classificação',x=>'<span class="badge">'+esc(x.Classificado)+'</span>'],['Tabulação',x=>esc(x.Description)],['Quantidade',x=>num(x.Quantidade)],['TMA',x=>esc(x.TMA||'—')]]),num(allTotal)+' ocorrências');
 return out;
 }
-function render(){$('hourfilter').style.display=view==='hourly'?'grid':'none';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('status').textContent=F.length+' registros de funil · '+T.length+' registros de tabulação';$('view').innerHTML=(view==='daily'||view==='hourly')?performance(rows()):tabulations(tabs())}
+function render(){$('hourfilter').style.display=(view==='hourly'||view==='tabhourly')?'grid':'none';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('status').textContent=F.length+' registros de funil · '+T.length+' registros de tabulação';$('view').innerHTML=(view==='daily'||view==='hourly')?performance(rows()):tabulations(tabs())}
 function init(){
 opts('date',dates,x=>x.split('-').reverse().join('/'));opts('camp',camps,x=>x+(names[x]?' · '+names[x]:''));opts('hour',hours,x=>String(x).padStart(2,'0')+'h');
 document.addEventListener('click',e=>{const button=e.target.closest('button');if(!button)return;
