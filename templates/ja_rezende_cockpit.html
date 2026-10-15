@@ -296,7 +296,10 @@ return hdr('TMA por tabulação','Ranking interativo · filtros de campanha e cl
 
 function hourlyTmaChart(rows){
   const groups=new Map();
-  for(const item of rows){
+  const visible=rows.filter(item=>
+    (tmaCampaign==='all'||String(item.CampaignId)===tmaCampaign)&&
+    (tmaClass==='all'||String(item.Classificado)===tmaClass));
+  for(const item of visible){
     if(item.HORA===null||item.HORA===undefined||item.HORA==='')continue;
     const h=String(item.HORA);
     if(!groups.has(h))groups.set(h,[]);
