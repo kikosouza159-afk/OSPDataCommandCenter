@@ -1515,8 +1515,18 @@ def _ja_rezende_guard():
     return None
 
 def _ja_rezende_load():
+    # A planilha importada tem prioridade. Em deploy novo, usar a carga inicial
+    # versionada em data/ para evitar telas vazias no filesystem efemero do Render.
     if not JA_REZENDE_XLSX.exists():
-        return {"Funil": [], "Tab": []}, "Nenhuma base carregada. Importe o arquivo Base_JA_Rezende.xlsx para iniciar."
+        snapshot = Path(__file__).resolve().parent / "data" / "ja_rezende_snapshot.json.gz.b64"
+        if not snapshot.is_file():
+            return {"Funil": [], "Tab": []}, "Base ausente. Publique a carga em data/ ou importe o Excel."
+        import base64, gzip, json
+        raw = gzip.decompress(base64.b64decode(snapshot.read_text(encoding="utf-8").strip()))
+        dados = json.loads(raw.decode("utf-8"))
+        if not isinstance(dados.get("Funil"), list) or not isinstance(dados.get("Tab"), list):
+            raise ValueError("Snapshot do J.A REZENDE invalido")
+        return dados, None
     import pandas as pd
     xls = pd.ExcelFile(JA_REZENDE_XLSX)
     if not {"Funil", "Tab"}.issubset(set(xls.sheet_names)):
