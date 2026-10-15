@@ -104,6 +104,38 @@ body:before{display:none!important}
 @media(max-width:700px){.metric-switch,.rank-switch,.class-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.rank-item{grid-template-columns:95px minmax(0,1fr) 80px;gap:7px;padding:9px 7px}.rank-name{font-size:10px}.rank-number{font-size:13px}.rank-ratios{grid-column:1/4}.metric-card{padding:11px}.metric-card .metric-value{font-size:18px}.graph-stage{min-height:230px}.class-matrix{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.data-rain .code,.orb,.scanline,.electric path,.bg-grid{animation:none!important}.metric-card,.class-tile,.rank-item{transition:none}}
 
+
+/* J.A REZENDE - TMA POR TABULACAO */
+.tma-section{scroll-margin-top:20px}
+.tma-toolbar{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.tma-filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+.tma-field{display:flex;flex-direction:column;gap:7px;min-width:185px}
+.tma-field span{font:800 10px Asap,Arial;letter-spacing:.6px;color:#b2cbe4}
+.tma-field select{min-width:175px;width:100%;max-width:260px;border:1px solid #416183;border-radius:10px;color:#e5f2ff;background:#091b33;padding:11px 13px;font:700 12px Asap,Arial}
+.tma-field select:focus-visible{outline:2px solid #FB5C28;outline-offset:2px}
+.tma-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:17px}
+.tma-kpi{border:1px solid rgba(74,122,158,.55);border-radius:14px;padding:15px;background:linear-gradient(140deg,rgba(23,49,77,.95),rgba(8,24,44,.88))}
+.tma-kpi span{font-size:10px;letter-spacing:.4px;font-weight:800;color:#9ebad5}
+.tma-kpi strong{display:block;font:900 clamp(19px,2vw,28px) Avenir,Asap,Arial;color:#fff;margin:9px 0 4px}
+.tma-kpi small{color:#8bc7d2;font-size:10px}
+.tma-chart{display:grid;gap:9px}
+.tma-row{padding:13px 14px;background:linear-gradient(135deg,rgba(15,34,59,.98),rgba(12,25,43,.9));border:1px solid rgba(59,89,126,.7);border-radius:12px;transition:transform .16s,border-color .16s,box-shadow .16s;cursor:help}
+.tma-row:hover,.tma-row:focus-visible{transform:translateX(4px);border-color:#FB5C28;box-shadow:0 0 25px #FB5C281a;outline:none}
+.tma-row-line{display:grid;grid-template-columns:minmax(90px,1fr) auto;gap:9px;align-items:center;margin-bottom:9px}
+.tma-row-name{font-size:12px;font-weight:800;color:#e4effe;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tma-row-meta{font:800 11px Asap,Arial;color:#ffb79e;text-align:right}
+.tma-track{height:12px;background:#253b59;border-radius:99px;overflow:hidden}
+.tma-fill{height:100%;display:block;min-width:3px;border-radius:99px;background:linear-gradient(90deg,#345F99 0%,#588eec 60%,#FB5C28 100%);box-shadow:0 0 13px #FB5C2850}
+.tma-row-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#9bb8d4;font-size:10px;margin-top:7px}
+.tma-note{color:#a9bfd6;font-size:11px;line-height:1.65;margin:15px 2px 2px}
+.tma-note strong{color:#f4b59c}
+.tma-action{background:rgba(251,92,40,.08);border:1px solid rgba(251,92,40,.5);color:#ffbca3;font:800 11px Asap,Arial;border-radius:10px;padding:10px 16px;cursor:pointer;margin-top:14px}
+.tma-action:hover,.tma-action:focus-visible{background:rgba(251,92,40,.2);outline:2px solid #fb5c2866}
+.tma-table{margin-top:15px}
+.tma-empty{background:#345f9922;border:1px dashed #5477a2;border-radius:13px;color:#c9daf2;padding:19px;line-height:1.6}
+@media(max-width:850px){.tma-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.tma-toolbar{display:block}.tma-field{width:100%;max-width:none}.tma-filters{margin-bottom:12px}.tma-field select{max-width:none}.tma-row-line{grid-template-columns:minmax(0,1fr) auto}}
+
 </style></head><body>{% include "background.html" %}<main class="shell"><header class="head"><div class="identity"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="Olos"><div><div class="eyebrow">OSP · OLOS STRATEGY & PLANNING</div><h1>J.A REZENDE <span style="color:#fb926d">| Performance</span></h1><div class="muted">Cockpit de resultados · Visual Sky + Tabulações Talentos</div></div></div><div class="right"><span class="pill">BASE OPERACIONAL ATIVA</span><a class="back" href="/dashboard">← Voltar ao Cockpit</a></div></header><nav class="tabs"><button class="tab active" data-view="daily">◈ Performance Daily</button><button class="tab" data-view="hourly">◷ Hora a Hora</button><button class="tab" data-view="tabdaily">▦ Tabulação Dia a Dia</button><button class="tab" data-view="tabhourly">▤ Tabulação Hora a Hora</button></nav><section class="panel"><div class="filters"><label>PERÍODO<select id="date"></select></label><label>CAMPANHA<select id="camp"></select></label><label id="hourfilter">HORA<select id="hour"></select></label><span class="tag" id="status"></span></div></section>{% if erro %}<div class="notice">{{ erro }}</div>{% endif %}<div id="view"></div><div id="osp-tooltip" class="tooltip-osp" role="tooltip" aria-hidden="true"></div><footer class="footer">OSP · Fontes: Funil e Tab. A carga inicial é lida da pasta data. Taxas calculadas por volumes; mailing e logados não são somados entre horas. Tabulações horárias indisponíveis sem timestamp na base.</footer></main><script>
 const DB={{ dados | tojson }},F=Array.isArray(DB.Funil)?DB.Funil:[],T=Array.isArray(DB.Tab)?DB.Tab:[],$=id=>document.getElementById(id);
 const field={tentativas:{label:'Tentativas',key:'Tentativas',rate:'Hit',from:'Atendidas',den:'Tentativas'},contato:{label:'Contato',key:'Atendidas',rate:'CPC / Contato',from:'Cpc',den:'Atendidas'},telefonia:{label:'Telefonia',key:'Telefonia',rate:'Telefonia / Contato',from:'Telefonia',den:'Atendidas'},cpc:{label:'CPC',key:'Cpc',rate:'Conversão em acordo',from:'Acordo',den:'Cpc'},acordo:{label:'Acordo',key:'Acordo',rate:'Acordo / CPC',from:'Acordo',den:'Cpc'},tabulacao:{label:'Tabulações',key:'Quantidade',rate:'Participação do período',from:'Quantidade',den:'Quantidade'}};
@@ -179,6 +211,88 @@ function classDetails(k,items,all,i){const own=sum(items,'Quantidade'),mot=tabul
 const best=mot.slice(0,5).map(([name,v])=>tabBar(name,v,own,col)).join(''),rest=mot.slice(5).map(([name,v])=>tabBar(name,v,own,col)).join('');
 return '<article class="class-group"><div class="class-title"><span>'+esc(k)+'</span><small>'+num(own)+' registros</small></div><div class="class-topline"><b>'+ratio(own,all)+'</b> do total de tabulações · <b>'+mot.length+'</b> motivos</div><div class="class-tabbars" role="group" aria-label="Composição da classe '+esc(k)+'">'+stack+'</div><div class="class-hint">Participação de cada tabulação dentro desta classe:</div>'+best+(rest?'<details><summary>Mostrar todos os '+mot.length+' motivos</summary>'+rest+'</details>':'')+'</article>';
 }
+
+// TMA agrupado: TMA da linha (segundos) * Quantidade, dividido pela soma
+// das quantidades validas. Os registros sem TMA nao entram no denominador.
+let tmaCampaign='all',tmaClass='all',tmaShowAll=false,tmaOrder='tma';
+function timeSeconds(value){
+if(value===null||value===undefined||value==='')return null;
+if(typeof value==='number'){if(!Number.isFinite(value)||value<0)return null;return value<1?value*86400:value}
+const str=String(value).trim();
+const match=str.match(/^(\d+):([0-5]?\d):([0-5]?\d)(?:[.,](\d+))?$/);
+if(match)return (Number(match[1])*3600)+(Number(match[2])*60)+Number(match[3])+Number('0.'+(match[4]||'0'));
+const mm=str.match(/^(\d+):([0-5]?\d)$/);
+if(mm)return Number(mm[1])*60+Number(mm[2]);
+return null;
+}
+function timeLabel(seconds){
+if(seconds===null||!Number.isFinite(seconds)||seconds<0)return 'Sem TMA';
+const value=Math.round(seconds),h=Math.floor(value/3600),m=Math.floor(value%3600/60),s=value%60;
+return h?String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'):String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function weightedTime(rows){
+let time=0,count=0,ignored=0;
+rows.forEach(row=>{const qty=n(row,'Quantidade'),seconds=timeSeconds(row.TMA);
+if(qty<=0)return;
+if(seconds===null){ignored+=qty;return}
+time+=seconds*qty;count+=qty;
+});
+return {avg:count?time/count:null,count,ignored,time};
+}
+function tmaGroups(rows){
+const buckets=new Map();
+rows.forEach(row=>{
+const title=String(row.Description||'Sem descrição'),category=String(row.Classificado||'Não classificado');
+const key=category+'\u0001'+title;
+if(!buckets.has(key))buckets.set(key,{title,category,items:[]});
+buckets.get(key).items.push(row);
+});
+return [...buckets.values()].map(g=>{const s=weightedTime(g.items);return {...g,...s,vol:sum(g.items,'Quantidade')}});
+}
+function tmaView(rows){
+const campaigns=uniq(rows.map(r=>String(r.CampaignId))).sort((a,b)=>Number(a)-Number(b));
+if(tmaCampaign!=='all'&&!campaigns.includes(tmaCampaign))tmaCampaign='all';
+const campaignRows=rows.filter(r=>tmaCampaign==='all'||String(r.CampaignId)===tmaCampaign);
+const classes=uniq(campaignRows.map(r=>String(r.Classificado))).sort();
+if(tmaClass!=='all'&&!classes.includes(tmaClass))tmaClass='all';
+const subset=campaignRows.filter(r=>tmaClass==='all'||String(r.Classificado)===tmaClass);
+const full=weightedTime(subset),groups=tmaGroups(subset).filter(g=>g.count>0);
+groups.sort((a,b)=>tmaOrder==='volume'?b.vol-a.vol:b.avg-a.avg);
+const shown=tmaShowAll?groups:groups.slice(0,12);
+const max=Math.max(1,...groups.map(g=>g.avg||0));
+const high=groups.reduce((a,g)=>g.avg>(a?.avg??-1)?g:a,null);
+const low=groups.reduce((a,g)=>g.avg<(a?.avg??Infinity)?g:a,null);
+const filters='<div class="tma-toolbar"><div class="tma-filters">'+
+'<label class="tma-field"><span>CAMPANHA</span><select id="tma-campaign" aria-label="Filtrar TMA por campanha"><option value="all">Todas as campanhas</option>'+
+campaigns.map(id=>'<option value="'+esc(id)+'"'+(tmaCampaign===id?' selected':'')+'>'+esc(id+(names[id]?' · '+names[id]:''))+'</option>').join('')+'</select></label>'+
+'<label class="tma-field"><span>CLASSIFICAÇÃO</span><select id="tma-class" aria-label="Filtrar TMA por classificação"><option value="all">Todas as classificações</option>'+
+classes.map(id=>'<option value="'+esc(id)+'"'+(tmaClass===id?' selected':'')+'>'+esc(id)+'</option>').join('')+'</select></label>'+
+'<label class="tma-field"><span>ORDENAR RANKING</span><select id="tma-order" aria-label="Ordenar ranking de TMA"><option value="tma"'+(tmaOrder==='tma'?' selected':'')+'>Maior TMA primeiro</option><option value="volume"'+(tmaOrder==='volume'?' selected':'')+'>Maior volume primeiro</option></select></label>'+
+'</div><span class="class-hint">TMA em mm:ss · média ponderada</span></div>';
+const kpis='<div class="tma-kpis">'+
+'<div class="tma-kpi"><span>TMA MÉDIO GERAL</span><strong>'+timeLabel(full.avg)+'</strong><small>Tempo ponderado do filtro</small></div>'+
+'<div class="tma-kpi"><span>MAIOR TMA</span><strong>'+timeLabel(high?.avg??null)+'</strong><small>'+esc(high?.title||'Sem registros')+'</small></div>'+
+'<div class="tma-kpi"><span>MENOR TMA</span><strong>'+timeLabel(low?.avg??null)+'</strong><small>'+esc(low?.title||'Sem registros')+'</small></div>'+
+'<div class="tma-kpi"><span>OCORRÊNCIAS COM TMA</span><strong>'+num(full.count)+'</strong><small>'+num(full.ignored)+' sem tempo válido</small></div>'+
+'</div>';
+const totalVolume=sum(subset,'Quantidade');
+const bars=shown.map((g,i)=>{
+const tooltip=g.category+' · '+g.title+'\nTMA médio: '+timeLabel(g.avg)+'\nOcorrências: '+num(g.vol)+'\nParticipação no filtro: '+ratio(g.vol,totalVolume)+'\n'+(g.ignored?'Sem TMA: '+num(g.ignored):'Todos os registros têm TMA');
+return '<div class="tma-row" tabindex="0" role="img" aria-label="'+esc(tooltip.replace(/\n/g,'; '))+'" data-tip="'+esc(tooltip)+'">'+
+'<div class="tma-row-line"><span class="tma-row-name">'+(i+1)+'º · '+esc(g.title)+'</span><span class="tma-row-meta">'+timeLabel(g.avg)+'</span></div>'+
+'<div class="tma-track"><span class="tma-fill" style="width:'+Math.max(.5,100*g.avg/max)+'%"></span></div>'+
+'<div class="tma-row-foot"><span>'+esc(g.category)+' · '+num(g.vol)+' ocorrências</span><span>'+ratio(g.vol,totalVolume)+' do volume filtrado</span></div></div>'
+}).join('');
+const matrix=table(groups,[['Classificação',g=>esc(g.category)],['Tabulação',g=>esc(g.title)],['Ocorrências',g=>num(g.vol)],['TMA médio',g=>'<b>'+timeLabel(g.avg)+'</b>'],['% do volume',g=>ratio(g.vol,totalVolume)]]);
+let content=filters+kpis;
+if(groups.length){content+='<div class="tma-chart">'+bars+'</div>';
+if(groups.length>12)content+='<button class="tma-action" type="button" data-tma-toggle="true">'+(tmaShowAll?'Mostrar somente top 12':'Ver todos os '+groups.length+' motivos')+'</button>';
+content+='<div class="tma-table">'+box('Tabela detalhada · TMA por tabulação',matrix,groups.length+' motivos')+'</div>';
+}else content+='<div class="tma-empty">Não existem tabulações com TMA válido para esses filtros. O volume sem TMA permanece identificado nos cards acima.</div>';
+content+='<div class="tma-note"><strong>Cálculo:</strong> Σ (TMA da linha × quantidade) ÷ Σ quantidade com TMA válido. A participação de cada motivo é calculada sobre todas as ocorrências do filtro. A base atual possui horários de TMA, mas não a hora de ocorrência da tabulação.</div>';
+return hdr('TMA por tabulação','Ranking interativo · filtros de campanha e classificação')+box('Análise de tempo médio de atendimento',content,'Passe o mouse para detalhar');
+}
+
 function tabulations(r){
 const isHourly=view==='tabhourly',classes=uniq(r.map(x=>x.Classificado)),total=sum(r,'Quantidade'),per=classes.map(k=>({name:k,items:r.filter(x=>x.Classificado===k)})).sort((a,b)=>sum(b.items,'Quantidade')-sum(a.items,'Quantidade')),filtered=cls==='Todos'?r:r.filter(x=>x.Classificado===cls),mot=tabular(filtered),allTotal=sum(filtered,'Quantidade');
 let out=isHourly?'<div class="notice"><b>Hora a hora indisponível:</b> a aba Tab não contém HORA nem timestamp. São exibidos apenas dados diários observados, sem distribuição inventada.</div>':'';
@@ -187,6 +301,7 @@ if(!r.length)return out+'<div class="info">Não há tabulações nos filtros atu
 out+='<div class="class-summary">'+per.map((x,i)=>{const own=sum(x.items,'Quantidade'),active=cls===x.name;return '<button type="button" class="class-tile '+(active?'active':'')+'" data-class="'+esc(x.name)+'" aria-pressed="'+active+'" data-tip="'+esc(x.name+'\n'+num(own)+' tabulações\n'+ratio(own,total)+' do total')+'"><span class="name">'+esc(x.name)+'</span><b>'+num(own)+'</b><span class="share">'+ratio(own,total)+' do total</span></button>'}).join('')+'</div>';
 out+=hdr('Composição por classe','Sem pizza · Barras proporcionais e rótulos de participação')+
 '<div class="class-matrix">'+per.map((x,i)=>classDetails(x.name,x.items,total,i)).join('')+'</div>';
+out+='<div class="tma-section">'+tmaView(r)+'</div>';
 out+=hdr('Análise de motivos','Selecione uma classe para aprofundar')+
 box('Classificação selecionada','<div class="pills"><button type="button" class="classbutton '+(cls==='Todos'?'active':'')+'" data-class="Todos">Todas as classes</button>'+per.map(x=>'<button type="button" class="classbutton '+(cls===x.name?'active':'')+'" data-class="'+esc(x.name)+'">'+esc(x.name)+'</button>').join('')+'</div>')+
 '<div class="grid2 equal" style="margin-top:14px">'+box('Motivos de tabulação',
@@ -202,8 +317,15 @@ document.addEventListener('click',e=>{const button=e.target.closest('button');if
 if(button.dataset.view){view=button.dataset.view;cls='Todos';render()}
 else if(button.dataset.trend){trendMetric=button.dataset.trend;render()}
 else if(button.dataset.rank){rankMetric=button.dataset.rank;render()}
-else if(button.dataset.class){cls=cls===button.dataset.class&&cls!=='Todos'?'Todos':button.dataset.class;render()}});
+else if(button.dataset.class){cls=cls===button.dataset.class&&cls!=='Todos'?'Todos':button.dataset.class;render()}
+else if(button.dataset.tmaToggle){tmaShowAll=!tmaShowAll;render()}});
 ['date','camp','hour'].forEach(id=>$(id).addEventListener('change',()=>{cls='Todos';render()}));
+document.addEventListener('change',event=>{
+const id=event.target.id;
+if(id==='tma-campaign'){tmaCampaign=event.target.value;tmaClass='all';tmaShowAll=false;render()}
+else if(id==='tma-class'){tmaClass=event.target.value;tmaShowAll=false;render()}
+else if(id==='tma-order'){tmaOrder=event.target.value;render()}
+});
 const tip=$('osp-tooltip');
 function hide(){tip.classList.remove('show');tip.setAttribute('aria-hidden','true')}
 function show(target,x,y){if(!target)return;tip.textContent=target.getAttribute('data-tip')||'';tip.classList.add('show');tip.setAttribute('aria-hidden','false');position(x,y)}
