@@ -1597,12 +1597,26 @@ def _ja_rezende_load():
     if "HORA" not in tab.columns:
         tab["HORA"] = None
 
+    # Aceita tanto datas nativas do Excel quanto numeros seriais (ex.: 46308).
+    # pd.to_datetime(46308) sozinho retornaria uma data incorreta em 1970.
     for df, col in ((funil, "DATA"), (tab, "Data")):
-        df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%Y-%m-%d")
+        numeric = pd.to_numeric(df[col], errors="coerce")
+        excel_serial = numeric.between(20000, 80000)
+        dates = pd.to_datetime(
+            df[col].mask(excel_serial), errors="coerce", format="mixed", dayfirst=True
+        )
+        serial_dates = pd.to_datetime(
+            numeric.where(excel_serial), unit="D",
+            origin="1899-12-30", errors="coerce"
+        )
+        df[col] = dates.where(~excel_serial, serial_dates).dt.strftime("%Y-%m-%d")
 
-    for df in (funil, tab):
-        df.replace([float("inf"), float("-inf")], None, inplace=True)
-        df[:] = df.astype(object).where(pd.notna(df), None)
+    # Pandas 3 nao permite atribuir series object a colunas int64 via df[:].
+    # Criar novos DataFrames convertidos evita LossySetitemError.
+    funil = funil.astype(object).replace([float("inf"), float("-inf")], None)
+    tab = tab.astype(object).replace([float("inf"), float("-inf")], None)
+    funil = funil.where(pd.notna(funil), None)
+    tab = tab.where(pd.notna(tab), None)
 
     def serial(v):
         if isinstance(v, (datetime, date, time)):
