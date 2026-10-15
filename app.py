@@ -1515,35 +1515,105 @@ def _ja_rezende_guard():
     return None
 
 def _ja_rezende_load():
-    # Fonte unica: o Excel versionado na pasta data/ do repositorio.
-    # Ler a cada requisicao permite refletir novas versoes apos o auto-deploy.
-    # Nao usar snapshot antigo: ele mascarava atualizacoes e exibia dados defasados.
+    """Carrega sempre a versao publicada em data/Base_JA_Rezende.xlsx.
+
+    Aceita variacoes historicas de capitalizacao das colunas, preservando a
+    interface JSON utilizada pelo cockpit. A aba Tab pode conter HORA para a
+    visao por hora. Colunas opcionais retiradas da origem nao bloqueiam a base.
+    """
     if not JA_REZENDE_XLSX.is_file():
-        return {"Funil": [], "Tab": []}, "Base J.A REZENDE nao encontrada: data/Base_JA_Rezende.xlsx. Verifique o arquivo no GitHub e o deploy."
+        return {"Funil": [], "Tab": []}, (
+            "Arquivo ausente: data/Base_JA_Rezende.xlsx. "
+            "Confira o commit e o deploy no Render."
+        )
+
     import pandas as pd
+    import json
+    from datetime import date, datetime, time
+
     xls = pd.ExcelFile(JA_REZENDE_XLSX)
-    if not {"Funil", "Tab"}.issubset(set(xls.sheet_names)):
-        return {"Funil": [], "Tab": []}, "Arquivo sem as abas obrigatórias Funil e Tab."
+    if not {"Funil", "Tab"}.issubset(xls.sheet_names):
+        return {"Funil": [], "Tab": []}, "Excel deve conter as abas Funil e Tab."
+
     funil = pd.read_excel(xls, sheet_name="Funil")
     tab = pd.read_excel(xls, sheet_name="Tab")
-    required_funil = {"DATA", "HORA", "IdCampanha", "Tentativas", "Atendidas", "Telefonia", "Cpc", "Acordo", "TELECOM"}
-    required_tab = {"Data", "CampaignId", "Classificado", "Description", "Quantidade"}
-    if not required_funil.issubset(funil.columns) or not required_tab.issubset(tab.columns):
-        return {"Funil": [], "Tab": []}, "Colunas obrigatórias não encontradas na base."
+
+    for df in (funil, tab):
+        df.columns = [str(c).strip() for c in df.columns]
+
+    # Mapeia os nomes atuais da planilha para as chaves que o JS utiliza.
+    def normalizar(df, aliases):
+        known = {str(c).casefold(): c for c in df.columns}
+        renames = {}
+        for canon, options in aliases.items():
+            if canon in df.columns:
+                continue
+            for alias in options:
+                existing = known.get(alias.casefold())
+                if existing is not None:
+                    renames[existing] = canon
+                    break
+        return df.rename(columns=renames)
+
+    funil = normalizar(funil, {
+        "DATA": ["Data", "DATA"],
+        "HORA": ["Hora", "HORA"],
+        "IdCampanha": ["IdCampanha", "CampaignId", "CampanhaId"],
+        "Tentativas": ["Tentativas", "Discado"],
+        "Atendidas": ["Atendidas", "Contato"],
+        "Telefonia": ["Telefonia"],
+        "Cpc": ["CPC", "Cpc"],
+        "Acordo": ["Acordo", "Acordos"],
+        "TELECOM": ["TELECOM", "Telecom"],
+    })
+    tab = normalizar(tab, {
+        "Data": ["Data", "DATA"],
+        "HORA": ["Hora", "HORA"],
+        "CampaignId": ["CampaignId", "IdCampanha"],
+        "NomeCampanha": ["NomeCampanha"],
+        "Classificado": ["Classificado", "Classificacao"],
+        "Description": ["Description", "Tabulacao"],
+        "Quantidade": ["Quantidade"],
+        "TMA": ["TMA"],
+    })
+
+    obrigatorias_funil = {"DATA", "HORA", "IdCampanha", "Tentativas", "Atendidas", "Cpc", "Acordo"}
+    obrigatorias_tab = {"Data", "CampaignId", "Classificado", "Description", "Quantidade"}
+    faltas_funil = sorted(obrigatorias_funil - set(funil.columns))
+    faltas_tab = sorted(obrigatorias_tab - set(tab.columns))
+    if faltas_funil or faltas_tab:
+        return {"Funil": [], "Tab": []}, (
+            "Colunas essenciais ausentes. Funil: " + (", ".join(faltas_funil) or "OK")
+            + " | Tab: " + (", ".join(faltas_tab) or "OK")
+        )
+
+    # Uma alteracao de schema nao deve bloquear todos os dados quando apenas
+    # um indicador opcional for retirado do Excel.
+    for col in ("Telefonia", "TELECOM", "Hangup"):
+        if col not in funil.columns:
+            funil[col] = None
+    if "TMA" not in tab.columns:
+        tab["TMA"] = None
+    if "HORA" not in tab.columns:
+        tab["HORA"] = None
+
     for df, col in ((funil, "DATA"), (tab, "Data")):
         df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%Y-%m-%d")
+
     for df in (funil, tab):
         df.replace([float("inf"), float("-inf")], None, inplace=True)
         df[:] = df.astype(object).where(pd.notna(df), None)
-    from datetime import date, datetime, time
+
     def serial(v):
         if isinstance(v, (datetime, date, time)):
             return v.isoformat()
         if hasattr(v, "item"):
             return v.item()
         return str(v)
-    import json
-    return json.loads(json.dumps({"Funil": funil.to_dict("records"), "Tab": tab.to_dict("records")}, default=serial, allow_nan=False)), None
+
+    result = {"Funil": funil.to_dict("records"), "Tab": tab.to_dict("records")}
+    return json.loads(json.dumps(result, default=serial, allow_nan=False)), None
+
 
 @app.route("/cliente/j-a-rezende/painel")
 def ja_rezende_index():
