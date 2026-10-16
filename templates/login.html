@@ -34,25 +34,77 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;padd
 .btn-login{width:100%;margin-top:8px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#00e5ff,#0077ff);color:#00111f;font-weight:800;font-size:15px;cursor:pointer;transition:.25s}.btn-login:hover{transform:translateY(-2px);box-shadow:0 0 26px rgba(0,229,255,.48)}.footer{text-align:center;margin-top:22px;color:#6f91a6;font-size:11px}
 @media(max-width:1100px){body{padding:20px;overflow:auto}.login-shell{grid-template-columns:1fr;max-width:840px}.login-visual{min-height:unset;padding-bottom:8px}.mascot-wrap{min-height:280px;justify-content:center}.mascot-image{width:min(100%,720px);margin-left:0}.login-card{max-width:520px;margin:0 auto}}@media(max-width:520px){body{padding:16px}.login-visual{padding:22px 18px 8px}.visual-copy h2{font-size:28px}.login-card{padding:30px 24px}.logo h1{font-size:32px}.mascot-image{width:min(100%,720px);margin-left:0}}
 
-/* OSP Halloween: arte estática, sem efeitos animados ou cards duplicados */
-.login-visual{
-  background-color:#031529;
-  background-image:url("{{ url_for('static', filename='img/osp_halloween_login_visual (1).png') }}");
+/* OSP Halloween: imagem de tela inteira e formulario real sobreposto */
+body{
+  min-height:100vh;
+  margin:0;
+  padding:24px clamp(20px,4vw,78px);
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  overflow-x:hidden;
+  overflow-y:auto;
+  isolation:isolate;
+  background:#031021;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background-image:url("{{ url_for('static', filename='img/Central de IA Halloween com Capivara Mascote.png') }}");
+  background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
-  background-size:contain;
-  backdrop-filter:none;
-  padding:0;
-  min-height:640px;
-  border:1px solid rgba(0,213,255,.28);
-  box-shadow:0 0 32px rgba(0,167,239,.12);
+  pointer-events:none;
 }
-.login-visual .mascot-wrap{display:none}
+/* Mantem as letras e os elementos luminosos sobre a arte,
+   mas sem o antigo fundo opaco escondendo a imagem. */
+.bg-content{
+  position:fixed;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+}
+.bg-content .background{
+  background:transparent;
+  z-index:0;
+}
+.bg-content .data-rain{z-index:3;position:absolute}
+.bg-content .orb,.bg-content .scanline,.bg-content .electric{opacity:.25}
+.login-shell{
+  position:relative;
+  z-index:4;
+  width:100%;
+  max-width:1550px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:0;
+}
+.login-visual,.login-visual .mascot-wrap{display:none}
+.login-card{
+  position:relative;
+  z-index:5;
+  flex:0 0 min(430px,100%);
+  width:min(430px,100%);
+  max-width:430px;
+  margin:0;
+  background:rgba(3,16,35,.85);
+  border:1px solid rgba(39,210,255,.38);
+  box-shadow:0 22px 65px rgba(0,0,0,.38),0 0 38px rgba(0,176,255,.14);
+  backdrop-filter:blur(16px);
+}
 @media(max-width:1100px){
-  .login-visual{min-height:0;aspect-ratio:16/9}
+  body{padding:22px;justify-content:center}
+  body::before{background-position:35% center}
+  .login-shell{display:flex;max-width:none;justify-content:center}
+  .login-card{flex:0 1 480px;max-width:480px;margin:0}
 }
 @media(max-width:520px){
-  .login-visual{min-height:0;aspect-ratio:16/9}
+  body{padding:16px}
+  body::before{background-position:30% center}
+  .login-card{width:100%;flex:1 1 auto;padding:28px 22px}
 }
 
 </style>
