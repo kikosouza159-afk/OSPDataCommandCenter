@@ -24,7 +24,7 @@
     g.style.setProperty('--size', (45 + i * 11) + 'px');
     g.style.setProperty('--duration', (15 + i * 4) + 's');
     g.style.setProperty('--delay', (-i * 6) + 's');
-    g.innerHTML = ghost.replace('osp-ghost-grad', 'osp-ghost-grad-' + i).replace('osp-ghost-grad', 'osp-ghost-grad-' + i);
+    g.innerHTML = ghost.replace(/osp-ghost-grad/g, 'osp-ghost-grad-' + i);
     layer.appendChild(g);
   }
   visual.insertAdjacentHTML('beforeend', '<div class="halloween-caption">OSP · Intelligence Lab</div><div class="halloween-ui" aria-label="Indicadores ilustrativos"><div class="halloween-kpi"><div class="kpi-label">Performance · demonstração</div><div class="kpi-value">87% <span>↗ +24,8%</span></div><svg viewBox="0 0 180 70" aria-hidden="true"><polyline points="0,60 28,41 50,48 80,19 107,35 142,8 180,14"/></svg></div><div class="halloween-kpi-row"><div class="halloween-kpi"><div class="kpi-label">Projetos</div><div class="kpi-value">86 <span>↗</span></div></div><div class="halloween-kpi"><div class="kpi-label">Estratégia</div><div class="kpi-value">OSP <span>●</span></div></div></div></div><div class="halloween-season">🎃 HALLOWEEN EDITION</div>');
