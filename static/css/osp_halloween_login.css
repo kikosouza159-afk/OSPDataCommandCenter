@@ -1,0 +1,41 @@
+
+/* OSP Halloween 2026 - isolated login visual skin */
+body.osp-halloween{background:#020c1b}
+.osp-halloween .login-shell{width:min(1510px,100%);grid-template-columns:minmax(520px,1.6fr) minmax(350px,440px);gap:30px}
+.osp-halloween .login-visual{min-height:min(760px,88vh);background:radial-gradient(ellipse at 18% 38%,rgba(0,180,210,.17),transparent 52%),linear-gradient(125deg,rgba(2,16,30,.85),rgba(1,10,28,.55));border-color:rgba(0,206,255,.25);box-shadow:0 25px 85px rgba(0,0,0,.35),inset 0 0 80px rgba(0,198,255,.04)}
+.osp-halloween .login-visual:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 78% 76%,rgba(251,92,40,.15),transparent 40%);z-index:1}
+.osp-halloween .mascot-wrap{z-index:2;align-items:flex-end}
+.osp-halloween .mascot-image{max-width:72%;max-height:94%;object-fit:contain;object-position:bottom left;filter:drop-shadow(0 22px 28px rgba(0,0,0,.55)) drop-shadow(0 0 21px rgba(251,92,40,.21))}
+.osp-halloween .login-card{background:linear-gradient(160deg,rgba(4,20,39,.95),rgba(4,15,33,.91));border:1px solid rgba(0,213,255,.32);box-shadow:0 25px 70px rgba(0,0,0,.35),0 0 48px rgba(0,183,255,.13),inset 0 0 48px rgba(20,90,160,.04)}
+.osp-halloween .olos-login-logo{filter:drop-shadow(0 0 15px rgba(251,92,40,.34))}
+.osp-halloween .input-group input{background:rgba(51,103,151,.18);border-color:rgba(115,195,240,.35)}
+.osp-halloween .btn-login{background:linear-gradient(100deg,#04d6f2,#0683ff);box-shadow:0 10px 28px rgba(0,135,255,.15)}
+.osp-halloween .halloween-layer{position:fixed;inset:0;z-index:3;pointer-events:none;overflow:hidden;contain:layout paint}
+.osp-halloween .login-card{z-index:7}
+.osp-halloween .halloween-moon{position:absolute;left:38%;top:8%;width:125px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 32%,#ffe8aa 0%,#ffaf52 48%,#b14d22 90%);opacity:.19;box-shadow:0 0 90px 28px rgba(251,92,40,.18);filter:blur(.5px)}
+.osp-halloween .halloween-fog{position:absolute;bottom:-12%;left:-25%;width:150%;height:40%;border-radius:50%;background:radial-gradient(ellipse,rgba(32,94,142,.24),transparent 64%);filter:blur(25px);animation:osp-fog 17s ease-in-out infinite alternate}
+@keyframes osp-fog{to{transform:translateX(9%) scale(1.05)}}
+.osp-halloween .halloween-bat{position:absolute;top:var(--top);left:-100px;width:var(--size);height:auto;opacity:0;color:#081020;filter:drop-shadow(0 0 5px rgba(251,92,40,.48));animation:osp-bat var(--duration) linear infinite;animation-delay:var(--delay)}
+.osp-halloween .halloween-bat svg{display:block;width:100%;height:auto;animation:osp-flap .38s ease-in-out infinite alternate;transform-origin:center}
+@keyframes osp-flap{to{transform:scaleY(.52) rotate(4deg)}}
+@keyframes osp-bat{0%{transform:translateX(-10vw) translateY(0) scale(.75);opacity:0}8%{opacity:.85}48%{transform:translateX(53vw) translateY(-48px) scale(1)}92%{opacity:.8}100%{transform:translateX(119vw) translateY(18px) scale(.7);opacity:0}}
+.osp-halloween .halloween-ghost{position:absolute;left:var(--left);top:var(--top);width:var(--size);opacity:0;filter:drop-shadow(0 0 16px rgba(172,231,255,.66));animation:osp-ghost var(--duration) ease-in-out infinite;animation-delay:var(--delay)}
+.osp-halloween .halloween-ghost svg{display:block;width:100%;height:auto}
+@keyframes osp-ghost{0%{transform:translate(-30px,35px) rotate(-7deg);opacity:0}16%{opacity:.73}50%{transform:translate(75px,-34px) rotate(6deg);opacity:.86}85%{opacity:.58}100%{transform:translate(155px,14px) rotate(-3deg);opacity:0}}
+.osp-halloween .halloween-pumpkin{position:absolute;bottom:3%;left:6%;font-size:54px;filter:drop-shadow(0 0 16px rgba(251,92,40,.55));animation:osp-pulse 4s ease-in-out infinite}
+@keyframes osp-pulse{50%{filter:drop-shadow(0 0 34px rgba(251,92,40,.95));transform:scale(1.045)}}
+.osp-halloween .halloween-ui{position:absolute;z-index:4;right:5%;top:13%;width:43%;display:grid;gap:16px;pointer-events:none}
+.osp-halloween .halloween-kpi{padding:17px;border-radius:17px;background:linear-gradient(130deg,rgba(10,21,38,.94),rgba(5,15,34,.75));border:1px solid rgba(251,104,35,.72);box-shadow:0 0 20px rgba(251,92,40,.19),inset 0 0 22px rgba(251,92,40,.035);backdrop-filter:blur(12px)}
+.osp-halloween .halloween-kpi .kpi-label{color:#d7e7f3;font-size:12px;letter-spacing:.25px}
+.osp-halloween .halloween-kpi .kpi-value{font-size:clamp(20px,2.4vw,29px);font-weight:750;margin-top:6px}
+.osp-halloween .halloween-kpi .kpi-value span{font-size:12px;color:#ff9b39}
+.osp-halloween .halloween-kpi svg{width:100%;height:68px;margin-top:10px;overflow:visible}
+.osp-halloween .halloween-kpi svg polyline{fill:none;stroke:#ff792c;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px #fb5c28)}
+.osp-halloween .halloween-kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.osp-halloween .halloween-kpi-row .halloween-kpi{padding:13px}
+.osp-halloween .halloween-kpi-row .kpi-value{font-size:25px}
+.osp-halloween .halloween-caption{position:absolute;z-index:4;left:5%;top:4%;font-size:11px;letter-spacing:2.5px;color:#90dfee;text-transform:uppercase}
+.osp-halloween .halloween-season{position:absolute;z-index:4;bottom:5%;right:5%;color:#ffae74;font-size:12px;letter-spacing:1.4px}
+@media(max-width:1100px){.osp-halloween .login-shell{grid-template-columns:1fr;max-width:760px}.osp-halloween .login-visual{min-height:440px}.osp-halloween .mascot-image{max-width:63%;max-height:430px}.osp-halloween .halloween-ui{top:12%;right:3%;width:39%}.osp-halloween .halloween-caption{top:5%}}
+@media(max-width:600px){.osp-halloween .login-visual{min-height:315px}.osp-halloween .mascot-image{max-width:62%;max-height:300px}.osp-halloween .halloween-ui{top:13%;right:3%;width:43%;gap:6px}.osp-halloween .halloween-kpi{padding:8px;border-radius:10px}.osp-halloween .halloween-kpi svg{height:35px;margin-top:3px}.osp-halloween .halloween-kpi .kpi-label{font-size:9px}.osp-halloween .halloween-kpi .kpi-value,.osp-halloween .halloween-kpi-row .kpi-value{font-size:16px;margin-top:2px}.osp-halloween .halloween-kpi-row{gap:5px}.osp-halloween .halloween-kpi-row .halloween-kpi{padding:6px}.osp-halloween .halloween-caption{font-size:8px}.osp-halloween .halloween-season{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.osp-halloween .halloween-bat,.osp-halloween .halloween-ghost,.osp-halloween .halloween-fog,.osp-halloween .halloween-pumpkin{animation:none!important}.osp-halloween .halloween-bat,.osp-halloween .halloween-ghost{display:none}}
