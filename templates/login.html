@@ -34,7 +34,6 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;padd
 .btn-login{width:100%;margin-top:8px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#00e5ff,#0077ff);color:#00111f;font-weight:800;font-size:15px;cursor:pointer;transition:.25s}.btn-login:hover{transform:translateY(-2px);box-shadow:0 0 26px rgba(0,229,255,.48)}.footer{text-align:center;margin-top:22px;color:#6f91a6;font-size:11px}
 @media(max-width:1100px){body{padding:20px;overflow:auto}.login-shell{grid-template-columns:1fr;max-width:840px}.login-visual{min-height:unset;padding-bottom:8px}.mascot-wrap{min-height:280px;justify-content:center}.mascot-image{width:min(100%,720px);margin-left:0}.login-card{max-width:520px;margin:0 auto}}@media(max-width:520px){body{padding:16px}.login-visual{padding:22px 18px 8px}.visual-copy h2{font-size:28px}.login-card{padding:30px 24px}.logo h1{font-size:32px}.mascot-image{width:min(100%,720px);margin-left:0}}
 </style>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/osp_halloween_login.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/olos_transition.css') }}">
 </head><body>{% include "background.html" %}
 {% include "_olos_transition.html" %}
@@ -43,5 +42,4 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;padd
 <div class="input-group"><label>Usuário</label><input type="text" name="usuario" placeholder="Digite seu usuário" required></div>
 <div class="input-group"><label>Senha</label><input type="password" name="senha" placeholder="Digite sua senha" required></div>
 <button class="btn-login" type="submit">Acessar Cockpit</button><div class="footer">OSP - Olos Strategy and Planning</div></form></div>
-<script src="{{ url_for('static', filename='js/osp_halloween_login.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/olos_transition.js') }}"></script></body></html>
