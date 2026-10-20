@@ -6765,7 +6765,7 @@ def _sky_mensal_resumo(df, mes, dias, pagamento):
     return {"Mailing":mailing,"Discado":disc,"Contato":cont,"CPC":cpc,"NDOC":ndoc,"Acordo":acordo,
         "Spin":div(disc,mailing),"Hit %":div(cont,disc),"Loc %":div(cpc,cont),
         "Conver %":div(acordo,cpc),"Logados":logados,"NDOC %":div(ndoc,cpc),
-        "Efic %":div(acordo,mailing),"Acordo / ADA":None,
+        "Efic %":div(acordo,mailing),"Acordo / ADA":div(acordo,logados),
         "Pagamento":pagamento,"Efetividade %":div(pagamento,acordo) if pagamento is not None else None,
         "Efic Pagamento %":div(pagamento,mailing) if pagamento is not None else None,
         "_dias":len(datas)}
