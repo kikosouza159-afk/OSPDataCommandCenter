@@ -1,16 +1,172 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Assistpay | Comparativo Mensal</title>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistpay | Comparativo Mensal</title>
 <style>
-:root{--navy:#000049;--orange:#FB5C28;--blue:#345F99;--white:#fff;--grey:#848484}*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:#020814;color:white;font-family:Asap,"Segoe UI",Arial,sans-serif;overflow-x:hidden}
-.cockpit-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 15% 20%,rgba(0,229,255,.12),transparent 32%),radial-gradient(circle at 85% 75%,rgba(52,95,153,.22),transparent 33%),linear-gradient(135deg,#020814,#07172a 55%,#020814)}
-.cockpit-bg:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.045) 1px,transparent 1px);background-size:56px 56px;transform:perspective(700px) rotateX(18deg)}
-.shell{position:relative;z-index:1;max-width:1680px;margin:auto;padding:24px}
-h1,h2,h3{font-family:Avenir,"Segoe UI",Arial,sans-serif;margin:0}h1{font-size:clamp(22px,3vw,37px)}h1 span{color:var(--orange)}.muted{color:#9fb0c6}
-.top{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;padding:20px;border:1px solid #345f9970;background:#061222c9;border-radius:22px;margin-bottom:16px}.brand{font-size:12px;letter-spacing:1px;color:var(--orange)}.logo{height:33px;object-fit:contain}.tools{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.tools label{display:block;font-size:12px;margin:0 0 5px;color:#cbd5e1}
-select,input,button{padding:10px 12px;border-radius:10px;border:1px solid #47638a;background:#122340;color:white;font:inherit}button{cursor:pointer;background:var(--orange);border-color:var(--orange);font-weight:700}a{color:#b9e4ff;text-decoration:none}
-.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:16px 0}.card,.panel{background:rgba(6,18,34,.88);border:1px solid rgba(110,160,219,.25);border-radius:18px;box-shadow:0 8px 30px #0004}.card{padding:17px}.card .name{font-size:13px;color:#bbd2f4}.card .values{font-weight:800;font-size:16px;margin:9px 0}.delta{font-size:23px;font-weight:900}.positive{color:#53d69d}.negative{color:#ff8378}.neutral{color:#b8c8da}.content{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:12px}.panel{padding:17px;min-width:0}.panel h2{font-size:20px;margin-bottom:15px}.panel h2 span{color:var(--orange)}.funnel{display:flex;flex-direction:column;align-items:center;gap:5px}.stage{color:white;text-align:center;padding:8px 5px;background:linear-gradient(105deg,#345F99,#1275e6);clip-path:polygon(0 0,100% 0,90% 100%,10% 100%);min-height:62px;width:var(--width);max-width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column}.stage strong{font-size:20px}.stage.orange{background:linear-gradient(105deg,#FB5C28,#ff7a24)}.funnel-note{color:#9fb0c6;font-size:12px;text-align:center;margin:12px 0 0}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:8px 6px;border-bottom:1px solid #28405e;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:#d7e9ff;background:#1c385a;position:sticky;top:0}.pay{margin:18px 0 0;display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}.message{color:#facc15;font-size:12px}.small{font-size:12px;color:#a8bad0}
-@media(max-width:1250px){.content{grid-template-columns:1fr 1fr}.content>.panel:last-child{grid-column:1/-1}.cards{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:700px){.content{grid-template-columns:1fr}.content>.panel:last-child{grid-column:auto}.cards{grid-template-columns:1fr 1fr}.shell{padding:12px}.top{padding:14px}}
+
+:root {
+  --navy:#000049; --orange:#FB5C28; --blue:#345F99;
+  --electric:#00CFFF; --ice:#DCEFFF; --lime:#48EDAE;
+  --red:#FF7779; --border:rgba(0,196,255,.44);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:#020814;color:#f5faff;
+  font-family:Asap,"Segoe UI",Arial,sans-serif;overflow-x:hidden}
+button,select,input{font:inherit}
+a{color:#71DDFF;text-decoration:none}
+a:hover{color:#FFF}
+.shell{max-width:1760px;margin:0 auto;padding:24px;position:relative;z-index:2}
+h1,h2,h3{font-family:Avenir,"Segoe UI",Arial,sans-serif;margin:0}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible {
+  outline:2px solid #66dbff;outline-offset:3px
+}
+.eyebrow{font-size:11px;letter-spacing:1.8px;font-weight:800;color:var(--orange)}
+.top{position:relative;isolation:isolate;display:flex;justify-content:space-between;
+  align-items:center;gap:18px;flex-wrap:wrap;padding:25px 27px;margin-bottom:15px;
+  background:linear-gradient(110deg,rgba(4,16,39,.96),rgba(9,27,53,.82));
+  border:1px solid rgba(0,199,255,.42);border-radius:20px;
+  box-shadow:inset 0 0 28px rgba(0,174,255,.06),0 12px 32px rgba(0,0,0,.26)}
+.top:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(120deg,transparent 45%,rgba(0,174,255,.10) 65%,transparent 82%);z-index:-1}
+.top-copy{min-width:290px;flex:1 1 480px}
+.top h1{font-size:clamp(25px,2.8vw,43px);letter-spacing:-1.1px;line-height:1.12;margin:6px 0}
+.top h1 em{color:var(--orange);font-style:normal}
+.subtitle{color:#AFC4E4;font-size:13px;margin:11px 0}
+.back-link{display:inline-flex;gap:7px;align-items:center;font-size:12px;font-weight:700}
+.top-actions{display:flex;align-items:end;gap:16px;flex-wrap:wrap;justify-content:flex-end}
+.filter-row{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:12px;color:#C6D9F2}
+.field select,.field input{min-height:43px;background:#102644;border:1px solid #4B729D;
+  padding:9px 11px;border-radius:9px;color:#FFF;max-width:175px}
+.field.days input{width:82px}
+.apply{min-height:43px;padding:9px 17px;border-radius:10px;border:1px solid #FF783B;
+  color:#FFF;background:linear-gradient(135deg,#FB5C28,#fa7726);font-weight:850;
+  cursor:pointer;box-shadow:0 0 15px rgba(251,92,40,.25)}
+.apply:hover{filter:brightness(1.12)}
+.brand-logo{height:39px;max-width:120px;object-fit:contain}
+.dashboard-main{display:grid;gap:16px}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.tech-panel{position:relative;min-width:0;background:
+  linear-gradient(135deg,rgba(5,22,47,.96),rgba(3,15,32,.94));
+  border:1px solid rgba(0,205,255,.65);border-radius:14px;
+  box-shadow:inset 0 0 24px rgba(0,160,255,.055),0 0 11px rgba(0,171,255,.14);
+  overflow:hidden}
+.tech-panel:before,.tech-panel:after{content:"";position:absolute;pointer-events:none;
+  width:17px;height:17px;border-color:#15CBFF;border-style:solid;opacity:.85}
+.tech-panel:before{top:0;left:0;border-width:2px 0 0 2px}
+.tech-panel:after{bottom:0;right:0;border-width:0 2px 2px 0}
+.kpi{padding:17px 16px;min-height:121px;display:grid;grid-template-columns:57px minmax(0,1fr);
+  align-items:center;gap:12px}
+.kpi-icon{width:54px;height:54px;border:1px solid rgba(0,202,255,.48);
+  border-radius:12px;display:grid;place-items:center;color:#3CD7FF;
+  background:linear-gradient(140deg,rgba(5,35,66,.95),rgba(2,16,39,.85));
+  box-shadow:inset 0 0 17px rgba(0,183,255,.10)}
+.kpi-icon.accent{color:var(--orange);border-color:rgba(251,92,40,.42)}
+.kpi .kpi-name{font-size:13px;color:#CBDEF5}
+.kpi .kpi-values{margin:9px 0 5px;font-size:clamp(13px,1.2vw,18px);font-weight:850;white-space:nowrap}
+.kpi .kpi-delta{font-size:clamp(18px,1.7vw,26px);font-weight:900;line-height:1.05}
+.kpi .mini-bars{position:absolute;right:13px;bottom:12px;height:42px;display:flex;
+  align-items:end;gap:4px;opacity:.38;pointer-events:none}
+.mini-bars span{width:5px;border-radius:2px 2px 0 0;background:#00BDF9}
+.mini-bars span:nth-child(1){height:26%}.mini-bars span:nth-child(2){height:45%}
+.mini-bars span:nth-child(3){height:55%}.mini-bars span:nth-child(4){height:78%}
+.mini-bars span:nth-child(5){height:100%}
+.positive{color:#4DEDB7!important}.negative{color:#FF7779!important}.neutral{color:#A9BBD0!important}
+.delta-arrow{display:inline-block;margin-right:4px}
+.compare-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.08fr);gap:12px;align-items:stretch}
+.funnel-panel,.comparison-panel{padding:15px 13px 17px;min-height:640px}
+.section-head{display:flex;gap:9px;align-items:center;margin:0 0 15px}
+.section-icon{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;
+  color:#FFA45D;border:1px solid rgba(251,92,40,.35);background:rgba(251,92,40,.09);flex:none}
+.section-icon.blue{color:#56D5FF;border-color:rgba(0,207,255,.38);background:rgba(0,207,255,.07)}
+.section-head h2{font-size:clamp(15px,1.25vw,21px);line-height:1.14}
+.section-head h2 em{font-style:normal;color:var(--orange)}
+.period-pill{margin-left:auto;border:1px solid rgba(70,154,213,.36);
+  padding:7px 8px;border-radius:11px;color:#b7d6ef;font-size:10px;white-space:nowrap}
+.funnel-columns{display:grid;grid-template-columns:minmax(0,1fr) 122px;gap:10px;align-items:start}
+.funnel-stack{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0;
+  padding:3px 0 0}
+.funnel-level{width:var(--stage-w);max-width:100%;position:relative;
+  filter:drop-shadow(0 0 7px rgba(0,190,255,.42));min-width:0}
+.funnel-level.orange{filter:drop-shadow(0 0 8px rgba(251,92,40,.62))}
+.funnel-level.payment{filter:drop-shadow(0 0 7px rgba(154,190,229,.45))}
+.funnel-shape{width:100%;height:72px;position:relative;display:flex;justify-content:center;
+  align-items:center;gap:9px;padding:9px 18px;overflow:hidden;
+  clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);
+  background:linear-gradient(120deg,#0099D4,#06e9ff 35%,#89E9FF 55%,#0069AA);
+}
+.funnel-shape:before{content:"";position:absolute;inset:2px;
+  clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);
+  background:linear-gradient(120deg,#094788,#007DDF 52%,#003369)}
+.orange .funnel-shape{background:linear-gradient(100deg,#FFC56E,#FF6200,#FFB74B)}
+.orange .funnel-shape:before{background:linear-gradient(100deg,#933419,#FA5C16,#9E3412)}
+.payment .funnel-shape{background:linear-gradient(120deg,#758CAB,#E6F5FF,#7289A9)}
+.payment .funnel-shape:before{background:linear-gradient(120deg,#283E5C,#526C89,#21324F)}
+.funnel-shape .stage-icon{width:23px;height:23px;flex:none;color:#AFF4FF;position:relative;z-index:1}
+.orange .stage-icon{color:#FFF5E9}.payment .stage-icon{color:#F1F7FF}
+.stage-data{z-index:1;position:relative;text-align:center;min-width:0}
+.stage-name{font-size:12px;line-height:1.1;color:#E9F8FF;margin-bottom:5px}
+.stage-value{font-weight:900;font-size:clamp(17px,1.6vw,24px);line-height:1}
+.level-chevron{display:flex;justify-content:center;align-items:center;width:100%;height:13px;
+  color:#3ee6ff;filter:drop-shadow(0 0 3px #00bfff)}
+.level-chevron.orange-arrow{color:#FFB06D;filter:drop-shadow(0 0 3px #FB5C28)}
+.funnel-baseline{margin:5px 7px 0;clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);
+  background:linear-gradient(90deg,transparent,#02AEF4,transparent);height:2px}
+.variation-side{padding:10px 8px;border:1px solid rgba(0,206,255,.4);
+  background:linear-gradient(180deg,rgba(4,22,46,.95),rgba(5,15,34,.95));
+  border-radius:12px;min-width:0}
+.variation-title{text-align:center;color:#DCF4FF;font-size:11px;font-weight:900;
+  line-height:1.3;margin-bottom:10px}
+.variation-sub{text-align:center;font-size:10px;color:#74CFFF;margin-bottom:12px}
+.variation-item{border:1px solid rgba(36,117,187,.38);border-radius:9px;padding:9px 7px;
+  margin-bottom:8px;background:rgba(13,48,79,.48)}
+.variation-item:last-child{margin-bottom:0}
+.variation-item small{display:block;color:#C1D9F1;font-size:10px;margin-bottom:6px}
+.variation-item strong{display:block;font-size:clamp(13px,1.1vw,17px);line-height:1.2;white-space:nowrap}
+.funnel-note{display:flex;gap:10px;align-items:start;padding:12px 13px;margin-top:14px;
+  border:1px solid rgba(0,192,255,.43);border-radius:10px;background:rgba(0,73,113,.17);
+  font-size:11px;color:#C6DAEF;line-height:1.6}
+.funnel-note svg{color:#38CFFF;flex:none}
+.comparison-panel .section-head{margin-bottom:12px}
+.compare-table-wrap{border:1px solid rgba(40,131,190,.34);border-radius:10px;overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:clamp(10px,.82vw,12px)}
+th,td{padding:8px 8px;border-bottom:1px solid rgba(54,110,157,.38);
+  white-space:nowrap;text-align:right}
+tr:last-child td{border-bottom:0}
+th:first-child,td:first-child{text-align:left}
+th{background:linear-gradient(120deg,#123E64,#082947);font-weight:800;color:#E3F5FF}
+td{color:#E5F0FF}
+tbody tr:nth-child(2n){background:rgba(10,48,77,.30)}
+tbody tr:hover{background:rgba(20,91,137,.28)}
+.compare-change{font-weight:850}
+.payment-editor{margin-top:15px;border:1px solid rgba(251,92,40,.34);border-radius:11px;
+  background:rgba(251,92,40,.055);padding:12px}
+.payment-heading{display:flex;align-items:center;gap:8px;color:#FFC198;
+  font-size:12px;font-weight:800;margin-bottom:12px}
+.payment-fields{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:8px}
+.payment-fields label{display:block;font-size:10px;color:#C4D6ED;line-height:1.3}
+.payment-fields input{display:block;margin-top:5px;width:100%;max-width:115px;background:#112A45;
+  border:1px solid #497394;color:#FFF;border-radius:8px;min-height:37px;padding:6px}
+.payment-fields .apply{min-height:37px;padding:7px 9px;font-size:12px}
+.payment-hint{color:#A8C1D5;font-size:10px;line-height:1.5;margin-top:11px}
+.payment-disabled{color:#FFCA7C;font-size:11px;padding:12px;margin-top:14px;
+  background:rgba(88,50,13,.2);border:1px solid rgba(251,143,46,.55);border-radius:9px;line-height:1.5}
+.alert{background:rgba(115,44,31,.5);border:1px solid #FB5C28;padding:14px;border-radius:11px}
+@media(max-width:1430px){.compare-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .comparison-panel{grid-column:1/-1;min-height:auto}.comparison-panel th,.comparison-panel td{font-size:12px}
+  .funnel-columns{grid-template-columns:minmax(0,1fr) 140px}}
+@media(max-width:1030px){.top-actions{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.shell{padding:12px}.top{padding:18px}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .compare-grid{grid-template-columns:1fr}.comparison-panel{grid-column:auto}.funnel-panel{min-height:auto}
+  .funnel-columns{grid-template-columns:minmax(0,1fr) 125px}}
+@media(max-width:410px){.kpi-grid{grid-template-columns:1fr}.funnel-columns{grid-template-columns:minmax(0,1fr) 107px}
+  .funnel-shape{height:66px}.stage-icon{display:none}.payment-fields{grid-template-columns:1fr 1fr}
+  .payment-fields button{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
     /* ===== Fundo animado do Cockpit aplicado ao Dashboard Sky ===== */
     .cockpit-bg {
       position: fixed;
@@ -165,7 +321,11 @@ select,input,button{padding:10px 12px;border-radius:10px;border:1px solid #47638
     }
 
   
-</style></head><body>  <div class="cockpit-bg">
+
+</style>
+</head>
+<body>
+  <div class="cockpit-bg">
     <div class="grid"></div>
     <div class="orb one"></div>
     <div class="orb two"></div>
@@ -188,13 +348,173 @@ select,input,button{padding:10px 12px;border-radius:10px;border:1px solid #47638
     </div>
   </div>
 
+
+
 <main class="shell">
-<header class="top"><div><div class="brand">OLOS STRATEGY AND PLANNING</div><h1>ASSISTPAY | <span>Comparativo Mensal</span></h1><p class="muted">Visão consolidada • mesmos dias trabalhados nos dois meses</p><a href="{{ url_for('sky_negocie_online_index',tab='daily') }}">← Voltar ao Cockpit Assistpay</a></div>
-<div class="tools"><form method="get" class="tools"><div><label>Mês anterior</label><select name="anterior">{% for m in meses %}<option value="{{ m.valor }}" {% if m.valor==anterior %}selected{% endif %}>{{ m.label }}</option>{% endfor %}</select></div><div><label>Mês atual</label><select name="atual">{% for m in meses %}<option value="{{ m.valor }}" {% if m.valor==atual %}selected{% endif %}>{{ m.label }}</option>{% endfor %}</select></div><div><label>Dias trabalhados</label><input type="number" name="dias" min="1" max="31" value="{{ dias }}" style="width:85px"></div><button type="submit">Aplicar</button></form><img class="logo" src="{{ url_for('static',filename='img/logo-olos-laranja.png') }}" alt="Olos"></div></header>
-{% if erro %}<div class="panel message">{{ erro }}</div>{% else %}
-<section class="cards">{% for c in destaques %}<div class="card"><div class="name">{{c.nome}}</div><div class="values">{{c.a}} → {{c.b}}</div><div class="delta {{c.classe}}">{{c.variacao}}</div></div>{% endfor %}</section>
-<div class="content">{% for mes in funis %}<section class="panel"><h2>Funil | <span>{{mes.label}}</span></h2><div class="funnel">{% for e in mes.etapas %}<div class="stage {% if loop.index>4 %}orange{% endif %}" style="--width:{{100-loop.index0*8}}%"><small>{{e.nome}}</small><strong>{{e.valor}}</strong></div>{% endfor %}</div><p class="funnel-note">{{mes.dias}} dia(s) com dados • Mailing = média diária</p></section>{% endfor %}
-<section class="panel"><h2>Visão comparativa <span>dos indicadores</span></h2><div class="tablewrap"><table><thead><tr><th>Indicador</th><th>{{rotulo_anterior}}</th><th>{{rotulo_atual}}</th><th>Variação</th></tr></thead><tbody>{% for r in linhas %}<tr><td>{{r.nome}}</td><td>{{r.a}}</td><td>{{r.b}}</td><td class="{{r.classe}}">{{r.variacao}}</td></tr>{% endfor %}</tbody></table></div>
-{% if pagamento_editavel %}<form method="post" action="{{url_for('sky_mensal_pagamento')}}" class="pay"><input type="hidden" name="csrf_token" value="{{csrf_token}}"><input type="hidden" name="anterior" value="{{anterior}}"><input type="hidden" name="atual" value="{{atual}}"><input type="hidden" name="dias" value="{{dias}}"><label class="small">Pagamento {{rotulo_anterior}}<input type="number" name="pag_a" min="0" value="{{pag_a if pag_a is not none else ''}}" style="width:100px" required></label><label class="small">Pagamento {{rotulo_atual}}<input type="number" name="pag_b" min="0" value="{{pag_b if pag_b is not none else ''}}" style="width:100px" required></label><button type="submit">Salvar</button></form>{% else %}<p class="message">Pagamento manual: configure ASSISTPAY_PAGAMENTOS_DB em um volume persistente do Render para habilitar o salvamento.</p>{% endif %}
-<p class="small">Valores de pagamento são registrados por mês e pelo número de dias trabalhados escolhido. Taxas que dependem de pagamentos ausentes aparecem como N/D.</p></section></div>{% endif %}
-</main></body></html>
+  <header class="top">
+    <div class="top-copy">
+      <div class="eyebrow">OLOS STRATEGY AND PLANNING</div>
+      <h1>ASSISTPAY | <em>Comparativo Mensal</em></h1>
+      <p class="subtitle">Visão consolidada dos principais indicadores operacionais • mesmos dias trabalhados nos dois meses</p>
+      <a class="back-link" href="{{ url_for('sky_negocie_online_index',tab='daily') }}">
+        <i data-lucide="arrow-left" width="17" height="17"></i> Voltar ao Cockpit Assistpay
+      </a>
+    </div>
+    <div class="top-actions">
+      <form method="get" class="filter-row">
+        <div class="field">
+          <label for="anterior">Mês anterior</label>
+          <select id="anterior" name="anterior">
+            {% for m in meses %}<option value="{{m.valor}}" {% if m.valor==anterior %}selected{% endif %}>{{m.label}}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="atual">Mês atual</label>
+          <select id="atual" name="atual">
+            {% for m in meses %}<option value="{{m.valor}}" {% if m.valor==atual %}selected{% endif %}>{{m.label}}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field days">
+          <label for="dias">Dias trabalhados</label>
+          <input id="dias" name="dias" type="number" min="1" max="31" value="{{dias}}">
+        </div>
+        <button class="apply" type="submit">Aplicar</button>
+      </form>
+      <img class="brand-logo" src="{{url_for('static',filename='img/logo-olos-laranja.png')}}" alt="Olos">
+    </div>
+  </header>
+  {% if erro %}
+    <section class="tech-panel alert" role="alert">{{erro}}</section>
+  {% else %}
+  <div class="dashboard-main">
+    <section class="kpi-grid" aria-label="Indicadores de destaque">
+      {% for c in destaques %}
+      <article class="tech-panel kpi">
+        <div class="kpi-icon {% if c.nome in ['Acordo','Pagamento'] %}accent{% endif %}">
+          <i data-lucide="{{c.icon}}" width="29" height="29"></i>
+        </div>
+        <div>
+          <div class="kpi-name">{{c.nome}}</div>
+          <div class="kpi-values">{{c.a}} → {{c.b}}</div>
+          <div class="kpi-delta {{c.classe}}">
+            <span class="delta-arrow">{% if c.classe=='positive' %}↑{% elif c.classe=='negative' %}↓{% else %}•{% endif %}</span>{{c.variacao}}
+          </div>
+        </div>
+        <div class="mini-bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      </article>
+      {% endfor %}
+    </section>
+
+    <div class="compare-grid">
+      {% for mes in funis %}
+      <section class="tech-panel funnel-panel" aria-label="Funil {{mes.label}}">
+        <div class="section-head">
+          <div class="section-icon"><i data-lucide="calendar-days" width="23" height="23"></i></div>
+          <h2>Funil | <em>{{mes.label}}</em></h2>
+          <div class="period-pill">{{mes.dias}} dias com dados</div>
+        </div>
+        <div class="funnel-columns">
+          <div class="funnel-stack">
+            {% for etapa in mes.etapas %}
+            <div class="funnel-level {{etapa.tone}}" style="--stage-w:{{100-loop.index0*7}}%">
+              <div class="funnel-shape">
+                <i class="stage-icon" data-lucide="{{etapa.icon}}"></i>
+                <div class="stage-data">
+                  <div class="stage-name">{{etapa.nome}}</div>
+                  <div class="stage-value">{{etapa.valor}}</div>
+                </div>
+              </div>
+            </div>
+            {% if not loop.last %}
+            <div class="level-chevron {% if loop.index>=4 %}orange-arrow{% endif %}">
+              <i data-lucide="chevron-down" width="17" height="17"></i>
+            </div>
+            {% endif %}
+            {% endfor %}
+            <div class="funnel-baseline" aria-hidden="true"></div>
+          </div>
+          <aside class="variation-side" aria-label="Variação dos indicadores do funil">
+            <div class="variation-title">Variação do funil</div>
+            <div class="variation-sub">{{rotulo_anterior}} → {{rotulo_atual}}</div>
+            {% for item in mes.variacoes %}
+            <div class="variation-item">
+              <small>{{item.nome}}</small>
+              <strong class="{{item.classe}}">
+                {{item.variacao}} {% if item.classe=='positive' %}↑{% elif item.classe=='negative' %}↓{% else %}−{% endif %}
+              </strong>
+            </div>
+            {% endfor %}
+          </aside>
+        </div>
+        <div class="funnel-note">
+          <i data-lucide="info" width="19" height="19"></i>
+          <div><strong>Critério do Spin:</strong> Discado ÷ soma do Mailing dos dias selecionados.<br>
+          <strong>Mailing exibido:</strong> média diária do período.</div>
+        </div>
+      </section>
+      {% endfor %}
+
+      <section class="tech-panel comparison-panel" aria-label="Comparativo dos indicadores">
+        <div class="section-head">
+          <div class="section-icon blue"><i data-lucide="chart-no-axes-column-increasing" width="25" height="25"></i></div>
+          <h2>Visão comparativa <em>dos indicadores</em></h2>
+        </div>
+        <div class="compare-table-wrap">
+          <table>
+            <thead><tr><th>Indicador</th><th>{{rotulo_anterior}}</th><th>{{rotulo_atual}}</th><th>Variação</th></tr></thead>
+            <tbody>
+              {% for item in linhas %}
+              <tr>
+                <td>{{item.nome}}</td><td>{{item.a}}</td><td>{{item.b}}</td>
+                <td class="compare-change {{item.classe}}">
+                  {% if item.classe=='positive' %}↑ {% elif item.classe=='negative' %}↓ {% endif %}{{item.variacao}}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if pagamento_editavel %}
+        <form method="post" action="{{url_for('sky_mensal_pagamento')}}" class="payment-editor">
+          <input type="hidden" name="csrf_token" value="{{csrf_token}}">
+          <input type="hidden" name="anterior" value="{{anterior}}">
+          <input type="hidden" name="atual" value="{{atual}}">
+          <input type="hidden" name="dias" value="{{dias}}">
+          <div class="payment-heading">
+            <i data-lucide="pencil" width="17" height="17"></i>
+            Pagamentos manuais • {{dias}} dias trabalhados
+          </div>
+          <div class="payment-fields">
+            <label for="pag_a">{{rotulo_anterior}}
+              <input id="pag_a" type="number" min="0" step="1" name="pag_a" value="{{pag_a if pag_a is not none else ''}}" required>
+            </label>
+            <label for="pag_b">{{rotulo_atual}}
+              <input id="pag_b" type="number" min="0" step="1" name="pag_b" value="{{pag_b if pag_b is not none else ''}}" required>
+            </label>
+            <button class="apply" type="submit">Salvar</button>
+          </div>
+          <div class="payment-hint">Após salvar, os valores e a variação de Pagamento serão atualizados nos cards, nos dois funis e na tabela.</div>
+        </form>
+        {% else %}
+        <div class="payment-disabled">
+          <strong>Pagamento manual indisponível:</strong> é necessário configurar a variável
+          <code>ASSISTPAY_PAGAMENTOS_DB</code> com um caminho em disco persistente do Render.
+          Até lá, Pagamento e indicadores dependentes aparecem como N/D.
+        </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+  {% endif %}
+</main>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script>
+window.addEventListener('DOMContentLoaded',function(){
+  const iconScript=document.querySelector('script[src*="lucide@"]');
+  if(iconScript && !window.lucide){
+    iconScript.addEventListener('load',function(){if(window.lucide)window.lucide.createIcons()},{once:true});
+  } else if(window.lucide){window.lucide.createIcons()}
+});
+</script>
+</body></html>
