@@ -1787,6 +1787,7 @@ to { background-position: 0 55px; } }
       {% if 'hora' in visoes_permitidas %}<button class="tab-btn" type="button" data-tab="hora">Hora a Hora</button>{% endif %}
       {% if 'mapa' in visoes_permitidas %}<button class="tab-btn" type="button" data-tab="mapa">Mapa Brasil</button>{% endif %}
       {% if 'funil' in visoes_permitidas %}<button class="tab-btn" type="button" data-tab="funil">Funil Comparativo</button>{% endif %}
+      {% if usuario in ['gerber','admin'] %}<a class="tab-btn" href="{{ url_for('sky_comparativo_mensal') }}" style="text-decoration:none;display:inline-flex;align-items:center">Comparativo Mensal</a>{% endif %}
     </nav>
 
     <section id="daily" class="tab-content active">
