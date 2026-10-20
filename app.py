@@ -6758,12 +6758,16 @@ def _sky_mensal_resumo(df, mes, dias, pagamento):
     soma = lambda k: float(fatia[k].sum()) if k in fatia else 0.0
     # Reaproveita regra existente para não duplicar mailing por faixa de atraso.
     mailing_dia = calcular_mailing_distinto_por_faixa(fatia, ["DATA"], ["DATA"])
+    # O valor visível de Mailing continua sendo a média diária.
+    # Para o Spin, a referência é a SOMA dos mailings diários deduplicados,
+    # considerando exatamente os dias trabalhados selecionados em cada mês.
     mailing = float(mailing_dia["MAILING"].mean()) if len(mailing_dia) else 0
+    mailing_total = float(mailing_dia["MAILING"].sum()) if len(mailing_dia) else 0
     logados = float(fatia.groupby("DATA")["Logados"].max().mean()) if not fatia.empty else 0
     disc, cont, cpc, ndoc, acordo = (soma(k) for k in ("Discado","Contato","Cpc","NDOC","Acordo"))
     div = lambda n,d: n/d if d else None
     return {"Mailing":mailing,"Discado":disc,"Contato":cont,"CPC":cpc,"NDOC":ndoc,"Acordo":acordo,
-        "Spin":div(disc,mailing),"Hit %":div(cont,disc),"Loc %":div(cpc,cont),
+        "Spin":div(disc,mailing_total),"Hit %":div(cont,disc),"Loc %":div(cpc,cont),
         "Conver %":div(acordo,cpc),"Logados":logados,"NDOC %":div(ndoc,cpc),
         "Efic %":div(acordo,mailing),"Acordo / ADA":div(acordo,logados),
         "Pagamento":pagamento,"Efetividade %":div(pagamento,acordo) if pagamento is not None else None,
@@ -6795,12 +6799,19 @@ def sky_comparativo_mensal():
     meses = [{"valor":m,"label":meses_pt[int(m[-2:])-1]+"/"+m[:4]} for m in disponiveis[::-1]]
     label = lambda m: meses_pt[int(m[-2:])-1] + "/" + m[:4]
     try:
-        pa = _sky_pagamento_ler(anterior,dias)
-        pb = _sky_pagamento_ler(atual,dias)
-        editavel = _sky_pagamentos_connection() is not None
-        if editavel:
-            con=_sky_pagamentos_connection()
-            con.close()
+        con = _sky_pagamentos_connection()
+        editavel = con is not None
+        pa = pb = None
+        if con is not None:
+            try:
+                dados_pagamento = dict(con.execute(
+                    "SELECT competencia, quantidade FROM pagamentos_mensais "
+                    "WHERE dias=? AND competencia IN (?,?)", (dias, anterior, atual)
+                ).fetchall())
+                pa = dados_pagamento.get(anterior)
+                pb = dados_pagamento.get(atual)
+            finally:
+                con.close()
     except Exception:
         pa=pb=None
         editavel=False
@@ -6820,13 +6831,29 @@ def sky_comparativo_mensal():
         classe="neutral" if var is None else ("positive" if var>=0 else "negative")
         return {"nome":k,"a":formato(k,x),"b":formato(k,y),"variacao":texto,"classe":classe}
     linhas=[linha(k) for k in ordem]
-    funil_keys=["Mailing","Discado","Contato","CPC","Acordo","Pagamento"]
-    funis=[{"label":label(m),"dias":v["_dias"],"etapas":[{"nome":k,"valor":formato(k,v[k])} for k in funil_keys]} for m,v in [(anterior,a),(atual,b)]]
+    funil_keys = ["Mailing","Discado","Contato","CPC","Acordo","Pagamento"]
+    icones = {"Mailing":"users", "Discado":"phone-call", "Contato":"messages-square",
+              "CPC":"target", "Acordo":"handshake", "Pagamento":"wallet-cards",
+              "Efic %":"chart-no-axes-combined"}
+    variacoes_funil = [
+        {"nome": "Mailing médio" if k == "Mailing" else k,
+         "variacao": linha(k)["variacao"], "classe": linha(k)["classe"]}
+        for k in funil_keys
+    ]
+    funis = [
+        {"label":label(m), "dias":v["_dias"],
+         "etapas":[{"nome":"Mailing médio" if k == "Mailing" else k,
+                    "valor":formato(k,v[k]), "icon":icones[k],
+                    "tone":"orange" if k == "Acordo" else "payment" if k == "Pagamento" else "blue"}
+                   for k in funil_keys],
+         "variacoes": variacoes_funil}
+        for m,v in [(anterior,a),(atual,b)]
+    ]
     import secrets
     session.setdefault("assistpay_mensal_csrf", secrets.token_hex(24))
     return render_template("sky_comparativo_mensal.html",erro=None,meses=meses,anterior=anterior,atual=atual,
         dias=dias,rotulo_anterior=label(anterior),rotulo_atual=label(atual),funis=funis,linhas=linhas,
-        destaques=[linha(k) for k in ["Acordo","Efic %","Contato","CPC","Pagamento"]],
+        destaques=[dict(linha(k), icon=icones[k], slug=k.lower().replace(" ", "-").replace("%","pct")) for k in ["Acordo","Efic %","Contato","CPC","Pagamento"]],
         pag_a=pa,pag_b=pb,pagamento_editavel=editavel,csrf_token=session["assistpay_mensal_csrf"])
 
 @app.route("/cliente/sky-negocie-online/painel/comparativo-mensal/pagamento", methods=["POST"])
