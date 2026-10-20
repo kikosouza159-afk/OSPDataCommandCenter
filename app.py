@@ -6765,9 +6765,9 @@ def _sky_mensal_resumo(df, mes, dias, pagamento):
     return {"Mailing":mailing,"Discado":disc,"Contato":cont,"CPC":cpc,"NDOC":ndoc,"Acordo":acordo,
         "Spin":div(disc,mailing),"Hit %":div(cont,disc),"Loc %":div(cpc,cont),
         "Conver %":div(acordo,cpc),"Logados":logados,"NDOC %":div(ndoc,cpc),
-        "Efic %":div(acordo,cont),"Acordo / ADA":div(acordo,logados),
+        "Efic %":div(acordo,mailing),"Acordo / ADA":None,
         "Pagamento":pagamento,"Efetividade %":div(pagamento,acordo) if pagamento is not None else None,
-        "Efic Pagamento %":div(pagamento,cont) if pagamento is not None else None,
+        "Efic Pagamento %":div(pagamento,mailing) if pagamento is not None else None,
         "_dias":len(datas)}
 
 @app.route("/cliente/sky-negocie-online/painel/comparativo-mensal")
