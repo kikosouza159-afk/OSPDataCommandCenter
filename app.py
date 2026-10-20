@@ -6822,10 +6822,12 @@ def sky_comparativo_mensal():
     linhas=[linha(k) for k in ordem]
     funil_keys=["Mailing","Discado","Contato","CPC","Acordo","Pagamento"]
     funis=[{"label":label(m),"dias":v["_dias"],"etapas":[{"nome":k,"valor":formato(k,v[k])} for k in funil_keys]} for m,v in [(anterior,a),(atual,b)]]
+    import secrets
+    session.setdefault("assistpay_mensal_csrf", secrets.token_hex(24))
     return render_template("sky_comparativo_mensal.html",erro=None,meses=meses,anterior=anterior,atual=atual,
         dias=dias,rotulo_anterior=label(anterior),rotulo_atual=label(atual),funis=funis,linhas=linhas,
         destaques=[linha(k) for k in ["Acordo","Efic %","Contato","CPC","Pagamento"]],
-        pag_a=pa,pag_b=pb,pagamento_editavel=editavel)
+        pag_a=pa,pag_b=pb,pagamento_editavel=editavel,csrf_token=session["assistpay_mensal_csrf"])
 
 @app.route("/cliente/sky-negocie-online/painel/comparativo-mensal/pagamento", methods=["POST"])
 def sky_mensal_pagamento():
@@ -6833,9 +6835,12 @@ def sky_mensal_pagamento():
         return redirect(url_for("login"))
     if not _sky_mensal_permitido():
         return acesso_negado()
+    import hmac
+    if not hmac.compare_digest(request.form.get("csrf_token",""), session.get("assistpay_mensal_csrf","")) or not session.get("assistpay_mensal_csrf"):
+        abort(403)
     anterior=request.form.get("anterior","")
     atual=request.form.get("atual","")
-    if not __import__("re").fullmatch(r"\\d{4}-(0[1-9]|1[0-2])",anterior) or not __import__("re").fullmatch(r"\\d{4}-(0[1-9]|1[0-2])",atual):
+    if not __import__("re").fullmatch(r"\d{4}-(0[1-9]|1[0-2])",anterior) or not __import__("re").fullmatch(r"\d{4}-(0[1-9]|1[0-2])",atual):
         abort(400)
     try:
         dias=int(request.form["dias"])
