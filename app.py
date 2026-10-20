@@ -78,6 +78,7 @@ DASHBOARD_VISOES = {
         {"id": "hora", "nome": "Hora a Hora"},
         {"id": "mapa", "nome": "Mapa Brasil"},
         {"id": "funil", "nome": "Funil Comparativo"},
+        {"id": "mensal", "nome": "Comparativo Mensal"},
     ],
 }
 
@@ -6720,6 +6721,138 @@ def rede_brasil_locator_data():
     hourly_consolidated = _rb_comp_hourly_consolidated(comp_day_selected)
     horas=sorted(set([str(int(h)) for h in loc_pool.get("Hora",pd.Series(dtype=float)).dropna().tolist()]+[str(int(h)) for h in comp_pool.get("Hora",pd.Series(dtype=float)).dropna().tolist()]), key=lambda x:int(x))
     return jsonify({"selected":{"data":data,"cliente":"REDE BRASIL","locator_campaign":loc_camp,"comparativa_campaign":comp_camp,"hora":hora},"available":{"locator_campaigns":_rb_list(loc_pool,"NomeCampanha"),"comparativa_campaigns":_rb_list(comp_pool,"NomeCampanha"),"horas":horas},"locator":loc_sum,"comparativa":comp_sum,"variation":_rb_variation(loc_sum["_raw"],comp_sum["_raw"]),"hourly":_rb_hourly(loc_f),"hourly_consolidated":hourly_consolidated,"meta":meta})
+
+
+# ===== ASSISTPAY | COMPARATIVO MENSAL PRIVADO =====
+def _sky_mensal_permitido():
+    return session.get("usuario") in {"gerber", "admin"}
+
+def _sky_pagamentos_connection():
+    import sqlite3
+    import os
+    path = os.environ.get("ASSISTPAY_PAGAMENTOS_DB", "").strip()
+    if not path:
+        return None
+    # Deve apontar para um disco persistente no Render (ex.: /var/data/assistpay_pagamentos.sqlite3).
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(path, timeout=10)
+    con.execute("CREATE TABLE IF NOT EXISTS pagamentos_mensais (competencia TEXT NOT NULL, dias INTEGER NOT NULL, quantidade INTEGER NOT NULL CHECK (quantidade >= 0), atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (competencia, dias))")
+    con.commit()
+    return con
+
+def _sky_pagamento_ler(mes, dias):
+    con = _sky_pagamentos_connection()
+    if con is None:
+        return None
+    try:
+        row = con.execute("SELECT quantidade FROM pagamentos_mensais WHERE competencia=? AND dias=?", (mes, dias)).fetchone()
+        return row[0] if row else None
+    finally:
+        con.close()
+
+def _sky_mensal_resumo(df, mes, dias, pagamento):
+    import pandas as pd
+    fatia = df[df["DATA"].dt.strftime("%Y-%m") == mes].copy()
+    datas = sorted(fatia["DATA"].dropna().dt.normalize().unique())[:dias]
+    fatia = fatia[fatia["DATA"].dt.normalize().isin(datas)]
+    soma = lambda k: float(fatia[k].sum()) if k in fatia else 0.0
+    # Reaproveita regra existente para não duplicar mailing por faixa de atraso.
+    mailing_dia = calcular_mailing_distinto_por_faixa(fatia, ["DATA"], ["DATA"])
+    mailing = float(mailing_dia["MAILING"].mean()) if len(mailing_dia) else 0
+    logados = float(fatia.groupby("DATA")["Logados"].max().mean()) if not fatia.empty else 0
+    disc, cont, cpc, ndoc, acordo = (soma(k) for k in ("Discado","Contato","Cpc","NDOC","Acordo"))
+    div = lambda n,d: n/d if d else None
+    return {"Mailing":mailing,"Discado":disc,"Contato":cont,"CPC":cpc,"NDOC":ndoc,"Acordo":acordo,
+        "Spin":div(disc,mailing),"Hit %":div(cont,disc),"Loc %":div(cpc,cont),
+        "Conver %":div(acordo,cpc),"Logados":logados,"NDOC %":div(ndoc,cpc),
+        "Efic %":div(acordo,cont),"Acordo / ADA":div(acordo,logados),
+        "Pagamento":pagamento,"Efetividade %":div(pagamento,acordo) if pagamento is not None else None,
+        "Efic Pagamento %":div(pagamento,cont) if pagamento is not None else None,
+        "_dias":len(datas)}
+
+@app.route("/cliente/sky-negocie-online/painel/comparativo-mensal")
+def sky_comparativo_mensal():
+    from datetime import datetime
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+    if not _sky_mensal_permitido():
+        return acesso_negado()
+    meses_pt = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
+    df = carregar_bases_sky()["daily"].copy()
+    disponiveis = sorted(df["DATA"].dropna().dt.strftime("%Y-%m").unique().tolist())
+    if not disponiveis:
+        return render_template("sky_comparativo_mensal.html", erro="Sem dados disponíveis.", meses=[])
+    atual_padrao = disponiveis[-1]
+    ant_padrao = disponiveis[-2] if len(disponiveis)>1 else disponiveis[-1]
+    atual = request.args.get("atual",atual_padrao)
+    anterior = request.args.get("anterior",ant_padrao)
+    atual = atual if atual in disponiveis else atual_padrao
+    anterior = anterior if anterior in disponiveis else ant_padrao
+    try:
+        dias = max(1,min(31,int(request.args.get("dias","15"))))
+    except (ValueError,TypeError):
+        dias = 15
+    meses = [{"valor":m,"label":meses_pt[int(m[-2:])-1]+"/"+m[:4]} for m in disponiveis[::-1]]
+    label = lambda m: meses_pt[int(m[-2:])-1] + "/" + m[:4]
+    try:
+        pa = _sky_pagamento_ler(anterior,dias)
+        pb = _sky_pagamento_ler(atual,dias)
+        editavel = _sky_pagamentos_connection() is not None
+        if editavel:
+            con=_sky_pagamentos_connection()
+            con.close()
+    except Exception:
+        pa=pb=None
+        editavel=False
+    a = _sky_mensal_resumo(df,anterior,dias,pa)
+    b = _sky_mensal_resumo(df,atual,dias,pb)
+    ordem = ["Mailing","Discado","Contato","CPC","NDOC","Acordo","Spin","Hit %","Loc %","Conver %","Logados","NDOC %","Efic %","Acordo / ADA","Pagamento","Efetividade %","Efic Pagamento %"]
+    percentuais={"Hit %","Loc %","Conver %","NDOC %","Efic %","Efetividade %","Efic Pagamento %"}
+    def formato(k,v):
+        if v is None:return "N/D"
+        if k in percentuais:return f"{v*100:,.1f}%".replace(",", "X").replace(".", ",").replace("X", ".")
+        if k=="Spin" or k=="Acordo / ADA":return f"{v:,.1f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{v:,.0f}".replace(",", ".")
+    def linha(k):
+        x,y=a[k],b[k]
+        var=(y/x-1)*100 if x not in (0,None) and y is not None else None
+        texto=("N/D" if var is None else ("+" if var>0 else "")+f"{var:.1f}%".replace(".",","))
+        classe="neutral" if var is None else ("positive" if var>=0 else "negative")
+        return {"nome":k,"a":formato(k,x),"b":formato(k,y),"variacao":texto,"classe":classe}
+    linhas=[linha(k) for k in ordem]
+    funil_keys=["Mailing","Discado","Contato","CPC","Acordo","Pagamento"]
+    funis=[{"label":label(m),"dias":v["_dias"],"etapas":[{"nome":k,"valor":formato(k,v[k])} for k in funil_keys]} for m,v in [(anterior,a),(atual,b)]]
+    return render_template("sky_comparativo_mensal.html",erro=None,meses=meses,anterior=anterior,atual=atual,
+        dias=dias,rotulo_anterior=label(anterior),rotulo_atual=label(atual),funis=funis,linhas=linhas,
+        destaques=[linha(k) for k in ["Acordo","Efic %","Contato","CPC","Pagamento"]],
+        pag_a=pa,pag_b=pb,pagamento_editavel=editavel)
+
+@app.route("/cliente/sky-negocie-online/painel/comparativo-mensal/pagamento", methods=["POST"])
+def sky_mensal_pagamento():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+    if not _sky_mensal_permitido():
+        return acesso_negado()
+    anterior=request.form.get("anterior","")
+    atual=request.form.get("atual","")
+    if not __import__("re").fullmatch(r"\\d{4}-(0[1-9]|1[0-2])",anterior) or not __import__("re").fullmatch(r"\\d{4}-(0[1-9]|1[0-2])",atual):
+        abort(400)
+    try:
+        dias=int(request.form["dias"])
+        pa=int(request.form["pag_a"]);pb=int(request.form["pag_b"])
+        if not 1<=dias<=31 or min(pa,pb)<0:raise ValueError()
+    except (ValueError,KeyError):
+        abort(400)
+    con=_sky_pagamentos_connection()
+    if con is None:
+        abort(503,"Configure ASSISTPAY_PAGAMENTOS_DB em armazenamento persistente")
+    try:
+        with con:
+            for mes,valor in [(anterior,pa),(atual,pb)]:
+                con.execute("INSERT INTO pagamentos_mensais (competencia,dias,quantidade) VALUES (?,?,?) ON CONFLICT(competencia,dias) DO UPDATE SET quantidade=excluded.quantidade, atualizado_em=CURRENT_TIMESTAMP",(mes,dias,valor))
+    finally:
+        con.close()
+    return redirect(url_for("sky_comparativo_mensal", anterior=anterior,atual=atual,dias=dias))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
