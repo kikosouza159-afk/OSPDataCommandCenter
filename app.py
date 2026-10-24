@@ -7031,10 +7031,25 @@ def sky_comparativo_mensal():
     anterior = request.args.get("anterior",ant_padrao)
     atual = atual if atual in disponiveis else atual_padrao
     anterior = anterior if anterior in disponiveis else ant_padrao
+
+    # Quantidade real de dias com dados em cada mês. O padrão da tela acompanha
+    # automaticamente a última data carregada do mês atual selecionado.
+    dias_por_mes = {
+        mes: int(
+            df.loc[df["DATA"].dt.strftime("%Y-%m") == mes, "DATA"]
+              .dropna()
+              .dt.normalize()
+              .nunique()
+        )
+        for mes in disponiveis
+    }
+    dias_auto = max(1, min(31, dias_por_mes.get(atual, 1)))
+    dias_param = request.args.get("dias", "").strip()
     try:
-        dias = max(1,min(31,int(request.args.get("dias","15"))))
-    except (ValueError,TypeError):
-        dias = 15
+        dias = max(1, min(31, int(dias_param))) if dias_param else dias_auto
+    except (ValueError, TypeError):
+        dias = dias_auto
+
     meses = [{"valor":m,"label":meses_pt[int(m[-2:])-1]+"/"+m[:4]} for m in disponiveis[::-1]]
     label = lambda m: meses_pt[int(m[-2:])-1] + "/" + m[:4]
     try:
@@ -7091,7 +7106,7 @@ def sky_comparativo_mensal():
     import secrets
     session.setdefault("assistpay_mensal_csrf", secrets.token_hex(24))
     return render_template("sky_comparativo_mensal.html",erro=None,meses=meses,anterior=anterior,atual=atual,
-        dias=dias,rotulo_anterior=label(anterior),rotulo_atual=label(atual),funis=funis,linhas=linhas,
+        dias=dias,dias_por_mes=dias_por_mes,rotulo_anterior=label(anterior),rotulo_atual=label(atual),funis=funis,linhas=linhas,
         destaques=[dict(linha(k), icon=icones[k], slug=k.lower().replace(" ", "-").replace("%","pct")) for k in ["Acordo","Efic %","Contato","CPC","Pagamento"]],
         pag_a=pa,pag_b=pb,pagamento_editavel=editavel,csrf_token=session["assistpay_mensal_csrf"])
 
