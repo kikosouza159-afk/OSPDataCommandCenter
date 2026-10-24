@@ -4031,7 +4031,7 @@ def preparar_base_sky(df, origem="daily"):
 
     return df
 
-def carregar_bases_sky():
+def _carregar_bases_sky_excel():
     if not SKY_ARQUIVO_BASE.exists():
         rows = []
         dias = pd.date_range("2026-05-14", periods=6, freq="D")
@@ -4083,6 +4083,242 @@ def carregar_bases_sky():
     SKY_BASE_CACHE["mtime"] = mtime
     SKY_BASE_CACHE["bases"] = {k: v.copy() for k, v in bases.items()}
     return {k: v.copy() for k, v in bases.items()}
+
+
+# Cache da fonte Neon. O Excel fica somente como fallback de transição
+# quando ASSISTPAY_NEON_DATABASE_URL ainda não estiver configurada.
+SKY_NEON_CACHE = {
+    "loaded_at": 0.0,
+    "bases": None,
+}
+
+
+def _sky_neon_dataframe(conn, sql):
+    with conn.cursor() as cur:
+        cur.execute(sql)
+        colunas = [desc.name for desc in cur.description]
+        linhas = cur.fetchall()
+    return pd.DataFrame(linhas, columns=colunas)
+
+
+def carregar_bases_sky():
+    """
+    Fonte principal SKY/AssistPay: Neon PostgreSQL.
+
+    Contrato preservado:
+      daily             -> mesmo formato da antiga Funil_Sumarizado
+      hora              -> mesmo formato da antiga Funil_Hora
+      uf                -> mesmo formato da antiga Funil_UF_Dia
+      unique            -> Unique Dia + Unique Mês
+      unique_acumulado  -> snapshots acumulados
+
+    O restante do painel continua recebendo os mesmos DataFrames.
+    """
+    import os
+    import time
+
+    database_url = os.environ.get("ASSISTPAY_NEON_DATABASE_URL", "").strip()
+    if not database_url:
+        # Fallback temporário para o deploy não quebrar antes da variável
+        # de ambiente ser cadastrada no Render.
+        return _carregar_bases_sky_excel()
+
+    try:
+        cache_seconds = max(30, int(os.environ.get("ASSISTPAY_NEON_CACHE_SECONDS", "300")))
+    except (TypeError, ValueError):
+        cache_seconds = 300
+
+    agora = time.monotonic()
+    if (
+        SKY_NEON_CACHE.get("bases") is not None
+        and agora - float(SKY_NEON_CACHE.get("loaded_at") or 0) < cache_seconds
+    ):
+        return {k: v.copy() for k, v in SKY_NEON_CACHE["bases"].items()}
+
+    sql_daily = """
+        SELECT
+            f.data AS "DATA",
+            0::integer AS "HOUR",
+            f.campaign_id AS "CampaignId",
+            0::integer AS "UF_DDD",
+            f.faixa_atraso AS "Faixa_Atraso",
+            ''::text AS "Tabulacao",
+            ''::text AS "Classificado",
+            f.mailing AS "MAILING",
+            COALESCE(l.logados, 0) AS "Logados",
+            f.discado AS "Discado",
+            f.contato AS "Contato",
+            f.cpc AS "Cpc",
+            f.ndoc AS "NDOC",
+            f.acordo AS "Acordo",
+            f.hangup AS "HangUp",
+            f.tempo AS "Tempo",
+            f.custo AS "Custo_Telecom",
+            f.tma_geral AS "TMA_GERAL",
+            f.hit_rate AS "HitRate",
+            f.loc AS "Loc",
+            f.conversao AS "Conversao",
+            f.pct_hangup AS "PctHangUp"
+        FROM assistpay.funil_sumarizado f
+        LEFT JOIN assistpay.logados_manual l
+          ON l.data = f.data
+         AND l.campaign_id = f.campaign_id
+        ORDER BY f.data, f.campaign_id, f.faixa_atraso
+    """
+
+    sql_hora = """
+        SELECT
+            f.data AS "DATA",
+            f.hour AS "HOUR",
+            f.campaign_id AS "CampaignId",
+            0::integer AS "UF_DDD",
+            f.faixa_atraso AS "Faixa_Atraso",
+            ''::text AS "Tabulacao",
+            ''::text AS "Classificado",
+            f.mailing AS "MAILING",
+            COALESCE(l.logados, 0) AS "Logados",
+            f.discado AS "Discado",
+            f.contato AS "Contato",
+            f.cpc AS "Cpc",
+            f.ndoc AS "NDOC",
+            f.acordo AS "Acordo",
+            f.hangup AS "HangUp",
+            f.tempo AS "Tempo",
+            f.custo AS "Custo_Telecom",
+            f.tma_geral AS "TMA_GERAL",
+            f.hit_rate AS "HitRate",
+            f.loc AS "Loc",
+            f.conversao AS "Conversao",
+            f.pct_hangup AS "PctHangUp"
+        FROM assistpay.funil_hora f
+        LEFT JOIN assistpay.logados_manual l
+          ON l.data = f.data
+         AND l.campaign_id = f.campaign_id
+        ORDER BY f.data, f.hour, f.campaign_id, f.faixa_atraso
+    """
+
+    sql_uf = """
+        SELECT
+            f.data AS "DATA",
+            0::integer AS "HOUR",
+            f.campaign_id AS "CampaignId",
+            f.uf_ddd AS "UF_DDD",
+            f.faixa_atraso AS "Faixa_Atraso",
+            ''::text AS "Tabulacao",
+            ''::text AS "Classificado",
+            f.mailing AS "MAILING",
+            COALESCE(l.logados, 0) AS "Logados",
+            f.discado AS "Discado",
+            f.contato AS "Contato",
+            f.cpc AS "Cpc",
+            f.ndoc AS "NDOC",
+            f.acordo AS "Acordo",
+            f.hangup AS "HangUp",
+            f.tempo AS "Tempo",
+            f.custo AS "Custo_Telecom",
+            f.tma_geral AS "TMA_GERAL",
+            f.hit_rate AS "HitRate",
+            f.loc AS "Loc",
+            f.conversao AS "Conversao",
+            f.pct_hangup AS "PctHangUp"
+        FROM assistpay.funil_uf_dia f
+        LEFT JOIN assistpay.logados_manual l
+          ON l.data = f.data
+         AND l.campaign_id = f.campaign_id
+        ORDER BY f.data, f.uf_ddd, f.campaign_id, f.faixa_atraso
+    """
+
+    sql_unique = """
+        SELECT
+            d.data AS "DATA",
+            d.mailing AS "MAILING",
+            0::integer AS "Logados",
+            d.discado AS "Discado",
+            d.contato AS "Contato",
+            d.cpc AS "Cpc",
+            d.acordo AS "Acordo",
+            d.valor_acordo AS "Valor_Acordo",
+            d.penetracao AS "Penetracao",
+            d.alo AS "Alo",
+            d.loc AS "Loc",
+            d.conversao AS "Conversao",
+            d.tkm_acordo AS "TKM_ACORDO",
+            d.abertura AS "Abertura"
+        FROM assistpay.unique_dia d
+
+        UNION ALL
+
+        SELECT
+            m.data AS "DATA",
+            m.mailing AS "MAILING",
+            COALESCE(m.logados, 0) AS "Logados",
+            m.discado AS "Discado",
+            m.contato AS "Contato",
+            m.cpc AS "Cpc",
+            m.acordo AS "Acordo",
+            m.valor_acordo AS "Valor_Acordo",
+            m.penetracao AS "Penetracao",
+            m.alo AS "Alo",
+            m.loc AS "Loc",
+            m.conversao AS "Conversao",
+            m.tkm_acordo AS "TKM_ACORDO",
+            m.abertura AS "Abertura"
+        FROM assistpay.unique_mes m
+        ORDER BY "DATA", "Abertura"
+    """
+
+    sql_unique_acumulado = """
+        SELECT
+            data AS "DATA",
+            mailing AS "MAILING",
+            0::integer AS "Logados",
+            discado AS "Discado",
+            contato AS "Contato",
+            cpc AS "Cpc",
+            acordo AS "Acordo",
+            valor_acordo AS "Valor_Acordo",
+            penetracao AS "Penetracao",
+            alo AS "Alo",
+            loc AS "Loc",
+            conversao AS "Conversao",
+            tkm_acordo AS "TKM_ACORDO",
+            abertura AS "Abertura"
+        FROM assistpay.unique_acumulado
+        ORDER BY data
+    """
+
+    try:
+        import psycopg
+
+        with psycopg.connect(
+            database_url,
+            connect_timeout=10,
+            application_name="osp_data_command_center_assistpay",
+        ) as conn:
+            raw_daily = _sky_neon_dataframe(conn, sql_daily)
+            raw_hora = _sky_neon_dataframe(conn, sql_hora)
+            raw_uf = _sky_neon_dataframe(conn, sql_uf)
+            raw_unique = _sky_neon_dataframe(conn, sql_unique)
+            raw_unique_acumulado = _sky_neon_dataframe(conn, sql_unique_acumulado)
+
+        bases = {
+            "daily": preparar_base_sky(raw_daily, origem="daily"),
+            "hora": preparar_base_sky(raw_hora, origem="hora"),
+            "uf": preparar_base_sky(raw_uf, origem="uf"),
+            "unique": preparar_base_unique_sky(raw_unique),
+            "unique_acumulado": preparar_base_unique_sky(raw_unique_acumulado),
+        }
+
+        SKY_NEON_CACHE["loaded_at"] = agora
+        SKY_NEON_CACHE["bases"] = {k: v.copy() for k, v in bases.items()}
+        return {k: v.copy() for k, v in bases.items()}
+
+    except Exception:
+        # Se o Neon oscilar depois de uma carga válida, mantém o último snapshot
+        # em memória em vez de derrubar a página.
+        if SKY_NEON_CACHE.get("bases") is not None:
+            return {k: v.copy() for k, v in SKY_NEON_CACHE["bases"].items()}
+        raise
 
 def carregar_base():
     # Mantido por compatibilidade: a visão Daily/Comparativo usa a sheet Funil_Sumarizado.
