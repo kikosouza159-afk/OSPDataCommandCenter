@@ -4162,7 +4162,6 @@ def carregar_bases_sky():
         FROM assistpay.funil_sumarizado f
         LEFT JOIN assistpay.logados_manual l
           ON l.data = f.data
-         AND l.campaign_id = f.campaign_id
         ORDER BY f.data, f.campaign_id, f.faixa_atraso
     """
 
@@ -4193,7 +4192,6 @@ def carregar_bases_sky():
         FROM assistpay.funil_hora f
         LEFT JOIN assistpay.logados_manual l
           ON l.data = f.data
-         AND l.campaign_id = f.campaign_id
         ORDER BY f.data, f.hour, f.campaign_id, f.faixa_atraso
     """
 
@@ -4224,7 +4222,6 @@ def carregar_bases_sky():
         FROM assistpay.funil_uf_dia f
         LEFT JOIN assistpay.logados_manual l
           ON l.data = f.data
-         AND l.campaign_id = f.campaign_id
         ORDER BY f.data, f.uf_ddd, f.campaign_id, f.faixa_atraso
     """
 
