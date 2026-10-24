@@ -5,3 +5,4 @@ openpyxl
 numpy
 folium
 branca
+psycopg[binary]>=3.2,<4
