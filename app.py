@@ -5217,14 +5217,23 @@ def consolidar(df):
             "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "hora_a_hora": {"labels": [], "chart": {}, "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df), "unique": montar_visao_unique_sky(df_unique_base), "unique_acumulado": montar_visao_unique_acumulado_sky(df_unique_acumulado_base)
         }
 
+    # Logados se repetem nas faixas de atraso. Primeiro pega o maior
+    # valor de cada campanha por dia; depois soma as campanhas selecionadas
+    # (ex.: 202 + 203), sem duplicar os logados por faixa.
+    logados_por_dia = (
+        df.groupby(["DATA", "CampaignId"])["Logados"].max()
+          .groupby(level="DATA").sum()
+    )
+
     daily_metricas = (
         df.groupby("DATA", as_index=False)
           .agg({
-              "Logados":"max", "Discado":"sum", "Contato":"sum", "Cpc":"sum", "NDOC":"sum",
+              "Discado":"sum", "Contato":"sum", "Cpc":"sum", "NDOC":"sum",
               "Acordo":"sum", "HangUp":"sum", "Tempo":"sum", "Custo_Telecom":"sum"
           })
           .sort_values("DATA")
     )
+    daily_metricas["Logados"] = daily_metricas["DATA"].map(logados_por_dia).fillna(0)
 
     # Daily: soma os Mailings distintos de cada faixa por dia.
     mailing_daily = calcular_mailing_distinto_por_faixa(
