@@ -515,6 +515,18 @@ window.addEventListener('DOMContentLoaded',function(){
   if(iconScript && !window.lucide){
     iconScript.addEventListener('load',function(){if(window.lucide)window.lucide.createIcons()},{once:true});
   } else if(window.lucide){window.lucide.createIcons()}
+
+  // Ao trocar o mês atual, Dias Trabalhados acompanha automaticamente
+  // a quantidade real de datas disponíveis naquele mês.
+  const diasPorMes={{ dias_por_mes|default({})|tojson }};
+  const atualSelect=document.getElementById('atual');
+  const diasInput=document.getElementById('dias');
+  if(atualSelect && diasInput){
+    atualSelect.addEventListener('change',function(){
+      const qtd=Number(diasPorMes[this.value] || 0);
+      if(qtd>0){diasInput.value=qtd;}
+    });
+  }
 });
 </script>
 </body></html>
