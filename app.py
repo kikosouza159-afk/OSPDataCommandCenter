@@ -5214,13 +5214,10 @@ def consolidar(df):
             "periodo": "-", "mapa_html": "", "ranking_uf": [], "filtros": filtros, "totais": {}, "faixa_atraso": {"cards": [], "tabela": []}, "hora_a_hora": {"labels": [], "chart": {}, "tabela": []}, "funil_comparativo": montar_funil_comparativo_sky(df), "unique": montar_visao_unique_sky(df_unique_base), "unique_acumulado": montar_visao_unique_acumulado_sky(df_unique_acumulado_base)
         }
 
-    # Logados se repetem nas faixas de atraso. Primeiro pega o maior
-    # valor de cada campanha por dia; depois soma as campanhas selecionadas
-    # (ex.: 202 + 203), sem duplicar os logados por faixa.
-    logados_por_dia = (
-        df.groupby(["DATA", "CampaignId"])["Logados"].max()
-          .groupby(level="DATA").sum()
-    )
+    # Logados agora são definidos uma única vez por DATA, independentemente
+    # da campanha. Como o valor se repete nas linhas/faixas, MAX recupera
+    # o valor diário sem duplicá-lo.
+    logados_por_dia = df.groupby("DATA")["Logados"].max()
 
     daily_metricas = (
         df.groupby("DATA", as_index=False)
