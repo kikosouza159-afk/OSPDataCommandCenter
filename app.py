@@ -6967,24 +6967,29 @@ def _sky_mensal_permitido():
     return session.get("usuario") in {"gerber", "admin"}
 
 def _sky_pagamentos_connection():
-    import sqlite3
     import os
-    path = os.environ.get("ASSISTPAY_PAGAMENTOS_DB", "").strip()
-    if not path:
+    import psycopg
+    database_url = os.environ.get("ASSISTPAY_NEON_DATABASE_URL", "").strip()
+    if not database_url:
         return None
-    # Deve apontar para um disco persistente no Render (ex.: /var/data/assistpay_pagamentos.sqlite3).
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(path, timeout=10)
-    con.execute("CREATE TABLE IF NOT EXISTS pagamentos_mensais (competencia TEXT NOT NULL, dias INTEGER NOT NULL, quantidade INTEGER NOT NULL CHECK (quantidade >= 0), atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (competencia, dias))")
-    con.commit()
-    return con
+    return psycopg.connect(
+        database_url,
+        connect_timeout=10,
+        application_name="osp_data_command_center_pagamentos",
+    )
 
 def _sky_pagamento_ler(mes, dias):
     con = _sky_pagamentos_connection()
     if con is None:
         return None
     try:
-        row = con.execute("SELECT quantidade FROM pagamentos_mensais WHERE competencia=? AND dias=?", (mes, dias)).fetchone()
+        with con.cursor() as cur:
+            cur.execute(
+                "SELECT quantidade FROM assistpay.pagamentos_mensais "
+                "WHERE competencia=%s AND dias=%s",
+                (mes, dias),
+            )
+            row = cur.fetchone()
         return row[0] if row else None
     finally:
         con.close()
@@ -7058,10 +7063,14 @@ def sky_comparativo_mensal():
         pa = pb = None
         if con is not None:
             try:
-                dados_pagamento = dict(con.execute(
-                    "SELECT competencia, quantidade FROM pagamentos_mensais "
-                    "WHERE dias=? AND competencia IN (?,?)", (dias, anterior, atual)
-                ).fetchall())
+                with con.cursor() as cur:
+                    cur.execute(
+                        "SELECT competencia, quantidade "
+                        "FROM assistpay.pagamentos_mensais "
+                        "WHERE dias=%s AND competencia IN (%s,%s)",
+                        (dias, anterior, atual),
+                    )
+                    dados_pagamento = dict(cur.fetchall())
                 pa = dados_pagamento.get(anterior)
                 pb = dados_pagamento.get(atual)
             finally:
@@ -7095,7 +7104,9 @@ def sky_comparativo_mensal():
         for k in funil_keys
     ]
     funis = [
-        {"label":label(m), "dias":v["_dias"],
+        {"label":label(m), "competencia":m, "dias":v["_dias"],
+         "pagamento_raw": v["Pagamento"],
+         "input_name": "pag_a" if m == anterior else "pag_b",
          "etapas":[{"nome":"Mailing médio" if k == "Mailing" else k,
                     "valor":formato(k,v[k]), "icon":icones[k],
                     "tone":"orange" if k == "Acordo" else "payment" if k == "Pagamento" else "blue"}
@@ -7131,14 +7142,22 @@ def sky_mensal_pagamento():
         abort(400)
     con=_sky_pagamentos_connection()
     if con is None:
-        abort(503,"Configure ASSISTPAY_PAGAMENTOS_DB em armazenamento persistente")
+        abort(503,"Conexao com o Neon indisponivel para salvar pagamentos")
     try:
-        with con:
+        with con.cursor() as cur:
             for mes,valor in [(anterior,pa),(atual,pb)]:
-                con.execute("INSERT INTO pagamentos_mensais (competencia,dias,quantidade) VALUES (?,?,?) ON CONFLICT(competencia,dias) DO UPDATE SET quantidade=excluded.quantidade, atualizado_em=CURRENT_TIMESTAMP",(mes,dias,valor))
+                cur.execute(
+                    "INSERT INTO assistpay.pagamentos_mensais "
+                    "(competencia,dias,quantidade,atualizado_em) "
+                    "VALUES (%s,%s,%s,NOW()) "
+                    "ON CONFLICT(competencia,dias) DO UPDATE SET "
+                    "quantidade=EXCLUDED.quantidade, atualizado_em=NOW()",
+                    (mes,dias,valor),
+                )
+        con.commit()
     finally:
         con.close()
-    return redirect(url_for("sky_comparativo_mensal", anterior=anterior,atual=atual,dias=dias))
+    return redirect(url_for("sky_comparativo_mensal", anterior=anterior,atual=atual,dias=dias, salvo=1))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
