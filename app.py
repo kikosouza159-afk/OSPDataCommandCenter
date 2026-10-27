@@ -105,32 +105,108 @@ def _permissoes_padrao():
     return padrao
 
 
+def _permissoes_neon_connection():
+    import os
+    import psycopg
+    database_url = os.environ.get("ASSISTPAY_NEON_DATABASE_URL", "").strip()
+    if not database_url:
+        return None
+    return psycopg.connect(
+        database_url,
+        connect_timeout=10,
+        application_name="osp_data_command_center_permissoes",
+    )
+
+
+def _mesclar_permissoes(padrao, dados):
+    if not isinstance(dados, dict):
+        return padrao
+    for usuario, clientes in dados.items():
+        if usuario not in padrao or not isinstance(clientes, dict):
+            continue
+        for cliente, permitidas in clientes.items():
+            if cliente in padrao[usuario] and isinstance(permitidas, list):
+                ids_validos = {v["id"] for v in DASHBOARD_VISOES.get(cliente, [])}
+                padrao[usuario][cliente] = [v for v in permitidas if v in ids_validos]
+    return padrao
+
+
 def carregar_permissoes_visoes():
     padrao = _permissoes_padrao()
+
+    # Fonte principal persistente: Neon.
+    try:
+        con = _permissoes_neon_connection()
+        if con is not None:
+            try:
+                with con.cursor() as cur:
+                    cur.execute(
+                        "SELECT usuario, cliente, permitidas "
+                        "FROM assistpay.permissoes_visoes"
+                    )
+                    rows = cur.fetchall()
+                dados = {}
+                for usuario, cliente, permitidas in rows:
+                    dados.setdefault(usuario, {})[cliente] = permitidas
+                return _mesclar_permissoes(padrao, dados)
+            finally:
+                con.close()
+    except Exception:
+        pass
+
+    # Fallback local para o painel continuar operando se o Neon oscilar.
     if not PERMISSOES_ARQUIVO.exists():
         return padrao
     try:
         dados = json.loads(PERMISSOES_ARQUIVO.read_text(encoding="utf-8"))
-        if not isinstance(dados, dict):
-            return padrao
-        # Mescla com o padrão para novos usuários/novas visões não quebrarem o painel.
-        for usuario, clientes in dados.items():
-            if usuario not in padrao or not isinstance(clientes, dict):
-                continue
-            for cliente, permitidas in clientes.items():
-                if cliente in padrao[usuario] and isinstance(permitidas, list):
-                    ids_validos = {v["id"] for v in DASHBOARD_VISOES.get(cliente, [])}
-                    padrao[usuario][cliente] = [v for v in permitidas if v in ids_validos]
-        return padrao
+        return _mesclar_permissoes(padrao, dados)
     except Exception:
         return padrao
 
 
 def salvar_permissoes_visoes(dados):
-    PERMISSOES_ARQUIVO.parent.mkdir(parents=True, exist_ok=True)
-    temporario = PERMISSOES_ARQUIVO.with_suffix('.json.tmp')
-    temporario.write_text(json.dumps(dados, ensure_ascii=False, indent=2), encoding="utf-8")
-    temporario.replace(PERMISSOES_ARQUIVO)
+    # Persiste no Neon para não perder alterações após deploy/restart do Render.
+    con = _permissoes_neon_connection()
+    if con is None:
+        raise RuntimeError("Conexão com o Neon indisponível para salvar permissões.")
+
+    try:
+        with con.cursor() as cur:
+            for usuario, clientes in dados.items():
+                if usuario not in USUARIOS or not isinstance(clientes, dict):
+                    continue
+                for cliente, permitidas in clientes.items():
+                    if cliente not in DASHBOARD_VISOES or not isinstance(permitidas, list):
+                        continue
+                    ids_validos = {v["id"] for v in DASHBOARD_VISOES[cliente]}
+                    permitidas_validas = [v for v in permitidas if v in ids_validos]
+                    cur.execute(
+                        "INSERT INTO assistpay.permissoes_visoes "
+                        "(usuario, cliente, permitidas, atualizado_em) "
+                        "VALUES (%s, %s, %s::jsonb, NOW()) "
+                        "ON CONFLICT (usuario, cliente) DO UPDATE SET "
+                        "permitidas=EXCLUDED.permitidas, atualizado_em=NOW()",
+                        (
+                            usuario,
+                            cliente,
+                            json.dumps(permitidas_validas, ensure_ascii=False),
+                        ),
+                    )
+        con.commit()
+    finally:
+        con.close()
+
+    # Mantém também uma cópia local como fallback enquanto o processo estiver vivo.
+    try:
+        PERMISSOES_ARQUIVO.parent.mkdir(parents=True, exist_ok=True)
+        temporario = PERMISSOES_ARQUIVO.with_suffix('.json.tmp')
+        temporario.write_text(
+            json.dumps(dados, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        temporario.replace(PERMISSOES_ARQUIVO)
+    except Exception:
+        pass
 
 
 def visoes_permitidas(usuario, cliente):
@@ -6964,7 +7040,11 @@ def rede_brasil_locator_data():
 
 # ===== ASSISTPAY | COMPARATIVO MENSAL PRIVADO =====
 def _sky_mensal_permitido():
-    return session.get("usuario") in {"gerber", "admin"}
+    return usuario_pode_acessar_visao(
+        session.get("usuario"),
+        "sky-negocie-online",
+        "mensal",
+    )
 
 def _sky_pagamentos_connection():
     import os
