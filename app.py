@@ -4324,7 +4324,17 @@ def carregar_bases_sky():
         SELECT
             m.data AS "DATA",
             m.mailing AS "MAILING",
-            COALESCE(m.logados, 0) AS "Logados",
+            COALESCE(
+                m.logados,
+                (
+                    SELECT lm.logados
+                    FROM assistpay.logados_manual lm
+                    WHERE date_trunc('month', lm.data) = date_trunc('month', m.data)
+                    ORDER BY lm.data DESC
+                    LIMIT 1
+                ),
+                0
+            ) AS "Logados",
             m.discado AS "Discado",
             m.contato AS "Contato",
             m.cpc AS "Cpc",
