@@ -3886,8 +3886,9 @@ def montar_visao_unique_sky(df_unique):
             "periodo": "-", "modo": modo, "motivo": "sem_dados"
         }
 
-    # O card de Logados deve vir sempre da base "Unique Mês",
-    # mesmo quando o usuário seleciona uma data e a visão principal muda para Unique Dia.
+    # O card de Logados usa a média mensal da visão Daily, já calculada
+    # na linha "Unique Mês". Mesmo ao selecionar um único dia, o card mantém
+    # a média do mês correspondente.
     mes = request.args.get("mes", "").strip()
     logados_unique_mes = 0.0
     base_logados = df_unique.copy()
@@ -3926,7 +3927,7 @@ def montar_visao_unique_sky(df_unique):
 
     cards = [
         {"label": "Mailing Unique", "value": br_number(totais["MAILING"]), "icon": "database"},
-        {"label": "Logados Unique", "value": br_number(totais["Logados"]), "icon": "user-check"},
+        {"label": "Logados Unique", "value": br_number(totais["Logados"], 1).rstrip("0").rstrip(","), "icon": "user-check"},
         {"label": "Discado Unique", "value": br_number(totais["Discado"]), "icon": "phone-outgoing"},
         {"label": "Contato Unique", "value": br_number(totais["Contato"]), "icon": "users"},
         {"label": "CPC Unique", "value": br_number(totais["Cpc"]), "icon": "badge-check"},
@@ -4325,13 +4326,15 @@ def carregar_bases_sky():
             m.data AS "DATA",
             m.mailing AS "MAILING",
             COALESCE(
-                m.logados,
                 (
-                    SELECT lm.logados
-                    FROM assistpay.logados_manual lm
-                    WHERE date_trunc('month', lm.data) = date_trunc('month', m.data)
-                    ORDER BY lm.data DESC
-                    LIMIT 1
+                    SELECT AVG(COALESCE(lm.logados, 0)::numeric)
+                    FROM (
+                        SELECT DISTINCT f2.data
+                        FROM assistpay.funil_sumarizado f2
+                        WHERE date_trunc('month', f2.data) = date_trunc('month', m.data)
+                    ) dias
+                    LEFT JOIN assistpay.logados_manual lm
+                      ON lm.data = dias.data
                 ),
                 0
             ) AS "Logados",
