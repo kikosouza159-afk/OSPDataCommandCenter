@@ -26,6 +26,30 @@
     .user-list{display:flex;flex-wrap:wrap;gap:9px}.user-chip{border-radius:10px;background:rgba(15,23,42,.8);border:1px solid rgba(148,163,184,.16);font-size:12px;padding:10px 12px;color:#cbd5e1}
     .user-chip small{display:block;margin-top:4px;color:#94a3b8}
     @media(max-width:760px){.create-grid{grid-template-columns:1fr}.client-choices{grid-template-columns:1fr}}
+    .access-editor{margin-bottom:20px;border-color:rgba(251,92,40,.28);box-shadow:0 18px 40px rgba(0,0,0,.25),0 0 30px rgba(251,92,40,.05)}
+    .access-editor .head h2{display:flex;align-items:center;gap:9px}
+    .access-editor .head h2 i{width:23px;color:#FB5C28}
+    .access-editor .badge{background:rgba(251,92,40,.1);border-color:rgba(251,92,40,.3);color:#ffc7b4}
+    .access-selectors{display:grid;grid-template-columns:minmax(230px,1fr) auto;gap:16px;align-items:end;padding:16px;background:rgba(2,8,20,.62);border:1px solid rgba(251,92,40,.16);border-radius:16px;margin-bottom:16px}
+    .access-selectors select,.access-search{width:100%;height:45px;padding:0 12px;border:1px solid rgba(148,163,184,.24);border-radius:12px;background:#07172a;color:#f8fafc;outline:none}
+    .access-selectors select:focus,.access-search:focus{border-color:#FB5C28;box-shadow:0 0 0 3px rgba(251,92,40,.12)}
+    .access-edit-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .access-search{max-width:340px;margin-right:auto}
+    .access-counter{font-size:12px;font-weight:850;color:#ffc8b5;padding:9px 12px;background:rgba(251,92,40,.08);border:1px solid rgba(251,92,40,.22);border-radius:10px}
+    .access-small-btn{background:rgba(24,42,67,.8);border:1px solid rgba(148,163,184,.22);border-radius:10px;color:#dbeafe;font-size:12px;font-weight:700;cursor:pointer;padding:10px 12px}
+    .access-small-btn:hover{border-color:#FB5C28}.access-small-btn:disabled{opacity:.4;cursor:not-allowed}
+    .access-client-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-height:275px;overflow-y:auto;padding:13px;border:1px solid rgba(148,163,184,.18);border-radius:14px;background:rgba(2,8,20,.55)}
+    .access-client-grid .access-item{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 12px;border:1px solid rgba(148,163,184,.15);border-radius:12px;background:rgba(10,26,49,.6);cursor:pointer;font-size:12px;color:#d5e4f6;overflow-wrap:anywhere}
+    .access-item:has(input:checked){border-color:rgba(251,92,40,.55);background:rgba(251,92,40,.1);color:#fff}
+    .access-item input{accent-color:#FB5C28;flex:0 0 17px;width:17px;height:17px}
+    .access-client-grid .access-item[hidden]{display:none}
+    .access-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;flex-wrap:wrap}
+    .access-footer .hint{max-width:670px}
+    .access-save{background:linear-gradient(135deg,#FB5C28,#ff8a58);color:#1a0d0d}
+    .access-save:disabled{opacity:.55;cursor:not-allowed}
+    .access-warning{background:rgba(250,204,21,.07);border:1px solid rgba(250,204,21,.15);color:#fde68a;padding:13px 15px;border-radius:13px;font-size:12px;margin-top:12px}
+    @media(max-width:900px){.access-client-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.access-selectors{grid-template-columns:1fr}.access-client-grid{grid-template-columns:1fr}.access-search{max-width:none}}
   </style>
 </head>
 <body>
@@ -98,6 +122,66 @@
     {% endif %}
   </section>
 
+  <section class="panel access-editor" id="gerenciar-clientes">
+    <div class="head">
+      <div>
+        <h2><i data-lucide="shield-check"></i> Gerenciar acesso aos clientes</h2>
+        <p>Edite os clientes que aparecem no Cockpit de um usuário já existente. O acesso direto às páginas e APIs também respeitará esta configuração.</p>
+      </div>
+      <span class="badge">SOMENTE ADMIN</span>
+    </div>
+
+    {% if mensagem_clientes %}<div class="msg ok" role="status">{{ mensagem_clientes }}</div>{% endif %}
+    {% if erro_clientes %}<div class="msg err" role="alert">{{ erro_clientes }}</div>{% endif %}
+
+    <form method="post" id="accessEditForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="acao" value="salvar_clientes">
+      <div class="access-selectors">
+        <div class="field">
+          <label for="usuarioAcesso">Selecione o usuário já cadastrado</label>
+          <select id="usuarioAcesso" name="usuario_acesso" onchange="reloadClientEditor()">
+            {% for u in usuarios %}
+            <option value="{{ u }}" {% if u == usuario_acesso %}selected{% endif %}>
+              {{ u }}{% if u in admin_usuarios %} • Administrador (acesso integral){% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="access-counter" id="accessCount" aria-live="polite">
+          {% if usuario_acesso in admin_usuarios %}Acesso integral{% else %}{{ clientes_acesso_atual|length }} cliente(s) selecionado(s){% endif %}
+        </div>
+      </div>
+
+      {% if usuario_acesso in admin_usuarios %}
+      <div class="note">As contas administradoras têm acesso integral e não podem ter suas permissões reduzidas por este card.</div>
+      {% endif %}
+      <div class="access-edit-tools">
+        <input class="access-search" type="search" id="buscarClientesAcesso" placeholder="Buscar cliente..." oninput="filtrarClientesAcesso()" aria-label="Buscar clientes">
+        <button class="access-small-btn" type="button" onclick="marcarClientesAcesso(true)" {% if not pode_editar_clientes %}disabled{% endif %}>Selecionar todos</button>
+        <button class="access-small-btn" type="button" onclick="marcarClientesAcesso(false)" {% if not pode_editar_clientes %}disabled{% endif %}>Desmarcar todos</button>
+      </div>
+
+      <div class="access-client-grid" id="accessClientGrid">
+        {% for c in clientes_cadastro %}
+        <label class="access-item" data-client-name="{{ c.nome|lower }}">
+          <input type="checkbox" name="clientes_acesso" value="{{ c.slug }}"
+                 {% if c.slug in clientes_acesso_atual or usuario_acesso in admin_usuarios %}checked{% endif %}
+                 {% if not pode_editar_clientes %}disabled{% endif %} onchange="atualizarContadorAcesso()">
+          <span>{{ c.nome }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="access-warning">Se nenhum cliente estiver selecionado, o usuário não poderá acessar nenhuma carteira. A senha e o perfil da conta não são alterados.</div>
+      <div class="access-footer">
+        <span class="hint">Alterações são salvas no Neon e aplicadas no próximo carregamento do usuário. Para definir as abas da SKY, utilize o card “Permissões das visões” abaixo.</span>
+        <button class="btn access-save" type="submit" {% if not pode_editar_clientes %}disabled{% endif %} onclick="return confirmarSalvarAcesso()">
+          <i data-lucide="save"></i> Salvar acesso aos clientes
+        </button>
+      </div>
+    </form>
+  </section>
+
   <section class="panel">
     <div class="head">
       <div><h2>Permissões das visões</h2><p>Marque somente as abas que o usuário poderá abrir. O bloqueio vale para o menu e também para acesso direto.</p></div>
@@ -148,6 +232,39 @@ function copyPassword(){
   navigator.clipboard.writeText(element.textContent.trim()).catch(()=>{
     alert('Não foi possível copiar automaticamente. Selecione a senha e copie manualmente.');
   });
+}
+function atualizarContadorAcesso(){
+  const checked=document.querySelectorAll('#accessClientGrid input[name="clientes_acesso"]:checked').length;
+  const label=document.getElementById('accessCount');
+  if(label && !label.textContent.includes('Acesso integral')){
+    label.textContent=checked+' cliente(s) selecionado(s)';
+  }
+}
+function filtrarClientesAcesso(){
+  const termo=(document.getElementById('buscarClientesAcesso')?.value||'').trim().toLocaleLowerCase('pt-BR');
+  document.querySelectorAll('#accessClientGrid .access-item').forEach(item=>{
+    item.hidden=!item.textContent.toLocaleLowerCase('pt-BR').includes(termo);
+  });
+}
+function marcarClientesAcesso(valor){
+  document.querySelectorAll('#accessClientGrid input[name="clientes_acesso"]:not(:disabled)').forEach(input=>{
+    input.checked=valor;
+  });
+  atualizarContadorAcesso();
+}
+function confirmarSalvarAcesso(){
+  const total=document.querySelectorAll('#accessClientGrid input[name="clientes_acesso"]:checked').length;
+  if(total===0){
+    return window.confirm('Você vai retirar o acesso deste usuário a TODOS os clientes. Deseja continuar?');
+  }
+  return true;
+}
+function reloadClientEditor(){
+  const usuario=document.getElementById('usuarioAcesso').value;
+  const url=new URL(window.location.href);
+  url.searchParams.set('usuario_acesso',usuario);
+  url.hash='gerenciar-clientes';
+  window.location.assign(url.toString());
 }
 function reloadSelection(){
   const u=document.getElementById('usuarioSel').value;
