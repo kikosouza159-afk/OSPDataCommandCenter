@@ -11,7 +11,10 @@ app = Flask(__name__)
 # Credenciais e chave de sessão são gerenciadas pelo ambiente seguro do Render.
 # Nunca definir senha ou SECRET_KEY como valor padrão no repositório.
 import os
-from werkzeug.security import check_password_hash
+from security_passwords import autenticar_usuario, gravar_nova_senha, senha_igual_atual
+from flask import jsonify
+import secrets
+import hmac
 
 secret_key = os.environ.get("OSP_SECRET_KEY", "").strip()
 if len(secret_key) < 48:
@@ -41,6 +44,78 @@ def _carregar_usuarios_seguros():
     return usuarios
 
 USUARIOS = _carregar_usuarios_seguros()
+
+# Bloqueia todas as telas e APIs enquanto houver senha temporária.
+@app.before_request
+def _exigir_troca_senha():
+    if request.endpoint in {"login", "alterar_senha", "logout", "static"}:
+        return None
+    if session.get("usuario") and session.get("troca_senha_obrigatoria", True):
+        if request.path.endswith("/api") or "/api/" in request.path:
+            return jsonify({"error": "password_change_required"}), 403
+        return redirect(url_for("alterar_senha"))
+    return None
+
+
+@app.route("/alterar-senha", methods=["GET", "POST"])
+def alterar_senha():
+    usuario = session.get("usuario")
+    if not usuario:
+        return redirect(url_for("login"))
+
+    obrigatoria = session.get("troca_senha_obrigatoria", True)
+    csrf = session.setdefault("troca_senha_csrf", secrets.token_urlsafe(32))
+    erro = None
+
+    if request.method == "POST":
+        enviado = request.form.get("csrf_token", "")
+        if not hmac.compare_digest(enviado, csrf):
+            abort(403)
+
+        nova = request.form.get("nova_senha", "")
+        confirmacao = request.form.get("confirmar_senha", "")
+        atual = request.form.get("senha_atual", "")
+
+        if not obrigatoria:
+            try:
+                senha_valida, _ = autenticar_usuario(usuario, atual, USUARIOS)
+            except Exception:
+                app.logger.exception("Falha ao confirmar senha atual")
+                senha_valida = False
+            if not senha_valida:
+                erro = "Senha atual incorreta ou temporariamente indisponível."
+
+        if erro is None:
+            if len(nova) < 14 or len(nova) > 128:
+                erro = "Utilize uma senha entre 14 e 128 caracteres."
+            elif not any(c.isupper() for c in nova) or not any(c.islower() for c in nova) or not any(c.isdigit() for c in nova):
+                erro = "A senha deve ter letras maiúsculas, minúsculas e números."
+            elif nova != confirmacao:
+                erro = "As senhas digitadas não conferem."
+
+        if erro is None:
+            try:
+                if senha_igual_atual(usuario, nova, USUARIOS):
+                    erro = "Escolha uma senha diferente da senha atual ou temporária."
+                else:
+                    gravar_nova_senha(usuario, nova)
+                    session.clear()
+                    session.permanent = True
+                    session["usuario"] = usuario
+                    session["troca_senha_obrigatoria"] = False
+                    return redirect(url_for("dashboard"))
+            except Exception:
+                app.logger.exception("Falha ao gravar nova senha no banco")
+                erro = "Não foi possível salvar sua senha agora. Tente novamente."
+
+    return render_template(
+        "alterar_senha.html",
+        usuario=usuario,
+        obrigatoria=obrigatoria,
+        csrf_token=csrf,
+        erro=erro,
+    )
+
 
 
 # ===== CONTROLE DE ACESSO POR CLIENTE =====
@@ -1449,12 +1524,26 @@ if not any(c.get("slug") == "kovi" for c in CLIENTES):
 def login():
     erro = None
     if request.method == "POST":
-        usuario = request.form.get("usuario")
-        senha = request.form.get("senha")
-        if usuario in USUARIOS and check_password_hash(USUARIOS[usuario], senha or ""):
+        usuario = (request.form.get("usuario") or "").strip()
+        senha = request.form.get("senha") or ""
+        valido = False
+        precisa_trocar = False
+        try:
+            valido, precisa_trocar = autenticar_usuario(usuario, senha, USUARIOS)
+        except Exception:
+            app.logger.exception("Falha ao consultar autenticação no Neon")
+            erro = "Serviço de autenticação indisponível. Tente novamente."
+            return render_template("login.html", erro=erro), 503
+
+        if valido:
             session.clear()
             session.permanent = True
             session["usuario"] = usuario
+            session["troca_senha_obrigatoria"] = bool(precisa_trocar)
+
+            # Fluxo de primeira entrada: solicita a definição da senha definitiva.
+            if precisa_trocar:
+                return redirect(url_for("alterar_senha"))
 
             # Login assíncrono: o navegador mantém a transição Olos visível
             # enquanto o servidor já prepara/renderiza o Cockpit em segundo plano.
