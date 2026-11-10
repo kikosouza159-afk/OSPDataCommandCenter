@@ -45,6 +45,16 @@ def _carregar_usuarios_seguros():
 
 USUARIOS = _carregar_usuarios_seguros()
 
+# Usuários adicionais: somente os identificadores públicos ficam no código.
+# Os hashes temporários estão no Neon, nunca no repositório.
+USUARIOS_SKY_EXTERNOS = {
+    "rosangela.teodoro@illumiagroup.ai",
+    "claudinei.santos@illumiagroup.ai",
+}
+for usuario_sky in USUARIOS_SKY_EXTERNOS:
+    USUARIOS.setdefault(usuario_sky, "")
+
+
 # Bloqueia todas as telas e APIs enquanto houver senha temporária.
 @app.before_request
 def _exigir_troca_senha():
@@ -54,6 +64,17 @@ def _exigir_troca_senha():
         if request.path.endswith("/api") or "/api/" in request.path:
             return jsonify({"error": "password_change_required"}), 403
         return redirect(url_for("alterar_senha"))
+
+    # Proteção de cliente no backend para TODAS as rotas /cliente/{slug}/...
+    # Impede acesso por URL direta a carteiras fora da permissão do usuário.
+    if request.path.startswith("/cliente/"):
+        partes = request.path.split("/")
+        if len(partes) > 2 and partes[2]:
+            usuario = session.get("usuario")
+            if not usuario:
+                return redirect(url_for("login"))
+            if not usuario_pode_acessar_cliente(usuario, partes[2]):
+                return acesso_negado()
     return None
 
 
@@ -129,6 +150,8 @@ USUARIO_CLIENTES = {
     "michele.silva@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
     "amanda.nascimento@olos.com.br": ["sky-negocie-online", "talentos", "link", "millennium", "nw-advogados", "renac", "setra", "syscob", "ferreira-e-chagas", "creditas", "aranha-e-ferreira", "gestor-locator", "rede-brasil", "kovi"],
 
+    "rosangela.teodoro@illumiagroup.ai": ["sky-negocie-online"],
+    "claudinei.santos@illumiagroup.ai": ["sky-negocie-online"],
     "sky": ["sky-negocie-online"],
     "negocie_online": ["sky-negocie-online"],
     "talentos": ["talentos"],
