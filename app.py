@@ -51,8 +51,21 @@ USUARIOS_SKY_EXTERNOS = {
     "rosangela.teodoro@illumiagroup.ai",
     "claudinei.santos@illumiagroup.ai",
 }
-for usuario_sky in USUARIOS_SKY_EXTERNOS:
-    USUARIOS.setdefault(usuario_sky, "")
+# Mantém os hashes temporários no Render e as senhas definitivas no Neon.
+# Não altera nem reinicia as senhas dos usuários já cadastrados.
+hashes_sky_externos_raw = os.environ.get("OSP_SKY_EXTERNAL_HASHES_JSON", "").strip()
+if not hashes_sky_externos_raw:
+    raise RuntimeError("OSP_SKY_EXTERNAL_HASHES_JSON não configurado no Render.")
+try:
+    hashes_sky_externos = json.loads(hashes_sky_externos_raw)
+except json.JSONDecodeError as exc:
+    raise RuntimeError("OSP_SKY_EXTERNAL_HASHES_JSON inválido.") from exc
+if (not isinstance(hashes_sky_externos, dict) or
+        set(hashes_sky_externos) != USUARIOS_SKY_EXTERNOS or
+        any(not isinstance(h, str) or not h.startswith("scrypt:") or "$" not in h
+            for h in hashes_sky_externos.values())):
+    raise RuntimeError("OSP_SKY_EXTERNAL_HASHES_JSON deve conter os dois hashes válidos.")
+USUARIOS.update(hashes_sky_externos)
 
 
 # Bloqueia todas as telas e APIs enquanto houver senha temporária.
