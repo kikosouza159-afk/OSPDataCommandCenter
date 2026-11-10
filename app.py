@@ -11,7 +11,8 @@ app = Flask(__name__)
 # Credenciais e chave de sessão são gerenciadas pelo ambiente seguro do Render.
 # Nunca definir senha ou SECRET_KEY como valor padrão no repositório.
 import os
-from security_passwords import autenticar_usuario, gravar_nova_senha, senha_igual_atual
+from security_passwords import (autenticar_usuario, gravar_nova_senha, senha_igual_atual,
+    criar_usuario_cadastro, listar_usuarios_cadastro, obter_clientes_usuario)
 from flask import jsonify
 import secrets
 import hmac
@@ -178,17 +179,32 @@ def usuario_pode_acessar_cliente(usuario, slug):
     """Valida se o usuário logado pode acessar o cliente informado."""
     if not usuario:
         return False
-    permissoes = USUARIO_CLIENTES.get(usuario, [])
-    if "*" in permissoes:
-        return True
-    return slug in permissoes
+    if usuario in USUARIO_CLIENTES:
+        permissoes = USUARIO_CLIENTES[usuario]
+    else:
+        # Conta criada pelo Admin. Falhar fechado se banco de dados indisponível.
+        try:
+            permissoes = obter_clientes_usuario(usuario)
+        except Exception:
+            app.logger.exception("Falha ao consultar clientes autorizados")
+            return False
+    return "*" in permissoes or slug in permissoes
 
 
 def clientes_permitidos(usuario):
-    """Retorna somente os clientes que o usuário pode visualizar no cockpit."""
-    if usuario_pode_acessar_cliente(usuario, "*"):
+    """Retorna somente clientes explicitamente autorizados no backend."""
+    if not usuario:
+        return []
+    if usuario in USUARIO_CLIENTES:
+        permissoes = USUARIO_CLIENTES[usuario]
+    else:
+        try:
+            permissoes = obter_clientes_usuario(usuario)
+        except Exception:
+            app.logger.exception("Falha ao carregar carteiras do usuário")
+            return []
+    if "*" in permissoes:
         return CLIENTES
-    permissoes = USUARIO_CLIENTES.get(usuario, [])
     return [cliente for cliente in CLIENTES if cliente.get("slug") in permissoes]
 
 
@@ -214,10 +230,16 @@ def usuario_e_admin(usuario):
     return bool(usuario) and usuario in ADMIN_USUARIOS
 
 
+def _todos_usuarios():
+    """Combina contas iniciais do Render e contas criadas por administradores."""
+    cadastrados = listar_usuarios_cadastro()
+    return list(dict.fromkeys([*USUARIOS, *(r["usuario"] for r in cadastrados if r["ativo"])]))
+
+
 def _permissoes_padrao():
     """Padrão seguro: administradores veem tudo; demais SKY veem Daily/Hora."""
     padrao = {}
-    for usuario in USUARIOS:
+    for usuario in _todos_usuarios():
         padrao[usuario] = {}
         for cliente, visoes in DASHBOARD_VISOES.items():
             if usuario_e_admin(usuario):
@@ -296,9 +318,10 @@ def salvar_permissoes_visoes(dados):
         raise RuntimeError("Conexão com o Neon indisponível para salvar permissões.")
 
     try:
+        usuarios_validos = set(_todos_usuarios())
         with con.cursor() as cur:
             for usuario, clientes in dados.items():
-                if usuario not in USUARIOS or not isinstance(clientes, dict):
+                if usuario not in usuarios_validos or not isinstance(clientes, dict):
                     continue
                 for cliente, permitidas in clientes.items():
                     if cliente not in DASHBOARD_VISOES or not isinstance(permitidas, list):
@@ -1624,20 +1647,72 @@ def admin_permissoes():
     if not usuario_e_admin(session.get('usuario')):
         return acesso_negado()
 
-    dados = carregar_permissoes_visoes()
     mensagem = None
     erro = None
+    senha_gerada = None
+    usuario_criado = None
+    csrf_admin = session.setdefault("admin_csrf", secrets.token_urlsafe(32))
 
-    usuario_sel = request.values.get('usuario_sel') or next((u for u in USUARIOS if not usuario_e_admin(u)), list(USUARIOS)[0])
+    if request.method == 'POST' and not hmac.compare_digest(
+            request.form.get("csrf_token", ""), csrf_admin):
+        abort(403)
+
+    if request.method == 'POST' and request.form.get("acao") == "criar_usuario":
+        import string
+        usuario_novo = (request.form.get("usuario_novo") or "").strip().lower()
+        clientes_selecionados = list(dict.fromkeys(request.form.getlist("clientes")))
+        clientes_validos = {c["slug"] for c in CLIENTES}
+        if not re.fullmatch(r"[a-z0-9][a-z0-9._+%-]{0,80}@[a-z0-9.-]+\\.[a-z]{2,20}", usuario_novo):
+            erro = "Informe um e-mail válido para o novo usuário."
+        elif usuario_novo in USUARIOS or usuario_novo in ADMIN_USUARIOS:
+            erro = "Este usuário já está cadastrado."
+        elif not clientes_selecionados or any(c not in clientes_validos for c in clientes_selecionados):
+            erro = "Selecione pelo menos um cliente válido."
+        else:
+            # A senha temporária só é mostrada nesta resposta. O Neon recebe o hash.
+            alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
+            senha_tmp = ("".join(secrets.choice("ABCDEFGHJKLMNPQRSTUVWXYZ") for _ in range(2))
+                + "".join(secrets.choice("abcdefghijkmnopqrstuvwxyz") for _ in range(2))
+                + "".join(secrets.choice("23456789") for _ in range(2))
+                + "".join(secrets.choice(alfabeto) for _ in range(16)))
+            chars = list(senha_tmp)
+            secrets.SystemRandom().shuffle(chars)
+            senha_tmp = "".join(chars)
+            try:
+                criar_usuario_cadastro(usuario_novo, senha_tmp, clientes_selecionados, session["usuario"])
+                senha_gerada = senha_tmp
+                usuario_criado = usuario_novo
+                mensagem = "Usuário criado! Copie a senha temporária abaixo. Ela será exibida somente agora."
+            except ValueError as exc:
+                erro = str(exc)
+            except Exception:
+                app.logger.exception("Falha ao cadastrar usuário")
+                erro = "Não foi possível criar o usuário. Verifique a conexão com o Neon."
+
+    try:
+        registros = listar_usuarios_cadastro()
+        usuarios = _todos_usuarios()
+        dados = carregar_permissoes_visoes()
+    except Exception:
+        app.logger.exception("Falha ao carregar administração")
+        registros = []
+        usuarios = list(USUARIOS)
+        dados = _permissoes_padrao() if not erro else {}
+        erro = erro or "Não foi possível consultar os usuários no Neon."
+
+    usuario_sel = request.values.get('usuario_sel') or next(
+        (u for u in usuarios if not usuario_e_admin(u)), usuarios[0])
     cliente_sel = request.values.get('cliente_sel') or 'sky-negocie-online'
 
-    if request.method == 'POST':
-        if usuario_sel not in USUARIOS:
+    if request.method == 'POST' and request.form.get("acao", "salvar_visoes") == "salvar_visoes":
+        if usuario_sel not in usuarios:
             erro = 'Usuário inválido.'
         elif cliente_sel not in DASHBOARD_VISOES:
             erro = 'Dashboard inválido.'
         elif usuario_e_admin(usuario_sel):
             erro = 'Administradores mantêm acesso total às visões.'
+        elif not usuario_pode_acessar_cliente(usuario_sel, cliente_sel):
+            erro = "Este usuário não possui acesso a esse cliente."
         else:
             visoes_validas = {v['id'] for v in DASHBOARD_VISOES[cliente_sel]}
             selecionadas = [v for v in request.form.getlist('visoes') if v in visoes_validas]
@@ -1646,8 +1721,9 @@ def admin_permissoes():
                 salvar_permissoes_visoes(dados)
                 mensagem = 'Permissões salvas com sucesso.'
                 dados = carregar_permissoes_visoes()
-            except Exception as exc:
-                erro = f'Não foi possível salvar as permissões: {exc}'
+            except Exception:
+                app.logger.exception("Falha ao salvar permissões")
+                erro = 'Não foi possível salvar as permissões.'
 
     visoes_cliente = DASHBOARD_VISOES.get(cliente_sel, [])
     permitidas = set(dados.get(usuario_sel, {}).get(cliente_sel, []))
@@ -1655,21 +1731,28 @@ def admin_permissoes():
         {'slug': slug, 'nome': 'SKY - Assistpay' if slug == 'sky-negocie-online' else slug}
         for slug in DASHBOARD_VISOES
     ]
-
-    return render_template(
+    # O formulário permite escolher carteiras, mas não concede status admin.
+    clientes_cadastro = sorted(CLIENTES, key=lambda c: c.get("nome", "").lower())
+    response = app.make_response(render_template(
         'admin_permissoes.html',
         usuario=session.get('usuario'),
-        usuarios=list(USUARIOS.keys()),
+        usuarios=usuarios,
         usuario_sel=usuario_sel,
         cliente_sel=cliente_sel,
         clientes_admin=clientes_admin,
+        clientes_cadastro=clientes_cadastro,
         visoes_cliente=visoes_cliente,
         permitidas=permitidas,
         admin_usuarios=ADMIN_USUARIOS,
+        registros=registros,
+        usuario_criado=usuario_criado,
+        senha_gerada=senha_gerada,
+        csrf_token=csrf_admin,
         mensagem=mensagem,
         erro=erro,
-    )
-
+    ))
+    response.headers["Cache-Control"] = "no-store, max-age=0"
+    return response
 
 # ===== CLIENTES LOCATOR | Painel executivo compartilhado =====
 # Cada cliente possui uma base Excel isolada em data/<arquivo>.
