@@ -12,8 +12,9 @@ app = Flask(__name__)
 # Nunca definir senha ou SECRET_KEY como valor padrão no repositório.
 import os
 from security_passwords import (autenticar_usuario, gravar_nova_senha, senha_igual_atual,
-    criar_usuario_cadastro, listar_usuarios_cadastro, obter_clientes_usuario)
-from flask import jsonify
+    criar_usuario_cadastro, listar_usuarios_cadastro, obter_clientes_usuario,
+    listar_permissoes_clientes_legacy, salvar_permissoes_clientes_usuario)
+from flask import jsonify, g
 import secrets
 import hmac
 
@@ -175,37 +176,67 @@ USUARIO_CLIENTES = {
 }
 
 
+def _matriz_acessos_clientes():
+    """Consolida permissão legada + usuários Admin + edições do Neon por requisição.
+
+    Falha fechada para contas comuns se o Neon estiver indisponível. Administradores
+    continuam com acesso total definido pelo código, sem depender de overrides.
+    """
+    if hasattr(g, "osp_matriz_acessos"):
+        return g.osp_matriz_acessos
+
+    try:
+        cadastrados = listar_usuarios_cadastro()
+        overrides = listar_permissoes_clientes_legacy()
+    except Exception:
+        app.logger.exception("Não foi possível consultar a matriz de acesso a clientes")
+        g.osp_matriz_acessos = None
+        return None
+
+    matriz = {usuario: list(clientes) for usuario, clientes in USUARIO_CLIENTES.items()}
+    for registro in cadastrados:
+        usuario = registro["usuario"]
+        if registro["ativo"] and usuario not in USUARIOS and usuario not in ADMIN_USUARIOS:
+            matriz[usuario] = list(registro["clientes"] or [])
+
+    # As contas antigas usam apenas overrides explícitos, preservando sua
+    # configuração original até que um administrador salve uma alteração.
+    for usuario, clientes in overrides.items():
+        if usuario in USUARIOS and usuario not in ADMIN_USUARIOS:
+            matriz[usuario] = list(clientes)
+
+    for usuario in ADMIN_USUARIOS:
+        if usuario in USUARIOS:
+            matriz[usuario] = ["*"]
+
+    g.osp_matriz_acessos = matriz
+    return matriz
+
+
 def usuario_pode_acessar_cliente(usuario, slug):
-    """Valida se o usuário logado pode acessar o cliente informado."""
+    """Decisão central de autorização para menus, páginas e APIs."""
     if not usuario:
         return False
-    if usuario in USUARIO_CLIENTES:
-        permissoes = USUARIO_CLIENTES[usuario]
-    else:
-        # Conta criada pelo Admin. Falhar fechado se banco de dados indisponível.
-        try:
-            permissoes = obter_clientes_usuario(usuario)
-        except Exception:
-            app.logger.exception("Falha ao consultar clientes autorizados")
-            return False
-    return "*" in permissoes or slug in permissoes
+    if usuario_e_admin(usuario):
+        return True
+    matriz = _matriz_acessos_clientes()
+    if matriz is None:
+        return False
+    permitidos = matriz.get(usuario, [])
+    return "*" in permitidos or slug in permitidos
 
 
 def clientes_permitidos(usuario):
-    """Retorna somente clientes explicitamente autorizados no backend."""
+    """Filtra os cards com o mesmo critério das rotas privadas."""
     if not usuario:
         return []
-    if usuario in USUARIO_CLIENTES:
-        permissoes = USUARIO_CLIENTES[usuario]
-    else:
-        try:
-            permissoes = obter_clientes_usuario(usuario)
-        except Exception:
-            app.logger.exception("Falha ao carregar carteiras do usuário")
-            return []
-    if "*" in permissoes:
+    if usuario_e_admin(usuario):
         return CLIENTES
-    return [cliente for cliente in CLIENTES if cliente.get("slug") in permissoes]
+    matriz = _matriz_acessos_clientes()
+    if matriz is None:
+        return []
+    permitidos = matriz.get(usuario, [])
+    return [c for c in CLIENTES if c.get("slug") in permitidos]
 
 
 
@@ -231,13 +262,11 @@ def usuario_e_admin(usuario):
 
 
 def _todos_usuarios():
-    """Inclui contas novas. Se o Neon falhar, contas novas ficam sem acesso."""
-    try:
-        cadastrados = listar_usuarios_cadastro()
-    except Exception:
-        app.logger.exception("Não foi possível listar contas adicionais")
+    """Lista contas existentes sem duplicar consultas por usuário à base."""
+    matriz = _matriz_acessos_clientes()
+    if matriz is None:
         return list(USUARIOS)
-    return list(dict.fromkeys([*USUARIOS, *(r["usuario"] for r in cadastrados if r["ativo"])]))
+    return list(dict.fromkeys([*USUARIOS, *matriz.keys()]))
 
 
 def _permissoes_padrao():
