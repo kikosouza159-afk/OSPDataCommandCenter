@@ -186,6 +186,29 @@ def criar_usuario_cadastro(usuario, senha_temporaria, clientes, criado_por):
     return True
 
 
+def carregar_matriz_clientes():
+    """Busca contas dinâmicas e overrides legados em uma única conexão."""
+    with _abrir_conexao() as conexao:
+        _preparar_tabela(conexao)
+        with conexao.cursor() as cursor:
+            cursor.execute(
+                "SELECT usuario, clientes FROM assistpay.osp_usuarios_cadastro "
+                "WHERE ativo = TRUE"
+            )
+            dinamicos = {
+                usuario: [v for v in (clientes or []) if isinstance(v, str)]
+                for usuario, clientes in cursor.fetchall()
+            }
+            cursor.execute(
+                "SELECT usuario, clientes FROM assistpay.osp_usuarios_clientes_override"
+            )
+            overrides = {
+                usuario: [v for v in (clientes or []) if isinstance(v, str)]
+                for usuario, clientes in cursor.fetchall()
+            }
+    return dinamicos, overrides
+
+
 def listar_permissoes_clientes_legacy():
     """Retorna overrides persistentes: lista vazia significa acesso revogado."""
     with _abrir_conexao() as conexao:
