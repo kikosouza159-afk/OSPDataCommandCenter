@@ -42,10 +42,13 @@ def _hash_efetivo(conexao, usuario, hashes_iniciais):
             (usuario,),
         )
         registro = cursor.fetchone()
-    # Enquanto a troca for obrigatória, as credenciais temporárias do Render
-    # são a fonte de verdade. Após a troca, somente o hash do Neon é válido.
-    if registro is None or registro[1]:
-        return hashes_iniciais[usuario], True
+    # Contas tradicionais têm hash temporário no Render. Contas adicionadas
+    # posteriormente podem ter o hash temporário salvo diretamente no Neon.
+    # Após definir senha definitiva, apenas o hash do Neon será aceito.
+    if registro is None:
+        return hashes_iniciais.get(usuario) or "", True
+    if registro[1]:
+        return hashes_iniciais.get(usuario) or registro[0], True
     return registro[0], False
 
 
@@ -55,7 +58,7 @@ def autenticar_usuario(usuario, senha, hashes_iniciais):
     with _abrir_conexao() as conexao:
         _preparar_tabela(conexao)
         senha_hash, obrigatoria = _hash_efetivo(conexao, usuario, hashes_iniciais)
-        valido = check_password_hash(senha_hash, senha)
+        valido = bool(senha_hash) and check_password_hash(senha_hash, senha)
         return valido, obrigatoria if valido else False
 
 
