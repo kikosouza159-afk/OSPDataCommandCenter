@@ -30,6 +30,17 @@ CREATE TABLE IF NOT EXISTS assistpay.osp_usuarios_cadastro (
 )
 """
 
+# Permissões editáveis das contas legadas mantidas no Render.
+# Conta criada no Admin usa diretamente a coluna "clientes" do cadastro.
+_LEGACY_ACL_SQL = """
+CREATE TABLE IF NOT EXISTS assistpay.osp_usuarios_clientes_override (
+    usuario TEXT PRIMARY KEY,
+    clientes JSONB NOT NULL DEFAULT '[]'::jsonb,
+    atualizado_por TEXT NOT NULL,
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT now()
+)
+"""
+
 
 def _abrir_conexao():
     url = os.environ.get("ASSISTPAY_NEON_DATABASE_URL", "").strip()
@@ -42,6 +53,7 @@ def _preparar_tabela(conexao):
     with conexao.cursor() as cursor:
         cursor.execute(_TABLE_SQL)
         cursor.execute(_USERS_SQL)
+        cursor.execute(_LEGACY_ACL_SQL)
 
 
 def _buscar_conta(conexao, usuario):
@@ -171,4 +183,57 @@ def criar_usuario_cadastro(usuario, senha_temporaria, clientes, criado_por):
                 )
         except UniqueViolation as exc:
             raise ValueError("Este usuário já está cadastrado") from exc
+    return True
+
+
+def listar_permissoes_clientes_legacy():
+    """Retorna overrides persistentes: lista vazia significa acesso revogado."""
+    with _abrir_conexao() as conexao:
+        _preparar_tabela(conexao)
+        with conexao.cursor() as cursor:
+            cursor.execute(
+                "SELECT usuario, clientes FROM assistpay.osp_usuarios_clientes_override"
+            )
+            return {
+                usuario: [slug for slug in (clientes or []) if isinstance(slug, str)]
+                for usuario, clientes in cursor.fetchall()
+            }
+
+
+def salvar_permissoes_clientes_usuario(usuario, clientes, alterado_por, dinamico):
+    """Aplica a lista completa de carteiras com validação e persistência Neon.
+
+    Contas criadas no Admin têm seu cadastro atualizado; contas legadas recebem
+    override sem alterar as credenciais e permissões de visão existentes.
+    """
+    if (not isinstance(usuario, str) or not usuario or
+        not isinstance(alterado_por, str) or not alterado_por or
+        not isinstance(clientes, list) or
+        len(clientes) != len(set(clientes)) or
+        any(not isinstance(v, str) or not v or v == "*" for v in clientes)):
+        raise ValueError("Lista de clientes inválida")
+
+    with _abrir_conexao() as conexao:
+        _preparar_tabela(conexao)
+        with conexao.cursor() as cursor:
+            if dinamico:
+                cursor.execute(
+                    "UPDATE assistpay.osp_usuarios_cadastro "
+                    "SET clientes = %s::jsonb, alterado_em = NOW() "
+                    "WHERE usuario = %s AND ativo = TRUE RETURNING usuario",
+                    (json.dumps(clientes), usuario),
+                )
+                if cursor.fetchone() is None:
+                    raise ValueError("Usuário não encontrado ou inativo")
+            else:
+                cursor.execute(
+                    "INSERT INTO assistpay.osp_usuarios_clientes_override "
+                    "(usuario, clientes, atualizado_por, atualizado_em) "
+                    "VALUES (%s, %s::jsonb, %s, NOW()) "
+                    "ON CONFLICT (usuario) DO UPDATE SET "
+                    "clientes = EXCLUDED.clientes, "
+                    "atualizado_por = EXCLUDED.atualizado_por, "
+                    "atualizado_em = NOW()",
+                    (usuario, json.dumps(clientes), alterado_por),
+                )
     return True
