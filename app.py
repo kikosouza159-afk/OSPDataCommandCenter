@@ -47,7 +47,7 @@ def _carregar_usuarios_seguros():
 USUARIOS = _carregar_usuarios_seguros()
 
 # Usuários adicionais: somente os identificadores públicos ficam no código.
-# Os hashes temporários estão no Neon, nunca no repositório.
+# Os hashes temporários estão no Render, nunca no repositório.
 USUARIOS_SKY_EXTERNOS = {
     "rosangela.teodoro@illumiagroup.ai",
     "claudinei.santos@illumiagroup.ai",
@@ -1658,11 +1658,10 @@ def admin_permissoes():
         abort(403)
 
     if request.method == 'POST' and request.form.get("acao") == "criar_usuario":
-        import string
         usuario_novo = (request.form.get("usuario_novo") or "").strip().lower()
         clientes_selecionados = list(dict.fromkeys(request.form.getlist("clientes")))
         clientes_validos = {c["slug"] for c in CLIENTES}
-        if not re.fullmatch(r"[a-z0-9][a-z0-9._+%-]{0,80}@[a-z0-9.-]+\\.[a-z]{2,20}", usuario_novo):
+        if not re.fullmatch(r"[a-z0-9][a-z0-9._+%-]{0,80}@[a-z0-9.-]+\.[a-z]{2,20}", usuario_novo):
             erro = "Informe um e-mail válido para o novo usuário."
         elif usuario_novo in USUARIOS or usuario_novo in ADMIN_USUARIOS:
             erro = "Este usuário já está cadastrado."
@@ -1697,7 +1696,7 @@ def admin_permissoes():
         app.logger.exception("Falha ao carregar administração")
         registros = []
         usuarios = list(USUARIOS)
-        dados = _permissoes_padrao() if not erro else {}
+        dados = {}
         erro = erro or "Não foi possível consultar os usuários no Neon."
 
     usuario_sel = request.values.get('usuario_sel') or next(
