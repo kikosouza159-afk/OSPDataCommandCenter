@@ -1682,6 +1682,8 @@ def admin_permissoes():
 
     mensagem = None
     erro = None
+    mensagem_clientes = None
+    erro_clientes = None
     senha_gerada = None
     usuario_criado = None
     csrf_admin = session.setdefault("admin_csrf", secrets.token_urlsafe(32))
@@ -1732,6 +1734,39 @@ def admin_permissoes():
         dados = {}
         erro = erro or "Não foi possível consultar os usuários no Neon."
 
+    # Gerenciamento das carteiras de contas JÁ existentes, separado da
+    # configuração de abas da SKY e do cadastro de novas contas.
+    usuario_acesso = (request.values.get("usuario_acesso") or "").strip()
+    if usuario_acesso not in usuarios:
+        usuario_acesso = next((u for u in usuarios if not usuario_e_admin(u)), usuarios[0])
+
+    if request.method == 'POST' and request.form.get("acao") == "salvar_clientes":
+        novos_clientes = list(dict.fromkeys(request.form.getlist("clientes_acesso")))
+        clientes_validos = {c["slug"] for c in CLIENTES}
+        if usuario_acesso not in usuarios:
+            erro_clientes = "Usuário não encontrado."
+        elif usuario_e_admin(usuario_acesso):
+            erro_clientes = "Administradores permanecem com acesso integral aos clientes."
+        elif any(slug not in clientes_validos for slug in novos_clientes):
+            erro_clientes = "Foi informado um cliente inválido."
+        elif _matriz_acessos_clientes() is None:
+            erro_clientes = "Conexão com o Neon indisponível. Nenhuma alteração foi aplicada."
+        else:
+            try:
+                salvar_permissoes_clientes_usuario(
+                    usuario_acesso, novos_clientes,
+                    alterado_por=session["usuario"],
+                    dinamico=usuario_acesso not in USUARIOS,
+                )
+                g.pop("osp_matriz_acessos", None)
+                dados = carregar_permissoes_visoes()
+                mensagem_clientes = "Clientes autorizados atualizados com sucesso."
+            except ValueError as exc:
+                erro_clientes = str(exc)
+            except Exception:
+                app.logger.exception("Erro ao salvar carteiras do usuário")
+                erro_clientes = "Erro ao salvar permissões no Neon. Tente novamente."
+
     usuario_sel = request.values.get('usuario_sel') or next(
         (u for u in usuarios if not usuario_e_admin(u)), usuarios[0])
     cliente_sel = request.values.get('cliente_sel') or 'sky-negocie-online'
@@ -1765,6 +1800,13 @@ def admin_permissoes():
     ]
     # O formulário permite escolher carteiras, mas não concede status admin.
     clientes_cadastro = sorted(CLIENTES, key=lambda c: c.get("nome", "").lower())
+    matriz_acessos = _matriz_acessos_clientes()
+    clientes_acesso_atual = (
+        set(matriz_acessos.get(usuario_acesso, []))
+        if matriz_acessos is not None else set()
+    )
+    if matriz_acessos is None:
+        erro_clientes = erro_clientes or "Não foi possível consultar as permissões no Neon."
     response = app.make_response(render_template(
         'admin_permissoes.html',
         usuario=session.get('usuario'),
@@ -1773,6 +1815,11 @@ def admin_permissoes():
         cliente_sel=cliente_sel,
         clientes_admin=clientes_admin,
         clientes_cadastro=clientes_cadastro,
+        usuario_acesso=usuario_acesso,
+        clientes_acesso_atual=clientes_acesso_atual,
+        erro_clientes=erro_clientes,
+        mensagem_clientes=mensagem_clientes,
+        pode_editar_clientes=(matriz_acessos is not None and not usuario_e_admin(usuario_acesso)),
         visoes_cliente=visoes_cliente,
         permitidas=permitidas,
         admin_usuarios=ADMIN_USUARIOS,
