@@ -3,30 +3,44 @@ import json
 import io
 import re
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 app = Flask(__name__)
-app.secret_key = "chave_secreta_cockpit_v1_3"
 
-USUARIOS = {
-    "admin": "123456",
-    "gerber": "nicolas1616",
-    "elvis.santos@olos.com.br": "olos@2026",
-    "nubia.gomes@olos.com.br": "olos@2026",
-    "eduardo.molina@olos.com.br": "olos@2026",
-    "michele.silva@olos.com.br": "olos@2026",
-    "amanda.nascimento@olos.com.br": "olos@2026",
+# Credenciais e chave de sessão são gerenciadas pelo ambiente seguro do Render.
+# Nunca definir senha ou SECRET_KEY como valor padrão no repositório.
+import os
+from werkzeug.security import check_password_hash
 
+secret_key = os.environ.get("OSP_SECRET_KEY", "").strip()
+if len(secret_key) < 48:
+    raise RuntimeError("OSP_SECRET_KEY ausente ou curta. Configure o segredo no ambiente.")
 
-    # Usuários restritos por cliente
-    "sky": "sky123",
-    "negocie_online": "negocie@2026",
-    "talentos": "talentos123",
-    "sky_talentos": "multi123",
-    "link": "link123",
-    "kovi": "G7K2M9QX",
-}
+app.config.update(
+    SECRET_KEY=secret_key,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("OSP_COOKIE_SECURE", "true").strip().lower() not in ("false", "0", "no"),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+)
+
+def _carregar_usuarios_seguros():
+    raw = os.environ.get("OSP_AUTH_USERS_JSON", "")
+    if not raw:
+        raise RuntimeError("OSP_AUTH_USERS_JSON ausente. Configure hashes de senha no ambiente.")
+    try:
+        usuarios = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("OSP_AUTH_USERS_JSON contém JSON inválido.") from exc
+    if (not isinstance(usuarios, dict) or not usuarios or
+            any(not isinstance(u, str) or not u or
+                not isinstance(h, str) or not h.startswith("scrypt:") or "$" not in h
+                for u, h in usuarios.items())):
+        raise RuntimeError("OSP_AUTH_USERS_JSON deve mapear usuários para hashes scrypt válidos.")
+    return usuarios
+
+USUARIOS = _carregar_usuarios_seguros()
 
 
 # ===== CONTROLE DE ACESSO POR CLIENTE =====
@@ -1437,7 +1451,9 @@ def login():
     if request.method == "POST":
         usuario = request.form.get("usuario")
         senha = request.form.get("senha")
-        if usuario in USUARIOS and USUARIOS[usuario] == senha:
+        if usuario in USUARIOS and check_password_hash(USUARIOS[usuario], senha or ""):
+            session.clear()
+            session.permanent = True
             session["usuario"] = usuario
 
             # Login assíncrono: o navegador mantém a transição Olos visível
