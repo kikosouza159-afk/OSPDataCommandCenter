@@ -11,9 +11,20 @@ Login animado + menu executivo de clientes + painel TALENTOS integrado.
 - Visual do painel TALENTOS ajustado para combinar com o fundo tecnológico do Cockpit.
 - Botão de retorno para o menu principal.
 
-## Login padrão
-- Usuário: admin
-- Senha: 123456
+## Segurança e login
+
+O Cockpit não possui senha padrão. O acesso é configurado exclusivamente por variáveis
+de ambiente no Render (ou no ambiente local):
+
+- `OSP_SECRET_KEY`: chave aleatória de sessão, com pelo menos 48 caracteres.
+- `OSP_AUTH_USERS_JSON`: objeto JSON associando cada usuário ao **hash scrypt**
+  da senha, no formato de `werkzeug.security.generate_password_hash`.
+- `OSP_COOKIE_SECURE`: opcional. Padrão `true` (produção HTTPS). Usar `false`
+  apenas em testes locais com HTTP.
+
+Credenciais e hashes **não devem ser versionados**. Alterar a chave de sessão
+encerra as sessões ativas. Configuração ausente bloqueia a inicialização, sem
+retornar a senhas antigas.
 
 ## Base de dados
 Coloque o arquivo Excel em:
@@ -29,6 +40,8 @@ EXCEL_PATH=C:\caminho\base.xlsx
 ```
 
 ## Rodar localmente
+Configure primeiro as variáveis de ambiente de autenticação (acima). Para testes locais HTTP, defina `OSP_COOKIE_SECURE=false` somente no seu computador.
+
 ```bash
 pip install -r requirements.txt
 python app.py
