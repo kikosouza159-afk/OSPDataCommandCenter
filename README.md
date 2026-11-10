@@ -44,6 +44,24 @@ principal, informando a senha atual.
 Se não houver acesso ao Neon, o login falha com segurança, sem recorrer a
 senhas antigas, e a senha do usuário não é sobrescrita.
 
+### Cadastro de usuários pelo Admin
+
+Administradores autorizados podem acessar `/admin/permissoes` para criar contas
+novas com **e-mail e clientes autorizados**. O cadastro gera uma senha temporária
+aleatória e a mostra uma única vez. Depois da primeira autenticação, a troca
+da senha é obrigatória. O acesso a páginas e APIs de outras carteiras é bloqueado
+no servidor, independentemente de filtros do navegador.
+
+Os novos usuários e os hashes scrypt de suas senhas ficam persistidos na tabela
+`assistpay.osp_usuarios_cadastro` do Neon. Nenhuma senha é gravada em
+texto puro. Contas criadas não recebem privilégios administrativos e recebem,
+na SKY, as visões Daily e Hora a Hora por padrão; um administrador pode ajustar
+as visões pela mesma página. Os usuários existentes não são modificados.
+
+Os acessos temporários de Rosangela e Claudinei foram configurados com
+`OSP_SKY_EXTERNAL_HASHES_JSON` no Render e restritos ao cliente SKY.
+As senhas definitivas passam a ser gerenciadas no Neon.
+
 ## Base de dados
 Coloque o arquivo Excel em:
 
