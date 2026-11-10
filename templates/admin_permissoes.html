@@ -14,6 +14,18 @@
     .selectors{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;padding:16px;border-radius:18px;background:rgba(2,8,20,.62);border:1px solid rgba(0,229,255,.12);margin-bottom:18px}.field{display:grid;gap:7px}.field label{font-size:11px;font-weight:900;color:#bfd4ea;text-transform:uppercase;letter-spacing:.04em}.field select{height:43px;border-radius:13px;border:1px solid rgba(148,163,184,.2);background:#07172a;color:#f8fafc;padding:0 12px;font-weight:750;outline:none}
     .views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}.view{position:relative;display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:linear-gradient(145deg,rgba(8,24,43,.82),rgba(4,12,24,.8));border:1px solid rgba(148,163,184,.16);cursor:pointer;transition:.18s}.view:hover{border-color:rgba(0,229,255,.38);transform:translateY(-1px)}.view input{width:19px;height:19px;accent-color:#00e5ff}.view strong{display:block;font-size:14px}.view span{display:block;color:#8297af;font-size:11px;margin-top:4px}.view .icon{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:rgba(0,229,255,.1);color:#67e8f9}.view.disabled{opacity:.5;cursor:not-allowed}.note{padding:13px 15px;border-radius:14px;background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.16);color:#fde68a;font-size:12px;line-height:1.45}.msg{margin-bottom:14px;padding:12px 14px;border-radius:13px;font-weight:800;font-size:13px}.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:#bbf7d0}.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);color:#fecaca}.footer{display:flex;justify-content:flex-end;margin-top:18px}
     @media(max-width:760px){.top,.head{flex-direction:column}.selectors{grid-template-columns:1fr}.views{grid-template-columns:1fr}.actions{width:100%}.actions .btn{flex:1;justify-content:center}}
+    .admin-create{margin-bottom:20px}.create-grid{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(290px,1.2fr);gap:18px;align-items:start}
+    .create-grid .field input{height:44px;border-radius:13px;border:1px solid rgba(148,163,184,.25);background:#07172a;color:#f8fafc;padding:0 12px;font-size:14px}
+    .client-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:190px;overflow-y:auto;padding:12px;background:rgba(2,8,20,.6);border:1px solid rgba(148,163,184,.18);border-radius:13px}
+    .client-choice{display:flex;align-items:center;gap:8px;font-size:12px;color:#e2e8f0;cursor:pointer;overflow-wrap:anywhere}
+    .client-choice input{accent-color:#FB5C28;min-width:15px;min-height:15px}
+    .create-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+    .hint{font-size:12px;color:#94a3b8;line-height:1.5}.secret-output{padding:17px;border-radius:16px;border:1px solid rgba(251,92,40,.45);background:rgba(251,92,40,.08);margin-bottom:18px}
+    .secret-output code{font-size:16px;letter-spacing:.3px;overflow-wrap:anywhere;display:block;margin:11px 0 14px;color:#fef08a}
+    .create-users{margin-top:22px;border-top:1px solid rgba(148,163,184,.14);padding-top:14px}
+    .user-list{display:flex;flex-wrap:wrap;gap:9px}.user-chip{border-radius:10px;background:rgba(15,23,42,.8);border:1px solid rgba(148,163,184,.16);font-size:12px;padding:10px 12px;color:#cbd5e1}
+    .user-chip small{display:block;margin-top:4px;color:#94a3b8}
+    @media(max-width:760px){.create-grid{grid-template-columns:1fr}.client-choices{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -29,6 +41,63 @@
     </div>
   </header>
 
+  <section class="panel admin-create" id="criar-usuarios">
+    <div class="head">
+      <div>
+        <h2><i data-lucide="user-round-plus"></i> Criar usuário</h2>
+        <p>Crie uma conta com acesso somente aos clientes selecionados. A senha temporária é exibida uma única vez e será obrigatoriamente trocada no primeiro acesso.</p>
+      </div>
+      <span class="badge">ACESSO CONTROLADO</span>
+    </div>
+    {% if usuario_criado and senha_gerada %}
+    <div class="secret-output" role="status">
+      <strong>Usuário criado: {{ usuario_criado }}</strong>
+      <p class="hint">Copie e encaminhe a senha por um canal privado. Ela não aparecerá novamente nesta página.</p>
+      <code id="tempPwd">{{ senha_gerada }}</code>
+      <button class="btn primary" type="button" onclick="copyPassword()"><i data-lucide="copy"></i> Copiar senha temporária</button>
+    </div>
+    {% endif %}
+    {% if mensagem %}<div class="msg ok">{{ mensagem }}</div>{% endif %}
+    {% if erro %}<div class="msg err">{{ erro }}</div>{% endif %}
+    <form method="post" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="acao" value="criar_usuario">
+      <div class="create-grid">
+        <div class="field">
+          <label for="usuarioNovo">E-mail do novo usuário</label>
+          <input id="usuarioNovo" type="email" name="usuario_novo" placeholder="nome@empresa.com.br" maxlength="100" autocomplete="off" required>
+          <span class="hint">Usuário comum, sem permissões de administrador.</span>
+        </div>
+        <div class="field">
+          <label>Clientes permitidos</label>
+          <div class="client-choices">
+            {% for c in clientes_cadastro %}
+            <label class="client-choice">
+              <input type="checkbox" name="clientes" value="{{ c.slug }}" {% if c.slug == 'sky-negocie-online' %}checked{% endif %}>
+              <span>{{ c.nome }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <span class="hint">Por padrão, somente SKY está selecionada. Para autorizar outros clientes, marque-os explicitamente.</span>
+        </div>
+      </div>
+      <div class="create-actions">
+        <span class="hint">Senha aleatória de 22 caracteres • Troca obrigatória</span>
+        <button class="btn primary" type="submit"><i data-lucide="user-plus"></i> Criar usuário e gerar senha</button>
+      </div>
+    </form>
+    {% if registros %}
+    <div class="create-users">
+      <p class="hint"><strong>Usuários criados nesta área</strong></p>
+      <div class="user-list">
+      {% for r in registros %}
+        <div class="user-chip">{{ r.usuario }}<small>{{ r.clientes|join(', ') }} • {% if r.troca_obrigatoria %}Troca pendente{% else %}Senha definida{% endif %}{% if not r.ativo %} • Inativo{% endif %}</small></div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
   <section class="panel">
     <div class="head">
       <div><h2>Permissões das visões</h2><p>Marque somente as abas que o usuário poderá abrir. O bloqueio vale para o menu e também para acesso direto.</p></div>
@@ -39,6 +108,8 @@
     {% if erro %}<div class="msg err">{{ erro }}</div>{% endif %}
 
     <form method="post" id="permissionForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="acao" value="salvar_visoes">
       <div class="selectors">
         <div class="field">
           <label>Usuário</label>
@@ -71,6 +142,13 @@
 </main>
 <script>
 lucide.createIcons();
+function copyPassword(){
+  const element=document.getElementById('tempPwd');
+  if(!element)return;
+  navigator.clipboard.writeText(element.textContent.trim()).catch(()=>{
+    alert('Não foi possível copiar automaticamente. Selecione a senha e copie manualmente.');
+  });
+}
 function reloadSelection(){
   const u=document.getElementById('usuarioSel').value;
   const c=document.getElementById('clienteSel').value;
