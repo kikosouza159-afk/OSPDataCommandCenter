@@ -1583,7 +1583,7 @@ if not any(c.get("slug") == "kovi" for c in CLIENTES):
 def login():
     erro = None
     if request.method == "POST":
-        usuario = (request.form.get("usuario") or "").strip()
+        usuario = (request.form.get("usuario") or "").strip().lower()
         senha = request.form.get("senha") or ""
         valido = False
         precisa_trocar = False
