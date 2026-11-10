@@ -26,6 +26,24 @@ Credenciais e hashes **não devem ser versionados**. Alterar a chave de sessão
 encerra as sessões ativas. Configuração ausente bloqueia a inicialização, sem
 retornar a senhas antigas.
 
+### Primeira entrada / troca obrigatória de senha
+
+No primeiro login com a senha temporária individual, o usuário é redirecionado
+para `/alterar-senha` e não consegue abrir telas ou APIs até escolher sua senha
+pessoal. A nova senha precisa ter 14 a 128 caracteres, com letras maiúsculas,
+minúsculas e números.
+
+As senhas personalizadas são salvas **somente como hashes scrypt** na tabela
+`assistpay.osp_usuarios_senhas` do Neon. A tabela é criada na primeira
+autenticação e requer `ASSISTPAY_NEON_DATABASE_URL` configurada no Render.
+Senhas alteradas têm prioridade sobre os hashes temporários do Render.
+
+O usuário pode trocar novamente a senha pelo botão **Trocar senha** no menu
+principal, informando a senha atual.
+
+Se não houver acesso ao Neon, o login falha com segurança, sem recorrer a
+senhas antigas, e a senha do usuário não é sobrescrita.
+
 ## Base de dados
 Coloque o arquivo Excel em:
 
