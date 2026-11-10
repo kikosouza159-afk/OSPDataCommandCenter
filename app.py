@@ -231,8 +231,12 @@ def usuario_e_admin(usuario):
 
 
 def _todos_usuarios():
-    """Combina contas iniciais do Render e contas criadas por administradores."""
-    cadastrados = listar_usuarios_cadastro()
+    """Inclui contas novas. Se o Neon falhar, contas novas ficam sem acesso."""
+    try:
+        cadastrados = listar_usuarios_cadastro()
+    except Exception:
+        app.logger.exception("Não foi possível listar contas adicionais")
+        return list(USUARIOS)
     return list(dict.fromkeys([*USUARIOS, *(r["usuario"] for r in cadastrados if r["ativo"])]))
 
 
