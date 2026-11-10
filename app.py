@@ -13,7 +13,7 @@ app = Flask(__name__)
 import os
 from security_passwords import (autenticar_usuario, gravar_nova_senha, senha_igual_atual,
     criar_usuario_cadastro, listar_usuarios_cadastro, obter_clientes_usuario,
-    listar_permissoes_clientes_legacy, salvar_permissoes_clientes_usuario)
+    carregar_matriz_clientes, salvar_permissoes_clientes_usuario)
 from flask import jsonify, g
 import secrets
 import hmac
@@ -186,18 +186,16 @@ def _matriz_acessos_clientes():
         return g.osp_matriz_acessos
 
     try:
-        cadastrados = listar_usuarios_cadastro()
-        overrides = listar_permissoes_clientes_legacy()
+        dinamicos, overrides = carregar_matriz_clientes()
     except Exception:
         app.logger.exception("Não foi possível consultar a matriz de acesso a clientes")
         g.osp_matriz_acessos = None
         return None
 
     matriz = {usuario: list(clientes) for usuario, clientes in USUARIO_CLIENTES.items()}
-    for registro in cadastrados:
-        usuario = registro["usuario"]
-        if registro["ativo"] and usuario not in USUARIOS and usuario not in ADMIN_USUARIOS:
-            matriz[usuario] = list(registro["clientes"] or [])
+    for usuario, clientes in dinamicos.items():
+        if usuario not in USUARIOS and usuario not in ADMIN_USUARIOS:
+            matriz[usuario] = list(clientes)
 
     # As contas antigas usam apenas overrides explícitos, preservando sua
     # configuração original até que um administrador salve uma alteração.
@@ -1737,10 +1735,11 @@ def admin_permissoes():
     # Gerenciamento das carteiras de contas JÁ existentes, separado da
     # configuração de abas da SKY e do cadastro de novas contas.
     usuario_acesso = (request.values.get("usuario_acesso") or "").strip()
-    if usuario_acesso not in usuarios:
+    editando_clientes = request.method == 'POST' and request.form.get("acao") == "salvar_clientes"
+    if not editando_clientes and usuario_acesso not in usuarios:
         usuario_acesso = next((u for u in usuarios if not usuario_e_admin(u)), usuarios[0])
 
-    if request.method == 'POST' and request.form.get("acao") == "salvar_clientes":
+    if editando_clientes:
         novos_clientes = list(dict.fromkeys(request.form.getlist("clientes_acesso")))
         clientes_validos = {c["slug"] for c in CLIENTES}
         if usuario_acesso not in usuarios:
