@@ -44,6 +44,21 @@ principal, informando a senha atual.
 Se não houver acesso ao Neon, o login falha com segurança, sem recorrer a
 senhas antigas, e a senha do usuário não é sobrescrita.
 
+### Editar clientes visíveis de usuários existentes
+
+Na aba `/admin/permissoes`, o card **Gerenciar acesso aos clientes** permite
+selecionar qualquer usuário existente (contas legadas do Render ou criadas no
+Admin), marcar/desmarcar os clientes e salvar as permissões. A interface inclui
+busca, seleção em massa e confirmação quando todos os acessos são removidos.
+Administradores mantêm acesso integral e não são editáveis neste card.
+
+A configuração é persistida no Neon: contas criadas no Admin usam a coluna
+`assistpay.osp_usuarios_cadastro.clientes`; contas legadas usam a tabela
+`assistpay.osp_usuarios_clientes_override`. Nada é alterado nas senhas nem
+nas permissões específicas das abas da SKY. A regra vale tanto para os cards
+do Cockpit quanto para acesso direto às rotas e APIs dos clientes; em falhas
+do banco de dados, o acesso de contas comuns falha de maneira restritiva.
+
 ### Cadastro de usuários pelo Admin
 
 Administradores autorizados podem acessar `/admin/permissoes` para criar contas
