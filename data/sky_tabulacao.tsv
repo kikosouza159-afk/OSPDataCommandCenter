@@ -1,0 +1,1479 @@
+Data	DispositionId	Description	Classificado	Total
+2026-08-01	16	NoDisposition	Contato	17
+2026-08-01	795	ADA_Iniciou o fluxo	Contato	17
+2026-08-01	796	ADA_VoiceMail	Contato	163
+2026-08-01	797	ADA_Pergunta quem fala	Contato	9026
+2026-08-01	799	ADA_Pergunta se conhece	Contato	148
+2026-08-01	800	ADA_Nao conhece	Contato	691
+2026-08-01	801	ADA_Pergunta agendamento	Contato	162
+2026-08-01	802	ADA_Confirma agendamento	Contato	8
+2026-08-01	803	ADA_Nao confirma agendamento	Contato	23
+2026-08-01	804	ADA_Ja pagou	CPC	80
+2026-08-01	805	ADA_Nao aceita pagamento	CPC	185
+2026-08-01	806	ADA_Aceita pagamento total	Acordo	91
+2026-08-01	821	ADA_Conhece a pessoa	Contato	206
+2026-08-01	822	ADA_Aceita pagamento com desconto	Acordo	42
+2026-08-01	823	ADA_Pergunta pagamento com desconto	CPC	1297
+2026-08-03	16	NoDisposition	Contato	84
+2026-08-03	795	ADA_Iniciou o fluxo	Contato	29
+2026-08-03	796	ADA_VoiceMail	Contato	206
+2026-08-03	797	ADA_Pergunta quem fala	Contato	18808
+2026-08-03	798	ADA_Pergunta pagamento	CPC	1627
+2026-08-03	799	ADA_Pergunta se conhece	Contato	398
+2026-08-03	800	ADA_Nao conhece	Contato	921
+2026-08-03	801	ADA_Pergunta agendamento	Contato	182
+2026-08-03	802	ADA_Confirma agendamento	Contato	15
+2026-08-03	803	ADA_Nao confirma agendamento	Contato	27
+2026-08-03	804	ADA_Ja pagou	CPC	98
+2026-08-03	805	ADA_Nao aceita pagamento	CPC	298
+2026-08-03	806	ADA_Aceita pagamento total	Acordo	39
+2026-08-03	821	ADA_Conhece a pessoa	Contato	79
+2026-08-03	822	ADA_Aceita pagamento com desconto	Acordo	15
+2026-08-03	823	ADA_Pergunta pagamento com desconto	CPC	605
+2026-08-03	830	ADA - Cliente faleceu	Contato	35
+2026-08-03	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	22
+2026-08-03	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	40
+2026-08-03	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	154
+2026-08-03	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	6
+2026-08-04	16	NoDisposition	Contato	1633
+2026-08-04	795	ADA_Iniciou o fluxo	Contato	39
+2026-08-04	796	ADA_VoiceMail	Contato	223
+2026-08-04	797	ADA_Pergunta quem fala	Contato	18379
+2026-08-04	798	ADA_Pergunta pagamento	CPC	2217
+2026-08-04	799	ADA_Pergunta se conhece	Contato	341
+2026-08-04	800	ADA_Nao conhece	Contato	671
+2026-08-04	801	ADA_Pergunta agendamento	Contato	116
+2026-08-04	802	ADA_Confirma agendamento	Contato	15
+2026-08-04	803	ADA_Nao confirma agendamento	Contato	31
+2026-08-04	804	ADA_Ja pagou	CPC	130
+2026-08-04	805	ADA_Nao aceita pagamento	CPC	288
+2026-08-04	821	ADA_Conhece a pessoa	Contato	22
+2026-08-04	830	ADA - Cliente faleceu	Contato	39
+2026-08-04	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	16
+2026-08-04	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	46
+2026-08-04	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	180
+2026-08-04	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	9
+2026-08-05	16	NoDisposition	Contato	50
+2026-08-05	795	ADA_Iniciou o fluxo	Contato	36
+2026-08-05	796	ADA_VoiceMail	Contato	236
+2026-08-05	797	ADA_Pergunta quem fala	Contato	21159
+2026-08-05	798	ADA_Pergunta pagamento	CPC	2166
+2026-08-05	799	ADA_Pergunta se conhece	Contato	430
+2026-08-05	800	ADA_Nao conhece	Contato	919
+2026-08-05	801	ADA_Pergunta agendamento	Contato	161
+2026-08-05	802	ADA_Confirma agendamento	Contato	11
+2026-08-05	803	ADA_Nao confirma agendamento	Contato	38
+2026-08-05	804	ADA_Ja pagou	CPC	104
+2026-08-05	805	ADA_Nao aceita pagamento	CPC	311
+2026-08-05	819	ADA_Nao confirmou CPF	CPC	94
+2026-08-05	821	ADA_Conhece a pessoa	Contato	30
+2026-08-05	830	ADA - Cliente faleceu	Contato	45
+2026-08-05	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	41
+2026-08-05	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	53
+2026-08-05	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	67
+2026-08-05	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	9
+2026-08-06	16	NoDisposition	Contato	49
+2026-08-06	795	ADA_Iniciou o fluxo	Contato	23
+2026-08-06	796	ADA_VoiceMail	Contato	140
+2026-08-06	797	ADA_Pergunta quem fala	Contato	11394
+2026-08-06	798	ADA_Pergunta pagamento	CPC	1961
+2026-08-06	799	ADA_Pergunta se conhece	Contato	316
+2026-08-06	800	ADA_Nao conhece	Contato	575
+2026-08-06	801	ADA_Pergunta agendamento	Contato	131
+2026-08-06	802	ADA_Confirma agendamento	Contato	15
+2026-08-06	803	ADA_Nao confirma agendamento	Contato	18
+2026-08-06	804	ADA_Ja pagou	CPC	113
+2026-08-06	805	ADA_Nao aceita pagamento	CPC	323
+2026-08-06	819	ADA_Nao confirmou CPF	CPC	158
+2026-08-06	821	ADA_Conhece a pessoa	Contato	36
+2026-08-06	830	ADA - Cliente faleceu	Contato	33
+2026-08-06	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	87
+2026-08-06	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	109
+2026-08-06	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	58
+2026-08-06	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	17
+2026-08-07	16	NoDisposition	Contato	648
+2026-08-07	795	ADA_Iniciou o fluxo	Contato	124
+2026-08-07	796	ADA_VoiceMail	Contato	96
+2026-08-07	797	ADA_Pergunta quem fala	Contato	8827
+2026-08-07	798	ADA_Pergunta pagamento	CPC	1225
+2026-08-07	799	ADA_Pergunta se conhece	Contato	174
+2026-08-07	800	ADA_Nao conhece	Contato	320
+2026-08-07	801	ADA_Pergunta agendamento	Contato	75
+2026-08-07	802	ADA_Confirma agendamento	Contato	5
+2026-08-07	803	ADA_Nao confirma agendamento	Contato	11
+2026-08-07	804	ADA_Ja pagou	CPC	106
+2026-08-07	805	ADA_Nao aceita pagamento	CPC	195
+2026-08-07	819	ADA_Nao confirmou CPF	CPC	80
+2026-08-07	821	ADA_Conhece a pessoa	Contato	18
+2026-08-07	830	ADA - Cliente faleceu	Contato	17
+2026-08-07	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	51
+2026-08-07	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	70
+2026-08-07	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	27
+2026-08-07	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	13
+2026-08-08	16	NoDisposition	Contato	2
+2026-08-08	795	ADA_Iniciou o fluxo	Contato	1
+2026-08-08	796	ADA_VoiceMail	Contato	28
+2026-08-08	797	ADA_Pergunta quem fala	Contato	1845
+2026-08-08	798	ADA_Pergunta pagamento	CPC	161
+2026-08-08	799	ADA_Pergunta se conhece	Contato	21
+2026-08-08	800	ADA_Nao conhece	Contato	74
+2026-08-08	801	ADA_Pergunta agendamento	Contato	9
+2026-08-08	802	ADA_Confirma agendamento	Contato	1
+2026-08-08	803	ADA_Nao confirma agendamento	Contato	3
+2026-08-08	804	ADA_Ja pagou	CPC	25
+2026-08-08	805	ADA_Nao aceita pagamento	CPC	30
+2026-08-08	819	ADA_Nao confirmou CPF	CPC	10
+2026-08-08	821	ADA_Conhece a pessoa	Contato	1
+2026-08-08	830	ADA - Cliente faleceu	Contato	4
+2026-08-08	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	5
+2026-08-08	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-08-08	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	4
+2026-08-08	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	2
+2026-08-10	16	NoDisposition	Contato	32
+2026-08-10	795	ADA_Iniciou o fluxo	Contato	4
+2026-08-10	796	ADA_VoiceMail	Contato	50
+2026-08-10	797	ADA_Pergunta quem fala	Contato	4048
+2026-08-10	798	ADA_Pergunta pagamento	CPC	369
+2026-08-10	799	ADA_Pergunta se conhece	Contato	91
+2026-08-10	800	ADA_Nao conhece	Contato	131
+2026-08-10	801	ADA_Pergunta agendamento	Contato	22
+2026-08-10	803	ADA_Nao confirma agendamento	Contato	4
+2026-08-10	804	ADA_Ja pagou	CPC	13
+2026-08-10	805	ADA_Nao aceita pagamento	CPC	50
+2026-08-10	819	ADA_Nao confirmou CPF	CPC	6
+2026-08-10	821	ADA_Conhece a pessoa	Contato	3
+2026-08-10	830	ADA - Cliente faleceu	Contato	6
+2026-08-10	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	7
+2026-08-10	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	7
+2026-08-10	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-08-10	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	1
+2026-08-11	16	NoDisposition	Contato	110
+2026-08-11	795	ADA_Iniciou o fluxo	Contato	12
+2026-08-11	796	ADA_VoiceMail	Contato	52
+2026-08-11	797	ADA_Pergunta quem fala	Contato	4962
+2026-08-11	798	ADA_Pergunta pagamento	CPC	408
+2026-08-11	799	ADA_Pergunta se conhece	Contato	69
+2026-08-11	800	ADA_Nao conhece	Contato	133
+2026-08-11	801	ADA_Pergunta agendamento	Contato	33
+2026-08-11	802	ADA_Confirma agendamento	Contato	1
+2026-08-11	803	ADA_Nao confirma agendamento	Contato	7
+2026-08-11	804	ADA_Ja pagou	CPC	14
+2026-08-11	805	ADA_Nao aceita pagamento	CPC	52
+2026-08-11	819	ADA_Nao confirmou CPF	CPC	18
+2026-08-11	821	ADA_Conhece a pessoa	Contato	7
+2026-08-11	830	ADA - Cliente faleceu	Contato	11
+2026-08-11	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-08-11	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-08-11	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-08-11	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	1
+2026-08-12	16	NoDisposition	Contato	69
+2026-08-12	795	ADA_Iniciou o fluxo	Contato	3
+2026-08-12	796	ADA_VoiceMail	Contato	62
+2026-08-12	797	ADA_Pergunta quem fala	Contato	4884
+2026-08-12	798	ADA_Pergunta pagamento	CPC	343
+2026-08-12	799	ADA_Pergunta se conhece	Contato	70
+2026-08-12	800	ADA_Nao conhece	Contato	143
+2026-08-12	801	ADA_Pergunta agendamento	Contato	33
+2026-08-12	802	ADA_Confirma agendamento	Contato	2
+2026-08-12	803	ADA_Nao confirma agendamento	Contato	11
+2026-08-12	804	ADA_Ja pagou	CPC	15
+2026-08-12	805	ADA_Nao aceita pagamento	CPC	92
+2026-08-12	819	ADA_Nao confirmou CPF	CPC	15
+2026-08-12	821	ADA_Conhece a pessoa	Contato	3
+2026-08-12	830	ADA - Cliente faleceu	Contato	8
+2026-08-12	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-08-12	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	5
+2026-08-12	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	4
+2026-08-12	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	2
+2026-08-13	16	NoDisposition	Contato	11
+2026-08-13	796	ADA_VoiceMail	Contato	21
+2026-08-13	797	ADA_Pergunta quem fala	Contato	1275
+2026-08-13	798	ADA_Pergunta pagamento	CPC	154
+2026-08-13	799	ADA_Pergunta se conhece	Contato	19
+2026-08-13	800	ADA_Nao conhece	Contato	67
+2026-08-13	801	ADA_Pergunta agendamento	Contato	13
+2026-08-13	803	ADA_Nao confirma agendamento	Contato	3
+2026-08-13	804	ADA_Ja pagou	CPC	7
+2026-08-13	805	ADA_Nao aceita pagamento	CPC	34
+2026-08-13	819	ADA_Nao confirmou CPF	CPC	11
+2026-08-13	821	ADA_Conhece a pessoa	Contato	4
+2026-08-13	830	ADA - Cliente faleceu	Contato	4
+2026-08-13	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	2
+2026-08-13	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	3
+2026-08-13	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	4
+2026-08-14	16	NoDisposition	Contato	33
+2026-08-14	795	ADA_Iniciou o fluxo	Contato	4
+2026-08-14	796	ADA_VoiceMail	Contato	125
+2026-08-14	797	ADA_Pergunta quem fala	Contato	7646
+2026-08-14	798	ADA_Pergunta pagamento	CPC	1079
+2026-08-14	799	ADA_Pergunta se conhece	Contato	187
+2026-08-14	800	ADA_Nao conhece	Contato	539
+2026-08-14	801	ADA_Pergunta agendamento	Contato	49
+2026-08-14	802	ADA_Confirma agendamento	Contato	4
+2026-08-14	803	ADA_Nao confirma agendamento	Contato	20
+2026-08-14	804	ADA_Ja pagou	CPC	70
+2026-08-14	805	ADA_Nao aceita pagamento	CPC	277
+2026-08-14	819	ADA_Nao confirmou CPF	CPC	60
+2026-08-14	821	ADA_Conhece a pessoa	Contato	45
+2026-08-14	830	ADA - Cliente faleceu	Contato	36
+2026-08-14	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	20
+2026-08-14	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-08-14	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	57
+2026-08-14	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	50
+2026-08-15	16	NoDisposition	Contato	10
+2026-08-15	795	ADA_Iniciou o fluxo	Contato	2
+2026-08-15	796	ADA_VoiceMail	Contato	78
+2026-08-15	797	ADA_Pergunta quem fala	Contato	3872
+2026-08-15	798	ADA_Pergunta pagamento	CPC	517
+2026-08-15	799	ADA_Pergunta se conhece	Contato	99
+2026-08-15	800	ADA_Nao conhece	Contato	282
+2026-08-15	801	ADA_Pergunta agendamento	Contato	36
+2026-08-15	802	ADA_Confirma agendamento	Contato	6
+2026-08-15	803	ADA_Nao confirma agendamento	Contato	20
+2026-08-15	804	ADA_Ja pagou	CPC	46
+2026-08-15	805	ADA_Nao aceita pagamento	CPC	155
+2026-08-15	819	ADA_Nao confirmou CPF	CPC	38
+2026-08-15	821	ADA_Conhece a pessoa	Contato	10
+2026-08-15	830	ADA - Cliente faleceu	Contato	8
+2026-08-15	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	16
+2026-08-15	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-08-15	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	45
+2026-08-15	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	24
+2026-08-17	16	NoDisposition	Contato	31
+2026-08-17	795	ADA_Iniciou o fluxo	Contato	3
+2026-08-17	796	ADA_VoiceMail	Contato	53
+2026-08-17	797	ADA_Pergunta quem fala	Contato	4893
+2026-08-17	798	ADA_Pergunta pagamento	CPC	734
+2026-08-17	799	ADA_Pergunta se conhece	Contato	107
+2026-08-17	800	ADA_Nao conhece	Contato	283
+2026-08-17	801	ADA_Pergunta agendamento	Contato	47
+2026-08-17	802	ADA_Confirma agendamento	Contato	5
+2026-08-17	803	ADA_Nao confirma agendamento	Contato	11
+2026-08-17	804	ADA_Ja pagou	CPC	52
+2026-08-17	805	ADA_Nao aceita pagamento	CPC	234
+2026-08-17	819	ADA_Nao confirmou CPF	CPC	52
+2026-08-17	821	ADA_Conhece a pessoa	Contato	52
+2026-08-17	830	ADA - Cliente faleceu	Contato	19
+2026-08-17	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	21
+2026-08-17	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-08-17	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	52
+2026-08-17	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	31
+2026-08-18	16	NoDisposition	Contato	90
+2026-08-18	795	ADA_Iniciou o fluxo	Contato	3
+2026-08-18	796	ADA_VoiceMail	Contato	83
+2026-08-18	797	ADA_Pergunta quem fala	Contato	6819
+2026-08-18	798	ADA_Pergunta pagamento	CPC	962
+2026-08-18	799	ADA_Pergunta se conhece	Contato	200
+2026-08-18	800	ADA_Nao conhece	Contato	451
+2026-08-18	801	ADA_Pergunta agendamento	Contato	46
+2026-08-18	802	ADA_Confirma agendamento	Contato	5
+2026-08-18	803	ADA_Nao confirma agendamento	Contato	32
+2026-08-18	804	ADA_Ja pagou	CPC	64
+2026-08-18	805	ADA_Nao aceita pagamento	CPC	336
+2026-08-18	819	ADA_Nao confirmou CPF	CPC	47
+2026-08-18	821	ADA_Conhece a pessoa	Contato	23
+2026-08-18	830	ADA - Cliente faleceu	Contato	29
+2026-08-18	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	15
+2026-08-18	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-08-18	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	35
+2026-08-18	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	38
+2026-08-19	16	NoDisposition	Contato	16
+2026-08-19	795	ADA_Iniciou o fluxo	Contato	1
+2026-08-19	796	ADA_VoiceMail	Contato	42
+2026-08-19	797	ADA_Pergunta quem fala	Contato	3416
+2026-08-19	798	ADA_Pergunta pagamento	CPC	600
+2026-08-19	799	ADA_Pergunta se conhece	Contato	121
+2026-08-19	800	ADA_Nao conhece	Contato	223
+2026-08-19	801	ADA_Pergunta agendamento	Contato	26
+2026-08-19	802	ADA_Confirma agendamento	Contato	2
+2026-08-19	803	ADA_Nao confirma agendamento	Contato	16
+2026-08-19	804	ADA_Ja pagou	CPC	48
+2026-08-19	805	ADA_Nao aceita pagamento	CPC	291
+2026-08-19	819	ADA_Nao confirmou CPF	CPC	47
+2026-08-19	821	ADA_Conhece a pessoa	Contato	6
+2026-08-19	830	ADA - Cliente faleceu	Contato	19
+2026-08-19	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	15
+2026-08-19	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	18
+2026-08-19	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	20
+2026-08-20	16	NoDisposition	Contato	48
+2026-08-20	796	ADA_VoiceMail	Contato	54
+2026-08-20	797	ADA_Pergunta quem fala	Contato	4533
+2026-08-20	798	ADA_Pergunta pagamento	CPC	642
+2026-08-20	799	ADA_Pergunta se conhece	Contato	126
+2026-08-20	800	ADA_Nao conhece	Contato	264
+2026-08-20	801	ADA_Pergunta agendamento	Contato	32
+2026-08-20	802	ADA_Confirma agendamento	Contato	2
+2026-08-20	803	ADA_Nao confirma agendamento	Contato	19
+2026-08-20	804	ADA_Ja pagou	CPC	32
+2026-08-20	805	ADA_Nao aceita pagamento	CPC	267
+2026-08-20	819	ADA_Nao confirmou CPF	CPC	50
+2026-08-20	821	ADA_Conhece a pessoa	Contato	12
+2026-08-20	830	ADA - Cliente faleceu	Contato	23
+2026-08-20	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	7
+2026-08-20	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	2
+2026-08-20	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	25
+2026-08-20	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	19
+2026-08-21	16	NoDisposition	Contato	136
+2026-08-21	795	ADA_Iniciou o fluxo	Contato	1
+2026-08-21	796	ADA_VoiceMail	Contato	55
+2026-08-21	797	ADA_Pergunta quem fala	Contato	4410
+2026-08-21	798	ADA_Pergunta pagamento	CPC	623
+2026-08-21	799	ADA_Pergunta se conhece	Contato	112
+2026-08-21	800	ADA_Nao conhece	Contato	263
+2026-08-21	801	ADA_Pergunta agendamento	Contato	20
+2026-08-21	803	ADA_Nao confirma agendamento	Contato	14
+2026-08-21	804	ADA_Ja pagou	CPC	37
+2026-08-21	805	ADA_Nao aceita pagamento	CPC	227
+2026-08-21	819	ADA_Nao confirmou CPF	CPC	39
+2026-08-21	821	ADA_Conhece a pessoa	Contato	9
+2026-08-21	830	ADA - Cliente faleceu	Contato	19
+2026-08-21	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	17
+2026-08-21	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	18
+2026-08-21	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	14
+2026-08-22	16	NoDisposition	Contato	23
+2026-08-22	795	ADA_Iniciou o fluxo	Contato	3
+2026-08-22	796	ADA_VoiceMail	Contato	58
+2026-08-22	797	ADA_Pergunta quem fala	Contato	3509
+2026-08-22	798	ADA_Pergunta pagamento	CPC	401
+2026-08-22	799	ADA_Pergunta se conhece	Contato	110
+2026-08-22	800	ADA_Nao conhece	Contato	204
+2026-08-22	801	ADA_Pergunta agendamento	Contato	23
+2026-08-22	803	ADA_Nao confirma agendamento	Contato	9
+2026-08-22	804	ADA_Ja pagou	CPC	27
+2026-08-22	805	ADA_Nao aceita pagamento	CPC	223
+2026-08-22	819	ADA_Nao confirmou CPF	CPC	42
+2026-08-22	821	ADA_Conhece a pessoa	Contato	13
+2026-08-22	830	ADA - Cliente faleceu	Contato	14
+2026-08-22	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	7
+2026-08-22	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-08-22	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	14
+2026-08-22	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	14
+2026-08-24	16	NoDisposition	Contato	269
+2026-08-24	795	ADA_Iniciou o fluxo	Contato	3
+2026-08-24	796	ADA_VoiceMail	Contato	58
+2026-08-24	797	ADA_Pergunta quem fala	Contato	4595
+2026-08-24	798	ADA_Pergunta pagamento	CPC	583
+2026-08-24	799	ADA_Pergunta se conhece	Contato	141
+2026-08-24	800	ADA_Nao conhece	Contato	227
+2026-08-24	801	ADA_Pergunta agendamento	Contato	32
+2026-08-24	803	ADA_Nao confirma agendamento	Contato	12
+2026-08-24	804	ADA_Ja pagou	CPC	28
+2026-08-24	805	ADA_Nao aceita pagamento	CPC	235
+2026-08-24	819	ADA_Nao confirmou CPF	CPC	41
+2026-08-24	821	ADA_Conhece a pessoa	Contato	12
+2026-08-24	830	ADA - Cliente faleceu	Contato	14
+2026-08-24	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	6
+2026-08-24	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	2
+2026-08-24	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	17
+2026-08-24	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	18
+2026-08-25	16	NoDisposition	Contato	89
+2026-08-25	795	ADA_Iniciou o fluxo	Contato	4
+2026-08-25	796	ADA_VoiceMail	Contato	51
+2026-08-25	797	ADA_Pergunta quem fala	Contato	4470
+2026-08-25	798	ADA_Pergunta pagamento	CPC	616
+2026-08-25	799	ADA_Pergunta se conhece	Contato	159
+2026-08-25	800	ADA_Nao conhece	Contato	279
+2026-08-25	801	ADA_Pergunta agendamento	Contato	28
+2026-08-25	803	ADA_Nao confirma agendamento	Contato	10
+2026-08-25	804	ADA_Ja pagou	CPC	38
+2026-08-25	805	ADA_Nao aceita pagamento	CPC	281
+2026-08-25	819	ADA_Nao confirmou CPF	CPC	49
+2026-08-25	821	ADA_Conhece a pessoa	Contato	7
+2026-08-25	830	ADA - Cliente faleceu	Contato	14
+2026-08-25	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	8
+2026-08-25	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	17
+2026-08-25	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	13
+2026-08-26	16	NoDisposition	Contato	13
+2026-08-26	796	ADA_VoiceMail	Contato	3
+2026-08-26	797	ADA_Pergunta quem fala	Contato	193
+2026-08-26	798	ADA_Pergunta pagamento	CPC	22
+2026-08-26	799	ADA_Pergunta se conhece	Contato	12
+2026-08-26	800	ADA_Nao conhece	Contato	11
+2026-08-26	801	ADA_Pergunta agendamento	Contato	4
+2026-08-26	804	ADA_Ja pagou	CPC	3
+2026-08-26	805	ADA_Nao aceita pagamento	CPC	19
+2026-08-26	819	ADA_Nao confirmou CPF	CPC	10
+2026-08-26	821	ADA_Conhece a pessoa	Contato	1
+2026-08-26	830	ADA - Cliente faleceu	Contato	2
+2026-08-26	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-08-26	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	3
+2026-08-27	16	NoDisposition	Contato	26
+2026-08-27	796	ADA_VoiceMail	Contato	9
+2026-08-27	797	ADA_Pergunta quem fala	Contato	321
+2026-08-27	798	ADA_Pergunta pagamento	CPC	47
+2026-08-27	799	ADA_Pergunta se conhece	Contato	10
+2026-08-27	800	ADA_Nao conhece	Contato	29
+2026-08-27	801	ADA_Pergunta agendamento	Contato	1
+2026-08-27	803	ADA_Nao confirma agendamento	Contato	2
+2026-08-27	804	ADA_Ja pagou	CPC	4
+2026-08-27	805	ADA_Nao aceita pagamento	CPC	17
+2026-08-27	819	ADA_Nao confirmou CPF	CPC	7
+2026-08-27	830	ADA - Cliente faleceu	Contato	1
+2026-08-27	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-08-27	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-08-27	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	3
+2026-08-28	16	NoDisposition	Contato	44
+2026-08-28	795	ADA_Iniciou o fluxo	Contato	2
+2026-08-28	796	ADA_VoiceMail	Contato	11
+2026-08-28	797	ADA_Pergunta quem fala	Contato	750
+2026-08-28	798	ADA_Pergunta pagamento	CPC	121
+2026-08-28	799	ADA_Pergunta se conhece	Contato	33
+2026-08-28	800	ADA_Nao conhece	Contato	61
+2026-08-28	801	ADA_Pergunta agendamento	Contato	3
+2026-08-28	803	ADA_Nao confirma agendamento	Contato	2
+2026-08-28	804	ADA_Ja pagou	CPC	7
+2026-08-28	805	ADA_Nao aceita pagamento	CPC	43
+2026-08-28	819	ADA_Nao confirmou CPF	CPC	27
+2026-08-28	821	ADA_Conhece a pessoa	Contato	3
+2026-08-28	830	ADA - Cliente faleceu	Contato	3
+2026-08-28	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	33
+2026-08-28	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	5
+2026-08-28	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	3
+2026-08-29	796	ADA_VoiceMail	Contato	2
+2026-08-29	797	ADA_Pergunta quem fala	Contato	40
+2026-08-29	798	ADA_Pergunta pagamento	CPC	6
+2026-08-29	799	ADA_Pergunta se conhece	Contato	3
+2026-08-29	804	ADA_Ja pagou	CPC	1
+2026-08-29	805	ADA_Nao aceita pagamento	CPC	2
+2026-08-29	819	ADA_Nao confirmou CPF	CPC	1
+2026-08-29	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	1
+2026-08-29	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-08-31	16	NoDisposition	Contato	11
+2026-08-31	795	ADA_Iniciou o fluxo	Contato	1
+2026-08-31	796	ADA_VoiceMail	Contato	12
+2026-08-31	797	ADA_Pergunta quem fala	Contato	465
+2026-08-31	798	ADA_Pergunta pagamento	CPC	76
+2026-08-31	799	ADA_Pergunta se conhece	Contato	28
+2026-08-31	800	ADA_Nao conhece	Contato	29
+2026-08-31	801	ADA_Pergunta agendamento	Contato	6
+2026-08-31	804	ADA_Ja pagou	CPC	3
+2026-08-31	805	ADA_Nao aceita pagamento	CPC	32
+2026-08-31	819	ADA_Nao confirmou CPF	CPC	13
+2026-08-31	821	ADA_Conhece a pessoa	Contato	1
+2026-08-31	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	6
+2026-08-31	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-08-31	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-08-31	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	1
+2026-09-01	797	ADA_Pergunta quem fala	Contato	7
+2026-09-01	798	ADA_Pergunta pagamento	CPC	1
+2026-09-01	830	ADA - Cliente faleceu	Contato	1
+2026-09-01	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	1
+2026-09-02	16	NoDisposition	Contato	36
+2026-09-02	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-02	796	ADA_VoiceMail	Contato	16
+2026-09-02	797	ADA_Pergunta quem fala	Contato	1344
+2026-09-02	798	ADA_Pergunta pagamento	CPC	419
+2026-09-02	799	ADA_Pergunta se conhece	Contato	94
+2026-09-02	800	ADA_Nao conhece	Contato	106
+2026-09-02	801	ADA_Pergunta agendamento	Contato	20
+2026-09-02	802	ADA_Confirma agendamento	Contato	1
+2026-09-02	803	ADA_Nao confirma agendamento	Contato	5
+2026-09-02	804	ADA_Ja pagou	CPC	34
+2026-09-02	805	ADA_Nao aceita pagamento	CPC	183
+2026-09-02	819	ADA_Nao confirmou CPF	CPC	79
+2026-09-02	821	ADA_Conhece a pessoa	Contato	11
+2026-09-02	830	ADA - Cliente faleceu	Contato	5
+2026-09-02	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	45
+2026-09-02	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	6
+2026-09-02	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	78
+2026-09-02	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	44
+2026-09-03	16	NoDisposition	Contato	80
+2026-09-03	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-03	796	ADA_VoiceMail	Contato	13
+2026-09-03	797	ADA_Pergunta quem fala	Contato	1748
+2026-09-03	798	ADA_Pergunta pagamento	CPC	346
+2026-09-03	799	ADA_Pergunta se conhece	Contato	23
+2026-09-03	800	ADA_Nao conhece	Contato	168
+2026-09-03	801	ADA_Pergunta agendamento	Contato	16
+2026-09-03	803	ADA_Nao confirma agendamento	Contato	7
+2026-09-03	804	ADA_Ja pagou	CPC	19
+2026-09-03	805	ADA_Nao aceita pagamento	CPC	105
+2026-09-03	819	ADA_Nao confirmou CPF	CPC	58
+2026-09-03	821	ADA_Conhece a pessoa	Contato	1
+2026-09-03	830	ADA - Cliente faleceu	Contato	3
+2026-09-03	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	14
+2026-09-03	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	22
+2026-09-03	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	13
+2026-09-04	797	ADA_Pergunta quem fala	Contato	3526
+2026-09-04	798	ADA_Pergunta pagamento	CPC	663
+2026-09-04	799	ADA_Pergunta se conhece	Contato	38
+2026-09-04	800	ADA_Nao conhece	Contato	248
+2026-09-04	801	ADA_Pergunta agendamento	Contato	32
+2026-09-04	803	ADA_Nao confirma agendamento	Contato	10
+2026-09-04	804	ADA_Ja pagou	CPC	26
+2026-09-04	805	ADA_Nao aceita pagamento	CPC	170
+2026-09-04	819	ADA_Nao confirmou CPF	CPC	71
+2026-09-04	821	ADA_Conhece a pessoa	Contato	4
+2026-09-04	830	ADA - Cliente faleceu	Contato	11
+2026-09-04	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	25
+2026-09-04	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	2
+2026-09-04	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	20
+2026-09-04	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	15
+2026-09-04	16	NoDisposition	Contato	125
+2026-09-04	795	ADA_Iniciou o fluxo	Contato	2
+2026-09-04	796	ADA_VoiceMail	Contato	35
+2026-09-05	16	NoDisposition	Contato	11
+2026-09-05	795	ADA_Iniciou o fluxo	Contato	2
+2026-09-05	796	ADA_VoiceMail	Contato	30
+2026-09-05	797	ADA_Pergunta quem fala	Contato	2899
+2026-09-05	798	ADA_Pergunta pagamento	CPC	443
+2026-09-05	799	ADA_Pergunta se conhece	Contato	22
+2026-09-05	800	ADA_Nao conhece	Contato	232
+2026-09-05	801	ADA_Pergunta agendamento	Contato	17
+2026-09-05	803	ADA_Nao confirma agendamento	Contato	8
+2026-09-05	804	ADA_Ja pagou	CPC	24
+2026-09-05	805	ADA_Nao aceita pagamento	CPC	149
+2026-09-05	819	ADA_Nao confirmou CPF	CPC	75
+2026-09-05	821	ADA_Conhece a pessoa	Contato	3
+2026-09-05	830	ADA - Cliente faleceu	Contato	9
+2026-09-05	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	10
+2026-09-05	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-09-05	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	13
+2026-09-05	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	17
+2026-09-07	797	ADA_Pergunta quem fala	Contato	111
+2026-09-07	798	ADA_Pergunta pagamento	CPC	19
+2026-09-07	799	ADA_Pergunta se conhece	Contato	1
+2026-09-07	800	ADA_Nao conhece	Contato	5
+2026-09-07	805	ADA_Nao aceita pagamento	CPC	2
+2026-09-07	819	ADA_Nao confirmou CPF	CPC	2
+2026-09-07	821	ADA_Conhece a pessoa	Contato	1
+2026-09-07	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	1
+2026-09-08	16	NoDisposition	Contato	78
+2026-09-08	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-08	796	ADA_VoiceMail	Contato	25
+2026-09-08	797	ADA_Pergunta quem fala	Contato	2854
+2026-09-08	798	ADA_Pergunta pagamento	CPC	528
+2026-09-08	799	ADA_Pergunta se conhece	Contato	32
+2026-09-08	800	ADA_Nao conhece	Contato	182
+2026-09-08	801	ADA_Pergunta agendamento	Contato	36
+2026-09-08	803	ADA_Nao confirma agendamento	Contato	9
+2026-09-08	804	ADA_Ja pagou	CPC	29
+2026-09-08	805	ADA_Nao aceita pagamento	CPC	137
+2026-09-08	819	ADA_Nao confirmou CPF	CPC	83
+2026-09-08	821	ADA_Conhece a pessoa	Contato	1
+2026-09-08	830	ADA - Cliente faleceu	Contato	12
+2026-09-08	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	14
+2026-09-08	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	7
+2026-09-08	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	30
+2026-09-08	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	36
+2026-09-09	16	NoDisposition	Contato	164
+2026-09-09	795	ADA_Iniciou o fluxo	Contato	2
+2026-09-09	796	ADA_VoiceMail	Contato	27
+2026-09-09	797	ADA_Pergunta quem fala	Contato	3404
+2026-09-09	798	ADA_Pergunta pagamento	CPC	604
+2026-09-09	799	ADA_Pergunta se conhece	Contato	33
+2026-09-09	800	ADA_Nao conhece	Contato	251
+2026-09-09	801	ADA_Pergunta agendamento	Contato	68
+2026-09-09	802	ADA_Confirma agendamento	Contato	1
+2026-09-09	803	ADA_Nao confirma agendamento	Contato	5
+2026-09-09	804	ADA_Ja pagou	CPC	39
+2026-09-09	805	ADA_Nao aceita pagamento	CPC	156
+2026-09-09	819	ADA_Nao confirmou CPF	CPC	84
+2026-09-09	821	ADA_Conhece a pessoa	Contato	1
+2026-09-09	830	ADA - Cliente faleceu	Contato	20
+2026-09-09	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	22
+2026-09-09	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	9
+2026-09-09	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	30
+2026-09-09	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	31
+2026-09-10	16	NoDisposition	Contato	45
+2026-09-10	796	ADA_VoiceMail	Contato	10
+2026-09-10	797	ADA_Pergunta quem fala	Contato	880
+2026-09-10	798	ADA_Pergunta pagamento	CPC	151
+2026-09-10	799	ADA_Pergunta se conhece	Contato	28
+2026-09-10	800	ADA_Nao conhece	Contato	52
+2026-09-10	801	ADA_Pergunta agendamento	Contato	19
+2026-09-10	803	ADA_Nao confirma agendamento	Contato	3
+2026-09-10	804	ADA_Ja pagou	CPC	8
+2026-09-10	805	ADA_Nao aceita pagamento	CPC	39
+2026-09-10	819	ADA_Nao confirmou CPF	CPC	26
+2026-09-10	821	ADA_Conhece a pessoa	Contato	2
+2026-09-10	830	ADA - Cliente faleceu	Contato	3
+2026-09-10	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	10
+2026-09-10	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	6
+2026-09-10	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	5
+2026-09-11	16	NoDisposition	Contato	79
+2026-09-11	795	ADA_Iniciou o fluxo	Contato	2
+2026-09-11	796	ADA_VoiceMail	Contato	33
+2026-09-11	797	ADA_Pergunta quem fala	Contato	2501
+2026-09-11	798	ADA_Pergunta pagamento	CPC	416
+2026-09-11	799	ADA_Pergunta se conhece	Contato	97
+2026-09-11	800	ADA_Nao conhece	Contato	137
+2026-09-11	801	ADA_Pergunta agendamento	Contato	30
+2026-09-11	802	ADA_Confirma agendamento	Contato	1
+2026-09-11	803	ADA_Nao confirma agendamento	Contato	4
+2026-09-11	804	ADA_Ja pagou	CPC	14
+2026-09-11	805	ADA_Nao aceita pagamento	CPC	64
+2026-09-11	819	ADA_Nao confirmou CPF	CPC	50
+2026-09-11	821	ADA_Conhece a pessoa	Contato	6
+2026-09-11	830	ADA - Cliente faleceu	Contato	7
+2026-09-11	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	10
+2026-09-11	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-09-11	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	9
+2026-09-11	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	15
+2026-09-12	16	NoDisposition	Contato	1
+2026-09-12	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-12	796	ADA_VoiceMail	Contato	27
+2026-09-12	797	ADA_Pergunta quem fala	Contato	1610
+2026-09-12	798	ADA_Pergunta pagamento	CPC	280
+2026-09-12	799	ADA_Pergunta se conhece	Contato	54
+2026-09-12	800	ADA_Nao conhece	Contato	83
+2026-09-12	801	ADA_Pergunta agendamento	Contato	19
+2026-09-12	803	ADA_Nao confirma agendamento	Contato	1
+2026-09-12	804	ADA_Ja pagou	CPC	15
+2026-09-12	805	ADA_Nao aceita pagamento	CPC	42
+2026-09-12	819	ADA_Nao confirmou CPF	CPC	25
+2026-09-12	821	ADA_Conhece a pessoa	Contato	5
+2026-09-12	830	ADA - Cliente faleceu	Contato	6
+2026-09-12	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-09-12	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	6
+2026-09-12	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	6
+2026-09-12	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	16
+2026-09-14	16	NoDisposition	Contato	300
+2026-09-14	795	ADA_Iniciou o fluxo	Contato	2
+2026-09-14	796	ADA_VoiceMail	Contato	27
+2026-09-14	797	ADA_Pergunta quem fala	Contato	1623
+2026-09-14	798	ADA_Pergunta pagamento	CPC	280
+2026-09-14	799	ADA_Pergunta se conhece	Contato	63
+2026-09-14	800	ADA_Nao conhece	Contato	83
+2026-09-14	801	ADA_Pergunta agendamento	Contato	30
+2026-09-14	802	ADA_Confirma agendamento	Contato	2
+2026-09-14	803	ADA_Nao confirma agendamento	Contato	6
+2026-09-14	804	ADA_Ja pagou	CPC	8
+2026-09-14	805	ADA_Nao aceita pagamento	CPC	49
+2026-09-14	819	ADA_Nao confirmou CPF	CPC	39
+2026-09-14	821	ADA_Conhece a pessoa	Contato	4
+2026-09-14	830	ADA - Cliente faleceu	Contato	6
+2026-09-14	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	6
+2026-09-14	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-09-14	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	10
+2026-09-14	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	15
+2026-09-15	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	9
+2026-09-15	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	12
+2026-09-15	16	NoDisposition	Contato	39
+2026-09-15	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-15	796	ADA_VoiceMail	Contato	34
+2026-09-15	797	ADA_Pergunta quem fala	Contato	2702
+2026-09-15	798	ADA_Pergunta pagamento	CPC	451
+2026-09-15	799	ADA_Pergunta se conhece	Contato	113
+2026-09-15	800	ADA_Nao conhece	Contato	156
+2026-09-15	801	ADA_Pergunta agendamento	Contato	24
+2026-09-15	802	ADA_Confirma agendamento	Contato	2
+2026-09-15	803	ADA_Nao confirma agendamento	Contato	4
+2026-09-15	804	ADA_Ja pagou	CPC	22
+2026-09-15	805	ADA_Nao aceita pagamento	CPC	82
+2026-09-15	819	ADA_Nao confirmou CPF	CPC	55
+2026-09-15	821	ADA_Conhece a pessoa	Contato	5
+2026-09-15	830	ADA - Cliente faleceu	Contato	16
+2026-09-15	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	8
+2026-09-15	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	8
+2026-09-16	16	NoDisposition	Contato	65
+2026-09-16	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-16	796	ADA_VoiceMail	Contato	53
+2026-09-16	797	ADA_Pergunta quem fala	Contato	3455
+2026-09-16	798	ADA_Pergunta pagamento	CPC	533
+2026-09-16	799	ADA_Pergunta se conhece	Contato	170
+2026-09-16	800	ADA_Nao conhece	Contato	224
+2026-09-16	801	ADA_Pergunta agendamento	Contato	39
+2026-09-16	802	ADA_Confirma agendamento	Contato	1
+2026-09-16	803	ADA_Nao confirma agendamento	Contato	7
+2026-09-16	804	ADA_Ja pagou	CPC	38
+2026-09-16	805	ADA_Nao aceita pagamento	CPC	97
+2026-09-16	819	ADA_Nao confirmou CPF	CPC	49
+2026-09-16	821	ADA_Conhece a pessoa	Contato	14
+2026-09-16	830	ADA - Cliente faleceu	Contato	17
+2026-09-16	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	7
+2026-09-16	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	13
+2026-09-16	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	14
+2026-09-16	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	22
+2026-09-17	16	NoDisposition	Contato	22
+2026-09-17	795	ADA_Iniciou o fluxo	Contato	7
+2026-09-17	796	ADA_VoiceMail	Contato	42
+2026-09-17	797	ADA_Pergunta quem fala	Contato	3251
+2026-09-17	798	ADA_Pergunta pagamento	CPC	447
+2026-09-17	799	ADA_Pergunta se conhece	Contato	100
+2026-09-17	800	ADA_Nao conhece	Contato	184
+2026-09-17	801	ADA_Pergunta agendamento	Contato	57
+2026-09-17	803	ADA_Nao confirma agendamento	Contato	5
+2026-09-17	804	ADA_Ja pagou	CPC	21
+2026-09-17	805	ADA_Nao aceita pagamento	CPC	110
+2026-09-17	819	ADA_Nao confirmou CPF	CPC	50
+2026-09-17	821	ADA_Conhece a pessoa	Contato	6
+2026-09-17	830	ADA - Cliente faleceu	Contato	15
+2026-09-17	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	8
+2026-09-17	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-09-17	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	5
+2026-09-17	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	17
+2026-09-18	16	NoDisposition	Contato	7
+2026-09-18	795	ADA_Iniciou o fluxo	Contato	3
+2026-09-18	796	ADA_VoiceMail	Contato	34
+2026-09-18	797	ADA_Pergunta quem fala	Contato	3065
+2026-09-18	798	ADA_Pergunta pagamento	CPC	350
+2026-09-18	799	ADA_Pergunta se conhece	Contato	59
+2026-09-18	800	ADA_Nao conhece	Contato	128
+2026-09-18	801	ADA_Pergunta agendamento	Contato	80
+2026-09-18	802	ADA_Confirma agendamento	Contato	3
+2026-09-18	803	ADA_Nao confirma agendamento	Contato	3
+2026-09-18	804	ADA_Ja pagou	CPC	9
+2026-09-18	805	ADA_Nao aceita pagamento	CPC	93
+2026-09-18	819	ADA_Nao confirmou CPF	CPC	46
+2026-09-18	821	ADA_Conhece a pessoa	Contato	3
+2026-09-18	830	ADA - Cliente faleceu	Contato	9
+2026-09-18	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	13
+2026-09-18	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	2
+2026-09-18	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	3
+2026-09-18	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	1
+2026-09-19	16	NoDisposition	Contato	4
+2026-09-19	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-19	796	ADA_VoiceMail	Contato	30
+2026-09-19	797	ADA_Pergunta quem fala	Contato	1776
+2026-09-19	798	ADA_Pergunta pagamento	CPC	184
+2026-09-19	799	ADA_Pergunta se conhece	Contato	24
+2026-09-19	800	ADA_Nao conhece	Contato	81
+2026-09-19	801	ADA_Pergunta agendamento	Contato	36
+2026-09-19	802	ADA_Confirma agendamento	Contato	1
+2026-09-19	803	ADA_Nao confirma agendamento	Contato	3
+2026-09-19	804	ADA_Ja pagou	CPC	14
+2026-09-19	805	ADA_Nao aceita pagamento	CPC	55
+2026-09-19	819	ADA_Nao confirmou CPF	CPC	28
+2026-09-19	821	ADA_Conhece a pessoa	Contato	2
+2026-09-19	830	ADA - Cliente faleceu	Contato	6
+2026-09-19	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	5
+2026-09-19	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	2
+2026-09-19	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	6
+2026-09-19	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	5
+2026-09-21	16	NoDisposition	Contato	14
+2026-09-21	795	ADA_Iniciou o fluxo	Contato	4
+2026-09-21	796	ADA_VoiceMail	Contato	39
+2026-09-21	797	ADA_Pergunta quem fala	Contato	3558
+2026-09-21	798	ADA_Pergunta pagamento	CPC	410
+2026-09-21	799	ADA_Pergunta se conhece	Contato	49
+2026-09-21	800	ADA_Nao conhece	Contato	142
+2026-09-21	801	ADA_Pergunta agendamento	Contato	71
+2026-09-21	802	ADA_Confirma agendamento	Contato	2
+2026-09-21	803	ADA_Nao confirma agendamento	Contato	7
+2026-09-21	804	ADA_Ja pagou	CPC	18
+2026-09-21	805	ADA_Nao aceita pagamento	CPC	119
+2026-09-21	819	ADA_Nao confirmou CPF	CPC	46
+2026-09-21	821	ADA_Conhece a pessoa	Contato	9
+2026-09-21	830	ADA - Cliente faleceu	Contato	11
+2026-09-21	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	6
+2026-09-21	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-09-21	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	4
+2026-09-21	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	6
+2026-09-22	16	NoDisposition	Contato	20
+2026-09-22	795	ADA_Iniciou o fluxo	Contato	6
+2026-09-22	796	ADA_VoiceMail	Contato	79
+2026-09-22	797	ADA_Pergunta quem fala	Contato	4058
+2026-09-22	798	ADA_Pergunta pagamento	CPC	580
+2026-09-22	799	ADA_Pergunta se conhece	Contato	71
+2026-09-22	800	ADA_Nao conhece	Contato	168
+2026-09-22	801	ADA_Pergunta agendamento	Contato	129
+2026-09-22	802	ADA_Confirma agendamento	Contato	3
+2026-09-22	803	ADA_Nao confirma agendamento	Contato	2
+2026-09-22	804	ADA_Ja pagou	CPC	21
+2026-09-22	805	ADA_Nao aceita pagamento	CPC	123
+2026-09-22	819	ADA_Nao confirmou CPF	CPC	60
+2026-09-22	821	ADA_Conhece a pessoa	Contato	3
+2026-09-22	830	ADA - Cliente faleceu	Contato	15
+2026-09-22	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	8
+2026-09-22	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	5
+2026-09-22	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	4
+2026-09-22	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	6
+2026-09-23	16	NoDisposition	Contato	3
+2026-09-23	795	ADA_Iniciou o fluxo	Contato	1
+2026-09-23	796	ADA_VoiceMail	Contato	5
+2026-09-23	797	ADA_Pergunta quem fala	Contato	442
+2026-09-23	798	ADA_Pergunta pagamento	CPC	87
+2026-09-23	799	ADA_Pergunta se conhece	Contato	5
+2026-09-23	800	ADA_Nao conhece	Contato	22
+2026-09-23	801	ADA_Pergunta agendamento	Contato	23
+2026-09-23	802	ADA_Confirma agendamento	Contato	1
+2026-09-23	804	ADA_Ja pagou	CPC	3
+2026-09-23	805	ADA_Nao aceita pagamento	CPC	21
+2026-09-23	819	ADA_Nao confirmou CPF	CPC	9
+2026-09-23	830	ADA - Cliente faleceu	Contato	1
+2026-09-23	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-09-23	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	3
+2026-09-24	16	NoDisposition	Contato	18
+2026-09-24	795	ADA_Iniciou o fluxo	Contato	5
+2026-09-24	796	ADA_VoiceMail	Contato	19
+2026-09-24	797	ADA_Pergunta quem fala	Contato	1675
+2026-09-24	798	ADA_Pergunta pagamento	CPC	238
+2026-09-24	799	ADA_Pergunta se conhece	Contato	33
+2026-09-24	800	ADA_Nao conhece	Contato	71
+2026-09-24	801	ADA_Pergunta agendamento	Contato	82
+2026-09-24	802	ADA_Confirma agendamento	Contato	3
+2026-09-24	803	ADA_Nao confirma agendamento	Contato	7
+2026-09-24	804	ADA_Ja pagou	CPC	16
+2026-09-24	805	ADA_Nao aceita pagamento	CPC	49
+2026-09-24	819	ADA_Nao confirmou CPF	CPC	40
+2026-09-24	821	ADA_Conhece a pessoa	Contato	3
+2026-09-24	830	ADA - Cliente faleceu	Contato	3
+2026-09-24	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	6
+2026-09-24	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-09-24	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-09-24	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	7
+2026-09-26	16	NoDisposition	Contato	2
+2026-09-26	796	ADA_VoiceMail	Contato	17
+2026-09-26	797	ADA_Pergunta quem fala	Contato	893
+2026-09-26	798	ADA_Pergunta pagamento	CPC	119
+2026-09-26	799	ADA_Pergunta se conhece	Contato	17
+2026-09-26	800	ADA_Nao conhece	Contato	48
+2026-09-26	801	ADA_Pergunta agendamento	Contato	53
+2026-09-26	802	ADA_Confirma agendamento	Contato	1
+2026-09-26	803	ADA_Nao confirma agendamento	Contato	3
+2026-09-26	804	ADA_Ja pagou	CPC	4
+2026-09-26	805	ADA_Nao aceita pagamento	CPC	34
+2026-09-26	819	ADA_Nao confirmou CPF	CPC	18
+2026-09-26	830	ADA - Cliente faleceu	Contato	8
+2026-09-26	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	2
+2026-09-26	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-09-26	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	2
+2026-09-26	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	7
+2026-09-28	797	ADA_Pergunta quem fala	Contato	4
+2026-09-28	819	ADA_Nao confirmou CPF	CPC	1
+2026-09-29	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-09-29	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	11
+2026-09-29	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	7
+2026-09-29	16	NoDisposition	Contato	12
+2026-09-29	795	ADA_Iniciou o fluxo	Contato	3
+2026-09-29	796	ADA_VoiceMail	Contato	43
+2026-09-29	797	ADA_Pergunta quem fala	Contato	3105
+2026-09-29	798	ADA_Pergunta pagamento	CPC	361
+2026-09-29	799	ADA_Pergunta se conhece	Contato	49
+2026-09-29	800	ADA_Nao conhece	Contato	119
+2026-09-29	801	ADA_Pergunta agendamento	Contato	202
+2026-09-29	802	ADA_Confirma agendamento	Contato	2
+2026-09-29	803	ADA_Nao confirma agendamento	Contato	4
+2026-09-29	804	ADA_Ja pagou	CPC	17
+2026-09-29	805	ADA_Nao aceita pagamento	CPC	88
+2026-09-29	819	ADA_Nao confirmou CPF	CPC	47
+2026-09-29	821	ADA_Conhece a pessoa	Contato	3
+2026-09-29	830	ADA - Cliente faleceu	Contato	10
+2026-09-29	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	8
+2026-09-30	16	NoDisposition	Contato	17
+2026-09-30	795	ADA_Iniciou o fluxo	Contato	3
+2026-09-30	796	ADA_VoiceMail	Contato	37
+2026-09-30	797	ADA_Pergunta quem fala	Contato	3242
+2026-09-30	798	ADA_Pergunta pagamento	CPC	336
+2026-09-30	799	ADA_Pergunta se conhece	Contato	50
+2026-09-30	800	ADA_Nao conhece	Contato	133
+2026-09-30	801	ADA_Pergunta agendamento	Contato	141
+2026-09-30	802	ADA_Confirma agendamento	Contato	1
+2026-09-30	803	ADA_Nao confirma agendamento	Contato	11
+2026-09-30	804	ADA_Ja pagou	CPC	16
+2026-09-30	805	ADA_Nao aceita pagamento	CPC	72
+2026-09-30	819	ADA_Nao confirmou CPF	CPC	55
+2026-09-30	821	ADA_Conhece a pessoa	Contato	6
+2026-09-30	830	ADA - Cliente faleceu	Contato	15
+2026-09-30	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	6
+2026-09-30	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	5
+2026-09-30	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	5
+2026-10-01	16	NoDisposition	Contato	12
+2026-10-01	795	ADA_Iniciou o fluxo	Contato	4
+2026-10-01	796	ADA_VoiceMail	Contato	41
+2026-10-01	797	ADA_Pergunta quem fala	Contato	3179
+2026-10-01	798	ADA_Pergunta pagamento	CPC	306
+2026-10-01	799	ADA_Pergunta se conhece	Contato	47
+2026-10-01	800	ADA_Nao conhece	Contato	116
+2026-10-01	801	ADA_Pergunta agendamento	Contato	143
+2026-10-01	802	ADA_Confirma agendamento	Contato	1
+2026-10-01	803	ADA_Nao confirma agendamento	Contato	6
+2026-10-01	804	ADA_Ja pagou	CPC	15
+2026-10-01	805	ADA_Nao aceita pagamento	CPC	58
+2026-10-01	819	ADA_Nao confirmou CPF	CPC	51
+2026-10-01	821	ADA_Conhece a pessoa	Contato	2
+2026-10-01	830	ADA - Cliente faleceu	Contato	10
+2026-10-01	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	9
+2026-10-01	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	6
+2026-10-01	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	7
+2026-10-02	16	NoDisposition	Contato	8
+2026-10-02	796	ADA_VoiceMail	Contato	26
+2026-10-02	797	ADA_Pergunta quem fala	Contato	2535
+2026-10-02	798	ADA_Pergunta pagamento	CPC	298
+2026-10-02	799	ADA_Pergunta se conhece	Contato	56
+2026-10-02	800	ADA_Nao conhece	Contato	100
+2026-10-02	801	ADA_Pergunta agendamento	Contato	114
+2026-10-02	802	ADA_Confirma agendamento	Contato	1
+2026-10-02	803	ADA_Nao confirma agendamento	Contato	10
+2026-10-02	804	ADA_Ja pagou	CPC	11
+2026-10-02	805	ADA_Nao aceita pagamento	CPC	46
+2026-10-02	819	ADA_Nao confirmou CPF	CPC	36
+2026-10-02	821	ADA_Conhece a pessoa	Contato	1
+2026-10-02	830	ADA - Cliente faleceu	Contato	16
+2026-10-02	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	11
+2026-10-02	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	8
+2026-10-02	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	12
+2026-10-03	796	ADA_VoiceMail	Contato	12
+2026-10-03	797	ADA_Pergunta quem fala	Contato	1272
+2026-10-03	798	ADA_Pergunta pagamento	CPC	156
+2026-10-03	799	ADA_Pergunta se conhece	Contato	27
+2026-10-03	800	ADA_Nao conhece	Contato	55
+2026-10-03	801	ADA_Pergunta agendamento	Contato	65
+2026-10-03	802	ADA_Confirma agendamento	Contato	1
+2026-10-03	803	ADA_Nao confirma agendamento	Contato	4
+2026-10-03	804	ADA_Ja pagou	CPC	6
+2026-10-03	805	ADA_Nao aceita pagamento	CPC	43
+2026-10-03	819	ADA_Nao confirmou CPF	CPC	46
+2026-10-03	830	ADA - Cliente faleceu	Contato	4
+2026-10-03	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-03	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	2
+2026-10-03	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	6
+2026-10-03	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	3
+2026-10-05	16	NoDisposition	Contato	11
+2026-10-05	795	ADA_Iniciou o fluxo	Contato	2
+2026-10-05	796	ADA_VoiceMail	Contato	34
+2026-10-05	797	ADA_Pergunta quem fala	Contato	2977
+2026-10-05	798	ADA_Pergunta pagamento	CPC	454
+2026-10-05	799	ADA_Pergunta se conhece	Contato	49
+2026-10-05	800	ADA_Nao conhece	Contato	154
+2026-10-05	801	ADA_Pergunta agendamento	Contato	191
+2026-10-05	802	ADA_Confirma agendamento	Contato	2
+2026-10-05	803	ADA_Nao confirma agendamento	Contato	9
+2026-10-05	804	ADA_Ja pagou	CPC	14
+2026-10-05	805	ADA_Nao aceita pagamento	CPC	95
+2026-10-05	819	ADA_Nao confirmou CPF	CPC	74
+2026-10-05	821	ADA_Conhece a pessoa	Contato	1
+2026-10-05	830	ADA - Cliente faleceu	Contato	6
+2026-10-05	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	9
+2026-10-05	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-10-05	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	8
+2026-10-05	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	11
+2026-10-06	16	NoDisposition	Contato	118
+2026-10-06	795	ADA_Iniciou o fluxo	Contato	1
+2026-10-06	796	ADA_VoiceMail	Contato	36
+2026-10-06	797	ADA_Pergunta quem fala	Contato	3702
+2026-10-06	798	ADA_Pergunta pagamento	CPC	572
+2026-10-06	799	ADA_Pergunta se conhece	Contato	92
+2026-10-06	800	ADA_Nao conhece	Contato	256
+2026-10-06	801	ADA_Pergunta agendamento	Contato	293
+2026-10-06	803	ADA_Nao confirma agendamento	Contato	12
+2026-10-06	804	ADA_Ja pagou	CPC	17
+2026-10-06	805	ADA_Nao aceita pagamento	CPC	128
+2026-10-06	819	ADA_Nao confirmou CPF	CPC	71
+2026-10-06	821	ADA_Conhece a pessoa	Contato	7
+2026-10-06	830	ADA - Cliente faleceu	Contato	20
+2026-10-06	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	14
+2026-10-06	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	5
+2026-10-06	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	9
+2026-10-06	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	18
+2026-10-07	16	NoDisposition	Contato	116
+2026-10-07	795	ADA_Iniciou o fluxo	Contato	2
+2026-10-07	796	ADA_VoiceMail	Contato	31
+2026-10-07	797	ADA_Pergunta quem fala	Contato	4317
+2026-10-07	798	ADA_Pergunta pagamento	CPC	638
+2026-10-07	799	ADA_Pergunta se conhece	Contato	119
+2026-10-07	800	ADA_Nao conhece	Contato	279
+2026-10-07	801	ADA_Pergunta agendamento	Contato	196
+2026-10-07	802	ADA_Confirma agendamento	Contato	4
+2026-10-07	803	ADA_Nao confirma agendamento	Contato	8
+2026-10-07	804	ADA_Ja pagou	CPC	23
+2026-10-07	805	ADA_Nao aceita pagamento	CPC	158
+2026-10-07	819	ADA_Nao confirmou CPF	CPC	71
+2026-10-07	821	ADA_Conhece a pessoa	Contato	5
+2026-10-07	830	ADA - Cliente faleceu	Contato	26
+2026-10-07	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	19
+2026-10-07	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-10-07	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	9
+2026-10-07	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	9
+2026-10-08	16	NoDisposition	Contato	142
+2026-10-08	795	ADA_Iniciou o fluxo	Contato	7
+2026-10-08	796	ADA_VoiceMail	Contato	44
+2026-10-08	797	ADA_Pergunta quem fala	Contato	5778
+2026-10-08	798	ADA_Pergunta pagamento	CPC	691
+2026-10-08	799	ADA_Pergunta se conhece	Contato	289
+2026-10-08	800	ADA_Nao conhece	Contato	425
+2026-10-08	801	ADA_Pergunta agendamento	Contato	131
+2026-10-08	802	ADA_Confirma agendamento	Contato	6
+2026-10-08	803	ADA_Nao confirma agendamento	Contato	10
+2026-10-08	804	ADA_Ja pagou	CPC	18
+2026-10-08	805	ADA_Nao aceita pagamento	CPC	172
+2026-10-08	819	ADA_Nao confirmou CPF	CPC	78
+2026-10-08	821	ADA_Conhece a pessoa	Contato	15
+2026-10-08	830	ADA - Cliente faleceu	Contato	33
+2026-10-08	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	15
+2026-10-08	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	7
+2026-10-08	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	10
+2026-10-08	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	16
+2026-10-09	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	8
+2026-10-09	16	NoDisposition	Contato	147
+2026-10-09	795	ADA_Iniciou o fluxo	Contato	1
+2026-10-09	796	ADA_VoiceMail	Contato	29
+2026-10-09	797	ADA_Pergunta quem fala	Contato	2066
+2026-10-09	798	ADA_Pergunta pagamento	CPC	247
+2026-10-09	799	ADA_Pergunta se conhece	Contato	137
+2026-10-09	800	ADA_Nao conhece	Contato	178
+2026-10-09	801	ADA_Pergunta agendamento	Contato	23
+2026-10-09	803	ADA_Nao confirma agendamento	Contato	4
+2026-10-09	804	ADA_Ja pagou	CPC	6
+2026-10-09	805	ADA_Nao aceita pagamento	CPC	63
+2026-10-09	819	ADA_Nao confirmou CPF	CPC	39
+2026-10-09	821	ADA_Conhece a pessoa	Contato	3
+2026-10-09	830	ADA - Cliente faleceu	Contato	13
+2026-10-09	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-10-09	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	7
+2026-10-09	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	11
+2026-10-10	16	NoDisposition	Contato	8
+2026-10-10	796	ADA_VoiceMail	Contato	18
+2026-10-10	797	ADA_Pergunta quem fala	Contato	980
+2026-10-10	798	ADA_Pergunta pagamento	CPC	102
+2026-10-10	799	ADA_Pergunta se conhece	Contato	50
+2026-10-10	800	ADA_Nao conhece	Contato	73
+2026-10-10	801	ADA_Pergunta agendamento	Contato	13
+2026-10-10	803	ADA_Nao confirma agendamento	Contato	1
+2026-10-10	804	ADA_Ja pagou	CPC	3
+2026-10-10	805	ADA_Nao aceita pagamento	CPC	30
+2026-10-10	819	ADA_Nao confirmou CPF	CPC	17
+2026-10-10	821	ADA_Conhece a pessoa	Contato	2
+2026-10-10	830	ADA - Cliente faleceu	Contato	5
+2026-10-10	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-10	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	4
+2026-10-10	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	2
+2026-10-10	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	8
+2026-10-13	16	NoDisposition	Contato	22
+2026-10-13	796	ADA_VoiceMail	Contato	11
+2026-10-13	797	ADA_Pergunta quem fala	Contato	1066
+2026-10-13	798	ADA_Pergunta pagamento	CPC	136
+2026-10-13	799	ADA_Pergunta se conhece	Contato	56
+2026-10-13	800	ADA_Nao conhece	Contato	79
+2026-10-13	801	ADA_Pergunta agendamento	Contato	13
+2026-10-13	802	ADA_Confirma agendamento	Contato	1
+2026-10-13	803	ADA_Nao confirma agendamento	Contato	1
+2026-10-13	804	ADA_Ja pagou	CPC	5
+2026-10-13	805	ADA_Nao aceita pagamento	CPC	35
+2026-10-13	819	ADA_Nao confirmou CPF	CPC	21
+2026-10-13	821	ADA_Conhece a pessoa	Contato	3
+2026-10-13	830	ADA - Cliente faleceu	Contato	10
+2026-10-13	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-13	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	6
+2026-10-13	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	3
+2026-10-14	16	NoDisposition	Contato	18
+2026-10-14	795	ADA_Iniciou o fluxo	Contato	1
+2026-10-14	796	ADA_VoiceMail	Contato	13
+2026-10-14	797	ADA_Pergunta quem fala	Contato	746
+2026-10-14	798	ADA_Pergunta pagamento	CPC	100
+2026-10-14	799	ADA_Pergunta se conhece	Contato	39
+2026-10-14	800	ADA_Nao conhece	Contato	43
+2026-10-14	801	ADA_Pergunta agendamento	Contato	7
+2026-10-14	802	ADA_Confirma agendamento	Contato	1
+2026-10-14	803	ADA_Nao confirma agendamento	Contato	2
+2026-10-14	804	ADA_Ja pagou	CPC	5
+2026-10-14	805	ADA_Nao aceita pagamento	CPC	22
+2026-10-14	819	ADA_Nao confirmou CPF	CPC	11
+2026-10-14	821	ADA_Conhece a pessoa	Contato	4
+2026-10-14	830	ADA - Cliente faleceu	Contato	3
+2026-10-14	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	2
+2026-10-14	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	3
+2026-10-14	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-10-14	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	4
+2026-10-15	16	NoDisposition	Contato	16
+2026-10-15	795	ADA_Iniciou o fluxo	Contato	1
+2026-10-15	796	ADA_VoiceMail	Contato	25
+2026-10-15	797	ADA_Pergunta quem fala	Contato	1088
+2026-10-15	798	ADA_Pergunta pagamento	CPC	130
+2026-10-15	799	ADA_Pergunta se conhece	Contato	56
+2026-10-15	800	ADA_Nao conhece	Contato	66
+2026-10-15	801	ADA_Pergunta agendamento	Contato	7
+2026-10-15	802	ADA_Confirma agendamento	Contato	1
+2026-10-15	803	ADA_Nao confirma agendamento	Contato	4
+2026-10-15	804	ADA_Ja pagou	CPC	7
+2026-10-15	805	ADA_Nao aceita pagamento	CPC	41
+2026-10-15	819	ADA_Nao confirmou CPF	CPC	4
+2026-10-15	821	ADA_Conhece a pessoa	Contato	7
+2026-10-15	830	ADA - Cliente faleceu	Contato	6
+2026-10-15	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-15	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-10-15	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	6
+2026-10-16	16	NoDisposition	Contato	17
+2026-10-16	795	ADA_Iniciou o fluxo	Contato	4
+2026-10-16	796	ADA_VoiceMail	Contato	32
+2026-10-16	797	ADA_Pergunta quem fala	Contato	1111
+2026-10-16	798	ADA_Pergunta pagamento	CPC	133
+2026-10-16	799	ADA_Pergunta se conhece	Contato	46
+2026-10-16	800	ADA_Nao conhece	Contato	55
+2026-10-16	801	ADA_Pergunta agendamento	Contato	9
+2026-10-16	802	ADA_Confirma agendamento	Contato	1
+2026-10-16	803	ADA_Nao confirma agendamento	Contato	1
+2026-10-16	804	ADA_Ja pagou	CPC	7
+2026-10-16	805	ADA_Nao aceita pagamento	CPC	31
+2026-10-16	819	ADA_Nao confirmou CPF	CPC	10
+2026-10-16	821	ADA_Conhece a pessoa	Contato	4
+2026-10-16	830	ADA - Cliente faleceu	Contato	9
+2026-10-16	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	7
+2026-10-16	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-10-16	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	5
+2026-10-16	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	15
+2026-10-17	16	NoDisposition	Contato	2
+2026-10-17	795	ADA_Iniciou o fluxo	Contato	1
+2026-10-17	796	ADA_VoiceMail	Contato	11
+2026-10-17	797	ADA_Pergunta quem fala	Contato	309
+2026-10-17	798	ADA_Pergunta pagamento	CPC	31
+2026-10-17	799	ADA_Pergunta se conhece	Contato	11
+2026-10-17	800	ADA_Nao conhece	Contato	29
+2026-10-17	801	ADA_Pergunta agendamento	Contato	2
+2026-10-17	804	ADA_Ja pagou	CPC	3
+2026-10-17	805	ADA_Nao aceita pagamento	CPC	8
+2026-10-17	819	ADA_Nao confirmou CPF	CPC	4
+2026-10-17	821	ADA_Conhece a pessoa	Contato	4
+2026-10-17	830	ADA - Cliente faleceu	Contato	3
+2026-10-17	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-17	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	2
+2026-10-17	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	7
+2026-10-19	799	ADA_Pergunta se conhece	Contato	53
+2026-10-19	800	ADA_Nao conhece	Contato	62
+2026-10-19	801	ADA_Pergunta agendamento	Contato	5
+2026-10-19	803	ADA_Nao confirma agendamento	Contato	3
+2026-10-19	804	ADA_Ja pagou	CPC	6
+2026-10-19	805	ADA_Nao aceita pagamento	CPC	30
+2026-10-19	819	ADA_Nao confirmou CPF	CPC	9
+2026-10-19	821	ADA_Conhece a pessoa	Contato	5
+2026-10-19	830	ADA - Cliente faleceu	Contato	5
+2026-10-19	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-19	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	15
+2026-10-19	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	15
+2026-10-19	16	NoDisposition	Contato	13
+2026-10-19	795	ADA_Iniciou o fluxo	Contato	4
+2026-10-19	796	ADA_VoiceMail	Contato	31
+2026-10-19	797	ADA_Pergunta quem fala	Contato	1067
+2026-10-19	798	ADA_Pergunta pagamento	CPC	117
+2026-10-20	16	NoDisposition	Contato	18
+2026-10-20	795	ADA_Iniciou o fluxo	Contato	3
+2026-10-20	796	ADA_VoiceMail	Contato	30
+2026-10-20	797	ADA_Pergunta quem fala	Contato	1108
+2026-10-20	798	ADA_Pergunta pagamento	CPC	114
+2026-10-20	799	ADA_Pergunta se conhece	Contato	50
+2026-10-20	800	ADA_Nao conhece	Contato	97
+2026-10-20	801	ADA_Pergunta agendamento	Contato	11
+2026-10-20	802	ADA_Confirma agendamento	Contato	1
+2026-10-20	803	ADA_Nao confirma agendamento	Contato	2
+2026-10-20	804	ADA_Ja pagou	CPC	8
+2026-10-20	805	ADA_Nao aceita pagamento	CPC	34
+2026-10-20	819	ADA_Nao confirmou CPF	CPC	8
+2026-10-20	821	ADA_Conhece a pessoa	Contato	7
+2026-10-20	830	ADA - Cliente faleceu	Contato	5
+2026-10-20	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-20	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-10-20	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	14
+2026-10-20	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	16
+2026-10-21	16	NoDisposition	Contato	21
+2026-10-21	795	ADA_Iniciou o fluxo	Contato	2
+2026-10-21	796	ADA_VoiceMail	Contato	27
+2026-10-21	797	ADA_Pergunta quem fala	Contato	1106
+2026-10-21	798	ADA_Pergunta pagamento	CPC	98
+2026-10-21	799	ADA_Pergunta se conhece	Contato	44
+2026-10-21	800	ADA_Nao conhece	Contato	79
+2026-10-21	801	ADA_Pergunta agendamento	Contato	7
+2026-10-21	803	ADA_Nao confirma agendamento	Contato	2
+2026-10-21	804	ADA_Ja pagou	CPC	3
+2026-10-21	805	ADA_Nao aceita pagamento	CPC	21
+2026-10-21	819	ADA_Nao confirmou CPF	CPC	6
+2026-10-21	821	ADA_Conhece a pessoa	Contato	1
+2026-10-21	830	ADA - Cliente faleceu	Contato	7
+2026-10-21	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-10-21	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	8
+2026-10-21	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	8
+2026-10-22	16	NoDisposition	Contato	29
+2026-10-22	795	ADA_Iniciou o fluxo	Contato	5
+2026-10-22	796	ADA_VoiceMail	Contato	28
+2026-10-22	797	ADA_Pergunta quem fala	Contato	1103
+2026-10-22	798	ADA_Pergunta pagamento	CPC	134
+2026-10-22	799	ADA_Pergunta se conhece	Contato	63
+2026-10-22	800	ADA_Nao conhece	Contato	78
+2026-10-22	801	ADA_Pergunta agendamento	Contato	6
+2026-10-22	802	ADA_Confirma agendamento	Contato	1
+2026-10-22	804	ADA_Ja pagou	CPC	7
+2026-10-22	805	ADA_Nao aceita pagamento	CPC	29
+2026-10-22	819	ADA_Nao confirmou CPF	CPC	4
+2026-10-22	821	ADA_Conhece a pessoa	Contato	10
+2026-10-22	830	ADA - Cliente faleceu	Contato	9
+2026-10-22	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-10-22	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	7
+2026-10-22	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	12
+2026-10-23	16	NoDisposition	Contato	12
+2026-10-23	795	ADA_Iniciou o fluxo	Contato	1
+2026-10-23	796	ADA_VoiceMail	Contato	13
+2026-10-23	797	ADA_Pergunta quem fala	Contato	427
+2026-10-23	798	ADA_Pergunta pagamento	CPC	74
+2026-10-23	799	ADA_Pergunta se conhece	Contato	33
+2026-10-23	800	ADA_Nao conhece	Contato	32
+2026-10-23	801	ADA_Pergunta agendamento	Contato	6
+2026-10-23	802	ADA_Confirma agendamento	Contato	1
+2026-10-23	803	ADA_Nao confirma agendamento	Contato	1
+2026-10-23	804	ADA_Ja pagou	CPC	6
+2026-10-23	805	ADA_Nao aceita pagamento	CPC	23
+2026-10-23	819	ADA_Nao confirmou CPF	CPC	10
+2026-10-23	821	ADA_Conhece a pessoa	Contato	6
+2026-10-23	830	ADA - Cliente faleceu	Contato	4
+2026-10-23	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	2
+2026-10-23	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-10-23	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	8
+2026-10-23	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	21
+2026-10-24	16	NoDisposition	Contato	5
+2026-10-24	795	ADA_Iniciou o fluxo	Contato	9
+2026-10-24	796	ADA_VoiceMail	Contato	31
+2026-10-24	797	ADA_Pergunta quem fala	Contato	1003
+2026-10-24	798	ADA_Pergunta pagamento	CPC	122
+2026-10-24	799	ADA_Pergunta se conhece	Contato	48
+2026-10-24	800	ADA_Nao conhece	Contato	73
+2026-10-24	801	ADA_Pergunta agendamento	Contato	8
+2026-10-24	803	ADA_Nao confirma agendamento	Contato	1
+2026-10-24	804	ADA_Ja pagou	CPC	7
+2026-10-24	805	ADA_Nao aceita pagamento	CPC	39
+2026-10-24	819	ADA_Nao confirmou CPF	CPC	6
+2026-10-24	821	ADA_Conhece a pessoa	Contato	6
+2026-10-24	830	ADA - Cliente faleceu	Contato	12
+2026-10-24	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-10-24	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	13
+2026-10-24	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	21
+2026-10-26	16	NoDisposition	Contato	27
+2026-10-26	795	ADA_Iniciou o fluxo	Contato	3
+2026-10-26	796	ADA_VoiceMail	Contato	30
+2026-10-26	797	ADA_Pergunta quem fala	Contato	926
+2026-10-26	798	ADA_Pergunta pagamento	CPC	146
+2026-10-26	799	ADA_Pergunta se conhece	Contato	38
+2026-10-26	800	ADA_Nao conhece	Contato	51
+2026-10-26	801	ADA_Pergunta agendamento	Contato	7
+2026-10-26	802	ADA_Confirma agendamento	Contato	1
+2026-10-26	804	ADA_Ja pagou	CPC	7
+2026-10-26	805	ADA_Nao aceita pagamento	CPC	46
+2026-10-26	819	ADA_Nao confirmou CPF	CPC	7
+2026-10-26	821	ADA_Conhece a pessoa	Contato	9
+2026-10-26	830	ADA - Cliente faleceu	Contato	6
+2026-10-26	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-10-26	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-10-26	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	27
+2026-10-26	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	41
+2026-10-27	16	NoDisposition	Contato	14
+2026-10-27	795	ADA_Iniciou o fluxo	Contato	2
+2026-10-27	796	ADA_VoiceMail	Contato	40
+2026-10-27	797	ADA_Pergunta quem fala	Contato	998
+2026-10-27	798	ADA_Pergunta pagamento	CPC	132
+2026-10-27	799	ADA_Pergunta se conhece	Contato	68
+2026-10-27	800	ADA_Nao conhece	Contato	77
+2026-10-27	801	ADA_Pergunta agendamento	Contato	16
+2026-10-27	802	ADA_Confirma agendamento	Contato	4
+2026-10-27	803	ADA_Nao confirma agendamento	Contato	1
+2026-10-27	804	ADA_Ja pagou	CPC	11
+2026-10-27	805	ADA_Nao aceita pagamento	CPC	32
+2026-10-27	819	ADA_Nao confirmou CPF	CPC	10
+2026-10-27	821	ADA_Conhece a pessoa	Contato	10
+2026-10-27	830	ADA - Cliente faleceu	Contato	10
+2026-10-27	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	4
+2026-10-27	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	27
+2026-10-27	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	42
+2026-10-28	16	NoDisposition	Contato	63
+2026-10-28	795	ADA_Iniciou o fluxo	Contato	4
+2026-10-28	796	ADA_VoiceMail	Contato	64
+2026-10-28	797	ADA_Pergunta quem fala	Contato	1644
+2026-10-28	798	ADA_Pergunta pagamento	CPC	178
+2026-10-28	799	ADA_Pergunta se conhece	Contato	94
+2026-10-28	800	ADA_Nao conhece	Contato	156
+2026-10-28	801	ADA_Pergunta agendamento	Contato	17
+2026-10-28	802	ADA_Confirma agendamento	Contato	1
+2026-10-28	803	ADA_Nao confirma agendamento	Contato	2
+2026-10-28	804	ADA_Ja pagou	CPC	13
+2026-10-28	805	ADA_Nao aceita pagamento	CPC	62
+2026-10-28	819	ADA_Nao confirmou CPF	CPC	10
+2026-10-28	821	ADA_Conhece a pessoa	Contato	13
+2026-10-28	830	ADA - Cliente faleceu	Contato	12
+2026-10-28	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	1
+2026-10-28	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	26
+2026-10-28	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	18
+2026-10-29	16	NoDisposition	Contato	59
+2026-10-29	795	ADA_Iniciou o fluxo	Contato	6
+2026-10-29	796	ADA_VoiceMail	Contato	50
+2026-10-29	797	ADA_Pergunta quem fala	Contato	1615
+2026-10-29	798	ADA_Pergunta pagamento	CPC	190
+2026-10-29	799	ADA_Pergunta se conhece	Contato	86
+2026-10-29	800	ADA_Nao conhece	Contato	102
+2026-10-29	801	ADA_Pergunta agendamento	Contato	15
+2026-10-29	802	ADA_Confirma agendamento	Contato	2
+2026-10-29	804	ADA_Ja pagou	CPC	10
+2026-10-29	805	ADA_Nao aceita pagamento	CPC	40
+2026-10-29	819	ADA_Nao confirmou CPF	CPC	10
+2026-10-29	821	ADA_Conhece a pessoa	Contato	7
+2026-10-29	830	ADA - Cliente faleceu	Contato	13
+2026-10-29	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	2
+2026-10-29	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	20
+2026-10-29	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	15
+2026-10-30	16	NoDisposition	Contato	340
+2026-10-30	795	ADA_Iniciou o fluxo	Contato	8
+2026-10-30	796	ADA_VoiceMail	Contato	41
+2026-10-30	797	ADA_Pergunta quem fala	Contato	1371
+2026-10-30	798	ADA_Pergunta pagamento	CPC	157
+2026-10-30	799	ADA_Pergunta se conhece	Contato	88
+2026-10-30	800	ADA_Nao conhece	Contato	97
+2026-10-30	801	ADA_Pergunta agendamento	Contato	11
+2026-10-30	802	ADA_Confirma agendamento	Contato	1
+2026-10-30	803	ADA_Nao confirma agendamento	Contato	7
+2026-10-30	804	ADA_Ja pagou	CPC	7
+2026-10-30	805	ADA_Nao aceita pagamento	CPC	39
+2026-10-30	819	ADA_Nao confirmou CPF	CPC	7
+2026-10-30	821	ADA_Conhece a pessoa	Contato	10
+2026-10-30	830	ADA - Cliente faleceu	Contato	9
+2026-10-30	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	2
+2026-10-30	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	18
+2026-10-30	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	18
+2026-10-31	16	NoDisposition	Contato	193
+2026-10-31	795	ADA_Iniciou o fluxo	Contato	5
+2026-10-31	796	ADA_VoiceMail	Contato	11
+2026-10-31	797	ADA_Pergunta quem fala	Contato	331
+2026-10-31	798	ADA_Pergunta pagamento	CPC	39
+2026-10-31	799	ADA_Pergunta se conhece	Contato	12
+2026-10-31	800	ADA_Nao conhece	Contato	19
+2026-10-31	801	ADA_Pergunta agendamento	Contato	5
+2026-10-31	802	ADA_Confirma agendamento	Contato	1
+2026-10-31	803	ADA_Nao confirma agendamento	Contato	1
+2026-10-31	804	ADA_Ja pagou	CPC	3
+2026-10-31	805	ADA_Nao aceita pagamento	CPC	16
+2026-10-31	819	ADA_Nao confirmou CPF	CPC	1
+2026-10-31	821	ADA_Conhece a pessoa	Contato	3
+2026-10-31	830	ADA - Cliente faleceu	Contato	2
+2026-10-31	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	1
+2026-10-31	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	3
+2026-10-31	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	5
+2026-11-03	16	NoDisposition	Contato	1121
+2026-11-03	795	ADA_Iniciou o fluxo	Contato	4
+2026-11-03	796	ADA_VoiceMail	Contato	40
+2026-11-03	797	ADA_Pergunta quem fala	Contato	1909
+2026-11-03	798	ADA_Pergunta pagamento	CPC	255
+2026-11-03	799	ADA_Pergunta se conhece	Contato	131
+2026-11-03	800	ADA_Nao conhece	Contato	145
+2026-11-03	801	ADA_Pergunta agendamento	Contato	21
+2026-11-03	802	ADA_Confirma agendamento	Contato	4
+2026-11-03	803	ADA_Nao confirma agendamento	Contato	5
+2026-11-03	804	ADA_Ja pagou	CPC	11
+2026-11-03	805	ADA_Nao aceita pagamento	CPC	74
+2026-11-03	819	ADA_Nao confirmou CPF	CPC	11
+2026-11-03	821	ADA_Conhece a pessoa	Contato	13
+2026-11-03	830	ADA - Cliente faleceu	Contato	12
+2026-11-03	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	8
+2026-11-03	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	11
+2026-11-03	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	10
+2026-11-04	16	NoDisposition	Contato	1253
+2026-11-04	795	ADA_Iniciou o fluxo	Contato	11
+2026-11-04	796	ADA_VoiceMail	Contato	34
+2026-11-04	797	ADA_Pergunta quem fala	Contato	2133
+2026-11-04	798	ADA_Pergunta pagamento	CPC	257
+2026-11-04	799	ADA_Pergunta se conhece	Contato	124
+2026-11-04	800	ADA_Nao conhece	Contato	146
+2026-11-04	801	ADA_Pergunta agendamento	Contato	21
+2026-11-04	802	ADA_Confirma agendamento	Contato	4
+2026-11-04	803	ADA_Nao confirma agendamento	Contato	8
+2026-11-04	804	ADA_Ja pagou	CPC	14
+2026-11-04	805	ADA_Nao aceita pagamento	CPC	75
+2026-11-04	819	ADA_Nao confirmou CPF	CPC	12
+2026-11-04	821	ADA_Conhece a pessoa	Contato	15
+2026-11-04	830	ADA - Cliente faleceu	Contato	21
+2026-11-04	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	22
+2026-11-04	840	ADA_Aceita pagamento Total - Envio de pix	Acordo	1
+2026-11-04	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	13
+2026-11-04	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	8
+2026-11-05	16	NoDisposition	Contato	745
+2026-11-05	795	ADA_Iniciou o fluxo	Contato	3
+2026-11-05	796	ADA_VoiceMail	Contato	28
+2026-11-05	797	ADA_Pergunta quem fala	Contato	1405
+2026-11-05	798	ADA_Pergunta pagamento	CPC	152
+2026-11-05	799	ADA_Pergunta se conhece	Contato	86
+2026-11-05	800	ADA_Nao conhece	Contato	119
+2026-11-05	801	ADA_Pergunta agendamento	Contato	15
+2026-11-05	802	ADA_Confirma agendamento	Contato	2
+2026-11-05	803	ADA_Nao confirma agendamento	Contato	6
+2026-11-05	804	ADA_Ja pagou	CPC	7
+2026-11-05	805	ADA_Nao aceita pagamento	CPC	51
+2026-11-05	819	ADA_Nao confirmou CPF	CPC	12
+2026-11-05	821	ADA_Conhece a pessoa	Contato	13
+2026-11-05	830	ADA - Cliente faleceu	Contato	6
+2026-11-05	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	12
+2026-11-05	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	10
+2026-11-05	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	9
+2026-11-06	16	NoDisposition	Contato	1625
+2026-11-06	795	ADA_Iniciou o fluxo	Contato	12
+2026-11-06	796	ADA_VoiceMail	Contato	73
+2026-11-06	797	ADA_Pergunta quem fala	Contato	2789
+2026-11-06	798	ADA_Pergunta pagamento	CPC	294
+2026-11-06	799	ADA_Pergunta se conhece	Contato	208
+2026-11-06	800	ADA_Nao conhece	Contato	228
+2026-11-06	801	ADA_Pergunta agendamento	Contato	27
+2026-11-06	802	ADA_Confirma agendamento	Contato	6
+2026-11-06	803	ADA_Nao confirma agendamento	Contato	8
+2026-11-06	804	ADA_Ja pagou	CPC	8
+2026-11-06	805	ADA_Nao aceita pagamento	CPC	77
+2026-11-06	819	ADA_Nao confirmou CPF	CPC	24
+2026-11-06	821	ADA_Conhece a pessoa	Contato	28
+2026-11-06	830	ADA - Cliente faleceu	Contato	11
+2026-11-06	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	10
+2026-11-06	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	24
+2026-11-06	842	ADA_Aceita pagamento Com Desconto - Envio de pix	Acordo	36
+2026-11-06	873	ADA_Aceita_Pagamento_PIX	Outros	2
+2026-11-06	874	ADA_Aceita_Pagamento_BOLETO	Outros	1
+2026-11-07	16	NoDisposition	Contato	129
+2026-11-07	796	ADA_VoiceMail	Contato	5
+2026-11-07	797	ADA_Pergunta quem fala	Contato	249
+2026-11-07	798	ADA_Pergunta pagamento	CPC	36
+2026-11-07	799	ADA_Pergunta se conhece	Contato	12
+2026-11-07	800	ADA_Nao conhece	Contato	22
+2026-11-07	801	ADA_Pergunta agendamento	Contato	1
+2026-11-07	803	ADA_Nao confirma agendamento	Contato	2
+2026-11-07	804	ADA_Ja pagou	CPC	1
+2026-11-07	805	ADA_Nao aceita pagamento	CPC	6
+2026-11-07	819	ADA_Nao confirmou CPF	CPC	3
+2026-11-07	830	ADA - Cliente faleceu	Contato	1
+2026-11-07	873	ADA_Aceita_Pagamento_PIX	Outros	1
+2026-11-07	874	ADA_Aceita_Pagamento_BOLETO	Outros	2
+2026-11-07	875	ADA_Aceita_Pagamento_CARTAO	Outros	1
+2026-11-09	800	ADA_Nao conhece	Contato	143
+2026-11-09	801	ADA_Pergunta agendamento	Contato	17
+2026-11-09	802	ADA_Confirma agendamento	Contato	4
+2026-11-09	803	ADA_Nao confirma agendamento	Contato	4
+2026-11-09	804	ADA_Ja pagou	CPC	8
+2026-11-09	805	ADA_Nao aceita pagamento	CPC	52
+2026-11-09	819	ADA_Nao confirmou CPF	CPC	15
+2026-11-09	821	ADA_Conhece a pessoa	Contato	8
+2026-11-09	830	ADA - Cliente faleceu	Contato	12
+2026-11-09	873	ADA_Aceita_Pagamento_PIX	Acordo	24
+2026-11-09	874	ADA_Aceita_Pagamento_BOLETO	Acordo	11
+2026-11-09	875	ADA_Aceita_Pagamento_CARTAO	Acordo	1
+2026-11-09	16	NoDisposition	Contato	868
+2026-11-09	795	ADA_Iniciou o fluxo	Contato	4
+2026-11-09	796	ADA_VoiceMail	Contato	30
+2026-11-09	797	ADA_Pergunta quem fala	Contato	1748
+2026-11-09	798	ADA_Pergunta pagamento	CPC	313
+2026-11-09	799	ADA_Pergunta se conhece	Contato	85
+2026-11-10	16	NoDisposition	Contato	108
+2026-11-10	795	ADA_Iniciou o fluxo	Contato	10
+2026-11-10	796	ADA_VoiceMail	Contato	43
+2026-11-10	797	ADA_Pergunta quem fala	Contato	2763
+2026-11-10	798	ADA_Pergunta pagamento	CPC	706
+2026-11-10	799	ADA_Pergunta se conhece	Contato	152
+2026-11-10	800	ADA_Nao conhece	Contato	230
+2026-11-10	801	ADA_Pergunta agendamento	Contato	47
+2026-11-10	802	ADA_Confirma agendamento	Contato	8
+2026-11-10	803	ADA_Nao confirma agendamento	Contato	8
+2026-11-10	804	ADA_Ja pagou	CPC	10
+2026-11-10	805	ADA_Nao aceita pagamento	CPC	108
+2026-11-10	819	ADA_Nao confirmou CPF	CPC	31
+2026-11-10	821	ADA_Conhece a pessoa	Contato	29
+2026-11-10	830	ADA - Cliente faleceu	Contato	11
+2026-11-10	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	3
+2026-11-10	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-11-10	873	ADA_Aceita_Pagamento_PIX	Acordo	34
+2026-11-10	874	ADA_Aceita_Pagamento_BOLETO	Acordo	11
+2026-11-10	875	ADA_Aceita_Pagamento_CARTAO	Acordo	7
+2026-11-11	16	NoDisposition	Contato	2
+2026-11-11	795	ADA_Iniciou o fluxo	Contato	1
+2026-11-11	796	ADA_VoiceMail	Contato	19
+2026-11-11	797	ADA_Pergunta quem fala	Contato	617
+2026-11-11	798	ADA_Pergunta pagamento	CPC	118
+2026-11-11	799	ADA_Pergunta se conhece	Contato	24
+2026-11-11	800	ADA_Nao conhece	Contato	47
+2026-11-11	801	ADA_Pergunta agendamento	Contato	6
+2026-11-11	804	ADA_Ja pagou	CPC	3
+2026-11-11	805	ADA_Nao aceita pagamento	CPC	20
+2026-11-11	819	ADA_Nao confirmou CPF	CPC	7
+2026-11-11	821	ADA_Conhece a pessoa	Contato	5
+2026-11-11	830	ADA - Cliente faleceu	Contato	2
+2026-11-11	839	ADA_Aceita pagamento Total - Envio de boleto	Acordo	1
+2026-11-11	841	ADA_Aceita pagamento Com Desconto - Envio de boleto	Acordo	1
+2026-11-11	873	ADA_Aceita_Pagamento_PIX	Acordo	8
+2026-11-11	874	ADA_Aceita_Pagamento_BOLETO	Acordo	4
