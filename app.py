@@ -7622,6 +7622,7 @@ def sky_tabulacao():
             evolucao=[],
             meses=[],
             mes_selecionado="",
+            datas="",
             inicio="",
             fim="",
             data_min="",
@@ -7645,9 +7646,11 @@ def sky_tabulacao():
     ]
 
     # Primeira abertura: sempre o último dia disponível na base.
+    # O filtro de datas segue o padrão do cockpit SKY: calendário Flatpickr
+    # com seleção de múltiplos dias.
     ultimo_dia = df["Data"].max().normalize()
     primeira_abertura = not any(
-        chave in request.args for chave in ("mes", "inicio", "fim")
+        chave in request.args for chave in ("mes", "datas", "inicio", "fim")
     )
 
     mes_param = request.args.get("mes")
@@ -7660,30 +7663,46 @@ def sky_tabulacao():
     else:
         mes_selecionado = ""
 
+    datas_raw = request.args.get("datas", "").strip()
     inicio_raw = request.args.get("inicio", "").strip()
     fim_raw = request.args.get("fim", "").strip()
-    if primeira_abertura:
-        inicio_raw = ultimo_dia.strftime("%Y-%m-%d")
-        fim_raw = ultimo_dia.strftime("%Y-%m-%d")
 
-    def _parse_data(valor):
+    if primeira_abertura:
+        datas_raw = ultimo_dia.strftime("%d/%m/%Y")
+
+    def _parse_data_filtro(valor):
         if not valor:
             return None
-        try:
-            return pd.to_datetime(valor, format="%Y-%m-%d", errors="raise").normalize()
-        except Exception:
-            return None
+        for formato in ("%d/%m/%Y", "%Y-%m-%d"):
+            try:
+                return pd.to_datetime(valor, format=formato, errors="raise").normalize()
+            except Exception:
+                continue
+        return None
 
-    inicio_dt = _parse_data(inicio_raw)
-    fim_dt = _parse_data(fim_raw)
+    datas_selecionadas = []
+    if datas_raw:
+        for item in datas_raw.split(","):
+            data_item = _parse_data_filtro(item.strip())
+            if data_item is not None:
+                datas_selecionadas.append(data_item)
+
+    # Compatibilidade com links antigos que ainda usem intervalo inicio/fim.
+    inicio_dt = _parse_data_filtro(inicio_raw)
+    fim_dt = _parse_data_filtro(fim_raw)
 
     filtrado = df.copy()
     if mes_selecionado:
         filtrado = filtrado[filtrado["Data"].dt.strftime("%Y-%m") == mes_selecionado]
-    if inicio_dt is not None:
-        filtrado = filtrado[filtrado["Data"].dt.normalize() >= inicio_dt]
-    if fim_dt is not None:
-        filtrado = filtrado[filtrado["Data"].dt.normalize() <= fim_dt]
+
+    if datas_selecionadas:
+        datas_set = {d.date() for d in datas_selecionadas}
+        filtrado = filtrado[filtrado["Data"].dt.date.isin(datas_set)]
+    else:
+        if inicio_dt is not None:
+            filtrado = filtrado[filtrado["Data"].dt.normalize() >= inicio_dt]
+        if fim_dt is not None:
+            filtrado = filtrado[filtrado["Data"].dt.normalize() <= fim_dt]
 
     # O mês de referência acompanha o último dia do período selecionado.
     # Na abertura padrão, isso equivale ao mês atual/último mês carregado.
@@ -7880,6 +7899,7 @@ def sky_tabulacao():
         evolucao=evolucao,
         meses=meses,
         mes_selecionado=mes_selecionado,
+        datas=datas_raw,
         inicio=inicio_raw,
         fim=fim_raw,
         data_min=df["Data"].min().strftime("%Y-%m-%d"),
