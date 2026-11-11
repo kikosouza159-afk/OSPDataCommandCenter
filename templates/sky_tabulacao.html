@@ -23,28 +23,21 @@
     }
     *{box-sizing:border-box}
     body{
-      margin:0;
-      min-height:100vh;
-      color:var(--text);
+      margin:0;min-height:100vh;color:var(--text);
       background:
-        radial-gradient(circle at 15% 0%, rgba(52,95,153,.18), transparent 28%),
-        radial-gradient(circle at 100% 20%, rgba(251,92,40,.12), transparent 28%),
+        radial-gradient(circle at 15% 0%,rgba(52,95,153,.18),transparent 28%),
+        radial-gradient(circle at 100% 20%,rgba(251,92,40,.12),transparent 28%),
         linear-gradient(155deg,#010711 0%,#04101e 55%,#020814 100%);
       font-family:Inter,Segoe UI,Arial,sans-serif;
     }
     body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.20;
+      content:"";position:fixed;inset:0;pointer-events:none;opacity:.20;
       background-image:
         linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),
         linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);
-      background-size:34px 34px;
-      mask-image:linear-gradient(to bottom,black,transparent 85%);
+      background-size:34px 34px;mask-image:linear-gradient(to bottom,black,transparent 85%);
     }
-    .shell{width:min(1500px,calc(100% - 36px));margin:0 auto;padding:24px 0 44px;position:relative}
+    .shell{width:min(1760px,calc(100% - 32px));margin:0 auto;padding:22px 0 44px;position:relative}
     .topbar{
       display:flex;align-items:center;justify-content:space-between;gap:20px;
       padding:14px 18px;border:1px solid var(--line);border-radius:22px;
@@ -66,11 +59,9 @@
       color:#dff5ff;text-decoration:none;border:1px solid rgba(56,189,248,.22);
       border-radius:999px;padding:9px 13px;font-size:12px;font-weight:800;background:rgba(56,189,248,.08)
     }
-    .hero{
-      display:flex;justify-content:space-between;align-items:end;gap:24px;margin:28px 4px 18px
-    }
+    .hero{display:flex;justify-content:space-between;align-items:end;gap:24px;margin:28px 4px 18px}
     .hero h1{margin:0;font-size:clamp(28px,3vw,42px);letter-spacing:-.03em}
-    .hero p{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:760px;line-height:1.55}
+    .hero p{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:900px;line-height:1.55}
     .period{
       white-space:nowrap;border:1px solid rgba(56,189,248,.20);background:rgba(56,189,248,.07);
       border-radius:14px;padding:10px 13px;color:#c7edff;font-size:12px;font-weight:800
@@ -103,37 +94,56 @@
       padding:18px;border:1px solid rgba(251,92,40,.22);background:rgba(251,92,40,.08);
       border-radius:18px;color:#ffd7ca;font-weight:800;margin-bottom:18px
     }
-    .charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:28px 4px 13px}
+    .section-head h2{margin:0;font-size:20px}
+    .section-head p{margin:5px 0 0;color:var(--muted);font-size:12px}
+    .month-tag{
+      white-space:nowrap;padding:8px 11px;border-radius:999px;
+      border:1px solid rgba(167,139,250,.20);background:rgba(167,139,250,.08);
+      color:#ddd6fe;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em
+    }
+    .charts,.trends{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
     .card{
-      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:24px;
+      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:22px;
       background:linear-gradient(180deg,rgba(8,20,38,.96),rgba(4,13,26,.96));
-      box-shadow:0 22px 60px rgba(0,0,0,.28)
+      box-shadow:0 22px 60px rgba(0,0,0,.25);min-width:0
     }
     .card::after{
       content:"";position:absolute;inset:0 0 auto 0;height:2px;
       background:linear-gradient(90deg,transparent,rgba(56,189,248,.48),rgba(251,92,40,.48),transparent)
     }
-    .card-head{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:18px 18px 4px}
-    .card-title{display:flex;align-items:center;gap:11px}
-    .dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 18px currentColor}
-    .card h2{font-size:16px;margin:0}
-    .card small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+    .card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:16px 16px 5px}
+    .card-title{display:flex;align-items:center;gap:10px;min-width:0}
+    .dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 18px currentColor;flex:0 0 auto}
+    .card h3{font-size:15px;margin:0}
+    .card small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
     .class-share{
       white-space:nowrap;border:1px solid rgba(56,189,248,.18);
       background:rgba(56,189,248,.07);color:#bfeaff;border-radius:999px;
-      padding:7px 10px;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase
+      padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.04em;text-transform:uppercase
     }
-    .chart-wrap{padding:10px 12px 16px;position:relative;min-height:320px}
+    .chart-wrap{padding:8px 8px 14px;position:relative;height:430px}
+    .trend-wrap{padding:8px 12px 14px;position:relative;height:305px}
+    .trend-controls{padding:10px 14px 2px}
+    .trend-controls label{
+      display:block;color:#91a9bb;font-size:9px;font-weight:900;
+      text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px
+    }
+    .trend-controls select{height:36px;font-size:11px}
     canvas{width:100%!important}
     .footer{color:#647b8d;font-size:11px;text-align:right;margin-top:18px}
-    @media(max-width:1050px){
-      .charts{grid-template-columns:1fr}
+    @media(max-width:1250px){
+      .charts,.trends{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:900px){
+      .charts,.trends{grid-template-columns:1fr}
       .filter-grid{grid-template-columns:1fr 1fr}
       .btn,.clear{width:100%}
+      .chart-wrap{height:400px}
     }
     @media(max-width:700px){
-      .shell{width:min(100% - 20px,1500px)}
-      .topbar,.hero{align-items:flex-start;flex-direction:column}
+      .shell{width:min(100% - 20px,1760px)}
+      .topbar,.hero,.section-head{align-items:flex-start;flex-direction:column}
       .top-actions{width:100%;justify-content:space-between}
       .filter-grid{grid-template-columns:1fr}
       .hero{margin-top:20px}
@@ -162,7 +172,7 @@
     <section class="hero">
       <div>
         <h1>Representatividade de Tabulação</h1>
-        <p>Leitura visual das etapas por classificação. Cada gráfico representa 100% da própria classificação, mostrando somente a participação percentual de cada etapa.</p>
+        <p>Contato, CPC e Acordo usam sua própria base de 100%. O período selecionado é comparado diretamente com a média diária do mês de referência.</p>
       </div>
       <div class="period">{{ periodo }}</div>
     </section>
@@ -187,17 +197,25 @@
           <input type="date" name="fim" value="{{ fim }}" min="{{ data_min }}" max="{{ data_max }}">
         </div>
         <button class="btn" type="submit">Aplicar filtros</button>
-        <a class="clear" href="{{ url_for('sky_tabulacao', mes='') }}">Limpar</a>
+        <a class="clear" href="{{ url_for('sky_tabulacao') }}">Último dia</a>
       </div>
     </form>
 
     <div class="note">
-      Cada classificação possui sua própria base de 100%. Exemplo: no gráfico Contato, cada etapa é dividida somente pelo total de Contato; no CPC, somente pelo total de CPC; no Acordo, somente pelo total de Acordo.
+      Barras sólidas = período selecionado. Barras de comparação = média diária de <strong>{{ mes_referencia }}</strong>. A escala é fixa de 0% a 100% nos três cards para manter a leitura uniforme.
     </div>
 
     {% if erro %}
       <div class="error">{{ erro }}</div>
     {% endif %}
+
+    <div class="section-head">
+      <div>
+        <h2>Visão por classificação</h2>
+        <p>Representatividade das tabulações no período × média diária do mês.</p>
+      </div>
+      <span class="month-tag">Média {{ mes_referencia }}</span>
+    </div>
 
     <section class="charts">
       {% for grafico in graficos %}
@@ -206,14 +224,49 @@
             <div class="card-title">
               <span class="dot" data-class="{{ grafico.classificacao }}"></span>
               <div>
-                <h2>{{ grafico.classificacao }}</h2>
-                <small>Representatividade por etapa</small>
+                <h3>{{ grafico.classificacao }}</h3>
+                <small>Período × média do mês</small>
               </div>
             </div>
             <span class="class-share">100% da classificação</span>
           </div>
-          <div class="chart-wrap" id="wrap-{{ loop.index }}">
+          <div class="chart-wrap">
             <canvas id="chart-{{ loop.index }}"></canvas>
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+
+    <div class="section-head">
+      <div>
+        <h2>Evolução diária</h2>
+        <p>Escolha uma tabulação e acompanhe sua representatividade dia a dia contra a média do mês.</p>
+      </div>
+      <span class="month-tag">{{ mes_referencia }}</span>
+    </div>
+
+    <section class="trends">
+      {% for item in evolucao %}
+        <article class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <span class="dot" data-class="{{ item.classificacao }}"></span>
+              <div>
+                <h3>{{ item.classificacao }}</h3>
+                <small>Representatividade diária</small>
+              </div>
+            </div>
+          </div>
+          <div class="trend-controls">
+            <label>Tabulação</label>
+            <select id="trend-select-{{ loop.index }}" data-index="{{ loop.index0 }}">
+              {% for etapa in item.etapas %}
+                <option value="{{ etapa.id }}">{{ etapa.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="trend-wrap">
+            <canvas id="trend-{{ loop.index }}"></canvas>
           </div>
         </article>
       {% endfor %}
@@ -224,12 +277,14 @@
 
   <script>
     const graficos = {{ graficos|tojson }};
+    const evolucao = {{ evolucao|tojson }};
     const cores = {
-      "Contato": {bg:"rgba(52,95,153,.78)", border:"rgba(96,165,250,1)", dot:"#60a5fa"},
-      "CPC": {bg:"rgba(251,92,40,.78)", border:"rgba(251,146,60,1)", dot:"#fb923c"},
-      "Acordo": {bg:"rgba(34,197,94,.72)", border:"rgba(74,222,128,1)", dot:"#4ade80"},
-      "Outros": {bg:"rgba(167,139,250,.72)", border:"rgba(196,181,253,1)", dot:"#c4b5fd"}
+      "Contato": {bg:"rgba(52,95,153,.82)", border:"rgba(96,165,250,1)", soft:"rgba(96,165,250,.22)", dot:"#60a5fa"},
+      "CPC": {bg:"rgba(251,92,40,.82)", border:"rgba(251,146,60,1)", soft:"rgba(251,146,60,.20)", dot:"#fb923c"},
+      "Acordo": {bg:"rgba(34,197,94,.78)", border:"rgba(74,222,128,1)", soft:"rgba(74,222,128,.20)", dot:"#4ade80"},
+      "Outros": {bg:"rgba(167,139,250,.76)", border:"rgba(196,181,253,1)", soft:"rgba(196,181,253,.20)", dot:"#c4b5fd"}
     };
+
     Chart.register(ChartDataLabels);
 
     document.querySelectorAll(".dot").forEach(function(el){
@@ -238,40 +293,60 @@
       el.style.background=c.dot;
     });
 
+    function pct(v){
+      return Number(v || 0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+    }
+
     graficos.forEach(function(g, idx){
       const labels=g.etapas.map(function(e){ return e.label; });
-      const values=g.etapas.map(function(e){ return e.percentual; });
+      const atual=g.etapas.map(function(e){ return e.percentual; });
+      const media=g.etapas.map(function(e){ return e.media_mes; });
       const raw=g.etapas.map(function(e){ return e.descricao; });
-      const maxValue=Math.max.apply(null, values.concat([0]));
-      const axisMax=Math.min(100, Math.max(1, Math.ceil(maxValue*1.28*10)/10));
-      const wrap=document.getElementById("wrap-"+(idx+1));
-      wrap.style.height=Math.max(330, labels.length*46+90)+"px";
       const c=cores[g.classificacao] || cores.Outros;
 
       new Chart(document.getElementById("chart-"+(idx+1)),{
         type:"bar",
         data:{
           labels:labels,
-          datasets:[{
-            data:values,
-            backgroundColor:c.bg,
-            borderColor:c.border,
-            borderWidth:1.2,
-            borderRadius:8,
-            borderSkipped:false,
-            barThickness:20,
-            hoverBackgroundColor:c.border
-          }]
+          datasets:[
+            {
+              label:"Período",
+              data:atual,
+              backgroundColor:c.bg,
+              borderColor:c.border,
+              borderWidth:1,
+              borderRadius:6,
+              borderSkipped:false,
+              barThickness:11,
+              maxBarThickness:11
+            },
+            {
+              label:"Média mês",
+              data:media,
+              backgroundColor:c.soft,
+              borderColor:c.border,
+              borderWidth:1,
+              borderRadius:6,
+              borderSkipped:false,
+              barThickness:11,
+              maxBarThickness:11
+            }
+          ]
         },
         options:{
           indexAxis:"y",
           maintainAspectRatio:false,
-          animation:{duration:650,easing:"easeOutQuart"},
+          animation:{duration:550,easing:"easeOutQuart"},
           interaction:{mode:"nearest",intersect:true},
+          layout:{padding:{right:12}},
           plugins:{
-            legend:{display:false},
+            legend:{
+              display:true,
+              position:"bottom",
+              labels:{color:"#91a9bb",boxWidth:10,boxHeight:10,font:{size:9,weight:"700"},padding:12}
+            },
             tooltip:{
-              displayColors:false,
+              displayColors:true,
               backgroundColor:"rgba(2,8,20,.96)",
               borderColor:"rgba(148,163,184,.22)",
               borderWidth:1,
@@ -279,9 +354,7 @@
               bodyColor:"#d7e8f5",
               callbacks:{
                 title:function(items){ return raw[items[0].dataIndex]; },
-                label:function(ctx){
-                  return "Representatividade: "+ctx.raw.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
-                }
+                label:function(ctx){ return ctx.dataset.label+": "+pct(ctx.raw); }
               }
             },
             datalabels:{
@@ -289,37 +362,108 @@
               align:"right",
               clamp:true,
               color:"#f4fbff",
-              font:{weight:"800",size:11},
-              formatter:function(value){
-                return value.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
-              }
+              font:{weight:"800",size:9},
+              formatter:function(value){ return pct(value); }
             }
           },
           scales:{
             x:{
               beginAtZero:true,
-              suggestedMax:axisMax,
-              max:axisMax,
-              grid:{color:"rgba(148,163,184,.08)"},
+              min:0,
+              max:100,
+              grid:{color:"rgba(148,163,184,.07)"},
               border:{display:false},
               ticks:{
-                color:"#7890a4",
-                font:{size:10,weight:"700"},
-                callback:function(v){ return v.toLocaleString("pt-BR")+"%"; }
+                stepSize:20,color:"#7890a4",font:{size:9,weight:"700"},
+                callback:function(v){ return v+"%"; }
               }
             },
             y:{
-              grid:{display:false},
-              border:{display:false},
-              ticks:{
-                color:"#dceaf5",
-                font:{size:11,weight:"700"},
-                autoSkip:false
-              }
+              grid:{display:false},border:{display:false},
+              ticks:{color:"#dceaf5",font:{size:9,weight:"700"},autoSkip:false}
             }
           }
         }
       });
+    });
+
+    const trendCharts = [];
+
+    function renderTrend(idx, etapaId){
+      const item=evolucao[idx];
+      const etapa=item.etapas.find(function(e){ return String(e.id)===String(etapaId); }) || item.etapas[0];
+      if(!etapa) return;
+      const c=cores[item.classificacao] || cores.Outros;
+      const mediaLine=item.dias.map(function(){ return etapa.media; });
+
+      if(trendCharts[idx]) trendCharts[idx].destroy();
+
+      trendCharts[idx]=new Chart(document.getElementById("trend-"+(idx+1)),{
+        type:"line",
+        data:{
+          labels:item.dias,
+          datasets:[
+            {
+              label:"Representatividade diária",
+              data:etapa.valores,
+              borderColor:c.border,
+              backgroundColor:c.soft,
+              borderWidth:2,
+              pointRadius:3,
+              pointHoverRadius:5,
+              tension:.34,
+              fill:true
+            },
+            {
+              label:"Média do mês",
+              data:mediaLine,
+              borderColor:"rgba(255,255,255,.78)",
+              borderWidth:1.5,
+              borderDash:[6,5],
+              pointRadius:0,
+              tension:0,
+              fill:false
+            }
+          ]
+        },
+        options:{
+          maintainAspectRatio:false,
+          interaction:{mode:"index",intersect:false},
+          plugins:{
+            legend:{
+              display:true,position:"bottom",
+              labels:{color:"#91a9bb",boxWidth:10,boxHeight:10,font:{size:9,weight:"700"},padding:12}
+            },
+            tooltip:{
+              backgroundColor:"rgba(2,8,20,.96)",
+              borderColor:"rgba(148,163,184,.22)",borderWidth:1,
+              callbacks:{label:function(ctx){return ctx.dataset.label+": "+pct(ctx.raw);}}
+            },
+            datalabels:{display:false}
+          },
+          scales:{
+            x:{
+              grid:{display:false},border:{display:false},
+              ticks:{color:"#7890a4",font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:12}
+            },
+            y:{
+              beginAtZero:true,
+              min:0,
+              max:100,
+              grid:{color:"rgba(148,163,184,.07)"},
+              border:{display:false},
+              ticks:{stepSize:20,color:"#7890a4",font:{size:9},callback:function(v){return v+"%";}}
+            }
+          }
+        }
+      });
+    }
+
+    evolucao.forEach(function(item,idx){
+      const sel=document.getElementById("trend-select-"+(idx+1));
+      if(!sel || !item.etapas.length) return;
+      renderTrend(idx,sel.value);
+      sel.addEventListener("change",function(){ renderTrend(idx,this.value); });
     });
   </script>
 </body>

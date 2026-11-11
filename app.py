@@ -7619,6 +7619,7 @@ def sky_tabulacao():
             "sky_tabulacao.html",
             usuario=usuario,
             graficos=[],
+            evolucao=[],
             meses=[],
             mes_selecionado="",
             inicio="",
@@ -7626,6 +7627,7 @@ def sky_tabulacao():
             data_min="",
             data_max="",
             periodo="Sem dados disponíveis",
+            mes_referencia="",
             erro="A base de tabulação está vazia ou indisponível.",
         )
 
@@ -7642,8 +7644,7 @@ def sky_tabulacao():
         for mes in reversed(meses_raw)
     ]
 
-    # Ao entrar na visão sem filtros, abre automaticamente no último dia
-    # disponível da base. Os filtros continuam permitindo ampliar o período.
+    # Primeira abertura: sempre o último dia disponível na base.
     ultimo_dia = df["Data"].max().normalize()
     primeira_abertura = not any(
         chave in request.args for chave in ("mes", "inicio", "fim")
@@ -7656,8 +7657,6 @@ def sky_tabulacao():
         mes_selecionado = ""
     elif mes_param in meses_raw:
         mes_selecionado = mes_param
-    elif mes_param is None:
-        mes_selecionado = ""
     else:
         mes_selecionado = ""
 
@@ -7686,7 +7685,19 @@ def sky_tabulacao():
     if fim_dt is not None:
         filtrado = filtrado[filtrado["Data"].dt.normalize() <= fim_dt]
 
+    # O mês de referência acompanha o último dia do período selecionado.
+    # Na abertura padrão, isso equivale ao mês atual/último mês carregado.
+    data_referencia = (
+        filtrado["Data"].max().normalize()
+        if not filtrado.empty
+        else ultimo_dia
+    )
+    mes_ref_key = data_referencia.strftime("%Y-%m")
+    mes_ref = df[df["Data"].dt.strftime("%Y-%m") == mes_ref_key].copy()
+    mes_referencia = f"{meses_pt[data_referencia.month - 1]}/{data_referencia.year}"
+
     graficos = []
+    evolucao = []
 
     if not filtrado.empty and float(filtrado["Total"].sum()) > 0:
         agrupado = (
@@ -7698,14 +7709,28 @@ def sky_tabulacao():
             .sum()
         )
 
-        # A representatividade agora é calculada DENTRO de cada classificação:
-        # Contato = cada tabulação de Contato / total de Contato;
-        # CPC = cada tabulação de CPC / total de CPC;
-        # Acordo = cada tabulação de Acordo / total de Acordo.
+        # Representatividade do período dentro da própria classificação.
         totais_classificacao = agrupado.groupby("Classificado")["Total"].transform("sum")
         agrupado["Percentual"] = (
             agrupado["Total"]
             .div(totais_classificacao.where(totais_classificacao > 0))
+            .fillna(0)
+            * 100.0
+        )
+
+        # Representatividade diária do mês de referência.
+        diario_mes = (
+            mes_ref.groupby(
+                ["Data", "Classificado", "DispositionId", "Description"],
+                dropna=False,
+                as_index=False,
+            )["Total"]
+            .sum()
+        )
+        total_dia_class = diario_mes.groupby(["Data", "Classificado"])["Total"].transform("sum")
+        diario_mes["Percentual"] = (
+            diario_mes["Total"]
+            .div(total_dia_class.where(total_dia_class > 0))
             .fillna(0)
             * 100.0
         )
@@ -7718,21 +7743,79 @@ def sky_tabulacao():
         for classificacao in classes:
             parte = agrupado[agrupado["Classificado"] == classificacao].copy()
             parte = parte.sort_values(["Percentual", "Description"], ascending=[False, True])
-            etapas = [
-                {
-                    "id": str(row["DispositionId"]),
-                    "label": _sky_tabulacao_label(row["Description"]),
-                    "descricao": str(row["Description"]),
-                    "percentual": round(float(row["Percentual"]), 4),
+
+            diario_classe = diario_mes[
+                diario_mes["Classificado"] == classificacao
+            ].copy()
+            dias_classe = sorted(
+                diario_classe["Data"].dt.normalize().dropna().unique().tolist()
+            )
+
+            medias = {}
+            series_diarias = {}
+
+            for _, row in parte.iterrows():
+                disp = str(row["DispositionId"])
+                desc = str(row["Description"])
+                serie = diario_classe[
+                    diario_classe["DispositionId"].astype(str) == disp
+                ].copy()
+
+                por_dia = {
+                    pd.Timestamp(r["Data"]).normalize(): float(r["Percentual"])
+                    for _, r in serie.iterrows()
                 }
-                for _, row in parte.iterrows()
-                if float(row["Percentual"]) > 0
-            ]
+                valores = [
+                    float(por_dia.get(pd.Timestamp(d).normalize(), 0.0))
+                    for d in dias_classe
+                ]
+                media = (sum(valores) / len(valores)) if valores else 0.0
+                medias[disp] = media
+                series_diarias[disp] = {
+                    "id": disp,
+                    "label": _sky_tabulacao_label(desc),
+                    "descricao": desc,
+                    "media": round(media, 4),
+                    "valores": [round(v, 4) for v in valores],
+                }
+
+            etapas = []
+            for _, row in parte.iterrows():
+                percentual = float(row["Percentual"])
+                if percentual <= 0:
+                    continue
+                disp = str(row["DispositionId"])
+                etapas.append(
+                    {
+                        "id": disp,
+                        "label": _sky_tabulacao_label(row["Description"]),
+                        "descricao": str(row["Description"]),
+                        "percentual": round(percentual, 4),
+                        "media_mes": round(float(medias.get(disp, 0.0)), 4),
+                    }
+                )
+
             if etapas:
                 graficos.append(
                     {
                         "classificacao": classificacao,
                         "etapas": etapas,
+                        "mes_referencia": mes_referencia,
+                    }
+                )
+
+                evolucao.append(
+                    {
+                        "classificacao": classificacao,
+                        "dias": [
+                            pd.Timestamp(d).strftime("%d/%m")
+                            for d in dias_classe
+                        ],
+                        "etapas": [
+                            series_diarias[e["id"]]
+                            for e in etapas
+                            if e["id"] in series_diarias
+                        ],
                     }
                 )
 
@@ -7751,6 +7834,7 @@ def sky_tabulacao():
         "sky_tabulacao.html",
         usuario=usuario,
         graficos=graficos,
+        evolucao=evolucao,
         meses=meses,
         mes_selecionado=mes_selecionado,
         inicio=inicio_raw,
@@ -7758,6 +7842,7 @@ def sky_tabulacao():
         data_min=df["Data"].min().strftime("%Y-%m-%d"),
         data_max=df["Data"].max().strftime("%Y-%m-%d"),
         periodo=periodo,
+        mes_referencia=mes_referencia,
         erro=None if graficos else "Nenhuma tabulação encontrada para os filtros selecionados.",
     )
 
