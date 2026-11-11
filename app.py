@@ -7804,6 +7804,53 @@ def sky_tabulacao():
                     }
                 )
 
+                # Heatmap diário: inclui TODAS as tabulações existentes no mês
+                # de referência para a classificação, não apenas as que apareceram
+                # no período/dia selecionado.
+                etapas_mes = (
+                    diario_classe[
+                        ["DispositionId", "Description"]
+                    ]
+                    .drop_duplicates()
+                    .sort_values(["Description", "DispositionId"])
+                )
+
+                etapas_heatmap = []
+                for _, etapa_mes in etapas_mes.iterrows():
+                    disp_mes = str(etapa_mes["DispositionId"])
+                    desc_mes = str(etapa_mes["Description"])
+
+                    if disp_mes not in series_diarias:
+                        serie_mes = diario_classe[
+                            diario_classe["DispositionId"].astype(str) == disp_mes
+                        ].copy()
+                        por_dia_mes = {
+                            pd.Timestamp(r["Data"]).normalize(): float(r["Percentual"])
+                            for _, r in serie_mes.iterrows()
+                        }
+                        valores_mes = [
+                            float(por_dia_mes.get(pd.Timestamp(d).normalize(), 0.0))
+                            for d in dias_classe
+                        ]
+                        media_mes = (
+                            sum(valores_mes) / len(valores_mes)
+                            if valores_mes
+                            else 0.0
+                        )
+                        series_diarias[disp_mes] = {
+                            "id": disp_mes,
+                            "label": _sky_tabulacao_label(desc_mes),
+                            "descricao": desc_mes,
+                            "media": round(media_mes, 4),
+                            "valores": [round(v, 4) for v in valores_mes],
+                        }
+
+                    etapas_heatmap.append(series_diarias[disp_mes])
+
+                etapas_heatmap.sort(
+                    key=lambda e: (-float(e.get("media", 0)), str(e.get("label", "")))
+                )
+
                 evolucao.append(
                     {
                         "classificacao": classificacao,
@@ -7811,11 +7858,7 @@ def sky_tabulacao():
                             pd.Timestamp(d).strftime("%d/%m")
                             for d in dias_classe
                         ],
-                        "etapas": [
-                            series_diarias[e["id"]]
-                            for e in etapas
-                            if e["id"] in series_diarias
-                        ],
+                        "etapas": etapas_heatmap,
                     }
                 )
 

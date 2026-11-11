@@ -123,13 +123,64 @@
       padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.04em;text-transform:uppercase
     }
     .chart-wrap{padding:8px 8px 14px;position:relative;height:430px}
-    .trend-wrap{padding:8px 12px 14px;position:relative;height:305px}
-    .trend-controls{padding:10px 14px 2px}
-    .trend-controls label{
-      display:block;color:#91a9bb;font-size:9px;font-weight:900;
-      text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px
+    .heatmap-wrap{
+      padding:10px 12px 14px;
+      overflow:auto;
+      max-height:520px;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(148,163,184,.28) transparent;
     }
-    .trend-controls select{height:36px;font-size:11px}
+    .heatmap-grid{display:grid;gap:5px;min-width:max-content}
+    .heatmap-header,.heatmap-row{
+      display:grid;
+      grid-template-columns:150px repeat(var(--days),34px);
+      gap:5px;
+      align-items:center;
+    }
+    .heatmap-head-label{
+      position:sticky;left:0;z-index:4;
+      background:linear-gradient(90deg,rgba(8,20,38,1) 88%,rgba(8,20,38,.88));
+      color:#8fa8be;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;
+      padding:0 8px;
+    }
+    .heatmap-day{
+      color:#7890a4;font-size:8px;font-weight:800;text-align:center;padding:5px 0;
+    }
+    .heatmap-label{
+      position:sticky;left:0;z-index:3;
+      min-height:28px;display:flex;align-items:center;
+      background:linear-gradient(90deg,rgba(8,20,38,1) 88%,rgba(8,20,38,.88));
+      color:#dceaf5;font-size:9px;font-weight:750;line-height:1.15;
+      padding:0 8px;border-radius:7px;
+    }
+    .heat-cell{
+      width:34px;height:28px;border-radius:7px;
+      border:1px solid rgba(148,163,184,.10);
+      display:flex;align-items:center;justify-content:center;
+      font-size:7px;font-weight:900;color:rgba(255,255,255,.90);
+      cursor:default;transition:transform .12s ease,border-color .12s ease,filter .12s ease;
+    }
+    .heat-cell:hover{
+      transform:scale(1.11);z-index:8;
+      border-color:rgba(255,255,255,.55);
+      filter:brightness(1.15);
+    }
+    .heat-empty{opacity:.22}
+    .heatmap-tooltip{
+      position:fixed;z-index:9999;pointer-events:none;display:none;
+      width:235px;padding:12px 13px;border-radius:14px;
+      background:rgba(2,8,20,.97);border:1px solid rgba(148,163,184,.22);
+      box-shadow:0 18px 46px rgba(0,0,0,.45);backdrop-filter:blur(12px);
+    }
+    .heatmap-tooltip .tt-class{font-size:9px;color:#7dd3fc;font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+    .heatmap-tooltip .tt-title{font-size:12px;color:#fff;font-weight:900;margin:4px 0 2px}
+    .heatmap-tooltip .tt-day{font-size:10px;color:#8fa8be;margin-bottom:10px}
+    .heatmap-tooltip .tt-line{display:flex;justify-content:space-between;gap:12px;font-size:10px;color:#abc0d1;padding:3px 0}
+    .heatmap-tooltip .tt-line strong{color:#fff}
+    .heatmap-tooltip .tt-delta{margin-top:7px;padding:7px 9px;border-radius:9px;font-size:10px;font-weight:900}
+    .heatmap-tooltip .up{color:#86efac;background:rgba(34,197,94,.10)}
+    .heatmap-tooltip .down{color:#fca5a5;background:rgba(239,68,68,.10)}
+    .heatmap-tooltip .flat{color:#bae6fd;background:rgba(56,189,248,.10)}
     canvas{width:100%!important}
     .footer{color:#647b8d;font-size:11px;text-align:right;margin-top:18px}
     @media(max-width:1250px){
@@ -239,8 +290,8 @@
 
     <div class="section-head">
       <div>
-        <h2>Evolução diária</h2>
-        <p>Escolha uma tabulação e acompanhe sua representatividade dia a dia contra a média do mês.</p>
+        <h2>Heatmap diário</h2>
+        <p>Todas as tabulações do mês em uma única leitura. Passe o mouse sobre qualquer célula para comparar o dia com a média mensal.</p>
       </div>
       <span class="month-tag">{{ mes_referencia }}</span>
     </div>
@@ -253,25 +304,18 @@
               <span class="dot" data-class="{{ item.classificacao }}"></span>
               <div>
                 <h3>{{ item.classificacao }}</h3>
-                <small>Representatividade diária</small>
+                <small>Todas as tabulações × dias do mês</small>
               </div>
             </div>
           </div>
-          <div class="trend-controls">
-            <label>Tabulação</label>
-            <select id="trend-select-{{ loop.index }}" data-index="{{ loop.index0 }}">
-              {% for etapa in item.etapas %}
-                <option value="{{ etapa.id }}">{{ etapa.label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="trend-wrap">
-            <canvas id="trend-{{ loop.index }}"></canvas>
+          <div class="heatmap-wrap">
+            <div class="heatmap-grid" id="heatmap-{{ loop.index }}"></div>
           </div>
         </article>
       {% endfor %}
     </section>
 
+    <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
     <div class="footer">SKY | OLOS Data Command Center</div>
   </main>
 
@@ -387,83 +431,104 @@
       });
     });
 
-    const trendCharts = [];
+    const tooltip=document.getElementById("heatmap-tooltip");
 
-    function renderTrend(idx, etapaId){
-      const item=evolucao[idx];
-      const etapa=item.etapas.find(function(e){ return String(e.id)===String(etapaId); }) || item.etapas[0];
-      if(!etapa) return;
-      const c=cores[item.classificacao] || cores.Outros;
-      const mediaLine=item.dias.map(function(){ return etapa.media; });
+    function heatAlpha(value){
+      const v=Math.max(0,Math.min(100,Number(value||0)));
+      return v===0 ? 0.06 : Math.max(0.16,Math.min(0.92,0.16+(v/100)*0.76));
+    }
 
-      if(trendCharts[idx]) trendCharts[idx].destroy();
+    function heatColor(classificacao,value){
+      const alpha=heatAlpha(value);
+      if(classificacao==="CPC") return "rgba(251,92,40,"+alpha+")";
+      if(classificacao==="Acordo") return "rgba(34,197,94,"+alpha+")";
+      if(classificacao==="Contato") return "rgba(52,95,153,"+alpha+")";
+      return "rgba(167,139,250,"+alpha+")";
+    }
 
-      trendCharts[idx]=new Chart(document.getElementById("trend-"+(idx+1)),{
-        type:"line",
-        data:{
-          labels:item.dias,
-          datasets:[
-            {
-              label:"Representatividade diária",
-              data:etapa.valores,
-              borderColor:c.border,
-              backgroundColor:c.soft,
-              borderWidth:2,
-              pointRadius:3,
-              pointHoverRadius:5,
-              tension:.34,
-              fill:true
-            },
-            {
-              label:"Média do mês",
-              data:mediaLine,
-              borderColor:"rgba(255,255,255,.78)",
-              borderWidth:1.5,
-              borderDash:[6,5],
-              pointRadius:0,
-              tension:0,
-              fill:false
-            }
-          ]
-        },
-        options:{
-          maintainAspectRatio:false,
-          interaction:{mode:"index",intersect:false},
-          plugins:{
-            legend:{
-              display:true,position:"bottom",
-              labels:{color:"#91a9bb",boxWidth:10,boxHeight:10,font:{size:9,weight:"700"},padding:12}
-            },
-            tooltip:{
-              backgroundColor:"rgba(2,8,20,.96)",
-              borderColor:"rgba(148,163,184,.22)",borderWidth:1,
-              callbacks:{label:function(ctx){return ctx.dataset.label+": "+pct(ctx.raw);}}
-            },
-            datalabels:{display:false}
-          },
-          scales:{
-            x:{
-              grid:{display:false},border:{display:false},
-              ticks:{color:"#7890a4",font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:12}
-            },
-            y:{
-              beginAtZero:true,
-              min:0,
-              max:100,
-              grid:{color:"rgba(148,163,184,.07)"},
-              border:{display:false},
-              ticks:{stepSize:20,color:"#7890a4",font:{size:9},callback:function(v){return v+"%";}}
-            }
-          }
-        }
-      });
+    function deltaClass(delta){
+      if(delta>0.005) return "up";
+      if(delta<-0.005) return "down";
+      return "flat";
+    }
+
+    function deltaText(delta){
+      const sinal=delta>0?"+":"";
+      return sinal+Number(delta||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+" p.p.";
+    }
+
+    function showHeatTooltip(ev, item, etapa, dia, value){
+      const delta=Number(value||0)-Number(etapa.media||0);
+      const status=delta>0.005?"Acima da média":(delta<-0.005?"Abaixo da média":"Na média");
+      tooltip.innerHTML=
+        '<div class="tt-class">'+item.classificacao+'</div>'+
+        '<div class="tt-title">'+etapa.label+'</div>'+
+        '<div class="tt-day">'+dia+'</div>'+
+        '<div class="tt-line"><span>Dia</span><strong>'+pct(value)+'</strong></div>'+
+        '<div class="tt-line"><span>Média do mês</span><strong>'+pct(etapa.media)+'</strong></div>'+
+        '<div class="tt-delta '+deltaClass(delta)+'">'+status+' · '+deltaText(delta)+'</div>';
+      tooltip.style.display="block";
+      moveHeatTooltip(ev);
+    }
+
+    function moveHeatTooltip(ev){
+      if(!tooltip || tooltip.style.display!=="block") return;
+      const pad=14;
+      const rect=tooltip.getBoundingClientRect();
+      let x=ev.clientX+16;
+      let y=ev.clientY+16;
+      if(x+rect.width>window.innerWidth-pad) x=ev.clientX-rect.width-16;
+      if(y+rect.height>window.innerHeight-pad) y=ev.clientY-rect.height-16;
+      tooltip.style.left=Math.max(pad,x)+"px";
+      tooltip.style.top=Math.max(pad,y)+"px";
+    }
+
+    function hideHeatTooltip(){
+      tooltip.style.display="none";
     }
 
     evolucao.forEach(function(item,idx){
-      const sel=document.getElementById("trend-select-"+(idx+1));
-      if(!sel || !item.etapas.length) return;
-      renderTrend(idx,sel.value);
-      sel.addEventListener("change",function(){ renderTrend(idx,this.value); });
+      const root=document.getElementById("heatmap-"+(idx+1));
+      if(!root) return;
+      root.style.setProperty("--days",item.dias.length);
+
+      const header=document.createElement("div");
+      header.className="heatmap-header";
+      const label=document.createElement("div");
+      label.className="heatmap-head-label";
+      label.textContent="Tabulação";
+      header.appendChild(label);
+
+      item.dias.forEach(function(dia){
+        const d=document.createElement("div");
+        d.className="heatmap-day";
+        d.textContent=dia;
+        header.appendChild(d);
+      });
+      root.appendChild(header);
+
+      item.etapas.forEach(function(etapa){
+        const row=document.createElement("div");
+        row.className="heatmap-row";
+        const name=document.createElement("div");
+        name.className="heatmap-label";
+        name.textContent=etapa.label;
+        name.title=etapa.descricao;
+        row.appendChild(name);
+
+        item.dias.forEach(function(dia,dayIdx){
+          const value=Number(etapa.valores[dayIdx]||0);
+          const cell=document.createElement("div");
+          cell.className="heat-cell"+(value===0?" heat-empty":"");
+          cell.style.background=heatColor(item.classificacao,value);
+          cell.textContent=value>=10 ? Math.round(value)+"%" : (value>=1 ? value.toLocaleString("pt-BR",{maximumFractionDigits:1})+"%" : "");
+          cell.addEventListener("mouseenter",function(ev){showHeatTooltip(ev,item,etapa,dia,value);});
+          cell.addEventListener("mousemove",moveHeatTooltip);
+          cell.addEventListener("mouseleave",hideHeatTooltip);
+          row.appendChild(cell);
+        });
+        root.appendChild(row);
+      });
     });
   </script>
 </body>
