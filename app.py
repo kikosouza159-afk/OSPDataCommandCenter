@@ -249,6 +249,7 @@ DASHBOARD_VISOES = {
         {"id": "mapa", "nome": "Mapa Brasil"},
         {"id": "funil", "nome": "Funil Comparativo"},
         {"id": "mensal", "nome": "Comparativo Mensal"},
+        {"id": "tabulacao", "nome": "Tabulação"},
     ],
 }
 
@@ -7605,7 +7606,9 @@ def sky_tabulacao():
         return redirect(url_for("login"))
 
     usuario = session.get("usuario")
-    if not usuario_e_admin(usuario):
+    if not usuario_pode_acessar_cliente(usuario, "sky-negocie-online"):
+        return acesso_negado()
+    if not usuario_pode_acessar_visao(usuario, "sky-negocie-online", "tabulacao"):
         return acesso_negado()
 
     df = _carregar_sky_tabulacao()
@@ -7613,6 +7616,7 @@ def sky_tabulacao():
         return render_template(
             "sky_tabulacao.html",
             usuario=usuario,
+            is_admin=usuario_e_admin(usuario),
             graficos=[],
             evolucao=[],
             meses=[],
@@ -7890,6 +7894,7 @@ def sky_tabulacao():
     return render_template(
         "sky_tabulacao.html",
         usuario=usuario,
+        is_admin=usuario_e_admin(usuario),
         graficos=graficos,
         evolucao=evolucao,
         meses=meses,

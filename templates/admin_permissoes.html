@@ -214,7 +214,7 @@
         {% for visao in visoes_cliente %}
         <label class="view {% if usuario_sel in admin_usuarios %}disabled{% endif %}">
           <input type="checkbox" name="visoes" value="{{ visao.id }}" {% if visao.id in permitidas or usuario_sel in admin_usuarios %}checked{% endif %} {% if usuario_sel in admin_usuarios %}disabled{% endif %}>
-          <div class="icon"><i data-lucide="{% if visao.id == 'daily' %}calendar-days{% elif visao.id == 'hora' %}clock-3{% elif visao.id == 'mapa' %}map{% else %}git-compare-arrows{% endif %}"></i></div>
+          <div class="icon"><i data-lucide="{% if visao.id == 'daily' %}calendar-days{% elif visao.id == 'hora' %}clock-3{% elif visao.id == 'mapa' %}map{% elif visao.id == 'tabulacao' %}table-properties{% else %}git-compare-arrows{% endif %}"></i></div>
           <div><strong>{{ visao.nome }}</strong><span>{% if visao.id in permitidas or usuario_sel in admin_usuarios %}Acesso liberado{% else %}Acesso bloqueado{% endif %}</span></div>
         </label>
         {% endfor %}
