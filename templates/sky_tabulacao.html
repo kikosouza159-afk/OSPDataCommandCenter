@@ -118,6 +118,11 @@
     .dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 18px currentColor}
     .card h2{font-size:16px;margin:0}
     .card small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+    .class-share{
+      white-space:nowrap;border:1px solid rgba(56,189,248,.18);
+      background:rgba(56,189,248,.07);color:#bfeaff;border-radius:999px;
+      padding:7px 10px;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase
+    }
     .chart-wrap{padding:10px 12px 16px;position:relative;min-height:320px}
     canvas{width:100%!important}
     .footer{color:#647b8d;font-size:11px;text-align:right;margin-top:18px}
@@ -157,7 +162,7 @@
     <section class="hero">
       <div>
         <h1>Representatividade de Tabulação</h1>
-        <p>Leitura visual das etapas por classificação. Os gráficos exibem somente a participação percentual de cada etapa no total de tabulações do período filtrado.</p>
+        <p>Leitura visual das etapas por classificação. Cada gráfico representa 100% da própria classificação, mostrando somente a participação percentual de cada etapa.</p>
       </div>
       <div class="period">{{ periodo }}</div>
     </section>
@@ -187,7 +192,7 @@
     </form>
 
     <div class="note">
-      A escala de cada gráfico se ajusta automaticamente para destacar diferenças pequenas. O percentual continua sendo calculado sobre o total geral de tabulações do filtro, preservando a representatividade real de cada etapa.
+      Cada classificação possui sua própria base de 100%. Exemplo: no gráfico Contato, cada etapa é dividida somente pelo total de Contato; no CPC, somente pelo total de CPC; no Acordo, somente pelo total de Acordo.
     </div>
 
     {% if erro %}
@@ -205,6 +210,7 @@
                 <small>Representatividade por etapa</small>
               </div>
             </div>
+            <span class="class-share">100% da classificação</span>
           </div>
           <div class="chart-wrap" id="wrap-{{ loop.index }}">
             <canvas id="chart-{{ loop.index }}"></canvas>
