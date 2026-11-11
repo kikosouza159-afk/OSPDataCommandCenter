@@ -7554,6 +7554,191 @@ def sky_mensal_pagamento():
         con.close()
     return redirect(url_for("sky_comparativo_mensal", anterior=anterior,atual=atual,dias=dias, salvo=1))
 
+
+# ===== SKY | VISÃO TABULAÇÃO (ADMIN) =====
+SKY_TABULACAO_ARQUIVO = Path(__file__).resolve().parent / "data" / "sky_tabulacao.tsv"
+
+
+def _sky_tabulacao_label(descricao):
+    texto = str(descricao or "").strip()
+    if texto == "NoDisposition":
+        return "Sem tabulação"
+    texto = re.sub(r"^ADA[_\s-]*", "", texto, flags=re.IGNORECASE)
+    texto = texto.replace("_", " ")
+    texto = re.sub(r"\s+", " ", texto).strip()
+    return texto or "Sem descrição"
+
+
+def _carregar_sky_tabulacao():
+    import pandas as pd
+
+    colunas = ["Data", "DispositionId", "Description", "Classificado", "Total"]
+    if not SKY_TABULACAO_ARQUIVO.exists():
+        return pd.DataFrame(columns=colunas)
+
+    try:
+        df = pd.read_csv(
+            SKY_TABULACAO_ARQUIVO,
+            sep="\t",
+            dtype={
+                "DispositionId": "string",
+                "Description": "string",
+                "Classificado": "string",
+            },
+        )
+    except Exception:
+        app.logger.exception("Falha ao carregar a base da visão de tabulação SKY")
+        return pd.DataFrame(columns=colunas)
+
+    if df.empty:
+        return pd.DataFrame(columns=colunas)
+
+    df = df[colunas].copy()
+    df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+    df["Total"] = pd.to_numeric(df["Total"], errors="coerce").fillna(0)
+    df["Classificado"] = df["Classificado"].fillna("Outros").astype(str).str.strip()
+    df["Description"] = df["Description"].fillna("Sem descrição").astype(str).str.strip()
+    df = df[df["Data"].notna() & (df["Total"] >= 0)]
+    return df
+
+
+@app.route("/cliente/sky-negocie-online/painel/tabulacao")
+def sky_tabulacao():
+    import pandas as pd
+
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+
+    usuario = session.get("usuario")
+    if not usuario_e_admin(usuario):
+        return acesso_negado()
+
+    df = _carregar_sky_tabulacao()
+    if df.empty:
+        return render_template(
+            "sky_tabulacao.html",
+            usuario=usuario,
+            graficos=[],
+            meses=[],
+            mes_selecionado="",
+            inicio="",
+            fim="",
+            data_min="",
+            data_max="",
+            periodo="Sem dados disponíveis",
+            erro="A base de tabulação está vazia ou indisponível.",
+        )
+
+    meses_pt = [
+        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ]
+    meses_raw = sorted(df["Data"].dt.strftime("%Y-%m").dropna().unique().tolist())
+    meses = [
+        {
+            "valor": mes,
+            "label": f"{meses_pt[int(mes[-2:]) - 1]}/{mes[:4]}",
+        }
+        for mes in reversed(meses_raw)
+    ]
+
+    mes_param = request.args.get("mes")
+    if mes_param is None:
+        mes_selecionado = meses_raw[-1] if meses_raw else ""
+    elif mes_param == "":
+        mes_selecionado = ""
+    elif mes_param in meses_raw:
+        mes_selecionado = mes_param
+    else:
+        mes_selecionado = meses_raw[-1] if meses_raw else ""
+
+    inicio_raw = request.args.get("inicio", "").strip()
+    fim_raw = request.args.get("fim", "").strip()
+
+    def _parse_data(valor):
+        if not valor:
+            return None
+        try:
+            return pd.to_datetime(valor, format="%Y-%m-%d", errors="raise").normalize()
+        except Exception:
+            return None
+
+    inicio_dt = _parse_data(inicio_raw)
+    fim_dt = _parse_data(fim_raw)
+
+    filtrado = df.copy()
+    if mes_selecionado:
+        filtrado = filtrado[filtrado["Data"].dt.strftime("%Y-%m") == mes_selecionado]
+    if inicio_dt is not None:
+        filtrado = filtrado[filtrado["Data"].dt.normalize() >= inicio_dt]
+    if fim_dt is not None:
+        filtrado = filtrado[filtrado["Data"].dt.normalize() <= fim_dt]
+
+    total_geral = float(filtrado["Total"].sum()) if not filtrado.empty else 0.0
+    graficos = []
+
+    if total_geral > 0:
+        agrupado = (
+            filtrado.groupby(
+                ["Classificado", "DispositionId", "Description"],
+                dropna=False,
+                as_index=False,
+            )["Total"]
+            .sum()
+        )
+        agrupado["Percentual"] = agrupado["Total"] / total_geral * 100.0
+
+        classes_presentes = agrupado["Classificado"].dropna().astype(str).unique().tolist()
+        ordem_base = ["Contato", "CPC", "Acordo", "Outros"]
+        classes = [c for c in ordem_base if c in classes_presentes]
+        classes += sorted(c for c in classes_presentes if c not in classes)
+
+        for classificacao in classes:
+            parte = agrupado[agrupado["Classificado"] == classificacao].copy()
+            parte = parte.sort_values(["Percentual", "Description"], ascending=[False, True])
+            etapas = [
+                {
+                    "id": str(row["DispositionId"]),
+                    "label": _sky_tabulacao_label(row["Description"]),
+                    "descricao": str(row["Description"]),
+                    "percentual": round(float(row["Percentual"]), 4),
+                }
+                for _, row in parte.iterrows()
+                if float(row["Percentual"]) > 0
+            ]
+            if etapas:
+                graficos.append(
+                    {
+                        "classificacao": classificacao,
+                        "etapas": etapas,
+                    }
+                )
+
+    if not filtrado.empty:
+        dt_ini = filtrado["Data"].min()
+        dt_fim = filtrado["Data"].max()
+        periodo = (
+            dt_ini.strftime("%d/%m/%Y")
+            if dt_ini.normalize() == dt_fim.normalize()
+            else f"{dt_ini.strftime('%d/%m/%Y')} a {dt_fim.strftime('%d/%m/%Y')}"
+        )
+    else:
+        periodo = "Sem dados para os filtros selecionados"
+
+    return render_template(
+        "sky_tabulacao.html",
+        usuario=usuario,
+        graficos=graficos,
+        meses=meses,
+        mes_selecionado=mes_selecionado,
+        inicio=inicio_raw,
+        fim=fim_raw,
+        data_min=df["Data"].min().strftime("%Y-%m-%d"),
+        data_max=df["Data"].max().strftime("%Y-%m-%d"),
+        periodo=periodo,
+        erro=None if graficos else "Nenhuma tabulação encontrada para os filtros selecionados.",
+    )
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 
