@@ -7642,18 +7642,30 @@ def sky_tabulacao():
         for mes in reversed(meses_raw)
     ]
 
+    # Ao entrar na visão sem filtros, abre automaticamente no último dia
+    # disponível da base. Os filtros continuam permitindo ampliar o período.
+    ultimo_dia = df["Data"].max().normalize()
+    primeira_abertura = not any(
+        chave in request.args for chave in ("mes", "inicio", "fim")
+    )
+
     mes_param = request.args.get("mes")
-    if mes_param is None:
-        mes_selecionado = meses_raw[-1] if meses_raw else ""
+    if primeira_abertura:
+        mes_selecionado = ""
     elif mes_param == "":
         mes_selecionado = ""
     elif mes_param in meses_raw:
         mes_selecionado = mes_param
+    elif mes_param is None:
+        mes_selecionado = ""
     else:
-        mes_selecionado = meses_raw[-1] if meses_raw else ""
+        mes_selecionado = ""
 
     inicio_raw = request.args.get("inicio", "").strip()
     fim_raw = request.args.get("fim", "").strip()
+    if primeira_abertura:
+        inicio_raw = ultimo_dia.strftime("%Y-%m-%d")
+        fim_raw = ultimo_dia.strftime("%Y-%m-%d")
 
     def _parse_data(valor):
         if not valor:
@@ -7674,10 +7686,9 @@ def sky_tabulacao():
     if fim_dt is not None:
         filtrado = filtrado[filtrado["Data"].dt.normalize() <= fim_dt]
 
-    total_geral = float(filtrado["Total"].sum()) if not filtrado.empty else 0.0
     graficos = []
 
-    if total_geral > 0:
+    if not filtrado.empty and float(filtrado["Total"].sum()) > 0:
         agrupado = (
             filtrado.groupby(
                 ["Classificado", "DispositionId", "Description"],
@@ -7686,7 +7697,18 @@ def sky_tabulacao():
             )["Total"]
             .sum()
         )
-        agrupado["Percentual"] = agrupado["Total"] / total_geral * 100.0
+
+        # A representatividade agora é calculada DENTRO de cada classificação:
+        # Contato = cada tabulação de Contato / total de Contato;
+        # CPC = cada tabulação de CPC / total de CPC;
+        # Acordo = cada tabulação de Acordo / total de Acordo.
+        totais_classificacao = agrupado.groupby("Classificado")["Total"].transform("sum")
+        agrupado["Percentual"] = (
+            agrupado["Total"]
+            .div(totais_classificacao.where(totais_classificacao > 0))
+            .fillna(0)
+            * 100.0
+        )
 
         classes_presentes = agrupado["Classificado"].dropna().astype(str).unique().tolist()
         ordem_base = ["Contato", "CPC", "Acordo", "Outros"]
