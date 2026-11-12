@@ -7574,7 +7574,19 @@ def _carregar_sky_tabulacao():
     import os
     import pandas as pd
 
-    colunas = ["Data", "DispositionId", "Description", "Classificado", "Total"]
+    horas = [f"H{h:02d}" for h in range(8, 21)]
+    colunas = ["Data", "DispositionId", "Description", "Classificado", "Total", *horas]
+
+    def _normalizar_classificacao(valor):
+        texto = str(valor or "").strip()
+        chave = texto.casefold()
+        if chave == "cpc":
+            return "CPC"
+        if chave == "contato":
+            return "Contato"
+        if chave == "acordo":
+            return "Acordo"
+        return texto or "Outros"
 
     # Fonte principal: Neon, alimentado pelo ETL_Cockpit.
     # Enquanto a nova carga ainda não tiver rodado, mantém o TSV como fallback.
@@ -7596,7 +7608,78 @@ def _carregar_sky_tabulacao():
                             description AS "Description",
                             COALESCE(NULLIF(TRIM(classificado), ''), 'Outros') AS "Classificado",
                             CASE
-                                WHEN TRIM(COALESCE(total, '')) ~ '^-?[0-9]+([.,][0-9]+)?
+                                WHEN TRIM(COALESCE(total, '')) ~ '^-?[0-9]+([.,][0-9]+)?$'
+                                    THEN REPLACE(TRIM(total), ',', '.')::numeric
+                                ELSE 0::numeric
+                            END AS "Total",
+                            CASE WHEN TRIM(COALESCE(h08,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h08),',','.')::numeric ELSE 0::numeric END AS "H08",
+                            CASE WHEN TRIM(COALESCE(h09,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h09),',','.')::numeric ELSE 0::numeric END AS "H09",
+                            CASE WHEN TRIM(COALESCE(h10,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h10),',','.')::numeric ELSE 0::numeric END AS "H10",
+                            CASE WHEN TRIM(COALESCE(h11,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h11),',','.')::numeric ELSE 0::numeric END AS "H11",
+                            CASE WHEN TRIM(COALESCE(h12,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h12),',','.')::numeric ELSE 0::numeric END AS "H12",
+                            CASE WHEN TRIM(COALESCE(h13,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h13),',','.')::numeric ELSE 0::numeric END AS "H13",
+                            CASE WHEN TRIM(COALESCE(h14,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h14),',','.')::numeric ELSE 0::numeric END AS "H14",
+                            CASE WHEN TRIM(COALESCE(h15,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h15),',','.')::numeric ELSE 0::numeric END AS "H15",
+                            CASE WHEN TRIM(COALESCE(h16,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h16),',','.')::numeric ELSE 0::numeric END AS "H16",
+                            CASE WHEN TRIM(COALESCE(h17,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h17),',','.')::numeric ELSE 0::numeric END AS "H17",
+                            CASE WHEN TRIM(COALESCE(h18,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h18),',','.')::numeric ELSE 0::numeric END AS "H18",
+                            CASE WHEN TRIM(COALESCE(h19,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h19),',','.')::numeric ELSE 0::numeric END AS "H19",
+                            CASE WHEN TRIM(COALESCE(h20,'')) ~ '^-?[0-9]+([.,][0-9]+)?$' THEN REPLACE(TRIM(h20),',','.')::numeric ELSE 0::numeric END AS "H20"
+                        FROM assistpay.gestor_negocio_tabulacoes_ada
+                        WHERE LOWER(TRIM(visao)) = 'quantidade'
+                        ORDER BY data, disposition_id
+                    """)
+                    rows = cur.fetchall()
+                    if rows:
+                        nomes = [d.name for d in cur.description]
+                        df = pd.DataFrame(rows, columns=nomes)
+                        df = df[colunas].copy()
+                        df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+                        df["Total"] = pd.to_numeric(df["Total"], errors="coerce").fillna(0)
+                        for hora in horas:
+                            df[hora] = pd.to_numeric(df[hora], errors="coerce").fillna(0)
+                        df["Classificado"] = df["Classificado"].map(_normalizar_classificacao)
+                        df["Description"] = df["Description"].fillna("Sem descrição").astype(str).str.strip()
+                        return df[df["Data"].notna() & (df["Total"] >= 0)]
+        except Exception:
+            app.logger.exception(
+                "Falha ao carregar tabulação SKY do Neon; usando fallback local"
+            )
+
+    if not SKY_TABULACAO_ARQUIVO.exists():
+        return pd.DataFrame(columns=colunas)
+
+    try:
+        df = pd.read_csv(
+            SKY_TABULACAO_ARQUIVO,
+            sep="\t",
+            dtype={
+                "DispositionId": "string",
+                "Description": "string",
+                "Classificado": "string",
+            },
+        )
+    except Exception:
+        app.logger.exception("Falha ao carregar a base local da visão de tabulação SKY")
+        return pd.DataFrame(columns=colunas)
+
+    if df.empty:
+        return pd.DataFrame(columns=colunas)
+
+    for hora in horas:
+        if hora not in df.columns:
+            df[hora] = 0
+
+    df = df[colunas].copy()
+    df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+    df["Total"] = pd.to_numeric(df["Total"], errors="coerce").fillna(0)
+    for hora in horas:
+        df[hora] = pd.to_numeric(df[hora], errors="coerce").fillna(0)
+    df["Classificado"] = df["Classificado"].map(_normalizar_classificacao)
+    df["Description"] = df["Description"].fillna("Sem descrição").astype(str).str.strip()
+    df = df[df["Data"].notna() & (df["Total"] >= 0)]
+    return df
+
 
 @app.route("/cliente/sky-negocie-online/painel/tabulacao")
 def sky_tabulacao():
@@ -7619,6 +7702,7 @@ def sky_tabulacao():
             is_admin=usuario_e_admin(usuario),
             graficos=[],
             evolucao=[],
+            visao_hora={"horas": [], "classificacoes": []},
             meses=[],
             mes_selecionado="",
             datas="",
@@ -7716,6 +7800,7 @@ def sky_tabulacao():
 
     graficos = []
     evolucao = []
+    visao_hora = {"horas": [f"{h:02d}h" for h in range(8, 21)], "classificacoes": []}
 
     if not filtrado.empty and float(filtrado["Total"].sum()) > 0:
         agrupado = (
@@ -7880,6 +7965,70 @@ def sky_tabulacao():
                     }
                 )
 
+    # Visão por Hora: representatividade de cada tabulação dentro da
+    # própria classificação em cada faixa horária.
+    if not filtrado.empty:
+        horas_colunas = [f"H{h:02d}" for h in range(8, 21)]
+        agrupado_hora = (
+            filtrado.groupby(
+                ["Classificado", "DispositionId", "Description"],
+                dropna=False,
+                as_index=False,
+            )[horas_colunas]
+            .sum()
+        )
+
+        classes_hora_presentes = (
+            agrupado_hora["Classificado"].dropna().astype(str).unique().tolist()
+        )
+        ordem_hora = ["Contato", "CPC", "Acordo", "Outros"]
+        classes_hora = [c for c in ordem_hora if c in classes_hora_presentes]
+        classes_hora += sorted(c for c in classes_hora_presentes if c not in classes_hora)
+
+        for classificacao in classes_hora:
+            parte_hora = agrupado_hora[
+                agrupado_hora["Classificado"] == classificacao
+            ].copy()
+
+            totais_hora = {
+                hora: float(parte_hora[hora].sum())
+                for hora in horas_colunas
+            }
+
+            etapas_hora = []
+            for _, row in parte_hora.iterrows():
+                valores = []
+                for hora in horas_colunas:
+                    total_hora = totais_hora.get(hora, 0.0)
+                    valor = float(row[hora] or 0)
+                    percentual = (valor / total_hora * 100.0) if total_hora > 0 else 0.0
+                    valores.append(round(percentual, 4))
+
+                if any(v > 0 for v in valores):
+                    etapas_hora.append(
+                        {
+                            "id": str(row["DispositionId"]),
+                            "label": _sky_tabulacao_label(row["Description"]),
+                            "descricao": str(row["Description"]),
+                            "valores": valores,
+                            "media": round(
+                                sum(valores) / len([v for v in valores if v > 0]),
+                                4,
+                            ) if any(v > 0 for v in valores) else 0.0,
+                        }
+                    )
+
+            etapas_hora.sort(
+                key=lambda e: (-float(e.get("media", 0)), str(e.get("label", "")))
+            )
+            if etapas_hora:
+                visao_hora["classificacoes"].append(
+                    {
+                        "classificacao": classificacao,
+                        "etapas": etapas_hora,
+                    }
+                )
+
     if not filtrado.empty:
         dt_ini = filtrado["Data"].min()
         dt_fim = filtrado["Data"].max()
@@ -7897,6 +8046,7 @@ def sky_tabulacao():
         is_admin=usuario_e_admin(usuario),
         graficos=graficos,
         evolucao=evolucao,
+        visao_hora=visao_hora,
         meses=meses,
         mes_selecionado=mes_selecionado,
         datas=datas_raw,
