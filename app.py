@@ -7800,7 +7800,11 @@ def sky_tabulacao():
 
     graficos = []
     evolucao = []
-    visao_hora = {"horas": [f"{h:02d}h" for h in range(8, 21)], "classificacoes": []}
+    visao_hora = {
+        "horas": [f"{h:02d}h" for h in range(8, 21)],
+        "mes_referencia": mes_referencia,
+        "classificacoes": [],
+    }
 
     if not filtrado.empty and float(filtrado["Total"].sum()) > 0:
         agrupado = (
@@ -7967,6 +7971,7 @@ def sky_tabulacao():
 
     # Visão por Hora: representatividade de cada tabulação dentro da
     # própria classificação em cada faixa horária.
+    # A comparação mensal é feita por hora: 10h atual × média diária das 10h no mês.
     if not filtrado.empty:
         horas_colunas = [f"H{h:02d}" for h in range(8, 21)]
         agrupado_hora = (
@@ -7995,22 +8000,87 @@ def sky_tabulacao():
                 for hora in horas_colunas
             }
 
+            # Base mensal da classificação, usada para calcular a média diária
+            # de representatividade em cada hora.
+            mes_classe_hora = mes_ref[
+                mes_ref["Classificado"] == classificacao
+            ].copy()
+
+            medias_mes_por_disp = {}
+            if not mes_classe_hora.empty:
+                totais_mes_dia_hora = (
+                    mes_classe_hora.groupby("Data", dropna=False)[horas_colunas]
+                    .sum()
+                )
+
+                for disp_mes in (
+                    mes_classe_hora["DispositionId"]
+                    .astype(str)
+                    .dropna()
+                    .unique()
+                    .tolist()
+                ):
+                    disp_mes_df = mes_classe_hora[
+                        mes_classe_hora["DispositionId"].astype(str) == disp_mes
+                    ]
+                    disp_mes_dia = (
+                        disp_mes_df.groupby("Data", dropna=False)[horas_colunas]
+                        .sum()
+                    )
+
+                    medias_horas = []
+                    for hora in horas_colunas:
+                        totais_ativos = totais_mes_dia_hora[hora]
+                        dias_ativos = totais_ativos[totais_ativos > 0].index
+
+                        if len(dias_ativos) == 0:
+                            medias_horas.append(0.0)
+                            continue
+
+                        valores_disp = (
+                            disp_mes_dia[hora]
+                            .reindex(dias_ativos, fill_value=0)
+                        )
+                        percentuais_dia = (
+                            valores_disp
+                            .div(totais_ativos.reindex(dias_ativos))
+                            .fillna(0)
+                            * 100.0
+                        )
+                        medias_horas.append(
+                            round(float(percentuais_dia.mean()), 4)
+                            if not percentuais_dia.empty
+                            else 0.0
+                        )
+
+                    medias_mes_por_disp[disp_mes] = medias_horas
+
             etapas_hora = []
             for _, row in parte_hora.iterrows():
+                disp = str(row["DispositionId"])
                 valores = []
+
                 for hora in horas_colunas:
                     total_hora = totais_hora.get(hora, 0.0)
                     valor = float(row[hora] or 0)
-                    percentual = (valor / total_hora * 100.0) if total_hora > 0 else 0.0
+                    percentual = (
+                        valor / total_hora * 100.0
+                        if total_hora > 0
+                        else 0.0
+                    )
                     valores.append(round(percentual, 4))
 
                 if any(v > 0 for v in valores):
                     etapas_hora.append(
                         {
-                            "id": str(row["DispositionId"]),
+                            "id": disp,
                             "label": _sky_tabulacao_label(row["Description"]),
                             "descricao": str(row["Description"]),
                             "valores": valores,
+                            "medias_mes": medias_mes_por_disp.get(
+                                disp,
+                                [0.0] * len(horas_colunas),
+                            ),
                             "media": round(
                                 sum(valores) / len([v for v in valores if v > 0]),
                                 4,
