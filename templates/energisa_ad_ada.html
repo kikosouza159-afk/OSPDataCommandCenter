@@ -58,6 +58,41 @@
 @media(max-width:1200px){.source-fields{grid-template-columns:1fr}.kpi .number{font-size:22px}.benchmark-title{align-items:flex-start;flex-direction:column}.benchmark-coverage{justify-content:flex-start}}
 @media(max-width:900px){.source-grid{grid-template-columns:1fr}.source-fields{grid-template-columns:190px minmax(0,1fr)}.split{grid-template-columns:1fr}}
 @media(max-width:650px){.source-fields{grid-template-columns:1fr}.head-actions{width:100%;justify-content:space-between}.benchmark-table th,.benchmark-table td{padding:11px 12px}.kpi .number{font-size:26px}.chart-panel{padding:16px}.chart-head{align-items:flex-start;flex-direction:column}}
+
+/* Períodos independentes AD e ADA e matriz comparativa em barras */
+.source-fields{grid-template-columns:minmax(120px,.82fr) minmax(120px,.82fr) minmax(180px,1.45fr)!important;gap:10px}
+.source-box .field input[type="date"]{height:42px;background:#08142e;border:1px solid #314664;color:#eef4ff;border-radius:9px;padding:8px 9px;font-size:11px;width:100%;color-scheme:dark}
+.source-box .field input[type="date"]:focus{border-color:#fb5c28;box-shadow:0 0 0 2px #fb5c282b;outline:none}
+.source-ada .field input[type="date"]:focus{border-color:#f79c77}
+.visual-matrix-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;padding:19px 22px 17px;border-bottom:1px solid #2b3d61}
+.visual-matrix-heading strong{font-size:15px;color:#f3f7ff}.visual-matrix-heading p{margin:6px 0 0;font-size:11px;color:#91a7c6;line-height:1.5}
+.visual-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:10px;color:#aebed6}.visual-legend>div{display:flex;align-items:center;gap:6px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.visual-dot{height:8px;width:8px;border-radius:50%;display:inline-block;flex:none}.visual-dot.ad{background:#529cfb}.visual-dot.ada{background:#fb5c28}
+.visual-metric-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;padding:18px}
+.visual-group{min-width:0;overflow:hidden;background:linear-gradient(135deg,#0b1b3a,#0a1530);border:1px solid #2a4064;border-radius:13px}
+.visual-group:last-child{grid-column:span 2}
+.visual-group-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 16px;background:#182e50aa;border-bottom:1px solid #28415f}
+.visual-group-head strong{font-size:12px;color:#ecf4ff;font-weight:850}.visual-group-head small{font-size:10px;color:#9bafcb}
+.visual-group-content{display:grid;grid-template-columns:1fr;gap:0;padding:5px 13px}
+.visual-group:last-child .visual-group-content{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}
+.visual-metric{padding:12px 9px 13px;border-bottom:1px solid #25375a;min-width:0;transition:background .2s ease,border-color .2s ease}
+.visual-metric:last-child{border-bottom-color:transparent}
+.visual-metric:hover{background:#253a5840;border-radius:8px}
+.visual-metric.visual-accent{background:linear-gradient(90deg,#fb5c280d,transparent 65%);border-left:2px solid #fb5c28;border-radius:4px;padding-left:11px}
+.visual-metric-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px;min-width:0}
+.metric-name{font-size:11px;color:#d9e4f8;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.metric-change{white-space:nowrap;font-size:10px;font-weight:850;border:1px solid #435371;background:#1d2b47;color:#bdd1ed;border-radius:6px;padding:4px 7px}
+.metric-change.pos{color:#86efc4;background:#0b3a36;border-color:#235a4c}.metric-change.neg{color:#ffac96;background:#422634;border-color:#673a3b}
+.visual-metric-line{display:grid;grid-template-columns:29px minmax(30px,1fr) minmax(64px,auto);gap:10px;align-items:center;margin:7px 0}
+.metric-tech{color:#91accf;font-size:10px;font-weight:900}
+.visual-track{height:9px;border-radius:20px;background:#1d3153;overflow:hidden;border:1px solid #ffffff06}
+.visual-fill{height:100%;border-radius:20px;box-shadow:0 0 13px #ffffff12}
+.visual-fill.ad{background:linear-gradient(90deg,#2865b9,#71b6ff)}.visual-fill.ada{background:linear-gradient(90deg,#b83c22,#ff8759)}
+.metric-value{white-space:nowrap;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;min-width:62px}.metric-value.ad{color:#a4cfff}.metric-value.ada{color:#ffb592}
+@media(max-width:1280px){.source-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important}.source-fields .field:last-child{grid-column:1/-1}}
+@media(max-width:1050px){.visual-metric-groups{grid-template-columns:1fr}.visual-group:last-child{grid-column:auto}.visual-group:last-child .visual-group-content{grid-template-columns:1fr}}
+@media(max-width:720px){.source-fields{grid-template-columns:1fr 1fr!important}.source-fields .field:last-child{grid-column:1/-1}.visual-metric-groups{padding:10px}.visual-matrix-heading{padding:14px}.visual-legend>div{max-width:100%}}
+@media(max-width:380px){.source-fields{grid-template-columns:1fr!important}}
 </style>
 </head>
 <body>
@@ -74,7 +109,7 @@
  <div id="dashboard" class="hidden">
   <section class="panel filters">
   <div class="filter-head">
-    <div><strong>◈ Benchmark AD × ADA</strong><p class="filter-sub">Selecione a campanha e o mês de cada tecnologia para comparar patamares equivalentes.</p></div>
+    <div><strong>◈ Benchmark AD × ADA</strong><p class="filter-sub">Selecione as campanhas e defina datas de início e fim independentes para cada tecnologia.</p></div>
     <div class="head-actions">
       <div class="segmented" role="group" aria-label="Modo de cálculo">
         <button type="button" id="btnTotal" aria-pressed="false">Total</button>
@@ -87,7 +122,8 @@
     <div class="source-box source-ad">
       <div class="source-header"><div class="source-symbol">AD</div><div><strong>Discador humano</strong><small>BASE DE COMPARAÇÃO</small></div><span class="source-pulse">●</span></div>
       <div class="source-fields">
-        <div class="field"><label for="monthAD">Mês de referência</label><select id="monthAD"></select></div>
+        <div class="field"><label for="startAD">Data inicial</label><input id="startAD" type="date" aria-label="Data inicial AD"></div>
+        <div class="field"><label for="endAD">Data final</label><input id="endAD" type="date" aria-label="Data final AD"></div>
         <div class="field"><span class="field-label">Campanhas AD</span><details class="campaign-picker" id="adPicker"><summary id="adSummary">Campanhas AD</summary><div class="campaign-menu"><div class="campaign-tools"><button type="button" data-pick="all" data-agent="AD">Todas</button><button type="button" data-pick="none" data-agent="AD">Limpar</button></div><div id="adChecks"></div></div></details></div>
       </div>
       <div class="source-meta" id="adMeta">Selecione o período e a campanha</div>
@@ -95,7 +131,8 @@
     <div class="source-box source-ada">
       <div class="source-header"><div class="source-symbol">ADA</div><div><strong>Discador com IA</strong><small>CENÁRIO COMPARADO</small></div><span class="source-pulse">●</span></div>
       <div class="source-fields">
-        <div class="field"><label for="monthADA">Mês de referência</label><select id="monthADA"></select></div>
+        <div class="field"><label for="startADA">Data inicial</label><input id="startADA" type="date" aria-label="Data inicial ADA"></div>
+        <div class="field"><label for="endADA">Data final</label><input id="endADA" type="date" aria-label="Data final ADA"></div>
         <div class="field"><span class="field-label">Campanhas ADA</span><details class="campaign-picker" id="adaPicker"><summary id="adaSummary">Campanhas ADA</summary><div class="campaign-menu"><div class="campaign-tools"><button type="button" data-pick="all" data-agent="ADA">Todas</button><button type="button" data-pick="none" data-agent="ADA">Limpar</button></div><div id="adaChecks"></div></div></details></div>
       </div>
       <div class="source-meta" id="adaMeta">Selecione o período e a campanha</div>
@@ -111,14 +148,13 @@
 </div>
 <div class="kpis" id="kpis"></div>
 
-<div class="section-label"><h2>Matriz de indicadores</h2><span id="kpiDescription">Médias diárias sem zeros</span></div>
+<div class="section-label"><h2>Indicadores em perspectiva</h2><span id="kpiDescription">Médias diárias sem zeros</span></div>
 <section class="panel benchmark-panel">
-  <div class="comparison-scroll">
-   <table class="benchmark-table">
-    <thead><tr><th>Indicador</th><th class="ad-head"><span class="tech-head">● AD</span><small id="comparisonADLabel">Campanha AD</small></th><th class="ada-head"><span class="tech-head">● ADA</span><small id="comparisonADALabel">Campanha ADA</small></th><th>∆ ADA × AD</th></tr></thead>
-    <tbody id="comparisonBody"></tbody>
-   </table>
+  <div class="visual-matrix-heading">
+    <div><strong>Comparativo de indicadores</strong><p>Barras proporcionais entre AD e ADA. O delta mostra a variação do ADA sobre o AD.</p></div>
+    <div class="visual-legend"><div><span class="visual-dot ad"></span> <span id="comparisonADLabel">Campanha AD</span></div><div><span class="visual-dot ada"></span> <span id="comparisonADALabel">Campanha ADA</span></div></div>
   </div>
+  <div id="comparisonBody" class="visual-metric-groups"></div>
 </section>
 
 <div class="section-label"><h2>Eficiência operacional</h2><span>Variação do ADA em relação ao AD</span></div>
@@ -128,11 +164,11 @@
 </div>
 
 <section class="panel chart-panel">
-  <div class="chart-head"><div><h3>Evolução diária AD × ADA</h3><p>Compare cada dia com a média do respectivo mês.</p></div>
+  <div class="chart-head"><div><h3>Evolução diária AD × ADA</h3><p>Evolução por dia do período, com referência da média mensal completa.</p></div>
     <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option></select>
   </div>
   <div id="chartMonthAverages" class="chart-month-averages"></div>
-  <div class="chart-caption">Passe o mouse ou toque em um ponto para visualizar o realizado do dia, a média do mês e a variação percentual. As séries são alinhadas pelo dia do mês, mesmo quando os meses são diferentes.</div>
+  <div class="chart-caption">Passe o mouse ou toque em um ponto: realizado do dia × média mensal daquela campanha. Séries alinhadas pelo número de dias transcorridos desde o início de cada período, mesmo que as datas sejam diferentes.</div>
   <div class="chart-stage"><div class="chart-box" id="chartBox"></div></div>
   <div class="legend" id="chartLegend"><span><i class="dot ad"></i>AD</span><span><i class="dot ada"></i>ADA</span></div>
 </section>
@@ -160,7 +196,7 @@ const percentageKeys=new Set(['hitrate','taxaCpc','conversao','taxaHangup','efic
 const derivedKeys=['spin','hitrate','taxaCpc','conversao','taxaHangup','eficiencia','acordoLogado'];
 const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',conversao:'Conversão',taxaHangup:'% Hangup',eficiencia:'Eficiência',acordoLogado:'Acordos / Agente'};
-const state={rows:[],mode:'average',months:{AD:'',ADA:''},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
+const state={rows:[],mode:'average',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
 const isPct=k=>percentageKeys.has(k);
 const nfmt=(n,precision=0)=>Number.isFinite(n)?(precision===2?dec2Fmt:precision===1?decFmt:intFmt).format(n):'—';
 const fmt=(value,key,mode=state.mode)=>{
@@ -221,9 +257,13 @@ function monthLabel(month){
  return monthNames[idx]+' / '+parts[0];
 }
 function longDate(day){if(!day)return '—';const p=day.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function dateNumber(iso){return Math.floor(Date.parse(iso+'T00:00:00Z')/86400000);}
+function addDays(iso,days){return new Date((dateNumber(iso)+days)*86400000).toISOString().slice(0,10);}
+function periodLength(period){return !period.start||!period.end?0:Math.max(0,dateNumber(period.end)-dateNumber(period.start)+1);}
+function rangeLabel(period){return longDate(period.start)+' até '+longDate(period.end);}
 function chosenRows(agent){
- const month=state.months[agent];
- return state.rows.filter(row=>row.agente===agent&&row.data.slice(0,7)===month&&state.selection[agent].has(row.campaign_id));
+ const period=state.periods[agent];
+ return state.rows.filter(row=>row.agente===agent&&row.data>=period.start&&row.data<=period.end&&state.selection[agent].has(row.campaign_id));
 }
 function campaignSummary(agent){
  const selected=state.campaigns[agent].filter(([id])=>state.selection[agent].has(id));
@@ -243,7 +283,7 @@ function calcSide(agent){
  for(const key of ['mailing','tentativas','atendidas','cpc','acordo']){
   productivity[key]=agentDenominator>0?stats[key]/agentDenominator:0;
  }
- return {agent,rows,days,stats,total,average,activeDays,agentMean,productivity,month:state.months[agent],name:campaignSummary(agent)};
+ return {agent,rows,days,stats,total,average,activeDays,agentMean,productivity,period:{...state.periods[agent]},name:campaignSummary(agent)};
 }
 const deltaInfo=(a,b,{invert=false}={})=>{
  if(!Number.isFinite(a)||!Number.isFinite(b))return {text:'—',cls:''};
@@ -262,24 +302,24 @@ function setCampaigns(agent,all){
  updatePicker(agent);render();
 }
 function buildFilters(){
- const months={AD:new Set(),ADA:new Set()},groups={AD:new Map(),ADA:new Map()};
+ const groups={AD:new Map(),ADA:new Map()},dates={AD:[],ADA:[]};
  for(const row of state.rows){
-  months[row.agente].add(row.data.slice(0,7));
+  dates[row.agente].push(row.data);
   if(!groups[row.agente].has(row.campaign_id))groups[row.agente].set(row.campaign_id,row.nome_campanha);
  }
  for(const agent of ['AD','ADA']){
   state.campaigns[agent]=[...groups[agent]].sort((a,b)=>a[0]-b[0]);
-  const available=[...months[agent]].sort();
-  const select=$(agent==='AD'?'monthAD':'monthADA');
-  select.replaceChildren();
-  for(const month of available){
-   const option=document.createElement('option');option.value=month;option.textContent=monthLabel(month);
-   select.appendChild(option);
-  }
-  // Mesmo benchmark do modelo de referência: AD setembro × ADA novembro.
+  const days=dates[agent].sort(),earliest=days[0],latest=days[days.length-1];
   const target=agent==='AD'?'2026-09':'2026-11';
-  state.months[agent]=available.includes(target)?target:available[available.length-1]||'';
-  select.value=state.months[agent];
+  const targetDays=days.filter(day=>day.startsWith(target));
+  const start=targetDays[0]||earliest||'',end=targetDays[targetDays.length-1]||latest||'';
+  state.periods[agent]={start,end};
+  for(const [prefix,value] of [['start',start],['end',end]]){
+   const input=$(prefix+agent);
+   input.min=earliest||'';
+   input.max=latest||'';
+   input.value=value;
+  }
   const preferred=agent==='AD'?11:385;
   const preferredExists=state.campaigns[agent].some(([id])=>id===preferred);
   state.selection[agent]=new Set(preferredExists?[preferred]:state.campaigns[agent].map(([id])=>id));
@@ -306,14 +346,14 @@ function displayMode(mode){
  render();
 }
 function headline(s){
- $('adMeta').textContent=String(s.AD.activeDays)+' dias com discagens • '+s.AD.rows.length+' registros selecionados';
- $('adaMeta').textContent=String(s.ADA.activeDays)+' dias com discagens • '+s.ADA.rows.length+' registros selecionados';
- $('comparisonADLabel').textContent=s.AD.name+' • '+monthLabel(s.AD.month);
- $('comparisonADALabel').textContent=s.ADA.name+' • '+monthLabel(s.ADA.month);
+ $('adMeta').textContent=s.AD.activeDays+' dias trabalhados · '+rangeLabel(s.AD.period);
+ $('adaMeta').textContent=s.ADA.activeDays+' dias trabalhados · '+rangeLabel(s.ADA.period);
+ $('comparisonADLabel').textContent=s.AD.name+' · '+rangeLabel(s.AD.period);
+ $('comparisonADALabel').textContent=s.ADA.name+' · '+rangeLabel(s.ADA.period);
  $('benchmarkCoverage').innerHTML='<span><b style="color:#7cb2fa">AD</b> '+s.AD.activeDays+' dias trabalhados</span><span><b style="color:#ffab83">ADA</b> '+s.ADA.activeDays+' dias trabalhados</span>';
- $('kpiDescription').textContent=state.mode==='average'?'Média dia · zeros excluídos por indicador':'Total do mês de cada tecnologia';
- $('filterInfo').textContent='Comparação: '+monthLabel(s.AD.month)+' (AD) × '+monthLabel(s.ADA.month)+' (ADA). Médias excluem dias zerados por indicador. Agentes representam média diária de logados, sem deduplicação entre campanhas.';
- $('rangeLabel').textContent=monthLabel(s.AD.month)+' × '+monthLabel(s.ADA.month);
+ $('kpiDescription').textContent=state.mode==='average'?'Média dia · zeros excluídos por indicador':'Total em cada período selecionado';
+ $('filterInfo').textContent='AD: '+rangeLabel(s.AD.period)+' | ADA: '+rangeLabel(s.ADA.period)+'. No modo Média dia, cada indicador desconsidera dias zerados e as taxas são calculadas dos volumes médios. Logados somados entre campanhas.';
+ $('rangeLabel').textContent='AD '+rangeLabel(s.AD.period)+' × ADA '+rangeLabel(s.ADA.period);
 }
 function renderKpis(s){
  const metrics=['tentativas','atendidas','cpc','acordo'];
@@ -327,40 +367,48 @@ function renderKpis(s){
  }).join('');
 }
 function renderMatrix(s){
- const rows=[
-  {name:'Dias trabalhados',a:s.AD.activeDays,b:s.ADA.activeDays,format:'integer',neutral:true},
-  {name:'Mês de referência',a:monthLabel(s.AD.month),b:monthLabel(s.ADA.month),format:'text'},
-  {name:'Mailing',key:'mailing',group:true,neutral:true},
-  {name:'Agentes (média/dia)',a:s.AD.agentMean,b:s.ADA.agentMean,format:'agents',neutral:true},
-  {name:'Tentativas',key:'tentativas',neutral:true},
-  {name:'Atendidas',key:'atendidas'},
-  {name:'CPC',key:'cpc'},
-  {name:'Acordos',key:'acordo',accent:true},
-  {name:'Spin',key:'spin',group:true},
-  {name:'Hit Rate',key:'hitrate'},
-  {name:'Taxa CPC',key:'taxaCpc'},
-  {name:'Conversão (Acordo / CPC)',key:'conversao',accent:true},
-  {name:'Eficiência (Acordos / Mailing)',key:'eficiencia',accent:true},
-  {name:'Mailing / Agente',key:'mailing',prod:true,group:true},
-  {name:'Tentativas / Agente',key:'tentativas',prod:true},
-  {name:'Atendidas / Agente',key:'atendidas',prod:true},
-  {name:'CPC / Agente',key:'cpc',prod:true},
-  {name:'Acordos / Agente',key:'acordo',prod:true,accent:true}
+ const groups=[
+  {title:'Volume & estrutura',subtitle:'Esforço e capacidade operacional',items:[
+    {name:'Dias trabalhados',a:s.AD.activeDays,b:s.ADA.activeDays,key:'_days',format:'integer',hint:'Dias com tentativas maiores que zero'},
+    {name:'Mailing',key:'mailing',hint:'Volume de mailing diário consolidado por campanha'},
+    {name:'Agentes / dia',a:s.AD.agentMean,b:s.ADA.agentMean,key:'_agents',format:'agents',hint:'Média de logados por dia, sem deduplicação entre campanhas'},
+    {name:'Tentativas',key:'tentativas'},
+    {name:'Atendidas',key:'atendidas'},
+    {name:'CPC',key:'cpc'},
+    {name:'Acordos',key:'acordo',accent:true}
+  ]},
+  {title:'Eficiência & conversão',subtitle:'Rendimento das tentativas e dos contatos',items:[
+    {name:'Spin',key:'spin',hint:'Tentativas ÷ Mailing'},
+    {name:'Hit Rate',key:'hitrate',hint:'Atendidas ÷ Tentativas'},
+    {name:'Taxa CPC',key:'taxaCpc',hint:'CPC ÷ Atendidas'},
+    {name:'Conversão',key:'conversao',accent:true,hint:'Acordos ÷ CPC'},
+    {name:'Eficiência',key:'eficiencia',accent:true,hint:'Acordos ÷ Mailing'}
+  ]},
+  {title:'Produtividade por agente',subtitle:'Resultado para cada agente-dia',items:[
+    {name:'Mailing / agente',key:'mailing',prod:true},
+    {name:'Tentativas / agente',key:'tentativas',prod:true},
+    {name:'Atendidas / agente',key:'atendidas',prod:true},
+    {name:'CPC / agente',key:'cpc',prod:true},
+    {name:'Acordos / agente',key:'acordo',prod:true,accent:true}
+  ]}
  ];
- $('comparisonBody').innerHTML=rows.map(row=>{
-  const a=row.a!==undefined?row.a:(row.prod?s.AD.productivity[row.key]:s.AD.stats[row.key]);
-  const b=row.b!==undefined?row.b:(row.prod?s.ADA.productivity[row.key]:s.ADA.stats[row.key]);
-  const isText=row.format==='text';
-  const name='<td>'+esc(row.name)+'</td>';
-  let ad,ada,ch='—',cls='';
-  if(isText){ad=esc(a);ada=esc(b);}
-  else{
-   ad=row.format==='integer'?nfmt(a):row.format==='agents'?nfmt(a,1):row.prod?nfmt(a,1):fmt(a,row.key);
-   ada=row.format==='integer'?nfmt(b):row.format==='agents'?nfmt(b,1):row.prod?nfmt(b,1):fmt(b,row.key);
-   const d=deltaInfo(a,b,{invert:row.key==='hangup'});
-   ch=d.text;cls=row.neutral?'':d.cls;
-  }
-  return '<tr class="'+(row.group?'row-divider ':'')+(row.accent?'row-accent':'')+'">'+name+'<td>'+ad+'</td><td>'+ada+'</td><td><span class="chg '+cls+'">'+esc(ch)+'</span></td></tr>';
+ $('comparisonBody').innerHTML=groups.map(group=>{
+  const metrics=group.items.map(item=>{
+   const a=item.a!==undefined?item.a:(item.prod?s.AD.productivity[item.key]:s.AD.stats[item.key]);
+   const b=item.b!==undefined?item.b:(item.prod?s.ADA.productivity[item.key]:s.ADA.stats[item.key]);
+   const max=Math.max(0,a,b);
+   const wa=max>0?Math.max(0,Math.min(100,a/max*100)):0;
+   const wb=max>0?Math.max(0,Math.min(100,b/max*100)):0;
+   const out=(val)=>item.format==='integer'?nfmt(val):item.format==='agents'||item.prod?nfmt(val,1):fmt(val,item.key);
+   const d=deltaInfo(a,b,{invert:item.key==='hangup'});
+   const tooltip=esc(item.hint||item.name+' · comparação ADA vs AD');
+   return '<div class="visual-metric '+(item.accent?'visual-accent':'')+'" title="'+tooltip+'">'+
+    '<div class="visual-metric-top"><span class="metric-name">'+esc(item.name)+'</span><span class="metric-change '+d.cls+'">'+d.text+'</span></div>'+
+    '<div class="visual-metric-line"><span class="metric-tech">AD</span><div class="visual-track"><div class="visual-fill ad" style="width:'+wa.toFixed(2)+'%"></div></div><strong class="metric-value ad">'+out(a)+'</strong></div>'+
+    '<div class="visual-metric-line"><span class="metric-tech">ADA</span><div class="visual-track"><div class="visual-fill ada" style="width:'+wb.toFixed(2)+'%"></div></div><strong class="metric-value ada">'+out(b)+'</strong></div>'+
+   '</div>';
+  }).join('');
+  return '<div class="visual-group"><div class="visual-group-head"><strong>'+group.title+'</strong><small>'+group.subtitle+'</small></div><div class="visual-group-content">'+metrics+'</div></div>';
  }).join('');
 }
 function renderFunnel(s){
@@ -389,7 +437,7 @@ function renderEfficiency(s){
 }
 function renderDaily(s){
  const days=[...s.AD.days.map(x=>({...x,tech:'AD'})),...s.ADA.days.map(x=>({...x,tech:'ADA'}))].sort((a,b)=>a.date.localeCompare(b.date)||a.tech.localeCompare(b.tech));
- $('dailyHint').textContent=days.length+' linhas • valores diários reais dos meses selecionados';
+ $('dailyHint').textContent=days.length+' linhas • dias reais dos períodos selecionados';
  $('dailyBody').innerHTML=days.length?days.map(d=>{
   const m=d.values;
   const values=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+d.tech+'</span>',
@@ -413,81 +461,121 @@ function renderCampaigns(s){
  }).join(''):'<tr><td colspan="11">Nenhuma campanha selecionada.</td></tr>';
 }
 function chartVal(item,key){return item?Number(item.values[key]||0):null;}
-function popupInfo(side,entry,dayNumber,key,baseline){
- const date=side.month+'-'+String(dayNumber).padStart(2,'0');
- const value=chartVal(entry,key),hasDay=entry!==undefined;
+function monthlyReference(agent,month,key){
+ // Mês calendário completo da campanha selecionada, independente do recorte de datas.
+ // Portanto selecionar uma semana não altera artificialmente a média mensal do popup.
+ const rows=state.rows.filter(row=>
+  row.agente===agent&&row.data.slice(0,7)===month&&state.selection[agent].has(row.campaign_id)
+ );
+ return averageDaily(dailyRows(rows))[key]||0;
+}
+function popupInfo(side,entry,index,key,ctx){
+ const day=addDays(side.period.start,index-1);
+ const inRange=day<=side.period.end;
+ const month=day.slice(0,7),baseline=inRange?ctx.monthAverage(side.agent,month):0;
+ const hasDay=inRange&&entry!==undefined;
+ const value=hasDay?chartVal(entry,key):null;
  const diff=hasDay&&baseline>0?(value-baseline)/baseline*100:null;
  const direction=diff===null?'':diff>=0?'up':'down';
  const diffText=diff===null?'Sem média válida':(diff>0?'+':'')+nfmt(diff,1)+'% vs média';
- return '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+side.agent.toLowerCase()+'"></i> '+side.agent+' · '+esc(longDate(date))+'</span><b>'+ (hasDay?fmt(value,key,'total'):'Sem registro') +'</b></div>'+
- '<div class="hover-info">Média de '+esc(monthLabel(side.month))+': <strong>'+fmt(baseline,key,'average')+'</strong> · <span class="hover-delta '+direction+'">'+diffText+'</span>'+(hasDay&&value===0?' · dia zerado excluído da média':'')+'</div></div>';
+ return '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+side.agent.toLowerCase()+'"></i> '+side.agent+' · '+esc(inRange?longDate(day):'Fora do período')+'</span><b>'+ (hasDay?fmt(value,key,'total'):(inRange?'Sem registro':'—')) +'</b></div>'+
+ (inRange?'<div class="hover-info">Média de '+esc(monthLabel(month))+': <strong>'+fmt(baseline,key,'average')+'</strong> · <span class="hover-delta '+direction+'">'+diffText+'</span>'+(hasDay&&value===0?' · dia zerado excluído da média':'')+'</div>':'')+'</div>';
 }
-function showPopup(event,day,popupContext){
+function showPopup(event,day,ctx){
  const target=$('chartPopup');
- const title='<div class="hover-title">'+esc(metricLabels[popupContext.key])+' · dia '+String(day).padStart(2,'0')+'</div>';
- target.innerHTML=title+
-  popupInfo(popupContext.AD,popupContext.adByDay.get(day),day,popupContext.key,popupContext.averageAD)+
-  popupInfo(popupContext.ADA,popupContext.adaByDay.get(day),day,popupContext.key,popupContext.averageADA);
+ target.innerHTML='<div class="hover-title">'+esc(metricLabels[ctx.key])+' · '+day+'º dia do período</div>'+
+  popupInfo(ctx.AD,ctx.adByDay.get(day),day,ctx.key,ctx)+
+  popupInfo(ctx.ADA,ctx.adaByDay.get(day),day,ctx.key,ctx);
  target.hidden=false;
  const rect=target.getBoundingClientRect();
  const anchor=event.clientX!==undefined?{x:event.clientX,y:event.clientY}:(event.target.getBoundingClientRect()?{x:event.target.getBoundingClientRect().left,y:event.target.getBoundingClientRect().top}:{x:40,y:230});
  const windowWidth=document.documentElement.clientWidth,windowHeight=document.documentElement.clientHeight;
- const desiredLeft=anchor.x-rect.width/2;
- const left=Math.max(8,Math.min(windowWidth-rect.width-8,desiredLeft));
+ const left=Math.max(8,Math.min(windowWidth-rect.width-8,anchor.x-rect.width/2));
  let top=anchor.y-rect.height-18;
  if(top<8)top=Math.min(windowHeight-rect.height-8,anchor.y+22);
- target.style.left=Math.max(8,left)+'px';target.style.top=Math.max(8,top)+'px';
+ target.style.left=left+'px';target.style.top=Math.max(8,top)+'px';
 }
 function hidePopup(){$('chartPopup').hidden=true;}
 function renderChart(s){
  hidePopup();
  const key=$('chartMetric').value;
- const adByDay=new Map(s.AD.days.map(day=>[Number(day.date.slice(-2)),day]));
- const adaByDay=new Map(s.ADA.days.map(day=>[Number(day.date.slice(-2)),day]));
- const averageAD=s.AD.average[key]||0;
- const averageADA=s.ADA.average[key]||0;
- const chip=(agent,side,v)=>'<div class="month-chip '+(agent==='ADA'?'ada':'')+'"><i class="chip-dot"></i><div><span>'+agent+' · média '+esc(monthLabel(side.month))+'</span><b>'+fmt(v,key,'average')+'</b></div></div>';
- $('chartMonthAverages').innerHTML=chip('AD',s.AD,averageAD)+chip('ADA',s.ADA,averageADA);
- $('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(monthLabel(s.AD.month))+'</span><span><i class="dot ada"></i>ADA · '+esc(monthLabel(s.ADA.month))+'</span><span style="color:#8398b4">⋯ Linhas tracejadas: média do mês, zeros excluídos</span>';
- const dayKeys=[...new Set([...adByDay.keys(),...adaByDay.keys()])].sort((a,b)=>a-b);
- if(dayKeys.length===0){$('chartBox').innerHTML='<p class="empty-state">Nenhum dado para o filtro selecionado.</p>';return;}
- const maxDay=Math.max(7,...dayKeys),W=1050,H=310,padL=62,padR=24,padTop=28,padBottom=43;
+ const idxDay=(side,iso)=>dateNumber(iso)-dateNumber(side.period.start)+1;
+ const adByDay=new Map(s.AD.days.map(day=>[idxDay(s.AD,day.date),day]));
+ const adaByDay=new Map(s.ADA.days.map(day=>[idxDay(s.ADA,day.date),day]));
+ const refCache=new Map();
+ const monthAverage=(agent,month)=>{
+  const cacheKey=agent+'|'+month+'|'+key;
+  if(!refCache.has(cacheKey))refCache.set(cacheKey,monthlyReference(agent,month,key));
+  return refCache.get(cacheKey);
+ };
+ const chip=(agent,side)=>'<div class="month-chip '+(agent==='ADA'?'ada':'')+'"><i class="chip-dot"></i><div><span>'+agent+' · média diária do período</span><b>'+fmt(side.average[key],key,'average')+'</b></div></div>';
+ $('chartMonthAverages').innerHTML=chip('AD',s.AD)+chip('ADA',s.ADA);
+ $('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(rangeLabel(s.AD.period))+'</span><span><i class="dot ada"></i>ADA · '+esc(rangeLabel(s.ADA.period))+'</span><span style="color:#8398b4">⋯ Tracejado: média do mês calendário</span>';
+ const maxSpan=Math.max(periodLength(s.AD.period),periodLength(s.ADA.period));
+ if(!s.AD.days.length&&!s.ADA.days.length){
+  $('chartBox').innerHTML='<p class="empty-state">Nenhum dado nas campanhas e datas selecionadas.</p>';return;
+ }
+ const maxDay=Math.max(2,maxSpan),W=1050,H=310,padL=64,padR=24,padTop=28,padBottom=43;
  const iw=W-padL-padR,ih=H-padTop-padBottom;
- const vals=[averageAD,averageADA,...s.AD.days.map(d=>d.values[key]),...s.ADA.days.map(d=>d.values[key])].filter(x=>Number.isFinite(x));
+ const monthSpans=[];
+ for(const side of [s.AD,s.ADA]){
+  const days=periodLength(side.period);
+  let segment=null;
+  for(let day=1;day<=days;day++){
+   const month=addDays(side.period.start,day-1).slice(0,7);
+   const baseline=monthAverage(side.agent,month);
+   if(!segment||segment.month!==month){
+    segment={agent:side.agent,start:day,end:day,month,baseline};
+    monthSpans.push(segment);
+   }else segment.end=day;
+  }
+ }
+ const vals=[...s.AD.days.map(d=>d.values[key]),...s.ADA.days.map(d=>d.values[key]),...monthSpans.map(x=>x.baseline)].filter(v=>Number.isFinite(v));
  const max=Math.max(1,...vals)*1.12;
  const x=d=>padL+(d-1)/(maxDay-1)*iw;
  const y=v=>padTop+ih-Math.max(0,v)/max*ih;
- const faxis=v=>isPct(key)?nfmt(v,1)+'%':v>=1000000?nfmt(v/1000000,1)+'mi':v>=1000?nfmt(v/1000,1)+'k':nfmt(v);
- let svg='<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfico comparativo '+esc(metricLabels[key])+' AD '+esc(monthLabel(s.AD.month))+' e ADA '+esc(monthLabel(s.ADA.month))+'">';
- for(let tick=0;tick<=4;tick++){const n=max*tick/4,yy=y(n);svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#29415f" stroke-dasharray="3 5"/><text x="'+(padL-9)+'" y="'+(yy+4)+'" fill="#8fa4c4" font-size="11" text-anchor="end">'+faxis(n)+'</text>';}
- for(let d=1;d<=maxDay;d+=maxDay>19?5:2){svg+='<text x="'+x(d)+'" y="'+(H-13)+'" fill="#819ab9" font-size="11" text-anchor="middle">'+String(d).padStart(2,'0')+'</text>';}
- svg+='<text x="'+(W-padR)+'" y="'+(H-12)+'" fill="#819ab9" font-size="10" text-anchor="end">Dia do mês</text>';
- const lines=[{agent:'AD',color:'#529cfb',data:adByDay,avg:averageAD},{agent:'ADA',color:'#fb6b3d',data:adaByDay,avg:averageADA}];
- for(const line of lines){
-  if(line.avg>0){const yy=y(line.avg);svg+='<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+line.color+'" stroke-width="1.2" stroke-dasharray="7 7" opacity=".65"/>';}
-  let path='',draw=false;
-  for(let d=1;d<=maxDay;d++){
-   if(!line.data.has(d)){draw=false;continue;}
-   const value=chartVal(line.data.get(d),key);
-   path+=(draw?'L':'M')+x(d).toFixed(2)+' '+y(value).toFixed(2)+' ';
-   draw=true;
+ const faxis=v=>isPct(key)?nfmt(v,1)+'%':v>=1000000?nfmt(v/1000000,1)+' mi':v>=1000?nfmt(v/1000,1)+' mil':nfmt(v);
+ let svg='<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolução diária alinhada pelo dia relativo de cada período">';
+ for(let i=0;i<=4;i++){
+  const v=max*i/4,yy=y(v);
+  svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#29415f" stroke-dasharray="3 5"/><text x="'+(padL-9)+'" y="'+(yy+4)+'" fill="#8fa4c4" font-size="11" text-anchor="end">'+faxis(v)+'</text>';
+ }
+ const interval=maxDay>45?10:maxDay>23?5:maxDay>11?3:1;
+ for(let day=1;day<=maxDay;day+=interval){
+  svg+='<text x="'+x(day)+'" y="'+(H-13)+'" fill="#849cbb" font-size="11" text-anchor="middle">'+day+'</text>';
+ }
+ svg+='<text x="'+(W-padR)+'" y="'+(H-12)+'" fill="#819ab9" font-size="10" text-anchor="end">Dia do período</text>';
+ for(const segment of monthSpans){
+  if(segment.baseline<=0)continue;
+  const color=segment.agent==='AD'?'#529cfb':'#fb6b3d',yy=y(segment.baseline);
+  svg+='<line x1="'+x(segment.start)+'" x2="'+x(segment.end)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="1.4" stroke-dasharray="7 7" opacity=".68"/>';
+ }
+ const series=[{agent:'AD',color:'#529cfb',data:adByDay},{agent:'ADA',color:'#fb6b3d',data:adaByDay}];
+ for(const line of series){
+  let path='',drawing=false;
+  for(let day=1;day<=maxDay;day++){
+   if(!line.data.has(day)){drawing=false;continue;}
+   const value=chartVal(line.data.get(day),key);
+   path+=(drawing?'L':'M')+x(day).toFixed(2)+' '+y(value).toFixed(2)+' ';
+   drawing=true;
   }
   svg+='<path d="'+path+'" fill="none" stroke="'+line.color+'" stroke-width="3.1" stroke-linejoin="round" stroke-linecap="round"/>';
-  for(const [d,item] of line.data.entries()){
-   const value=chartVal(item,key),xx=x(d),yy=y(value);
-   svg+='<circle class="plot-point" data-day="'+d+'" data-tech="'+line.agent+'" cx="'+xx+'" cy="'+yy+'" r="4.6" fill="'+line.color+'" stroke="#07162f" stroke-width="2" tabindex="0" role="button" aria-label="'+esc(line.agent+' dia '+d+': '+fmt(value,key,'total'))+'"><title>'+esc(line.agent+' dia '+d+' • '+fmt(value,key,'total'))+'</title></circle>';
+  for(const [day,item] of line.data.entries()){
+   const value=chartVal(item,key),xx=x(day),yy=y(value);
+   svg+='<circle class="plot-point" data-day="'+day+'" data-tech="'+line.agent+'" cx="'+xx+'" cy="'+yy+'" r="4.6" fill="'+line.color+'" stroke="#07162f" stroke-width="2" tabindex="0" role="button" aria-label="'+esc(line.agent+' '+longDate(item.date)+': '+fmt(value,key,'total'))+'"><title>'+esc(line.agent+' '+longDate(item.date)+' • '+fmt(value,key,'total'))+'</title></circle>';
   }
  }
- svg+='</svg>';$('chartBox').innerHTML=svg;
- const ctx={AD:s.AD,ADA:s.ADA,adByDay,adaByDay,averageAD,averageADA,key};
+ svg+='</svg>';
+ $('chartBox').innerHTML=svg;
+ const ctx={AD:s.AD,ADA:s.ADA,adByDay,adaByDay,monthAverage,key};
  $('chartBox').querySelectorAll('.plot-point').forEach(circle=>{
-  const d=Number(circle.dataset.day);
-  circle.addEventListener('pointerenter',e=>showPopup(e,d,ctx));
-  circle.addEventListener('pointermove',e=>showPopup(e,d,ctx));
+  const day=Number(circle.dataset.day);
+  circle.addEventListener('pointerenter',e=>showPopup(e,day,ctx));
+  circle.addEventListener('pointermove',e=>showPopup(e,day,ctx));
   circle.addEventListener('pointerleave',hidePopup);
-  circle.addEventListener('focus',e=>{const rect=circle.getBoundingClientRect();showPopup({clientX:rect.left+rect.width/2,clientY:rect.top},d,ctx)});
+  circle.addEventListener('focus',()=>{const rect=circle.getBoundingClientRect();showPopup({clientX:rect.left+rect.width/2,clientY:rect.top},day,ctx)});
   circle.addEventListener('blur',hidePopup);
-  circle.addEventListener('click',e=>showPopup(e,d,ctx));
+  circle.addEventListener('click',e=>showPopup(e,day,ctx));
  });
 }
 function render(){
@@ -509,12 +597,24 @@ function downloadCSV(){
  for(const row of rows)lines.push(fields.map(k=>'"'+String(row[k]??'').replace(/"/g,'""')+'"').join(';'));
  const file=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
  const url=URL.createObjectURL(file),a=document.createElement('a');
- a.href=url;a.download='energisa_ad_'+state.months.AD+'_ada_'+state.months.ADA+'.csv';
+ a.href=url;a.download='energisa_ad_'+state.periods.AD.start+'_'+state.periods.AD.end+'_ada_'+state.periods.ADA.start+'_'+state.periods.ADA.end+'.csv';
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 function bind(){
- $('monthAD').addEventListener('change',event=>{state.months.AD=event.target.value;render()});
- $('monthADA').addEventListener('change',event=>{state.months.ADA=event.target.value;render()});
+ for(const agent of ['AD','ADA']){
+  for(const prefix of ['start','end']){
+   $(prefix+agent).addEventListener('change',event=>{
+    const period=state.periods[agent];
+    period[prefix]=event.target.value;
+    if(!period[prefix]){period[prefix]=prefix==='start'?period.end:period.start;event.target.value=period[prefix];}
+    if(period.start>period.end){
+     if(prefix==='start'){period.end=period.start;$('end'+agent).value=period.end;}
+     else{period.start=period.end;$('start'+agent).value=period.start;}
+    }
+    render();
+   });
+  }
+ }
  $('btnTotal').addEventListener('click',()=>displayMode('total'));
  $('btnAverage').addEventListener('click',()=>displayMode('average'));
  $('chartMetric').addEventListener('change',render);
@@ -523,8 +623,7 @@ function bind(){
  $('resetBtn').addEventListener('click',()=>{buildFilters();$('chartMetric').value='acordo';displayMode('average')});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePopup()});
  document.addEventListener('click',e=>{
-  // Fecha os seletores ao clicar fora. Checkboxes e botões internos permanecem disponíveis.
-  for(const id of ['adPicker','adaPicker']){const el=$(id);if(el.open&&!el.contains(e.target))el.open=false;}
+  for(const id of ['adPicker','adaPicker']){const picker=$(id);if(picker.open&&!picker.contains(e.target))picker.open=false;}
  });
 }
 async function start(){
