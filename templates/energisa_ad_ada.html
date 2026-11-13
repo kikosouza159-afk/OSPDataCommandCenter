@@ -93,6 +93,64 @@
 @media(max-width:1050px){.visual-metric-groups{grid-template-columns:1fr}.visual-group:last-child{grid-column:auto}.visual-group:last-child .visual-group-content{grid-template-columns:1fr}}
 @media(max-width:720px){.source-fields{grid-template-columns:1fr 1fr!important}.source-fields .field:last-child{grid-column:1/-1}.visual-metric-groups{padding:10px}.visual-matrix-heading{padding:14px}.visual-legend>div{max-width:100%}}
 @media(max-width:380px){.source-fields{grid-template-columns:1fr!important}}
+
+/* Layout AssistPay-inspired: summary strip, dual funnel + comparison table */
+.assist-highlight{color:#fb5c28}.assist-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.assist-kpis .assist-kpi{position:relative;min-width:0;min-height:135px;padding:18px 14px 14px 15px;border:1px solid #01b9e7;border-radius:13px;background:linear-gradient(148deg,#05182f,#030d22 83%);box-shadow:0 0 0 1px #0f53744a,0 4px 23px #0000001f;overflow:hidden}
+.assist-kpi:before{content:"";position:absolute;inset:0 auto auto 0;width:25px;height:3px;background:#11c8f7;box-shadow:0 0 16px #11c8f7}
+.assist-kpi:after{content:"";position:absolute;right:-2px;bottom:-2px;width:29px;height:3px;background:#11c8f7;box-shadow:0 0 15px #11c8f7}
+.assist-kpi-icon{width:39px;height:39px;display:grid;place-items:center;border:1px solid #ed6b366e;background:#15152d;border-radius:10px;color:#fb6933;flex:none}
+.assist-kpi-icon.cyan{border-color:#01a7c872;background:#092741;color:#20c5ef}.assist-kpi-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.assist-kpi-head{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.assist-kpi-head>div:last-child{min-width:0}.assist-kpi-name{color:#b6c9e2;font-size:11px;font-weight:750}
+.assist-kpi-values{font-size:16px;font-weight:850;letter-spacing:-.4px;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.assist-kpi-delta{margin:12px 0 0 0;font-size:21px;font-weight:950;line-height:1.05;font-variant-numeric:tabular-nums}
+.assist-kpi-delta.positive{color:#42e0a8}.assist-kpi-delta.negative{color:#ff666e}.assist-kpi-delta.neutral{color:#b9c9dc}
+.assist-kpi-bars{position:absolute;right:13px;bottom:13px;height:33px;display:flex;align-items:flex-end;gap:4px;opacity:.55}
+.assist-kpi-bars i{width:5px;display:block;border-radius:2px 2px 0 0;background:linear-gradient(#05cbfa,#005693)}
+.assist-kpi-bars i:nth-child(1){height:24%}.assist-kpi-bars i:nth-child(2){height:45%}.assist-kpi-bars i:nth-child(3){height:62%}.assist-kpi-bars i:nth-child(4){height:87%}.assist-kpi-bars i:nth-child(5){height:100%}
+.assist-grid-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:20px 1px 12px}
+.assist-grid-intro h2{font-size:16px;font-weight:850;margin:0 0 5px}.assist-grid-intro p{font-size:11px;color:#91a8c6;margin:0}
+.assist-legend{display:flex;align-items:center;gap:13px;flex-wrap:wrap;color:#a9c5e2;font-size:10px}.assist-legend-dot{display:inline-block;height:8px;width:8px;border-radius:50%;margin-right:4px}.assist-legend-dot.human{background:#1b93f7}.assist-legend-dot.digital{background:#fb5c28}
+.assist-layout{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,1.03fr) minmax(0,1.1fr);align-items:stretch;gap:13px;margin-bottom:23px}
+.assist-panel{min-width:0;border:1px solid #02b5e8;background:linear-gradient(180deg,#06192f,#07142a 90%);border-radius:13px;padding:14px 12px 12px;overflow:hidden;box-shadow:0 7px 26px #0003}
+.assist-panel-title{min-height:42px;display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.assist-panel-title h3{color:#f5f8ff;font-size:15px;letter-spacing:-.2px;margin:0}.assist-panel-title h3 b{color:#fb6739}
+.assist-panel-title p{margin:4px 0 0;font-size:10px;color:#96b0cc}
+.assist-panel-title>div{min-width:0}.assist-panel-icon{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:8px;color:#fa753f;border:1px solid #fb5c2870;background:#331c27;font-size:21px}.assist-panel-icon.assist-icon-cyan{border-color:#03a6d4;color:#08c8ec;background:#06304a}
+.assist-days{margin-left:auto;border:1px solid #264c75;border-radius:20px;padding:6px 8px;color:#bed8f0;font-size:9px;white-space:nowrap}
+.assist-funnel-columns{display:grid;grid-template-columns:minmax(0,1fr) 87px;gap:10px}.assist-funnel-steps{display:flex;flex-direction:column;align-items:stretch;min-width:0}
+.assist-funnel-stage{height:62px;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto;width:var(--funnel-width,100%);position:relative;clip-path:polygon(0 0,100% 0,87% 100%,13% 100%);background:#009fe2;padding:2px 13px 3px}
+.assist-funnel-stage:before{content:"";position:absolute;inset:2px;clip-path:polygon(0 0,100% 0,87% 100%,13% 100%);background:linear-gradient(105deg,#104c85,#0761ad 51%,#0f4b7b);z-index:0}
+.assist-funnel-stage>*{position:relative;z-index:1;text-align:center}
+.assist-funnel-stage.orange{background:#ff9a3f;filter:drop-shadow(0 0 4px #fb5c283d)}
+.assist-funnel-stage.orange:before{background:linear-gradient(110deg,#a93417,#d94a1d,#bd3618)}
+.assist-funnel-stage.gray{background:#adc4dc}.assist-funnel-stage.gray:before{background:linear-gradient(110deg,#284466,#3c5270,#2d3f58)}
+.assist-stage-label{font-size:10px;color:#d1eaff;line-height:1.15}.assist-stage-value{font-size:21px;font-weight:950;line-height:1.2;color:#fff;white-space:nowrap}
+.assist-funnel-chevron{text-align:center;color:#03c5eb;line-height:14px;height:14px;font-size:19px;font-weight:900;filter:drop-shadow(0 0 4px #00bfff)}
+.assist-funnel-chevron.orange{color:#ff9158}
+.assist-funnel-deltas{border:1px solid #156c92;background:#04142a;border-radius:9px;padding:10px 6px;display:flex;flex-direction:column;gap:7px}
+.assist-delta-title{font-size:10px;font-weight:850;color:#f4f8ff;text-align:center;line-height:1.3;padding:2px 0 5px}.assist-delta-sub{font-size:9px;color:#85bada;text-align:center;margin:-6px 0 3px}
+.assist-funnel-delta-item{flex:1;min-height:55px;border:1px solid #205277;border-radius:7px;background:#0b2542;padding:9px 5px;display:flex;flex-direction:column;justify-content:center}
+.assist-funnel-delta-item span{font-size:9px;color:#b6d0e8}.assist-funnel-delta-item strong{margin-top:5px;font-size:14px;white-space:nowrap;color:#f9c3ab}
+.assist-funnel-delta-item strong.up{color:#54e5ad}.assist-funnel-delta-item strong.down{color:#ff656d}.assist-funnel-delta-item strong.na{color:#9eb3cb}
+.assist-funnel-foot{font-size:9px;color:#b6c9e0;margin-top:12px;border:1px solid #154866;background:#041f38;padding:11px 12px;border-radius:8px;line-height:1.5;min-height:57px}
+.assist-panel-table{border-color:#0299c6}.assist-panel-table .assist-panel-title{margin-bottom:12px}
+.assist-matrix-scroll{overflow-x:auto}.assist-matrix{width:100%;border-collapse:collapse;min-width:325px;font-size:10px}
+.assist-matrix th{background:#113857;color:#edf7ff;font-size:10px;padding:10px 7px;text-align:right;white-space:nowrap;border-bottom:1px solid #265879}
+.assist-matrix th:first-child{text-align:left}.assist-matrix th small{display:block;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#94b7d2;font-size:9px;font-weight:500;margin-top:4px}
+.assist-matrix th:nth-child(2){background:#17446f}.assist-matrix th:nth-child(3){background:#19435e}
+.assist-matrix td{padding:10px 7px;border-bottom:1px solid #23435d;text-align:right;white-space:nowrap;font-size:10px;font-variant-numeric:tabular-nums}
+.assist-matrix tr:nth-child(even){background:#ffffff05}.assist-matrix tr:hover{background:#1f3d56}
+.assist-matrix td:first-child{text-align:left;color:#d3e2f2}.assist-matrix td:nth-child(2){color:#d8e8ff}.assist-matrix td:nth-child(3){color:#ffd0bb}
+.assist-matrix tr.assist-section-row td{font-weight:900;font-size:10px;text-transform:uppercase;letter-spacing:.55px;background:#0b2745;color:#83cced;padding:10px 7px}
+.assist-cell-delta{font-weight:850;color:#abc1d6}.assist-cell-delta.pos{color:#61e8ab}.assist-cell-delta.neg{color:#ff6f77}.assist-cell-delta.na{color:#94a6bd}
+.assist-table-foot{color:#98b1cb;font-size:9px;padding:11px 2px;line-height:1.6}
+@media(min-width:1600px){.assist-kpi-head{gap:12px}.assist-kpi-values{font-size:19px}.assist-panel-title h3{font-size:17px}.assist-funnel-stage{height:69px}.assist-stage-value{font-size:23px}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 99px}.assist-matrix td{padding:12px 8px;font-size:11px}}
+@media(max-width:1350px){.assist-layout{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-panel-table{grid-column:1/-1}.assist-matrix{font-size:12px}.assist-matrix td{font-size:12px}.assist-kpis .assist-kpi{padding:14px 9px}.assist-kpi-values{font-size:14px}}
+@media(max-width:1050px){.assist-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.assist-layout{grid-template-columns:1fr 1fr}.assist-panel-title h3{font-size:14px}}
+@media(max-width:740px){.assist-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-layout{grid-template-columns:1fr}.assist-panel-table{grid-column:auto}.assist-grid-intro{align-items:flex-start;flex-direction:column}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 105px}.assist-funnel-stage{height:69px}.assist-kpi-values{font-size:17px}}
+@media(max-width:420px){.assist-kpis{grid-template-columns:1fr}.assist-kpi-values{font-size:20px}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 85px}.assist-stage-value{font-size:17px}.assist-matrix td,.assist-matrix th{font-size:10px;padding:9px 5px}}
 </style>
 </head>
 <body>
@@ -143,24 +201,53 @@
 <div class="tabs"><button class="tab active">▦ Comparativo executivo</button><button class="tab" disabled title="A base fornecida não possui hora">◷ Hora a hora · em breve</button><button class="export right" id="exportBtn">↓ Exportar CSV</button></div>
 
 <div class="benchmark-title">
-  <div><div class="eyebrow">PERFORMANCE E PRODUTIVIDADE</div><h2>Comparativo lado a lado</h2><p>Volumes, produtividade por agente e ganhos de eficiência entre AD e ADA.</p></div>
+  <div><div class="eyebrow">ASSISTPAY STYLE · COMPARATIVO AD × ADA</div><h2>Performance executiva <span class="assist-highlight">Energisa</span></h2><p>Visão consolidada por tecnologia, com períodos independentes e variações ADA em relação ao AD.</p></div>
   <div class="benchmark-coverage" id="benchmarkCoverage"></div>
 </div>
-<div class="kpis" id="kpis"></div>
+<div class="kpis assist-kpis" id="kpis"></div>
 
-<div class="section-label"><h2>Indicadores em perspectiva</h2><span id="kpiDescription">Médias diárias sem zeros</span></div>
-<section class="panel benchmark-panel">
-  <div class="visual-matrix-heading">
-    <div><strong>Comparativo de indicadores</strong><p>Barras proporcionais entre AD e ADA. O delta mostra a variação do ADA sobre o AD.</p></div>
-    <div class="visual-legend"><div><span class="visual-dot ad"></span> <span id="comparisonADLabel">Campanha AD</span></div><div><span class="visual-dot ada"></span> <span id="comparisonADALabel">Campanha ADA</span></div></div>
+<div class="assist-grid-intro">
+  <div><h2>Funis de performance e comparação</h2><p>Etapas operacionais por tecnologia e visão comparativa dos indicadores</p></div>
+  <div class="assist-legend"><span><i class="assist-legend-dot human"></i> AD · humano</span><span><i class="assist-legend-dot digital"></i> ADA · IA</span></div>
+</div>
+<div class="assist-layout">
+ <section class="panel assist-panel assist-panel-ad">
+  <header class="assist-panel-title">
+   <span class="assist-panel-icon" aria-hidden="true">▦</span>
+   <div><h3>Funil <b>AD</b></h3><p id="funnelPeriodAD">Período AD</p></div>
+   <span class="assist-days" id="funnelDaysAD">0 dias com dados</span>
+  </header>
+  <div class="assist-funnel-columns">
+   <div class="assist-funnel-steps" id="funnelAD"></div>
+   <aside class="assist-funnel-deltas" id="funnelDeltasAD"></aside>
   </div>
-  <div id="comparisonBody" class="visual-metric-groups"></div>
-</section>
-
-<div class="section-label"><h2>Eficiência operacional</h2><span>Variação do ADA em relação ao AD</span></div>
-<div class="split">
-  <section class="panel funnel"><div class="subpanel-head"><strong>Funil comparativo</strong><span>Volume por etapa</span></div><div id="funnel"></div></section>
-  <section class="panel"><div class="efficiency"><div id="efficiency" style="display:contents"></div></div></section>
+  <div class="assist-funnel-foot">Mailing exibido como média diária dos dias com valor positivo. Demais volumes seguem o modo Total / Média dia selecionado.</div>
+ </section>
+ <section class="panel assist-panel assist-panel-ada">
+  <header class="assist-panel-title">
+   <span class="assist-panel-icon" aria-hidden="true">▦</span>
+   <div><h3>Funil <b>ADA</b></h3><p id="funnelPeriodADA">Período ADA</p></div>
+   <span class="assist-days" id="funnelDaysADA">0 dias com dados</span>
+  </header>
+  <div class="assist-funnel-columns">
+   <div class="assist-funnel-steps" id="funnelADA"></div>
+   <aside class="assist-funnel-deltas" id="funnelDeltasADA"></aside>
+  </div>
+  <div class="assist-funnel-foot">Indicadores e taxas são calculados pelos registros filtrados. Pagamento fica N/D até existir essa informação.</div>
+ </section>
+ <section class="panel assist-panel assist-panel-table">
+  <header class="assist-panel-title">
+   <span class="assist-panel-icon assist-icon-cyan" aria-hidden="true">▥</span>
+   <div><h3>Visão comparativa <b>dos indicadores</b></h3><p>Variação ADA × AD</p></div>
+  </header>
+  <div class="assist-matrix-scroll">
+   <table class="assist-matrix">
+    <thead><tr><th>Indicador</th><th>AD <small id="comparisonADLabel"></small></th><th>ADA <small id="comparisonADALabel"></small></th><th>Variação</th></tr></thead>
+    <tbody id="comparisonBody"></tbody>
+   </table>
+  </div>
+  <div class="assist-table-foot">Taxas calculadas pelos volumes consolidados ou pelas médias sem zeros; variação em relação ao AD.</div>
+ </section>
 </div>
 
 <section class="panel chart-panel">
