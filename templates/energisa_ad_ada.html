@@ -498,6 +498,14 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 .daily-summary-cards.single-campaign-summary .daily-value{font-variant-numeric:tabular-nums}
 @media(max-width:1000px){.daily-chart-panel .chart-head .daily-graph-toolbar{flex:1 1 auto}}
 @media(max-width:740px){.daily-quick-title{width:100%;margin:0 0 2px}.daily-quick-group{align-items:flex-start}}
+
+/* Energisa: VoiceMail é contato válido e compõe CPC.
+   O crescimento do volume / participação de VoiceMail é um resultado positivo.
+   Manter contagens independentes para não duplicar contatos já presentes no CPC. */
+.assist-kpi[data-chart-key="voicemail"] .assist-kpi-delta.positive{color:#52e0ae}
+.assist-matrix tr[data-chart-key="voicemail"] .assist-cell-delta.pos,
+.assist-matrix tr[data-chart-key="taxaVoiceMailAtendidas"] .assist-cell-delta.pos,
+.assist-matrix tr[data-chart-key="taxaVoiceMailCpc"] .assist-cell-delta.pos{color:#52e0ae}
 </style>
 </head>
 <body>
@@ -591,7 +599,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 
 <div class="assist-grid-intro" id="funnelsSection">
   <div><h2>Funis de performance e comparação</h2><p>Etapas operacionais por tecnologia e visão comparativa dos indicadores</p></div>
-  <div class="assist-legend"><span><i class="assist-legend-dot human"></i> AD · humano</span><span><i class="assist-legend-dot digital"></i> ADA · IA</span><span class="assist-note">VoiceMail é uma classificação, não uma conversão sequencial.</span></div>
+  <div class="assist-legend"><span><i class="assist-legend-dot human"></i> AD · humano</span><span><i class="assist-legend-dot digital"></i> ADA · IA</span><span class="assist-note">VoiceMail conta como CPC na Energisa: aumento do indicador é favorável.</span></div>
 </div>
 <div class="assist-layout">
  <section class="panel assist-panel assist-panel-ad">
@@ -608,7 +616,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
   </div>
   <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesAD"></div></div>
   <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVAD"></div></div>
-  <div class="assist-funnel-foot">Mailing em média diária sem zeros. VoiceMail é uma classificação operacional, não uma etapa de conversão de CPC. Os demais volumes seguem Total / Média dia.</div>
+  <div class="assist-funnel-foot">Mailing em média diária sem zeros. VoiceMail conta como CPC na Energisa: aumento aparece em verde. É uma classificação, não uma conversão sequencial nem volume para somar novamente ao CPC. Demais volumes seguem Total / Média dia.</div>
  </section>
  <section class="panel assist-panel assist-panel-ada">
   <header class="assist-panel-title">
@@ -624,7 +632,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
   </div>
   <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesADA"></div></div>
   <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVADA"></div></div>
-  <div class="assist-funnel-foot">Dados da campanha e período selecionados. VoiceMail é uma classificação operacional. Taxas e produtividade por AGV aparecem abaixo do funil.</div>
+  <div class="assist-funnel-foot">Dados da campanha e período selecionados. VoiceMail conta como CPC: crescimento é positivo e aparece em verde. Taxas e produtividade por AGV aparecem abaixo do funil.</div>
  </section>
  <section class="panel assist-panel assist-panel-table">
   <header class="assist-panel-title">
@@ -941,14 +949,14 @@ function renderKpis(s){
   {key:'eficiencia',label:'Eficiência',icon:'eficiencia',info:'Acordos ÷ Mailing × 100'},
   {key:'atendidas',label:'Atendidas',icon:'atendidas',info:'Chamadas atendidas'},
   {key:'cpc',label:'CPC',icon:'cpc',info:'Contatos com a pessoa certa'},
-  {key:'voicemail',label:'VoiceMail',icon:'voicemail',info:'Classificação VoiceMail, menor volume pode ser favorável'},
+  {key:'voicemail',label:'VoiceMail',icon:'voicemail',info:'Na Energisa, VoiceMail é um contato válido contabilizado como CPC: aumento é positivo.'},
   {key:'agentes',label:'Agentes / dia',icon:'agentes',info:'Média diária de agentes logados'}
  ];
  $('kpis').innerHTML=cards.map((card,index)=>{
   const key=card.key==='agentes'?'logados':card.key;
   const a=card.key==='agentes'?s.AD.agentMean:s.AD.stats[key];
   const b=card.key==='agentes'?s.ADA.agentMean:s.ADA.stats[key];
-  const d=deltaInfo(a,b,{invert:card.key==='voicemail'});
+  const d=deltaInfo(a,b);
   const display=v=>card.key==='eficiencia'?nfmt(v,2)+'%':nfmt(v);
   const arrow=d.value>0?'↗':d.value<0?'↘':'•';
   return '<button type="button" class="assist-kpi" data-chart-key="'+key+'" title="'+esc(card.info)+' · Abrir tendência diária" aria-label="'+esc(card.label)+' AD '+display(a)+' e ADA '+display(b)+'; variação '+d.text+'; abrir gráfico">'+
@@ -1015,7 +1023,7 @@ function renderMatrix(s){
  $('comparisonBody').innerHTML=rows.map(row=>{
   if(row.group)return '<tr class="assist-section-row"><td colspan="4">'+esc(row.group)+'</td></tr>';
   const a=rowData(row,s.AD),b=rowData(row,s.ADA);
-  const d=row.noDelta?null:deltaInfo(a,b,{invert:['voicemail','taxaVoiceMailAtendidas','taxaVoiceMailCpc'].includes(row.key)});
+  const d=row.noDelta?null:deltaInfo(a,b);
   const css=d?(d.cls==='pos'?'pos':d.cls==='neg'?'neg':''):'na';
   const change=d?(d.value>0?'↑ ':d.value<0?'↓ ':'• ')+d.text:'—';
   const cls=row.highlight?'assist-row-highlight':'';
@@ -1053,7 +1061,7 @@ function renderFunnel(s){
    const value=stage.averageMailing?side.average.mailing:side.stats[stage.key];
    const widths=[100,96,92,88,84,80];
    const formatted=nfmt(value);
-   const help=stage.key==='voicemail'?'Classificação de atendimento, não uma conversão de CPC.':'Volume do indicador selecionado.';
+   const help=stage.key==='voicemail'?'VoiceMail é uma classificação válida que conta como CPC para a Energisa. Aumento é favorável; não some novamente ao CPC.':'Volume do indicador selecionado.';
    return '<button type="button" class="assist-funnel-stage '+stage.style+(stage.key==='voicemail'?' classificador':'')+'" data-chart-key="'+stage.key+'" style="--funnel-width:'+widths[i]+'%" title="'+esc(help)+' Abrir tendência.">'+
     '<span class="assist-stage-label">'+esc(stage.label)+(stage.key==='voicemail'?'<small class="stage-subtype">classificação</small>':'')+'</span><strong class="assist-stage-value">'+formatted+'</strong></button>'+
     (i<stages.length-1?'<div class="assist-funnel-chevron '+(i>=3?'classify-link ':'')+(i===4?'orange':'')+'" aria-hidden="true">'+(i>=3?'⋮':'⌄')+'</div>':'');
@@ -1063,7 +1071,6 @@ function renderFunnel(s){
     const a=stage.averageMailing?s.AD.average.mailing:s.AD.stats[stage.key];
     const b=stage.averageMailing?s.ADA.average.mailing:s.ADA.stats[stage.key];
     const change=changeDisplay(a,b);
-    if(stage.key==='voicemail')change.className=change.className==='positive'?'negative':change.className==='negative'?'positive':'neutral';
     const cls=change.className==='positive'?'up':change.className==='negative'?'down':'na';
     return '<div class="assist-funnel-delta-item"><span>'+esc(stage.label)+'</span><strong class="'+cls+'">'+change.mark+' '+change.text+'</strong></div>';
    }).join('');
