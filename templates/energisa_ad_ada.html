@@ -1332,6 +1332,7 @@ function render(){
  renderDaily(comparison);
  renderCampaigns(comparison);
  updatePresetUI();
+ if(state.activeView==='daily')renderDailyExplorer(comparison);
 }
 function downloadCSV(){
  const rows=[...chosenRows('AD'),...chosenRows('ADA')];
@@ -1410,6 +1411,23 @@ function bind(){
    });
   }
  }
+ $('tabComparison').addEventListener('click',()=>switchView('comparison'));
+ $('tabDaily').addEventListener('click',()=>switchView('daily'));
+ $('sidebarToggle').addEventListener('click',()=>setSidebarCollapsed(!document.body.classList.contains('sidebar-collapsed')));
+ try{setSidebarCollapsed(localStorage.getItem('energisa.sidebarCollapsed')==='1')}catch(_){setSidebarCollapsed(false)}
+ $('chartMetricDaily').addEventListener('change',()=>renderDailyChart({AD:calcSide('AD'),ADA:calcSide('ADA')}));
+ $('heatmapGroup').addEventListener('change',()=>{
+  state.heatmapGroup=$('heatmapGroup').value;
+  renderHeatmaps({AD:calcSide('AD'),ADA:calcSide('ADA')});
+ });
+ document.querySelectorAll('[data-daily-metric]').forEach(btn=>btn.addEventListener('click',()=>selectDailyMetric(btn.dataset.dailyMetric)));
+ for(const agent of ['AD','ADA']){
+  const area=$('heatmap'+agent);
+  area.addEventListener('click',event=>showHeatmapDetails(event.target.closest('button[data-heat-key]'),true));
+  area.addEventListener('pointerover',event=>showHeatmapDetails(event.target.closest('button[data-heat-key]'),false));
+  area.addEventListener('focusin',event=>showHeatmapDetails(event.target.closest('button[data-heat-key]'),false));
+ }
+ document.querySelectorAll('.jump-nav__link').forEach(link=>link.addEventListener('click',()=>{if(state.activeView==='daily')switchView('comparison')}));
  $('btnTotal').addEventListener('click',()=>displayMode('total'));
  $('btnAverage').addEventListener('click',()=>displayMode('average'));
  $('chartMetric').addEventListener('change',()=>renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')}));
