@@ -185,7 +185,7 @@ function enrich(data){
   taxaCpc:rate(data.cpc,data.atendidas),
   conversao:rate(data.acordo,data.cpc),
   taxaHangup:rate(data.hangup,data.atendidas),
-  eficiencia:rate(data.acordo,data.tentativas),
+  eficiencia:rate(data.acordo,data.mailing),
   acordoLogado:data.logados>0?data.acordo/data.logados:0
  };
 }
@@ -207,11 +207,13 @@ function dailyRows(rows){
 }
 function nonzeroMean(items){const valid=items.filter(v=>Number.isFinite(v)&&v>0);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0;}
 function averageDaily(days){
+ // Média por indicador de volume: desconsidera dias zerados.
+ // Taxas são calculadas dos volumes médios, conforme benchmark executivo.
  const out={...blank()};
- for(const key of [...volumeKeys,...derivedKeys]){
+ for(const key of volumeKeys){
   out[key]=nonzeroMean(days.map(day=>day.values[key]));
  }
- return out;
+ return enrich(out);
 }
 function monthLabel(month){
  if(!month)return 'Sem mês';
@@ -338,7 +340,7 @@ function renderMatrix(s){
   {name:'Hit Rate',key:'hitrate'},
   {name:'Taxa CPC',key:'taxaCpc'},
   {name:'Conversão (Acordo / CPC)',key:'conversao',accent:true},
-  {name:'Eficiência (Acordos / Tentativas)',key:'eficiencia',accent:true},
+  {name:'Eficiência (Acordos / Mailing)',key:'eficiencia',accent:true},
   {name:'Mailing / Agente',key:'mailing',prod:true,group:true},
   {name:'Tentativas / Agente',key:'tentativas',prod:true},
   {name:'Atendidas / Agente',key:'atendidas',prod:true},
@@ -442,8 +444,8 @@ function renderChart(s){
  const key=$('chartMetric').value;
  const adByDay=new Map(s.AD.days.map(day=>[Number(day.date.slice(-2)),day]));
  const adaByDay=new Map(s.ADA.days.map(day=>[Number(day.date.slice(-2)),day]));
- const averageAD=nonzeroMean(s.AD.days.map(day=>day.values[key]));
- const averageADA=nonzeroMean(s.ADA.days.map(day=>day.values[key]));
+ const averageAD=s.AD.average[key]||0;
+ const averageADA=s.ADA.average[key]||0;
  const chip=(agent,side,v)=>'<div class="month-chip '+(agent==='ADA'?'ada':'')+'"><i class="chip-dot"></i><div><span>'+agent+' · média '+esc(monthLabel(side.month))+'</span><b>'+fmt(v,key,'average')+'</b></div></div>';
  $('chartMonthAverages').innerHTML=chip('AD',s.AD,averageAD)+chip('ADA',s.ADA,averageADA);
  $('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(monthLabel(s.AD.month))+'</span><span><i class="dot ada"></i>ADA · '+esc(monthLabel(s.ADA.month))+'</span><span style="color:#8398b4">⋯ Linhas tracejadas: média do mês, zeros excluídos</span>';
