@@ -45,8 +45,14 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - Mailing e Logados: a base diária já possui uma linha por campanha/dia, eliminando repetição de registros horários. O somatório entre campanhas pode contar os mesmos operadores, portanto não é um total de pessoas únicas.
 - Média dia: para **cada indicador** o denominador corresponde somente aos dias com valor > 0. Zeros não entram.
 - Taxas e produtividade: `Spin = tentativas / mailing`, `Hit Rate = atendidas / tentativas`, `Taxa CPC = cpc / atendidas`, `Conversão = acordo / cpc`, `% Hangup = hangup / atendidas`, `Acordos por logado = acordo / logados`.
-- Em Total, taxas calculadas sobre volumes consolidados. Em Média dia, calcula-se cada taxa por dia e depois a média dos dias de taxa positiva (não ponderada).
-- Na evolução e detalhamento diário, pontos e linhas representam dados reais daquele dia, não a média do período.
+- Em Total, taxas calculadas sobre volumes consolidados. Em Média dia, **cada volume tem sua própria média sem zeros**, e as taxas são recalculadas a partir desses volumes médios (conforme benchmark executivo).
+- Na evolução e detalhamento diário, pontos e linhas representam dados reais daquele dia; o gráfico mostra também a média do mês de cada tecnologia, excluindo zeros por indicador.
+- O popup dos pontos do gráfico mostra a data, valor do dia, média mensal do respectivo mês (AD e ADA independentes) e diferença percentual do dia em relação à média. 
+- Fórmula da eficiência: `Eficiência = Acordos / Mailing × 100` (não Acordos / Tentativas).
+- Filtros independentes de mês e campanhas para AD e ADA, permitindo comparativos entre meses diferentes.
+- Padrão inicial de benchmark: campanha AD 11 (setembro/2026) contra campanha ADA 385 (novembro/2026).
+- Matriz AD × ADA com dias trabalhados, indicadores absolutos, taxas, eficiência e produtividade por agente.
+- A seção "Insights executivos" foi removida conforme solicitado; as informações comparativas permanecem nos cards, matriz, funil e gráfico.
 - CSV: exportação da base filtrada com as 11 colunas recebidas.
 
 ## Atualização
