@@ -129,6 +129,18 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - Verificação numérica diretamente no Neon: AD 18 (setembro) Hangup/Atendidas `0,1382%`, Hangup/Discagens `0,0058%`; ADA 383 (novembro) `0,5350%` e `0,0323%`, respectivamente.
 - O deploy do Render não foi verificado diretamente; código publicado no GitHub `main`.
 
+## Visão diária individual por campanha e correção do seletor (13/11/2026)
+- O gráfico da aba **Visão dia a dia** exibe **uma campanha por vez**, sem comparar AD e ADA no mesmo gráfico. O dropdown **Campanha / tecnologia** fica ao lado do seletor de indicador e lista somente as campanhas escolhidas nos filtros gerais (AD e ADA).
+- O gráfico usa a data real dos registros disponíveis para definir o eixo horizontal, evitando espaço vazio de dias sem produção nas pontas. Cores permanecem **AD azul / ADA laranja**; rótulos dos valores aparecem junto aos pontos (amostrados em recortes mais longos para não poluir a leitura).
+- Popup individual: **data**, **nome completo da campanha**, **indicador**, **valor do dia**, **média do mês calendário completo dessa campanha** e **delta percentual**. O cálculo não mistura campanhas diferentes.
+- Médias mensais do gráfico: volumes calculados pela **média de dias com valor positivo**; taxas, conversões, Spin e produtividade por agente calculados pela **razão dos volumes totais mensais**, usando todos os dias do mês mesmo quando o intervalo filtrado for menor.
+- Quatro cards do gráfico agora tratam **apenas da campanha selecionada**: Último dia, Média do mês, Maior valor diário e Dias com registro.
+- Os **22 indicadores** estão disponíveis nos botões rápidos em três grupos (Volumes, Taxas/Conversões e Produtividade/AGV), além do dropdown completo de indicadores. Ambos permanecem sincronizados.
+- **Hotfix de sobreposição visual:** o painel de filtros usa camada superior às abas, com `z-index` explícito, dropdown com camada elevada e regra para `.campaign-picker[open]`. Assim o menu de seleção de campanhas abre por cima de **Comparativo executivo / Visão dia a dia**, sem ficar encoberto.
+- Funis, gráfico comparativo anterior, heatmaps AD e ADA, tabela analítica, permissões e API de dados são preservados sem alteração.
+- Teste em mock DOM com os **2.368 registros reais do Neon** confirmou campanha AD 18 com 6 pontos, ADA 383 com 10 pontos, gráfico com uma única série, 22 filtros rápidos, popup individual e Hangup/Discagens com média de novembro `0,032278...`%, em conformidade com cálculo do banco.
+- Código atualizado na branch `main`. O deploy no Render e a revisão visual no navegador de produção ainda não foram confirmados.
+
 ## Atualização
 Importação inicial de 543 registros de setembro a novembro e atualização histórica posterior para 2.368 registros de janeiro a novembro de 2026. A API consulta o Neon a cada acesso, sem arquivo estático.
 Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
