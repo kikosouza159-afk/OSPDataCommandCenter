@@ -112,6 +112,23 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - **Validação** com 2.368 registros reais do Neon: 6 cards, 6 sparklines, 6 etapas em cada funil, 25 linhas de matriz, popup e gráfico diário, filtro AD de janeiro/2026, atalhos de período, modo Total/Média dia e habilitar/desabilitar as linhas de média, sem erro de JavaScript no teste de renderização.
 - **Deploy**: alterações estão no GitHub `main`; publicação no Render não foi verificada diretamente.
 
+## Nova aba Visão dia a dia e sidebar recolhível (13/11/2026)
+- Criada a aba **Visão dia a dia** ao lado de **Comparativo executivo**, preservando a estrutura executiva da aba existente, o fundo original `background.html`, as permissões e as campanhas/datas independentes AD/ADA.
+- Gráfico AD azul versus ADA laranja com seletor de **22 indicadores** e atalhos para Acordos, CPC, VoiceMail, Hangup/Atendidas e Hangup/Discagens, incluindo popup por ponto e linhas tracejadas das médias do mês.
+- **Heatmap com AD e ADA separados**, com cada indicador em uma linha e todos os dias do período nas colunas. Os cabeçalhos agrupam os dias por mês; dias sem dados aparecem explicitamente como lacunas.
+- Grupos do heatmap: **Volumes (8)**, **Taxas (9)**, **Produtividade / AGV (5)** e **Todos (22)**. Cada célula mostra valor do dia, delta percentual vs média do mês; hover/foco/título informa as referências e clique abre seu indicador no gráfico. Cores mostram acima/próximo/abaixo da média, sem declarar automaticamente que uma elevação é boa.
+- Cálculo da referência mensal considera **o mês calendário completo das campanhas selecionadas**, independente do recorte de data dos filtros. Volumes usam a média dos dias com valor positivo; taxas, Spin e produtividade são calculados como **razão dos totais mensais**, sem média simples dos percentuais.
+- Incluídos os indicadores:
+  - **Hangup / Atendidas (%)**: `100 × hangup / atendidas` (chave existente `taxaHangup`, agora com nome explícito).
+  - **Hangup / Discagens (%)**: `100 × hangup / tentativas` (nova chave `taxaHangupTentativas`).
+  - Em ambos os casos, denominador zero produz 0 e a média mensal é ponderada pelos respectivos volumes.
+- Tabela analítica dia a dia: data, tecnologia, oito volumes, Spin, oito taxas percentuais e cinco indicadores por agente. Mostra valores reais do dia, independente da opção Total / Média dia do comparativo.
+- Adicionado botão **Recolher / Expandir menu lateral** no canto superior do menu esquerdo, com ícone «/», classes CSS de largura compacta, rótulos acessíveis e preferência salva em `localStorage`. Não altera menu ou fundo de outras páginas.
+- Os seletores de campanha e datas e o compartilhamento de dados Neon permanecem únicos entre as duas abas. A API `energisa_ad_ada.py` e a tabela Neon não foram alteradas nesta atualização de interface.
+- Validação em JavaScript com os 2.368 registros: seis cards do comparativo, dois funis, a aba diária com 22 linhas de métricas nos heatmaps AD/ADA, o gráfico diário com os novos percentuais, filtro de taxa, troca de abas, grupos de heatmap e recolher/expandir menu. Executados sem erro de JavaScript.
+- Verificação numérica diretamente no Neon: AD 18 (setembro) Hangup/Atendidas `0,1382%`, Hangup/Discagens `0,0058%`; ADA 383 (novembro) `0,5350%` e `0,0323%`, respectivamente.
+- O deploy do Render não foi verificado diretamente; código publicado no GitHub `main`.
+
 ## Atualização
 Importação inicial de 543 registros de setembro a novembro e atualização histórica posterior para 2.368 registros de janeiro a novembro de 2026. A API consulta o Neon a cada acesso, sem arquivo estático.
 Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
