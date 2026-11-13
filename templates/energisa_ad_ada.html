@@ -1256,28 +1256,208 @@ function dailyMonthlyBaseline(agent,month,key){
 function dailyValue(value,key){
  return fmt(Number(value)||0,key,'total');
 }
-function dailySelectedComparison(s){
- const key=$('chartMetricDaily').value;
- const cards=[];
- for(const agent of ['AD','ADA']){
-  const side=s[agent],latest=side.days[side.days.length-1];
-  const month=latest?latest.date.slice(0,7):side.period.start.slice(0,7);
-  const lastValue=latest?latest.values[key]:null;
-  const average=latest?dailyMonthlyBaseline(agent,month,key):null;
-  cards.push({agent,name:'Último dia',value:lastValue,context:latest?longDate(latest.date):'Sem registros'});
-  cards.push({agent,name:'Média do mês',value:average,context:latest?monthLabel(month):'Sem registros'});
+/* A evolução diária agora é individual por campanha; somente os heatmaps continuam agregando os filtros AD e ADA. */
+const singleCampaignMonthlyCache=new Map();
+function singleCampaignMonthBaseline(agent,campaignId,month,key){
+ const cacheKey=agent+'|'+campaignId+'|'+month;
+ if(!singleCampaignMonthlyCache.has(cacheKey)){
+  const rows=state.rows.filter(row=>row.agente===agent&&row.campaign_id===campaignId&&row.data.slice(0,7)===month);
+  singleCampaignMonthlyCache.set(cacheKey,{means:averageDaily(dailyRows(rows)),totals:sumRows(rows)});
  }
- $('dailySummaryCards').innerHTML=cards.map(item=>
-  '<div class="daily-summary-card '+item.agent.toLowerCase()+'"><span class="daily-label">'+esc(item.agent+' · '+item.name)+'</span>'+
-  '<strong class="daily-value">'+(item.value===null?'—':dailyValue(item.value,key))+'</strong>'+
-  '<small>'+esc(item.context)+'</small></div>'
+ const profile=singleCampaignMonthlyCache.get(cacheKey);
+ return Number(volumeKeys.includes(key)?profile.means[key]:profile.totals[key])||0;
+}
+function syncDailyCampaignSelector(){
+ const picker=$('chartCampaignDaily'),options=[],groups=[];
+ for(const agent of ['AD','ADA']){
+  const choices=state.campaigns[agent].filter(([id])=>state.selection[agent].has(id));
+  if(!choices.length)continue;
+  groups.push('<optgroup label="'+(agent==='AD'?'AD · Discador humano':'ADA · Discador com IA')+'">'+
+   choices.map(([id,name])=>{
+    options.push({agent,id,name,key:agent+':'+id});
+    return '<option value="'+agent+':'+id+'">'+esc(name)+'</option>';
+   }).join('')+'</optgroup>');
+ }
+ const signature=options.map(x=>x.key+':'+x.name).join('|');
+ if(picker.dataset.optionsHash!==signature){
+  picker.innerHTML=options.length?groups.join(''):'<option value="">Selecione campanhas nos filtros superiores</option>';
+  picker.dataset.optionsHash=signature;
+ }
+ const current=options.find(x=>x.key===state.dailyCampaignKey);
+ // Mantém a escolha de campanha enquanto ela continuar selecionada no benchmark.
+ const selected=current||options.find(x=>x.key==='AD:18')||options[0]||null;
+ state.dailyCampaignKey=selected?selected.key:'';
+ picker.value=state.dailyCampaignKey;
+ picker.title=selected?selected.name:'Nenhuma campanha selecionada';
+ return selected;
+}
+function selectedDailyCampaign(){
+ const selected=syncDailyCampaignSelector();
+ if(!selected)return null;
+ const period=state.periods[selected.agent];
+ const rows=state.rows.filter(row=>
+  row.agente===selected.agent&&row.campaign_id===selected.id&&row.data>=period.start&&row.data<=period.end
+ );
+ return {...selected,period,days:dailyRows(rows)};
+}
+function dailySinglePointLabel(value,key){
+ if(isPct(key))return nfmt(value,1)+'%';
+ if(key==='spin'||key.endsWith('Logado'))return nfmt(value,1);
+ if(Math.abs(value)>=1000000)return nfmt(value/1000000,1)+' mi';
+ if(Math.abs(value)>=10000)return nfmt(value/1000,1)+' mil';
+ return nfmt(value);
+}
+function showDailySinglePopup(event,day,context){
+ const key=context.key,raw=Number(day.values[key])||0;
+ const baseline=singleCampaignMonthBaseline(context.agent,context.id,day.date.slice(0,7),key);
+ const diff=baseline>0?(raw-baseline)/baseline*100:null;
+ const target=$('chartPopup');
+ target.innerHTML='<div class="hover-title">'+esc(metricLabels[key]||key)+' · '+esc(longDate(day.date))+'</div>'+
+  '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+context.agent.toLowerCase()+'"></i> '+esc(context.name)+'</span></div>'+
+  '<div class="hover-info">Valor do dia: <strong>'+dailyValue(raw,key)+'</strong></div>'+
+  '<div class="hover-info">Média do mês ('+esc(monthLabel(day.date.slice(0,7)))+'): <strong>'+dailyValue(baseline,key)+'</strong></div>'+
+  '<div class="hover-info">Variação versus média: <strong class="hover-delta '+(diff===null?'':diff>=0?'up':'down')+'">'+
+   (diff===null?'Sem média válida':(diff>=0?'+':'')+nfmt(diff,1)+'%')+'</strong></div>'+
+  (raw===0?'<div class="hover-info">Dia zerado não entra na média dos volumes.</div>':'')+
+  '</div>';
+ target.hidden=false;
+ const rect=target.getBoundingClientRect(),el=event.target;
+ const anchorX=Number.isFinite(event.clientX)?event.clientX:el?.getBoundingClientRect?.().left||40;
+ const anchorY=Number.isFinite(event.clientY)?event.clientY:el?.getBoundingClientRect?.().top||200;
+ const windowWidth=document.documentElement.clientWidth,windowHeight=document.documentElement.clientHeight;
+ const left=Math.max(8,Math.min(windowWidth-rect.width-8,anchorX-rect.width/2));
+ let top=anchorY-rect.height-18;
+ if(top<8)top=Math.min(windowHeight-rect.height-8,anchorY+20);
+ target.style.left=left+'px';target.style.top=Math.max(8,top)+'px';
+}
+function renderDailySelectedSummary(selected,key){
+ const latest=selected.days[selected.days.length-1]||null;
+ const best=selected.days.reduce((acc,day)=>{
+  return !acc||day.values[key]>acc.values[key]?day:acc;
+ },null);
+ const month=latest?latest.date.slice(0,7):selected.period.end.slice(0,7);
+ const avg=singleCampaignMonthBaseline(selected.agent,selected.id,month,key);
+ const cards=[
+  {title:'Último dia',val:latest?latest.values[key]:null,desc:latest?longDate(latest.date):'Sem dados'},
+  {title:'Média do mês',val:latest?avg:null,desc:monthLabel(month)},
+  {title:'Melhor dia',val:best?best.values[key]:null,desc:best?longDate(best.date):'Sem dados'},
+  {title:'Dias com registro',val:selected.days.length,desc:'Na seleção de datas'}
+ ];
+ $('dailySummaryCards').classList.add('single-campaign-summary');
+ $('dailySummaryCards').innerHTML=cards.map(card=>
+  '<article class="daily-summary-card '+selected.agent.toLowerCase()+'"><span class="daily-label">'+esc(card.title)+'</span>'+
+  '<strong class="daily-value">'+(card.val===null?'—':card.title==='Dias com registro'?nfmt(card.val):dailyValue(card.val,key))+'</strong>'+
+  '<small>'+esc(card.desc)+'</small></article>'
  ).join('');
- const quicks=document.querySelectorAll('[data-daily-metric]');
- quicks.forEach(button=>{const active=button.dataset.dailyMetric===key;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
+}
+function renderDailySingleChart(selected,key){
+ hidePopup();
+ const area=$('chartBoxDaily'),monthRef=$('chartMonthAveragesDaily'),legend=$('chartLegendDaily');
+ const label=$('dailyCampaignName');
+ label.textContent=selected?selected.name:'Nenhuma campanha selecionada';
+ label.classList.toggle('ada',selected?.agent==='ADA');
+ if(!selected){
+  area.innerHTML='<p class="empty-state">Selecione uma campanha AD ou ADA nos filtros superiores para visualizar sua evolução.</p>';
+  monthRef.innerHTML='';legend.innerHTML='';$('dailySummaryCards').innerHTML='';
+  $('dailyCoverage').textContent='Nenhuma campanha selecionada';
+  return;
+ }
+ const days=selected.days,agent=selected.agent;
+ $('dailyCoverage').textContent=agent+' · '+days.length+' dias com dados · '+esc(rangeLabel(selected.period));
+ const color=agent==='AD'?'#52a8ff':'#fb744b';
+ legend.innerHTML='<span><i class="dot '+agent.toLowerCase()+'"></i>'+esc(selected.name)+'</span><span class="daily-month-legend">┄ Média do mês calendário (tracejado)</span>';
+ if(!days.length){
+  area.innerHTML='<p class="empty-state">A campanha '+esc(selected.name)+' não possui registros nas datas selecionadas. Altere o período acima.</p>';
+  monthRef.innerHTML='';renderDailySelectedSummary(selected,key);
+  return;
+ }
+ const first=days[0].date,last=days[days.length-1].date;
+ const firstNumber=dateNumber(first),span=Math.max(1,dateNumber(last)-firstNumber);
+ const W=1110,H=360,L=76,R=33,T=58,B=52,iw=W-L-R,ih=H-T-B;
+ const x=date=>L+(dateNumber(date)-firstNumber)/span*iw;
+ const observedMonths=[...new Set(days.map(d=>d.date.slice(0,7)))];
+ const baselines=observedMonths.map(month=>({month,value:singleCampaignMonthBaseline(agent,selected.id,month,key)}));
+ const values=[...days.map(d=>Number(d.values[key])||0),...baselines.map(m=>m.value)];
+ const maxY=Math.max(1,...values)*1.18;
+ const y=v=>T+ih-Math.max(0,v)/maxY*ih;
+ const faxis=v=>isPct(key)?nfmt(v,1)+'%':v>=1000000?nfmt(v/1000000,1)+' mi':v>=1000?nfmt(v/1000,1)+' mil':nfmt(v);
+ let svg='<svg class="chart-svg single-campaign-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolução diária da campanha '+esc(selected.name)+' com rótulos e média mensal">';
+ for(let i=0;i<=4;i++){
+  const value=maxY*i/4,yy=y(value);
+  svg+='<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="#1b4163" stroke-dasharray="3 5"/>'+
+   '<text x="'+(L-11)+'" y="'+(yy+4)+'" fill="#94b9d7" font-size="11" text-anchor="end">'+faxis(value)+'</text>';
+ }
+ // O eixo X utiliza a data real, mas somente o intervalo com registros,
+ // eliminando o espaço vazio dos demais dias sem produção.
+ const tickStep=Math.max(1,Math.ceil(days.length/14));
+ for(let i=0;i<days.length;i++){
+  if(i%tickStep!==0&&i!==days.length-1)continue;
+  const date=days[i].date;
+  svg+='<text x="'+x(date).toFixed(2)+'" y="'+(H-16)+'" text-anchor="middle" fill="#9cbad8" font-size="10">'+date.slice(8)+'/'+date.slice(5,7)+'</text>';
+ }
+ for(const {month,value} of baselines){
+  const start=first>month+'-01'?first:month+'-01';
+  const lastOfMonth=addDays(month+'-01',new Date(Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),0)).getUTCDate()-1);
+  const finish=last<lastOfMonth?last:lastOfMonth;
+  if(start>finish||value<=0)continue;
+  svg+='<line x1="'+x(start).toFixed(2)+'" x2="'+x(finish).toFixed(2)+'" y1="'+y(value).toFixed(2)+'" y2="'+y(value).toFixed(2)+
+  '" stroke="'+color+'" stroke-width="1.8" stroke-dasharray="7 7" opacity=".72"/>';
+ }
+ let linePath='';
+ days.forEach((day,i)=>{
+  const xx=x(day.date),yy=y(Number(day.values[key])||0);
+  linePath+=(i===0?'M':'L')+xx.toFixed(2)+' '+yy.toFixed(2)+' ';
+ });
+ svg+='<path d="'+linePath+'" fill="none" stroke="'+color+'" stroke-width="11" opacity=".15" stroke-linejoin="round" stroke-linecap="round"/>'+
+ '<path class="daily-single-line '+agent.toLowerCase()+'" d="'+linePath+'" fill="none" stroke="'+color+'" stroke-width="3.7" stroke-linejoin="round" stroke-linecap="round"/>';
+ const labelEvery=Math.max(1,Math.ceil(days.length/27));
+ days.forEach((day,i)=>{
+  const raw=Number(day.values[key])||0,xx=x(day.date),yy=y(raw);
+  svg+='<circle class="single-plot-point" data-date="'+day.date+'" cx="'+xx.toFixed(2)+'" cy="'+yy.toFixed(2)+
+   '" r="5.8" fill="'+color+'" stroke="#091b35" stroke-width="2.1" tabindex="0" role="button" aria-label="'+
+   esc(longDate(day.date)+' · '+dailyValue(raw,key)+' · abrir comparação com média do mês')+'"><title>'+
+   esc(longDate(day.date)+' · '+dailyValue(raw,key))+'</title></circle>';
+  if(i%labelEvery===0||i===days.length-1){
+   const labelY=Math.max(20,yy-14-(i%2)*3);
+   svg+='<text class="daily-plot-label" x="'+xx.toFixed(2)+'" y="'+labelY.toFixed(2)+'" text-anchor="middle" fill="'+color+'">'+
+    esc(dailySinglePointLabel(raw,key))+'</text>';
+  }
+ });
+ svg+='</svg>';
+ area.innerHTML=svg;
+ monthRef.innerHTML=baselines.map(({month,value})=>'<span class="daily-month-reference '+agent.toLowerCase()+'">'+
+  '<span>'+esc(monthLabel(month))+' · média do mês</span> <strong>'+dailyValue(value,key)+'</strong></span>').join('');
+ const byDate=new Map(days.map(d=>[d.date,d]));
+ area.querySelectorAll('.single-plot-point').forEach(circle=>{
+  const day=byDate.get(circle.dataset.date);if(!day)return;
+  circle.addEventListener('pointerenter',event=>showDailySinglePopup(event,day,{...selected,key}));
+  circle.addEventListener('pointermove',event=>showDailySinglePopup(event,day,{...selected,key}));
+  circle.addEventListener('pointerleave',hidePopup);
+  circle.addEventListener('focus',()=>{const box=circle.getBoundingClientRect();showDailySinglePopup({clientX:box.left+box.width/2,clientY:box.top,target:circle},day,{...selected,key})});
+  circle.addEventListener('blur',hidePopup);
+  circle.addEventListener('click',event=>showDailySinglePopup(event,day,{...selected,key}));
+ });
+ renderDailySelectedSummary(selected,key);
+}
+function renderDailyQuickButtons(key){
+ const area=$('dailyQuickMetrics');
+ if(area.dataset.ready!=='1'){
+  const groups=[['volume','VOLUMES'],['rate','TAXAS E CONVERSÕES'],['productivity','PRODUTIVIDADE / AGV']];
+  area.innerHTML=groups.map(([group,label])=>'<div class="daily-quick-group"><span class="daily-quick-title">'+label+'</span>'+
+   dailyMetrics.filter(item=>item.group===group).map(item=>
+   '<button type="button" data-daily-metric="'+item.key+'" aria-pressed="false">'+esc(item.label)+'</button>'
+   ).join('')+'</div>').join('');
+  area.dataset.ready='1';
+ }
+ area.querySelectorAll('[data-daily-metric]').forEach(button=>{
+  const active=button.dataset.dailyMetric===key;
+  button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
+ });
 }
 function renderDailyChart(s){
- renderChart(s,'daily');
- dailySelectedComparison(s);
+ const selected=selectedDailyCampaign(),key=$('chartMetricDaily').value;
+ renderDailyQuickButtons(key);
+ renderDailySingleChart(selected,key);
 }
 function heatmapCell(day,agent,key){
  const month=day.date.slice(0,7),baseline=dailyMonthlyBaseline(agent,month,key),value=Number(day.values[key])||0;
