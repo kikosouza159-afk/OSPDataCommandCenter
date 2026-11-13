@@ -1389,7 +1389,7 @@ function renderDailySingleChart(selected,key){
  const first=days[0].date,last=days[days.length-1].date;
  const firstNumber=dateNumber(first),span=Math.max(1,dateNumber(last)-firstNumber);
  const W=1110,H=360,L=76,R=33,T=58,B=52,iw=W-L-R,ih=H-T-B;
- const x=date=>L+(dateNumber(date)-firstNumber)/span*iw;
+ const x=date=>days.length===1?L+iw/2:L+(dateNumber(date)-firstNumber)/span*iw;
  const observedMonths=[...new Set(days.map(d=>d.date.slice(0,7)))];
  const baselines=observedMonths.map(month=>({month,value:singleCampaignMonthBaseline(agent,selected.id,month,key)}));
  const values=[...days.map(d=>Number(d.values[key])||0),...baselines.map(m=>m.value)];
@@ -1425,7 +1425,7 @@ function renderDailySingleChart(selected,key){
  });
  svg+='<path d="'+linePath+'" fill="none" stroke="'+color+'" stroke-width="11" opacity=".15" stroke-linejoin="round" stroke-linecap="round"/>'+
  '<path class="daily-single-line '+agent.toLowerCase()+'" d="'+linePath+'" fill="none" stroke="'+color+'" stroke-width="3.7" stroke-linejoin="round" stroke-linecap="round"/>';
- const labelEvery=Math.max(1,Math.ceil(days.length/27));
+ const labelEvery=Math.max(1,Math.ceil(days.length/16));
  days.forEach((day,i)=>{
   const raw=Number(day.values[key])||0,xx=x(day.date),yy=y(raw);
   svg+='<circle class="single-plot-point" data-date="'+day.date+'" cx="'+xx.toFixed(2)+'" cy="'+yy.toFixed(2)+
