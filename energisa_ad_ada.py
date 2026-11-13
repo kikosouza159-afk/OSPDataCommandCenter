@@ -35,7 +35,9 @@ def install_energisa_ad_ada(app, can_access, is_admin):
         if not autorizado():
             return jsonify(error="forbidden"), 403
 
-        database_url = os.environ.get("ASSISTPAY_NEON_DATABASE_URL", "").strip()
+        # Permite fonte operacional dedicada, preservando a configuração atual do Cockpit.
+        database_url = (os.environ.get("ENERGISA_NEON_DATABASE_URL") or
+                        os.environ.get("ASSISTPAY_NEON_DATABASE_URL") or "").strip()
         if not database_url:
             current_app.logger.error("Neon não configurado para painel Energisa")
             return jsonify(error="data_source_unavailable"), 503
@@ -50,6 +52,18 @@ def install_energisa_ad_ada(app, can_access, is_admin):
                 row_factory=dict_row,
             ) as con:
                 with con.cursor() as cur:
+                    # Diagnóstico de banco/ambiente: não expõe URL nem credenciais.
+                    cur.execute(
+                        "SELECT current_database() AS db, "
+                        "to_regclass('assistpay.energisa_ad_ada_diario')::text AS tabela"
+                    )
+                    verificacao = cur.fetchone()
+                    if not verificacao["tabela"]:
+                        current_app.logger.error(
+                            "Energisa: tabela não encontrada no banco de dados configurado: %s",
+                            verificacao["db"],
+                        )
+                        return jsonify(error="table_not_found"), 503
                     cur.execute("""
                         SELECT data::text AS data,
                                campaign_id, nome_campanha, agente, logados,
@@ -58,9 +72,18 @@ def install_energisa_ad_ada(app, can_access, is_admin):
                         ORDER BY data, agente, campaign_id
                     """)
                     rows = cur.fetchall()
-        except Exception:
+        except Exception as exc:
             current_app.logger.exception("Falha ao consultar Energisa diário no Neon")
-            return jsonify(error="data_source_unavailable"), 503
+            sqlstate = getattr(exc, "sqlstate", "")
+            if sqlstate == "42501":
+                code = "database_permission_denied"
+            elif sqlstate == "42P01":
+                code = "table_not_found"
+            elif type(exc).__name__ in ("OperationalError", "InterfaceError"):
+                code = "database_connection_failed"
+            else:
+                code = "data_source_unavailable"
+            return jsonify(error=code), 503
 
         if not rows:
             return jsonify(error="no_data"), 404
