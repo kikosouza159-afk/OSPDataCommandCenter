@@ -365,6 +365,11 @@ h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Ar
 @media(max-width:740px){.assist-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-kpi-values{font-size:16px}}
 @media(max-width:400px){.assist-kpis{grid-template-columns:1fr}.assist-kpi-values{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.assist-kpis .assist-kpi,.assist-funnel-stage,.assist-mini-metric{transition:none!important}.assist-kpis .assist-kpi:hover{transform:none}}
+
+/* O conector pontilhado diferencia a classificação VoiceMail de uma etapa sequencial. */
+.assist-funnel-chevron.classify-link{font-size:17px;font-weight:900;opacity:.85;height:14px;letter-spacing:3px;line-height:14px}
+.assist-funnel-chevron.classify-link:after{content:"";display:block;position:absolute;left:50%;height:3px;width:1px;background:currentColor;opacity:.38}
+@media(prefers-reduced-motion:reduce){.chart-svg{animation:none!important}}
 </style>
 </head>
 <body>
@@ -850,7 +855,7 @@ function renderFunnel(s){
    const help=stage.key==='voicemail'?'Classificação de atendimento, não uma conversão de CPC.':'Volume do indicador selecionado.';
    return '<button type="button" class="assist-funnel-stage '+stage.style+(stage.key==='voicemail'?' classificador':'')+'" data-chart-key="'+stage.key+'" style="--funnel-width:'+widths[i]+'%" title="'+esc(help)+' Abrir tendência.">'+
     '<span class="assist-stage-label">'+esc(stage.label)+(stage.key==='voicemail'?'<small class="stage-subtype">classificação</small>':'')+'</span><strong class="assist-stage-value">'+formatted+'</strong></button>'+
-    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i===4?'orange':'')+'" aria-hidden="true">⌄</div>':'');
+    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i>=3?'classify-link ':'')+(i===4?'orange':'')+'" aria-hidden="true">'+(i>=3?'⋮':'⌄')+'</div>':'');
   }).join('');
   delta.innerHTML='<div class="assist-delta-title">Variação AD × ADA</div><div class="assist-delta-sub">ADA sobre AD</div>'+
    stages.map(stage=>{
@@ -1069,7 +1074,7 @@ function openMetric(key){
  select.value=key;
  renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')});
  const target=$('evolutionSection');
- if(target&&target.scrollIntoView)target.scrollIntoView({behavior:'smooth',block:'start'});
+ if(target&&target.scrollIntoView){const reduce=typeof window!=='undefined'&&window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}
 }
 function bindBackgroundParallax(){
  const bg=typeof document.querySelector==='function'?document.querySelector('.bg-content'):null;
