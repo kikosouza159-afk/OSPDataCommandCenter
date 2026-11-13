@@ -149,123 +149,416 @@
 <script>
 (function(){
 'use strict';
-const apiUrl='{{ url_for("energisa_api") }}';
+const API_URL='{{ url_for("energisa_api") }}';
 const $=id=>document.getElementById(id);
-const nf=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0});
-const nf1=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
-const nf2=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const keys=['mailing','logados','tentativas','atendidas','cpc','acordo','hangup'];
-const labels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'Taxa CPC',conversao:'Conversão',taxaHangup:'% Hangup',acordoLogado:'Acordos / Logado'};
-const efficiencies=['spin','hitrate','taxaCpc','conversao','taxaHangup','acordoLogado'];
-const state={rows:[],min:'',max:'',mode:'total',selection:{AD:new Set(),ADA:new Set()},campaigns:{AD:[],ADA:[]}};
-const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const fmt=v=>Number.isFinite(v)?(state.mode==='average'?nf1.format(v):nf.format(v)):'—';
-const fnum=v=>Number.isFinite(v)?nf.format(v):'—';
-const fpercent=v=>Number.isFinite(v)?nf2.format(v)+'%':'—';
-const fmetric=(k,v)=>['hitrate','taxaCpc','conversao','taxaHangup'].includes(k)?fpercent(v):['spin','acordoLogado'].includes(k)?nf2.format(v||0):fmt(v);
-const compact=v=>Math.abs(v)>=1e6?nf2.format(v/1e6)+' mi':Math.abs(v)>=1e3?nf1.format(v/1e3)+' mil':fmt(v);
-const ratio=(a,b)=>b>0?100*a/b:0;
-const enrich=s=>({...s,spin:s.mailing>0?s.tentativas/s.mailing:0,hitrate:ratio(s.atendidas,s.tentativas),taxaCpc:ratio(s.cpc,s.atendidas),conversao:ratio(s.acordo,s.cpc),taxaHangup:ratio(s.hangup,s.atendidas),acordoLogado:s.logados>0?s.acordo/s.logados:0});
-function blank(){return {mailing:0,logados:0,tentativas:0,atendidas:0,cpc:0,acordo:0,hangup:0};}
-function sum(rows){const s=blank();for(const r of rows)for(const k of keys)s[k]+=Number(r[k]||0);return enrich(s);}
-function groupDays(rows){const days=new Map();for(const r of rows){const key=r.data+'|'+r.agente;if(!days.has(key))days.set(key,{data:r.data,agente:r.agente,rows:[]});days.get(key).rows.push(r)}return [...days.values()].map(g=>({...g,metrics:sum(g.rows)})).sort((a,b)=>a.data.localeCompare(b.data)||a.agente.localeCompare(b.agente));}
-function summarize(rows){if(state.mode==='total')return sum(rows);
- const daily=groupDays(rows);const out=blank();for(const k of keys){const vals=daily.map(d=>d.metrics[k]).filter(x=>x>0);out[k]=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;}
- for(const k of efficiencies){const vals=daily.map(d=>d.metrics[k]).filter(x=>x>0);out[k]=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;}
+const intFmt=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0});
+const decFmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const dec2Fmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const volumeKeys=['mailing','logados','tentativas','atendidas','cpc','acordo','hangup'];
+const percentageKeys=new Set(['hitrate','taxaCpc','conversao','taxaHangup','eficiencia']);
+const derivedKeys=['spin','hitrate','taxaCpc','conversao','taxaHangup','eficiencia','acordoLogado'];
+const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',conversao:'Conversão',taxaHangup:'% Hangup',eficiencia:'Eficiência',acordoLogado:'Acordos / Agente'};
+const state={rows:[],mode:'average',months:{AD:'',ADA:''},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
+const isPct=k=>percentageKeys.has(k);
+const nfmt=(n,precision=0)=>Number.isFinite(n)?(precision===2?dec2Fmt:precision===1?decFmt:intFmt).format(n):'—';
+const fmt=(value,key,mode=state.mode)=>{
+ if(!Number.isFinite(value))return '—';
+ if(isPct(key))return nfmt(value,2)+'%';
+ if(key==='spin'||key==='acordoLogado')return nfmt(value,2);
+ return nfmt(value,mode==='average'?1:0);
+};
+const short=(v,key)=>{
+ if(isPct(key))return fmt(v,key);
+ if(!Number.isFinite(v))return '—';
+ if(Math.abs(v)>=1000000)return nfmt(v/1000000,2)+' mi';
+ if(Math.abs(v)>=10000)return nfmt(v/1000,1)+' mil';
+ return fmt(v,key);
+};
+const rate=(a,b)=>b>0?100*a/b:0;
+const blank=()=>({mailing:0,logados:0,tentativas:0,atendidas:0,cpc:0,acordo:0,hangup:0});
+function enrich(data){
+ return {...data,
+  spin:data.mailing>0?data.tentativas/data.mailing:0,
+  hitrate:rate(data.atendidas,data.tentativas),
+  taxaCpc:rate(data.cpc,data.atendidas),
+  conversao:rate(data.acordo,data.cpc),
+  taxaHangup:rate(data.hangup,data.atendidas),
+  eficiencia:rate(data.acordo,data.tentativas),
+  acordoLogado:data.logados>0?data.acordo/data.logados:0
+ };
+}
+function sumRows(rows){
+ const totals=blank();
+ for(const r of rows)for(const key of volumeKeys)totals[key]+=Number(r[key])||0;
+ return enrich(totals);
+}
+function dailyRows(rows){
+ const byDay=new Map();
+ for(const row of rows){
+  let rowsOfDay=byDay.get(row.data);
+  if(!rowsOfDay){rowsOfDay=[];byDay.set(row.data,rowsOfDay)}
+  rowsOfDay.push(row);
+ }
+ return [...byDay.entries()]
+  .map(([date,items])=>({date,values:sumRows(items),rows:items}))
+  .sort((a,b)=>a.date.localeCompare(b.date));
+}
+function nonzeroMean(items){const valid=items.filter(v=>Number.isFinite(v)&&v>0);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0;}
+function averageDaily(days){
+ const out={...blank()};
+ for(const key of [...volumeKeys,...derivedKeys]){
+  out[key]=nonzeroMean(days.map(day=>day.values[key]));
+ }
  return out;
 }
-function selectedRows(){const start=$('dateStart').value,end=$('dateEnd').value;return state.rows.filter(r=>r.data>=start&&r.data<=end&&state.selection[r.agente].has(r.campaign_id));}
-function activeCount(rows){return new Set(groupDays(rows).filter(d=>d.metrics.tentativas>0).map(d=>d.data)).size;}
-function delta(a,b,key){if(!Number.isFinite(a)||!Number.isFinite(b))return {value:'—',cls:''};if(['hitrate','taxaCpc','conversao','taxaHangup'].includes(key)){const d=b-a;return {value:(d>0?'+':'')+nf2.format(d)+' p.p.',cls:d>0?'pos':d<0?'neg':''};}if(a===0)return {value:b===0?'0%':'novo',cls:b>0?'pos':''};const d=100*(b-a)/Math.abs(a);return {value:(d>0?'+':'')+nf1.format(d)+'%',cls:d>0?'pos':d<0?'neg':''};}
-function summaryState(){const filtered=selectedRows();const ad=filtered.filter(r=>r.agente==='AD');const ada=filtered.filter(r=>r.agente==='ADA');return {rows:filtered,ad,ada,A:summarize(ad),B:summarize(ada),daysA:activeCount(ad),daysB:activeCount(ada)};}
-function buildCampaigns(){const map={AD:new Map(),ADA:new Map()};for(const r of state.rows)if(!map[r.agente].has(r.campaign_id))map[r.agente].set(r.campaign_id,r.nome_campanha);
- for(const agent of ['AD','ADA']){state.campaigns[agent]=[...map[agent].entries()].sort((a,b)=>a[0]-b[0]);state.selection[agent]=new Set(state.campaigns[agent].map(([id])=>id));const dest=$(agent==='AD'?'adChecks':'adaChecks');dest.replaceChildren();for(const [id,name] of state.campaigns[agent]){const lbl=document.createElement('label');lbl.className='campaign-item';const box=document.createElement('input');box.type='checkbox';box.checked=true;box.value=id;box.setAttribute('data-agent',agent);box.addEventListener('change',()=>{if(box.checked)state.selection[agent].add(id);else state.selection[agent].delete(id);refreshPicker(agent);render()});const sp=document.createElement('span');sp.textContent=name;lbl.append(box,sp);dest.appendChild(lbl)}}for(const agent of ['AD','ADA'])refreshPicker(agent);
+function monthLabel(month){
+ if(!month)return 'Sem mês';
+ const parts=month.split('-'),idx=Number(parts[1])-1;
+ return monthNames[idx]+' / '+parts[0];
 }
-function refreshPicker(agent){const total=state.campaigns[agent].length,n=state.selection[agent].size;$(agent==='AD'?'adSummary':'adaSummary').textContent=n===total?'Todas ('+n+')':n===0?'Nenhuma campanha':n+' de '+total+' campanhas';}
-function setPick(agent,all){state.selection[agent]=new Set(all?state.campaigns[agent].map(([id])=>id):[]);$(agent==='AD'?'adChecks':'adaChecks').querySelectorAll('input').forEach(box=>{box.checked=all});refreshPicker(agent);render();}
-function renderKpis(s){const items=['tentativas','atendidas','cpc','acordo'];$('kpis').innerHTML=items.map(k=>{const d=delta(s.A[k],s.B[k],k);return '<article class="panel kpi"><div class="kpi-title">'+labels[k]+'</div><div class="values"><div><small class="ad-label">AD</small><div class="number">'+compact(s.A[k])+'</div></div><div><small class="ada-label">ADA</small><div class="number">'+compact(s.B[k])+'</div></div></div><div class="kpi-foot"><span class="delta '+d.cls+'">'+d.value+'</span><span>ADA vs. AD</span></div></article>'}).join('');}
-function renderFunnel(s){const items=['mailing','tentativas','atendidas','cpc','acordo'];$('funnel').innerHTML=items.map(k=>{const max=Math.max(s.A[k],s.B[k],1),d=delta(s.A[k],s.B[k],k);return '<div class="funnel-row"><span class="stage">'+labels[k]+'</span><div class="bar-pair"><div class="bar-line"><div class="bar-bg"><div class="bar-fill ad" style="width:'+(Math.max(0,s.A[k])/max*100).toFixed(2)+'%"></div></div><span class="bar-number">'+fmt(s.A[k])+'</span></div><div class="bar-line"><div class="bar-bg"><div class="bar-fill ada" style="width:'+(Math.max(0,s.B[k])/max*100).toFixed(2)+'%"></div></div><span class="bar-number">'+fmt(s.B[k])+'</span></div></div><span class="funnel-delta">'+d.value+'</span></div>'}).join('');}
-function renderEfficiency(s){$('efficiency').innerHTML=efficiencies.map(k=>'<div class="eff-item"><div class="eff-label">'+labels[k]+'</div><div class="eff-number">'+fmetric(k,s.A[k])+' <span style="color:#7e96b6">/</span> '+fmetric(k,s.B[k])+'</div><div class="eff-legend"><i class="legend-line"></i> AD <i class="legend-line orange"></i> ADA</div></div>').join('');}
-function renderInsight(s){const d=delta(s.A.acordo,s.B.acordo,'acordo'),mode=state.mode==='average'?'em média diária':'no período';let message='O ADA apresenta '+fmt(s.B.acordo)+' acordos '+mode+' contra '+fmt(s.A.acordo)+' do AD ('+d.value+'). ';if(s.daysA!==s.daysB){message+='Atenção à comparabilidade: AD possui '+s.daysA+' dias com discagens e ADA possui '+s.daysB+' dias. Use Média dia para reduzir distorções de períodos operacionais diferentes. ';}message+='Na média dia, cada indicador utiliza apenas os dias em que seu valor foi positivo.';$('executiveInsight').innerHTML='<strong>Insights executivos · </strong>'+esc(message);}
-function displayDate(iso){const parts=iso.split('-');return parts[2]+'/'+parts[1]+'/'+parts[0];}
-function renderChart(rows){const grouped=groupDays(rows),metric=$('chartMetric').value,dateMap=new Map();for(const d of grouped){if(!dateMap.has(d.data))dateMap.set(d.data,{data:d.data,AD:0,ADA:0});dateMap.get(d.data)[d.agente]=d.metrics[metric];}const pts=[...dateMap.values()].sort((a,b)=>a.data.localeCompare(b.data));const W=1000,H=270,padL=55,padR=20,padTop=22,padBottom=42,iw=W-padL-padR,ih=H-padTop-padBottom;
- if(!pts.length){$('chartBox').innerHTML='<p class="empty-state">Nenhum registro no período ou campanhas selecionadas.</p>';return;}const max=Math.max(1,...pts.map(p=>Math.max(p.AD,p.ADA)));const x=i=>padL+(pts.length===1?iw/2:(i*iw/(pts.length-1)));const y=v=>padTop+ih-(v/max*ih);
- const path=k=>pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p[k]).toFixed(1)).join(' ');
- let svg='<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolução diária de '+labels[metric]+' AD contra ADA">';
- for(let n=0;n<5;n++){const val=max*n/4,Y=y(val);svg+='<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+Y+'" y2="'+Y+'" stroke="#2b3958" stroke-dasharray="4 5"/><text x="'+(padL-10)+'" y="'+(Y+4)+'" fill="#91a7c6" text-anchor="end" font-size="11">'+esc(nf.format(val))+'</text>';}
- for(let i=0;i<pts.length;i+=Math.max(1,Math.ceil(pts.length/7))){svg+='<text x="'+x(i)+'" y="'+(H-12)+'" fill="#91a7c6" text-anchor="middle" font-size="11">'+displayDate(pts[i].data).slice(0,5)+'</text>';}
- svg+='<path d="'+path('AD')+'" fill="none" stroke="#4b8fe6" stroke-width="3" stroke-linejoin="round"/><path d="'+path('ADA')+'" fill="none" stroke="#fb5c28" stroke-width="3" stroke-linejoin="round"/>';
- for(const tech of ['AD','ADA'])for(let i=0;i<pts.length;i++){const p=pts[i],color=tech==='AD'?'#4b8fe6':'#fb5c28';svg+='<circle cx="'+x(i)+'" cy="'+y(p[tech])+'" r="'+(pts.length>30?'2.4':'3.5')+'" fill="'+color+'"><title>'+esc(displayDate(p.data)+' • '+tech+': '+fnum(p[tech]))+'</title></circle>';}svg+='</svg>';$('chartBox').innerHTML=svg;}
-function rowHTML(cells){return '<tr>'+cells.map((v,i)=>'<td>'+v+'</td>').join('')+'</tr>';}
-function renderDaily(rows){const daily=groupDays(rows);$('dailyHint').textContent=daily.length+' linhas diárias · valores reais por dia';$('dailyBody').innerHTML=daily.length?daily.map(d=>{const m=d.metrics,tag=d.agente==='AD'?'ad':'ada';return rowHTML([esc(displayDate(d.data)),'<span class="type-tag '+tag+'">'+tag.toUpperCase()+'</span>',...keys.map(k=>fnum(m[k])),nf2.format(m.spin),fpercent(m.hitrate),fpercent(m.taxaCpc),fpercent(m.conversao),fpercent(m.taxaHangup)])}).join(''):'<tr><td colspan="14">Nenhuma informação para os filtros.</td></tr>';}
-function renderCampaigns(rows){const map=new Map();for(const r of rows){const k=r.agente+':'+r.campaign_id;if(!map.has(k))map.set(k,{agent:r.agente,id:r.campaign_id,name:r.nome_campanha,rows:[]});map.get(k).rows.push(r);}
- const list=[...map.values()].sort((a,b)=>a.agent.localeCompare(b.agent)||a.id-b.id);$('campaignBody').innerHTML=list.length?list.map(item=>{const m=summarize(item.rows);return rowHTML([esc(item.name),esc(item.agent),fnum(activeCount(item.rows)),...keys.map(k=>fmt(m[k])),fpercent(m.conversao)])}).join(''):'<tr><td colspan="11">Nenhuma campanha selecionada.</td></tr>';}
-function render(){const s=summaryState();$('kpiDescription').textContent=state.mode==='average'?'Média por dia com valores > 0':'Totais consolidados no recorte';$('filterInfo').textContent='AD: '+s.daysA+' dias com discagens • ADA: '+s.daysB+' dias com discagens. Mailing e Logados somados entre campanhas após consolidação diária; no modo Média dia, zeros excluídos por indicador.';renderKpis(s);renderFunnel(s);renderEfficiency(s);renderInsight(s);renderChart(s.rows);renderDaily(s.rows);renderCampaigns(s.rows);}
-function setMode(mode){state.mode=mode;for(const [name,id] of [['total','btnTotal'],['average','btnAverage']]){const b=$(id);b.classList.toggle('active',name===mode);b.setAttribute('aria-pressed',String(name===mode));}render();}
-function exportCsv(){const rows=selectedRows(),headers=['Date','CampaignId','nomecampanha','Logados','Tentativas','Atendidas','Cpc','Acordo','Hangup','Mailing','Agente'];const fields=['data','campaign_id','nome_campanha','logados','tentativas','atendidas','cpc','acordo','hangup','mailing','agente'];const lines=[headers.join(';')];for(const row of rows)lines.push(fields.map(k=>'"'+String(row[k]).replace(/"/g,'""')+'"').join(';'));const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='energisa_ad_ada_diario_'+$('dateStart').value+'_'+$('dateEnd').value+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
-function bind(){for(const id of ['dateStart','dateEnd'])$(id).addEventListener('change',()=>{if($('dateStart').value>$('dateEnd').value){$('dateEnd').value=$('dateStart').value;}render();});$('chartMetric').addEventListener('change',()=>renderChart(selectedRows()));$('btnTotal').addEventListener('click',()=>setMode('total'));$('btnAverage').addEventListener('click',()=>setMode('average'));$('exportBtn').addEventListener('click',exportCsv);document.querySelectorAll('[data-pick]').forEach(btn=>btn.addEventListener('click',()=>setPick(btn.dataset.agent,btn.dataset.pick==='all')));$('resetBtn').addEventListener('click',()=>{$('dateStart').value=state.min;$('dateEnd').value=state.max;for(const agent of ['AD','ADA'])setPick(agent,true);setMode('total');});}
-async function start(){
-  const loading=$('loading');
-  try{
-    loading.textContent='Carregando dados da Energisa...';
-    const response=await fetch(apiUrl,{credentials:'same-origin',cache:'no-store'});
-    if(!response.ok){
-      let code='http_'+response.status;
-      try{
-        const body=await response.json();
-        if(body && typeof body.error==='string')code=body.error;
-      }catch(_){}
-      const e=new Error('API Energisa: '+code+' (HTTP '+response.status+')');
-      e.code=code;
-      throw e;
-    }
-    const payload=await response.json();
-    if(!payload||!Array.isArray(payload.rows)||!payload.rows.length){
-      const e=new Error('Dados recebidos em formato inválido ou vazio');
-      e.code='invalid_response';throw e;
-    }
-    state.rows=payload.rows.map(r=>({...r,campaign_id:Number(r.campaign_id)}));
-    state.min=payload.meta.date_min;state.max=payload.meta.date_max;
-    $('dateStart').min=state.min;$('dateStart').max=state.max;
-    $('dateEnd').min=state.min;$('dateEnd').max=state.max;
-    $('dateStart').value=state.min;$('dateEnd').value=state.max;
-    $('rangeLabel').textContent=displayDate(state.min)+' até '+displayDate(state.max);
-    buildCampaigns();bind();
-    loading.classList.add('hidden');$('dashboard').classList.remove('hidden');render();
-  }catch(e){
-    console.error('Erro no painel Energisa',e);
-    const code=e.code||'client_error';
-    const friendly={
-      table_not_found:'A tabela Energisa não foi localizada no banco configurado para o Cockpit. A base existe no Neon, mas o serviço pode estar apontando para outro banco.',
-      database_connection_failed:'Não foi possível estabelecer conexão com o Neon. Verifique a configuração do serviço e a disponibilidade do banco.',
-      database_permission_denied:'A conexão está ativa, mas o usuário do banco não tem permissão para ler a tabela Energisa.',
-      data_source_unavailable:'A consulta ao Neon falhou. Consulte os registros do serviço Render para identificar o erro.',
-      authentication_required:'A sessão de login expirou. Entre novamente no Cockpit.',
-      forbidden:'Seu usuário não tem permissão para visualizar os dados da Energisa.',
-      password_change_required:'É necessário alterar sua senha no Cockpit antes de acessar o painel.',
-      no_data:'A tabela Energisa está acessível, mas não possui registros.',
-      invalid_response:'A API retornou uma estrutura inesperada. Verifique a versão publicada do Cockpit.'
-    };
-    loading.replaceChildren();
-    loading.style.flexDirection='column';
-    loading.style.gap='14px';
-    loading.style.textAlign='center';
-    const title=document.createElement('strong');
-    title.textContent='Não foi possível carregar o painel Energisa';
-    const message=document.createElement('span');
-    message.style.fontWeight='400';
-    message.style.maxWidth='640px';
-    message.textContent=friendly[code]||'O carregamento falhou. Confira o console e os logs do serviço.';
-    const ref=document.createElement('small');
-    ref.style.color='#ffaf8c';
-    ref.textContent='Código de diagnóstico: '+code;
-    const retry=document.createElement('button');
-    retry.type='button';
-    retry.className='export';
-    retry.textContent='Tentar novamente';
-    retry.addEventListener('click',start);
-    loading.append(title,message,ref,retry);
+function longDate(day){if(!day)return '—';const p=day.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function chosenRows(agent){
+ const month=state.months[agent];
+ return state.rows.filter(row=>row.agente===agent&&row.data.slice(0,7)===month&&state.selection[agent].has(row.campaign_id));
+}
+function campaignSummary(agent){
+ const selected=state.campaigns[agent].filter(([id])=>state.selection[agent].has(id));
+ return selected.length===0?'Nenhuma campanha':selected.length===1?selected[0][1]:selected.length+' campanhas selecionadas';
+}
+function calcSide(agent){
+ const rows=chosenRows(agent);
+ const days=dailyRows(rows);
+ const total=sumRows(rows);
+ const average=averageDaily(days);
+ const activeDays=days.filter(row=>row.values.tentativas>0).length;
+ const agentMean=nonzeroMean(days.map(day=>day.values.logados));
+ const stats=state.mode==='average'?average:total;
+ // Média de AGV ativo; no modo Total, a base de produtividade é a soma de agentes-dia.
+ const agentDenominator=state.mode==='average'?agentMean:total.logados;
+ const productivity={};
+ for(const key of ['mailing','tentativas','atendidas','cpc','acordo']){
+  productivity[key]=agentDenominator>0?stats[key]/agentDenominator:0;
+ }
+ return {agent,rows,days,stats,total,average,activeDays,agentMean,productivity,month:state.months[agent],name:campaignSummary(agent)};
+}
+const deltaInfo=(a,b,{invert=false}={})=>{
+ if(!Number.isFinite(a)||!Number.isFinite(b))return {text:'—',cls:''};
+ if(a===0)return {text:b===0?'0,0%':'Novo',cls:b===0?'':invert?'neg':'pos'};
+ const p=(b-a)/Math.abs(a)*100;
+ return {text:(p>0?'+':'')+nfmt(p,1)+'%',cls:p===0?'':(p>0)!==invert?'pos':'neg',value:p};
+};
+function updatePicker(agent){
+ const count=state.selection[agent].size,total=state.campaigns[agent].length;
+ $(agent==='AD'?'adSummary':'adaSummary').textContent=count===0?'Nenhuma campanha':count===total?'Todas as campanhas ('+count+')':count+' de '+total+' campanhas';
+}
+function setCampaigns(agent,all){
+ const ids=state.campaigns[agent].map(([id])=>id);
+ state.selection[agent]=new Set(all?ids:[]);
+ $(agent==='AD'?'adChecks':'adaChecks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.checked=all});
+ updatePicker(agent);render();
+}
+function buildFilters(){
+ const months={AD:new Set(),ADA:new Set()},groups={AD:new Map(),ADA:new Map()};
+ for(const row of state.rows){
+  months[row.agente].add(row.data.slice(0,7));
+  if(!groups[row.agente].has(row.campaign_id))groups[row.agente].set(row.campaign_id,row.nome_campanha);
+ }
+ for(const agent of ['AD','ADA']){
+  state.campaigns[agent]=[...groups[agent]].sort((a,b)=>a[0]-b[0]);
+  const available=[...months[agent]].sort();
+  const select=$(agent==='AD'?'monthAD':'monthADA');
+  select.replaceChildren();
+  for(const month of available){
+   const option=document.createElement('option');option.value=month;option.textContent=monthLabel(month);
+   select.appendChild(option);
   }
+  // Mesmo benchmark do modelo de referência: AD setembro × ADA novembro.
+  const target=agent==='AD'?'2026-09':'2026-11';
+  state.months[agent]=available.includes(target)?target:available[available.length-1]||'';
+  select.value=state.months[agent];
+  const preferred=agent==='AD'?11:385;
+  const preferredExists=state.campaigns[agent].some(([id])=>id===preferred);
+  state.selection[agent]=new Set(preferredExists?[preferred]:state.campaigns[agent].map(([id])=>id));
+  const root=$(agent==='AD'?'adChecks':'adaChecks');root.replaceChildren();
+  for(const [id,label] of state.campaigns[agent]){
+   const line=document.createElement('label');line.className='campaign-item';
+   const input=document.createElement('input');input.type='checkbox';input.value=String(id);
+   input.checked=state.selection[agent].has(id);
+   const span=document.createElement('span');span.textContent=label;
+   line.append(input,span);root.appendChild(line);
+   input.addEventListener('change',()=>{
+    if(input.checked)state.selection[agent].add(id);else state.selection[agent].delete(id);
+    updatePicker(agent);render();
+   });
+  }
+  updatePicker(agent);
+ }
+}
+function displayMode(mode){
+ state.mode=mode;
+ for(const [name,id] of [['total','btnTotal'],['average','btnAverage']]){
+  const btn=$(id);btn.classList.toggle('active',name===mode);btn.setAttribute('aria-pressed',String(name===mode));
+ }
+ render();
+}
+function headline(s){
+ $('adMeta').textContent=String(s.AD.activeDays)+' dias com discagens • '+s.AD.rows.length+' registros selecionados';
+ $('adaMeta').textContent=String(s.ADA.activeDays)+' dias com discagens • '+s.ADA.rows.length+' registros selecionados';
+ $('comparisonADLabel').textContent=s.AD.name+' • '+monthLabel(s.AD.month);
+ $('comparisonADALabel').textContent=s.ADA.name+' • '+monthLabel(s.ADA.month);
+ $('benchmarkCoverage').innerHTML='<span><b style="color:#7cb2fa">AD</b> '+s.AD.activeDays+' dias trabalhados</span><span><b style="color:#ffab83">ADA</b> '+s.ADA.activeDays+' dias trabalhados</span>';
+ $('kpiDescription').textContent=state.mode==='average'?'Média dia · zeros excluídos por indicador':'Total do mês de cada tecnologia';
+ $('filterInfo').textContent='Comparação: '+monthLabel(s.AD.month)+' (AD) × '+monthLabel(s.ADA.month)+' (ADA). Médias excluem dias zerados por indicador. Agentes representam média diária de logados, sem deduplicação entre campanhas.';
+ $('rangeLabel').textContent=monthLabel(s.AD.month)+' × '+monthLabel(s.ADA.month);
+}
+function renderKpis(s){
+ const metrics=['tentativas','atendidas','cpc','acordo'];
+ $('kpis').innerHTML=metrics.map(key=>{
+  const a=s.AD.stats[key],b=s.ADA.stats[key],d=deltaInfo(a,b);
+  const title=metricLabels[key];
+  return '<article class="panel kpi"><div class="kpi-title">'+title+'</div><div class="values">'+
+    '<div><small class="ad-label">AD</small><div class="number" title="'+nfmt(a,1)+'">'+short(a,key)+'</div></div>'+
+    '<div><small class="ada-label">ADA</small><div class="number" title="'+nfmt(b,1)+'">'+short(b,key)+'</div></div>'+
+    '</div><div class="kpi-foot"><span class="delta '+d.cls+'">'+d.text+'</span><span>Variação ADA × AD</span></div></article>';
+ }).join('');
+}
+function renderMatrix(s){
+ const rows=[
+  {name:'Dias trabalhados',a:s.AD.activeDays,b:s.ADA.activeDays,format:'integer',neutral:true},
+  {name:'Mês de referência',a:monthLabel(s.AD.month),b:monthLabel(s.ADA.month),format:'text'},
+  {name:'Mailing',key:'mailing',group:true,neutral:true},
+  {name:'Agentes (média/dia)',a:s.AD.agentMean,b:s.ADA.agentMean,format:'agents',neutral:true},
+  {name:'Tentativas',key:'tentativas',neutral:true},
+  {name:'Atendidas',key:'atendidas'},
+  {name:'CPC',key:'cpc'},
+  {name:'Acordos',key:'acordo',accent:true},
+  {name:'Spin',key:'spin',group:true},
+  {name:'Hit Rate',key:'hitrate'},
+  {name:'Taxa CPC',key:'taxaCpc'},
+  {name:'Conversão (Acordo / CPC)',key:'conversao',accent:true},
+  {name:'Eficiência (Acordos / Tentativas)',key:'eficiencia',accent:true},
+  {name:'Mailing / Agente',key:'mailing',prod:true,group:true},
+  {name:'Tentativas / Agente',key:'tentativas',prod:true},
+  {name:'Atendidas / Agente',key:'atendidas',prod:true},
+  {name:'CPC / Agente',key:'cpc',prod:true},
+  {name:'Acordos / Agente',key:'acordo',prod:true,accent:true}
+ ];
+ $('comparisonBody').innerHTML=rows.map(row=>{
+  const a=row.a!==undefined?row.a:(row.prod?s.AD.productivity[row.key]:s.AD.stats[row.key]);
+  const b=row.b!==undefined?row.b:(row.prod?s.ADA.productivity[row.key]:s.ADA.stats[row.key]);
+  const isText=row.format==='text';
+  const name='<td>'+esc(row.name)+'</td>';
+  let ad,ada,ch='—',cls='';
+  if(isText){ad=esc(a);ada=esc(b);}
+  else{
+   ad=row.format==='integer'?nfmt(a):row.format==='agents'?nfmt(a,1):row.prod?nfmt(a,1):fmt(a,row.key);
+   ada=row.format==='integer'?nfmt(b):row.format==='agents'?nfmt(b,1):row.prod?nfmt(b,1):fmt(b,row.key);
+   const d=deltaInfo(a,b,{invert:row.key==='hangup'});
+   ch=d.text;cls=row.neutral?'':d.cls;
+  }
+  return '<tr class="'+(row.group?'row-divider ':'')+(row.accent?'row-accent':'')+'">'+name+'<td>'+ad+'</td><td>'+ada+'</td><td><span class="chg '+cls+'">'+esc(ch)+'</span></td></tr>';
+ }).join('');
+}
+function renderFunnel(s){
+ const steps=['mailing','tentativas','atendidas','cpc','acordo'];
+ $('funnel').innerHTML=steps.map(key=>{
+  const a=s.AD.stats[key],b=s.ADA.stats[key],max=Math.max(a,b,1),d=deltaInfo(a,b);
+  return '<div class="funnel-row"><span class="stage">'+metricLabels[key]+'</span><div class="bar-pair">'+
+   '<div class="bar-line"><div class="bar-bg"><div class="bar-fill ad" style="width:'+(Math.max(0,a)/max*100).toFixed(2)+'%"></div></div><span class="bar-number">'+fmt(a,key)+'</span></div>'+
+   '<div class="bar-line"><div class="bar-bg"><div class="bar-fill ada" style="width:'+(Math.max(0,b)/max*100).toFixed(2)+'%"></div></div><span class="bar-number">'+fmt(b,key)+'</span></div></div>'+
+   '<span class="funnel-delta">'+d.text+'</span></div>';
+ }).join('');
+}
+function renderEfficiency(s){
+ const fields=[
+  ['Spin','spin'],['Hit Rate','hitrate'],['Taxa CPC','taxaCpc'],['Conversão','conversao'],
+  ['Eficiência','eficiencia'],['Acordos / Agente',null]
+ ];
+ $('efficiency').innerHTML=fields.map(([label,key])=>{
+  const a=key?s.AD.stats[key]:s.AD.productivity.acordo;
+  const b=key?s.ADA.stats[key]:s.ADA.productivity.acordo;
+  const fn=key?x=>fmt(x,key):x=>nfmt(x,1);
+  const d=deltaInfo(a,b);
+  return '<div class="eff-item"><div class="eff-label">'+label+'</div><div class="eff-number"><span style="color:#96c5ff">'+fn(a)+'</span> <span style="color:#7e96b6">/</span> <span style="color:#ffb08f">'+fn(b)+'</span></div>'+
+  '<div class="eff-legend"><i class="legend-line"></i>AD<i class="legend-line orange"></i>ADA <b style="margin-left:auto;color:'+(d.cls==='pos'?'#76e2ba':d.cls==='neg'?'#f3ad9f':'#b6c4d5')+'">'+d.text+'</b></div></div>';
+ }).join('');
+}
+function renderDaily(s){
+ const days=[...s.AD.days.map(x=>({...x,tech:'AD'})),...s.ADA.days.map(x=>({...x,tech:'ADA'}))].sort((a,b)=>a.date.localeCompare(b.date)||a.tech.localeCompare(b.tech));
+ $('dailyHint').textContent=days.length+' linhas • valores diários reais dos meses selecionados';
+ $('dailyBody').innerHTML=days.length?days.map(d=>{
+  const m=d.values;
+  const values=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+d.tech+'</span>',
+   ...volumeKeys.map(k=>nfmt(m[k])),nfmt(m.spin,2),fmt(m.hitrate,'hitrate'),fmt(m.taxaCpc,'taxaCpc'),fmt(m.conversao,'conversao'),fmt(m.taxaHangup,'taxaHangup')];
+  return '<tr>'+values.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
+ }).join(''):'<tr><td colspan="14">Nenhuma informação para os filtros.</td></tr>';
+}
+function renderCampaigns(s){
+ const list=[...s.AD.rows,...s.ADA.rows];
+ const groups=new Map();
+ for(const row of list){
+  const key=row.agente+':'+row.campaign_id;
+  if(!groups.has(key))groups.set(key,{agent:row.agente,id:row.campaign_id,name:row.nome_campanha,rows:[]});
+  groups.get(key).rows.push(row);
+ }
+ $('campaignBody').innerHTML=groups.size?[...groups.values()].sort((a,b)=>a.agent.localeCompare(b.agent)||a.id-b.id).map(g=>{
+  const d=dailyRows(g.rows),active=d.filter(r=>r.values.tentativas>0).length;
+  const stats=state.mode==='average'?averageDaily(d):sumRows(g.rows);
+  const values=[esc(g.name),'<span class="type-tag '+g.agent.toLowerCase()+'">'+g.agent+'</span>',nfmt(active),...volumeKeys.map(k=>fmt(stats[k],k)),fmt(stats.conversao,'conversao')];
+  return '<tr>'+values.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
+ }).join(''):'<tr><td colspan="11">Nenhuma campanha selecionada.</td></tr>';
+}
+function chartVal(item,key){return item?Number(item.values[key]||0):null;}
+function popupInfo(side,entry,dayNumber,key,baseline){
+ const date=side.month+'-'+String(dayNumber).padStart(2,'0');
+ const value=chartVal(entry,key),hasDay=entry!==undefined;
+ const diff=hasDay&&baseline>0?(value-baseline)/baseline*100:null;
+ const direction=diff===null?'':diff>=0?'up':'down';
+ const diffText=diff===null?'Sem média válida':(diff>0?'+':'')+nfmt(diff,1)+'% vs média';
+ return '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+side.agent.toLowerCase()+'"></i> '+side.agent+' · '+esc(longDate(date))+'</span><b>'+ (hasDay?fmt(value,key,'total'):'Sem registro') +'</b></div>'+
+ '<div class="hover-info">Média de '+esc(monthLabel(side.month))+': <strong>'+fmt(baseline,key,'average')+'</strong> · <span class="hover-delta '+direction+'">'+diffText+'</span>'+(hasDay&&value===0?' · dia zerado excluído da média':'')+'</div></div>';
+}
+function showPopup(event,day,popupContext){
+ const target=$('chartPopup');
+ const title='<div class="hover-title">'+esc(metricLabels[popupContext.key])+' · dia '+String(day).padStart(2,'0')+'</div>';
+ target.innerHTML=title+
+  popupInfo(popupContext.AD,popupContext.adByDay.get(day),day,popupContext.key,popupContext.averageAD)+
+  popupInfo(popupContext.ADA,popupContext.adaByDay.get(day),day,popupContext.key,popupContext.averageADA);
+ target.hidden=false;
+ const rect=target.getBoundingClientRect();
+ const anchor=event.clientX!==undefined?{x:event.clientX,y:event.clientY}:(event.target.getBoundingClientRect()?{x:event.target.getBoundingClientRect().left,y:event.target.getBoundingClientRect().top}:{x:40,y:230});
+ const windowWidth=document.documentElement.clientWidth,windowHeight=document.documentElement.clientHeight;
+ const desiredLeft=anchor.x-rect.width/2;
+ const left=Math.max(8,Math.min(windowWidth-rect.width-8,desiredLeft));
+ let top=anchor.y-rect.height-18;
+ if(top<8)top=Math.min(windowHeight-rect.height-8,anchor.y+22);
+ target.style.left=Math.max(8,left)+'px';target.style.top=Math.max(8,top)+'px';
+}
+function hidePopup(){$('chartPopup').hidden=true;}
+function renderChart(s){
+ hidePopup();
+ const key=$('chartMetric').value;
+ const adByDay=new Map(s.AD.days.map(day=>[Number(day.date.slice(-2)),day]));
+ const adaByDay=new Map(s.ADA.days.map(day=>[Number(day.date.slice(-2)),day]));
+ const averageAD=nonzeroMean(s.AD.days.map(day=>day.values[key]));
+ const averageADA=nonzeroMean(s.ADA.days.map(day=>day.values[key]));
+ const chip=(agent,side,v)=>'<div class="month-chip '+(agent==='ADA'?'ada':'')+'"><i class="chip-dot"></i><div><span>'+agent+' · média '+esc(monthLabel(side.month))+'</span><b>'+fmt(v,key,'average')+'</b></div></div>';
+ $('chartMonthAverages').innerHTML=chip('AD',s.AD,averageAD)+chip('ADA',s.ADA,averageADA);
+ $('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(monthLabel(s.AD.month))+'</span><span><i class="dot ada"></i>ADA · '+esc(monthLabel(s.ADA.month))+'</span><span style="color:#8398b4">⋯ Linhas tracejadas: média do mês, zeros excluídos</span>';
+ const dayKeys=[...new Set([...adByDay.keys(),...adaByDay.keys()])].sort((a,b)=>a-b);
+ if(dayKeys.length===0){$('chartBox').innerHTML='<p class="empty-state">Nenhum dado para o filtro selecionado.</p>';return;}
+ const maxDay=Math.max(7,...dayKeys),W=1050,H=310,padL=62,padR=24,padTop=28,padBottom=43;
+ const iw=W-padL-padR,ih=H-padTop-padBottom;
+ const vals=[averageAD,averageADA,...s.AD.days.map(d=>d.values[key]),...s.ADA.days.map(d=>d.values[key])].filter(x=>Number.isFinite(x));
+ const max=Math.max(1,...vals)*1.12;
+ const x=d=>padL+(d-1)/(maxDay-1)*iw;
+ const y=v=>padTop+ih-Math.max(0,v)/max*ih;
+ const faxis=v=>isPct(key)?nfmt(v,1)+'%':v>=1000000?nfmt(v/1000000,1)+'mi':v>=1000?nfmt(v/1000,1)+'k':nfmt(v);
+ let svg='<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfico comparativo '+esc(metricLabels[key])+' AD '+esc(monthLabel(s.AD.month))+' e ADA '+esc(monthLabel(s.ADA.month))+'">';
+ for(let tick=0;tick<=4;tick++){const n=max*tick/4,yy=y(n);svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#29415f" stroke-dasharray="3 5"/><text x="'+(padL-9)+'" y="'+(yy+4)+'" fill="#8fa4c4" font-size="11" text-anchor="end">'+faxis(n)+'</text>';}
+ for(let d=1;d<=maxDay;d+=maxDay>19?5:2){svg+='<text x="'+x(d)+'" y="'+(H-13)+'" fill="#819ab9" font-size="11" text-anchor="middle">'+String(d).padStart(2,'0')+'</text>';}
+ svg+='<text x="'+(W-padR)+'" y="'+(H-12)+'" fill="#819ab9" font-size="10" text-anchor="end">Dia do mês</text>';
+ const lines=[{agent:'AD',color:'#529cfb',data:adByDay,avg:averageAD},{agent:'ADA',color:'#fb6b3d',data:adaByDay,avg:averageADA}];
+ for(const line of lines){
+  if(line.avg>0){const yy=y(line.avg);svg+='<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+line.color+'" stroke-width="1.2" stroke-dasharray="7 7" opacity=".65"/>';}
+  let path='',draw=false;
+  for(let d=1;d<=maxDay;d++){
+   if(!line.data.has(d)){draw=false;continue;}
+   const value=chartVal(line.data.get(d),key);
+   path+=(draw?'L':'M')+x(d).toFixed(2)+' '+y(value).toFixed(2)+' ';
+   draw=true;
+  }
+  svg+='<path d="'+path+'" fill="none" stroke="'+line.color+'" stroke-width="3.1" stroke-linejoin="round" stroke-linecap="round"/>';
+  for(const [d,item] of line.data.entries()){
+   const value=chartVal(item,key),xx=x(d),yy=y(value);
+   svg+='<circle class="plot-point" data-day="'+d+'" data-tech="'+line.agent+'" cx="'+xx+'" cy="'+yy+'" r="4.6" fill="'+line.color+'" stroke="#07162f" stroke-width="2" tabindex="0" role="button" aria-label="'+esc(line.agent+' dia '+d+': '+fmt(value,key,'total'))+'"><title>'+esc(line.agent+' dia '+d+' • '+fmt(value,key,'total'))+'</title></circle>';
+  }
+ }
+ svg+='</svg>';$('chartBox').innerHTML=svg;
+ const ctx={AD:s.AD,ADA:s.ADA,adByDay,adaByDay,averageAD,averageADA,key};
+ $('chartBox').querySelectorAll('.plot-point').forEach(circle=>{
+  const d=Number(circle.dataset.day);
+  circle.addEventListener('pointerenter',e=>showPopup(e,d,ctx));
+  circle.addEventListener('pointermove',e=>showPopup(e,d,ctx));
+  circle.addEventListener('pointerleave',hidePopup);
+  circle.addEventListener('focus',e=>{const rect=circle.getBoundingClientRect();showPopup({clientX:rect.left+rect.width/2,clientY:rect.top},d,ctx)});
+  circle.addEventListener('blur',hidePopup);
+  circle.addEventListener('click',e=>showPopup(e,d,ctx));
+ });
+}
+function render(){
+ const comparison={AD:calcSide('AD'),ADA:calcSide('ADA')};
+ headline(comparison);
+ renderKpis(comparison);
+ renderMatrix(comparison);
+ renderFunnel(comparison);
+ renderEfficiency(comparison);
+ renderChart(comparison);
+ renderDaily(comparison);
+ renderCampaigns(comparison);
+}
+function downloadCSV(){
+ const rows=[...chosenRows('AD'),...chosenRows('ADA')];
+ const fields=['data','campaign_id','nome_campanha','agente','logados','tentativas','atendidas','cpc','acordo','hangup','mailing'];
+ const headings=['Data','CampaignId','NomeCampanha','Agente','Logados','Tentativas','Atendidas','CPC','Acordos','Hangup','Mailing'];
+ const lines=[headings.map(x=>'"'+x+'"').join(';')];
+ for(const row of rows)lines.push(fields.map(k=>'"'+String(row[k]??'').replace(/"/g,'""')+'"').join(';'));
+ const file=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(file),a=document.createElement('a');
+ a.href=url;a.download='energisa_ad_'+state.months.AD+'_ada_'+state.months.ADA+'.csv';
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function bind(){
+ $('monthAD').addEventListener('change',event=>{state.months.AD=event.target.value;render()});
+ $('monthADA').addEventListener('change',event=>{state.months.ADA=event.target.value;render()});
+ $('btnTotal').addEventListener('click',()=>displayMode('total'));
+ $('btnAverage').addEventListener('click',()=>displayMode('average'));
+ $('chartMetric').addEventListener('change',render);
+ $('exportBtn').addEventListener('click',downloadCSV);
+ document.querySelectorAll('[data-pick]').forEach(btn=>btn.addEventListener('click',()=>setCampaigns(btn.dataset.agent,btn.dataset.pick==='all')));
+ $('resetBtn').addEventListener('click',()=>{buildFilters();$('chartMetric').value='acordo';displayMode('average')});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePopup()});
+ document.addEventListener('click',e=>{
+  // Fecha os seletores ao clicar fora. Checkboxes e botões internos permanecem disponíveis.
+  for(const id of ['adPicker','adaPicker']){const el=$(id);if(el.open&&!el.contains(e.target))el.open=false;}
+ });
+}
+async function start(){
+ const loading=$('loading');
+ try{
+  loading.textContent='Carregando benchmark Energisa do Neon...';
+  const response=await fetch(API_URL,{credentials:'same-origin',cache:'no-store'});
+  if(!response.ok){
+   let code='http_'+response.status;
+   try{const data=await response.json();if(typeof data.error==='string')code=data.error}catch(_){}
+   const ex=new Error('Energisa API '+code);ex.code=code;throw ex;
+  }
+  const payload=await response.json();
+  if(!Array.isArray(payload.rows)||!payload.rows.length)throw new Error('Resposta vazia');
+  state.rows=payload.rows.map(row=>({...row,campaign_id:Number(row.campaign_id)}));
+  buildFilters();bind();
+  loading.classList.add('hidden');$('dashboard').classList.remove('hidden');
+  render();
+ }catch(error){
+  console.error('Energisa: erro no carregamento',error);
+  const msg={
+   database_connection_failed:'Não foi possível conectar ao Neon. Verifique a conexão no serviço.',
+   table_not_found:'A tabela Energisa não existe no banco configurado para o Cockpit.',
+   database_permission_denied:'A conexão não tem autorização de leitura da tabela Energisa.',
+   authentication_required:'Sua sessão expirou. Faça login novamente.',
+   forbidden:'Sem permissão de acesso à Energisa.',
+   no_data:'A tabela diária da Energisa está vazia.',
+   data_source_unavailable:'Fonte de dados indisponível. Consulte os logs do Cockpit.'
+  };
+  loading.replaceChildren();
+  loading.style.flexDirection='column';loading.style.textAlign='center';loading.style.gap='12px';
+  const title=document.createElement('strong');title.textContent='Falha ao carregar o comparativo Energisa';
+  const description=document.createElement('span');description.textContent=msg[error.code]||'Não foi possível iniciar o painel. Verifique o serviço ou recarregue a página.';
+  const retry=document.createElement('button');retry.type='button';retry.className='export';retry.textContent='Tentar novamente';retry.addEventListener('click',start);
+  loading.append(title,description,retry);
+ }
 }
 start();
 })();
