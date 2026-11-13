@@ -370,15 +370,86 @@ h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Ar
 .assist-funnel-chevron.classify-link{font-size:17px;font-weight:900;opacity:.85;height:14px;letter-spacing:3px;line-height:14px}
 .assist-funnel-chevron.classify-link:after{content:"";display:block;position:absolute;left:50%;height:3px;width:1px;background:currentColor;opacity:.38}
 @media(prefers-reduced-motion:reduce){.chart-svg{animation:none!important}}
+
+/* ENERGISA | Visão dia a dia e menu recolhível. Estilo preservado do Cockpit tecnológico. */
+.sidebar{transition:width .25s ease,flex-basis .25s ease,padding .25s ease}
+.sidebar-toggle{align-self:flex-end;flex:none;display:grid;place-items:center;width:34px;height:34px;min-height:34px;margin:0 0 9px;border-radius:10px;border:1px solid rgba(78,167,225,.36);color:#cceeff;background:rgba(15,70,108,.42);font-size:22px;font-weight:900;cursor:pointer;transition:.18s ease}
+.sidebar-toggle:hover{color:#fff;border-color:#67dcff;background:rgba(28,103,143,.6)}
+.sidebar-toggle-icon{line-height:1}
+.sidebar .nav a,.sidebar .nav .inactive{display:flex;align-items:center;gap:7px;min-width:0}
+.sidebar .nav-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.sidebar-collapsed .sidebar{width:70px;flex-basis:70px;padding:19px 9px}
+body.sidebar-collapsed .sidebar .logo-wrap{min-height:55px;padding:6px 3px 12px;display:grid;place-items:center}
+body.sidebar-collapsed .sidebar .logo-wrap:before{content:"O";font-size:29px;color:#fb5c28;font-weight:950;text-shadow:0 0 12px #fb5c2866}
+body.sidebar-collapsed .sidebar .logo-wrap img,body.sidebar-collapsed .sidebar .caption,body.sidebar-collapsed .sidebar .nav-label,body.sidebar-collapsed .sidebar .bottom{display:none}
+body.sidebar-collapsed .sidebar-toggle{align-self:center}
+body.sidebar-collapsed .nav a,body.sidebar-collapsed .nav .inactive{justify-content:center;padding:11px 6px}
+body.sidebar-collapsed .nav-icon{width:auto}
+body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
+.view-pane[hidden]{display:none!important}
+.view-tabs{position:relative;flex-wrap:wrap;gap:9px;padding:6px;margin-top:16px;border:1px solid rgba(69,140,193,.20);border-radius:13px;background:rgba(5,22,45,.66);backdrop-filter:blur(15px)}
+.view-tabs .tab{padding:11px 15px;border-radius:9px;transition:background .2s ease,border .2s ease;color:#bad1e9}
+.view-tabs .tab.active{background:linear-gradient(90deg,rgba(251,92,40,.2),rgba(42,130,197,.1));color:#fff;border-color:rgba(251,92,40,.67);box-shadow:inset 3px 0 0 #fb5c28}
+.view-tabs .tab:not(:disabled):hover{border-color:#6bcdf3;color:#fff}
+.daily-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:19px 0 16px;border:1px solid rgba(68,162,219,.28);background:linear-gradient(100deg,rgba(7,27,51,.88),rgba(17,33,56,.64));padding:21px 23px;border-radius:17px}
+.daily-hero h2{font:850 clamp(23px,2.3vw,34px) Avenir,Asap,"Segoe UI",sans-serif;letter-spacing:-.7px;margin:4px 0}.daily-hero h2 span{color:#fb793e}
+.daily-hero p{font-size:12px;color:#aec6db;line-height:1.6;margin:0;max-width:760px}
+.daily-hero-badge{font-size:11px;font-weight:750;color:#b8dbef;border:1px solid rgba(73,170,211,.3);background:rgba(5,38,65,.8);padding:10px 12px;border-radius:11px;display:flex;align-items:center;gap:7px}
+.daily-chart-panel,.heatmap-panel,.daily-analysis-panel{padding:20px 21px;border-radius:17px;margin:0 0 19px}
+.daily-chart-controls,.heatmap-controls{display:flex;flex-direction:column;gap:6px}
+.daily-chart-controls label,.heatmap-controls label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;font-weight:850;color:#a9c8df}
+.daily-chart-controls select,.heatmap-controls select{min-width:235px;max-width:100%;padding:10px 12px;background:rgba(10,37,64,.95);color:#f4faff;border:1px solid rgba(69,159,211,.4);border-radius:9px;min-height:43px}
+.daily-quick{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 14px}
+.daily-quick button{padding:8px 11px;background:rgba(9,44,72,.8);border:1px solid rgba(73,159,219,.3);border-radius:9px;font-size:10px;font-weight:850;color:#a9cde6;transition:.2s ease}
+.daily-quick button:hover,.daily-quick button.active{color:#fff;border-color:rgba(54,197,241,.7);background:rgba(19,110,153,.43)}
+.daily-summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:11px 0 17px}
+.daily-summary-card{background:linear-gradient(145deg,rgba(9,34,65,.92),rgba(8,27,52,.7));border:1px solid rgba(62,141,204,.32);border-radius:12px;padding:13px 15px;min-width:0}
+.daily-summary-card.ada{border-color:rgba(251,92,40,.34);background:linear-gradient(145deg,rgba(61,30,45,.85),rgba(24,24,47,.72))}
+.daily-summary-card .daily-label{font-size:10px;color:#9bbad7;letter-spacing:.3px}.daily-summary-card .daily-value{display:block;color:#eef8ff;font-size:clamp(17px,1.6vw,23px);font-weight:900;margin:7px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily-summary-card small{font-size:10px;color:#9bbad7}
+.daily-chart-stage .chart-box{min-height:290px}.daily-chart-note{margin-top:10px;font-size:10px;line-height:1.6;color:#8eb2d0}
+.heatmap-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:0 0 15px}
+.heatmap-heading h3{font-size:19px;letter-spacing:-.25px;margin:0 0 5px}.heatmap-heading p{color:#aac4da;font-size:11px;line-height:1.55;margin:0}
+.heatmap-legend{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin:12px 0 17px;font-size:10px;color:#aecce5}
+.heatmap-legend>span{display:flex;align-items:center;gap:6px}
+.heat-swatch{display:inline-block;width:10px;height:10px;border-radius:3px;border:1px solid #ffffff2a}.heat-swatch.heat-up{background:#156a71}.heat-swatch.heat-mid{background:#253c59}.heat-swatch.heat-down{background:#773b42}
+.heatmap-area{margin:0 0 16px;border-radius:12px;border:1px solid rgba(61,139,193,.25);overflow:hidden;background:rgba(4,20,41,.49)}
+.heatmap-title{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;font-size:13px;font-weight:900;gap:12px}
+.heatmap-title small{font-weight:650;color:#9cbcd5;font-size:10px;margin-left:8px}
+.heatmap-title.ad{background:linear-gradient(90deg,rgba(26,99,165,.5),rgba(11,40,69,.6));color:#b5dfff}
+.heatmap-title.ada{background:linear-gradient(90deg,rgba(166,65,38,.5),rgba(44,22,40,.5));color:#ffc2a6}
+.heatmap-title>span:last-child{font-size:10px;color:#bdcfdf}
+.heatmap-scroll{overflow:auto;max-height:630px;scrollbar-color:#356a8b #081a31;scrollbar-width:thin}
+.heatmap-table{border-collapse:separate;border-spacing:3px;min-width:max-content;padding:4px 6px 8px}
+.heatmap-table th{position:sticky;top:0;z-index:3;font-size:10px;background:#0e2e4f;color:#b4d2e8;padding:9px 3px;text-align:center;min-width:90px;border-radius:5px;white-space:nowrap}
+.heatmap-table th:first-child{left:0;z-index:5;min-width:170px;text-align:left;padding-left:10px}
+.heatmap-table td{padding:0;min-width:90px;border:0}
+.heatmap-table td:first-child{position:sticky;left:0;z-index:2;background:rgba(10,38,67,.98);color:#d2e8f7;font-size:10px;font-weight:850;padding:6px 10px;border-radius:5px;min-width:170px;max-width:170px;white-space:normal}
+.heat-cell{display:flex;align-items:center;flex-direction:column;justify-content:center;gap:4px;width:100%;min-height:50px;border-radius:5px;border:1px solid rgba(255,255,255,.045);background:#253c59;color:#e8f2ff;cursor:pointer;transition:filter .14s ease,border .14s ease}
+.heat-cell:hover,.heat-cell:focus-visible{filter:brightness(1.25);border-color:#d3ebff;outline-offset:1px}
+.heat-cell.heat-up{background:linear-gradient(145deg,#0d565c,#1e7473)}.heat-cell.heat-up.strong{background:linear-gradient(145deg,#0b6268,#159485)}
+.heat-cell.heat-down{background:linear-gradient(145deg,#562d40,#82444d)}.heat-cell.heat-down.strong{background:linear-gradient(145deg,#792d40,#a84b48)}
+.heat-cell.heat-mid{background:#243a54}
+.heat-cell .heat-number{font-size:10px;font-weight:900;white-space:nowrap}.heat-cell .heat-delta{font-size:9px;font-weight:750;opacity:.9}
+.heat-na{display:flex;align-items:center;justify-content:center;min-height:50px;background:#112840;color:#62849f;border-radius:5px;font-size:11px}
+.heatmap-detail{padding:14px 16px;border:1px solid rgba(72,167,214,.29);border-radius:11px;background:rgba(8,37,66,.72);font-size:12px;color:#d8eaf8;line-height:1.6}
+.heatmap-detail strong{color:#fff}.heatmap-detail .detail-up{color:#67e4c0}.heatmap-detail .detail-down{color:#ffaaa4}
+.daily-analytic-scroll{max-height:580px;overflow:auto}.daily-analytic{min-width:1620px}
+.daily-analytic th{background:rgba(13,50,81,.96)}.daily-analytic th:first-child,.daily-analytic td:first-child{position:sticky;left:0;background:#102f4e;z-index:2}
+.daily-count{color:#a8cae4;font-size:10px}
+@media(max-width:900px){.daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.heatmap-table th:first-child,.heatmap-table td:first-child{min-width:130px;max-width:130px}}
+@media(max-width:650px){.sidebar-collapsed .sidebar{width:100%;height:auto;flex-basis:auto}.sidebar-collapsed .content{max-width:100%}.daily-chart-panel,.heatmap-panel,.daily-analysis-panel{padding:13px}.daily-chart-controls select{width:100%}.daily-hero{padding:14px}.daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.view-tabs .right{margin-left:0}}
+@media(prefers-reduced-motion:reduce){.sidebar,.heat-cell,.daily-quick button{transition:none!important}}
 </style>
 </head>
 <body>
 {% include "background.html" %}
 <div class="layout">
-<aside class="sidebar">
+<aside class="sidebar" id="sidebarMenu">
+ <button type="button" id="sidebarToggle" class="sidebar-toggle" aria-label="Recolher menu lateral" aria-expanded="true" title="Recolher menu lateral"><span class="sidebar-toggle-icon" aria-hidden="true">«</span></button>
  <div class="logo-wrap"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="OLOS"></div>
  <div class="caption">GESTÃO DE PERFORMANCE</div>
- <nav class="nav"><a href="{{ url_for('dashboard') }}"><span class="nav-icon">▦</span> Menu Cockpit</a><a class="active" href="{{ url_for('energisa_painel') }}"><span class="nav-icon">◉</span> AD × ADA Energisa</a><span class="inactive"><span class="nav-icon">◷</span> Hora a hora (em breve)</span></nav>
+ <nav class="nav"><a href="{{ url_for('dashboard') }}" title="Menu Cockpit"><span class="nav-icon">▦</span><span class="nav-label">Menu Cockpit</span></a><a class="active" href="{{ url_for('energisa_painel') }}" title="Energisa"><span class="nav-icon">◉</span><span class="nav-label">AD × ADA Energisa</span></a><span class="inactive" title="Hora a hora em breve"><span class="nav-icon">◷</span><span class="nav-label">Hora a hora (em breve)</span></span></nav>
  <div class="bottom"><a href="{{ url_for('dashboard') }}">← Voltar ao Cockpit</a></div>
 </aside>
 <main class="content">
@@ -447,8 +518,13 @@ h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Ar
   </div>
   <div class="info" id="filterInfo">A Média dia considera somente dias com valor positivo para cada indicador.</div>
 </section>
-<div class="tabs"><button class="tab active">▦ Comparativo executivo</button><button class="tab" disabled title="A base fornecida não possui hora">◷ Hora a hora · em breve</button><button class="export right" id="exportBtn">↓ Exportar CSV</button></div>
-
+<div class="tabs view-tabs" role="tablist" aria-label="Visões da Energisa">
+ <button type="button" id="tabComparison" class="tab active" role="tab" aria-selected="true" aria-controls="viewComparison">▦ Comparativo executivo</button>
+ <button type="button" id="tabDaily" class="tab" role="tab" aria-selected="false" aria-controls="viewDaily">▥ Visão dia a dia</button>
+ <button type="button" class="tab" disabled title="A base disponível não contém registros por hora">◷ Hora a hora · em breve</button>
+ <button type="button" class="export right" id="exportBtn">↓ Exportar CSV</button>
+</div>
+<section id="viewComparison" class="view-pane" role="tabpanel" aria-labelledby="tabComparison">
 <div class="benchmark-title" id="summarySection">
   <div><div class="eyebrow">ASSISTPAY STYLE · COMPARATIVO AD × ADA</div><h2>Performance executiva <span class="assist-highlight">Energisa</span></h2><p>Visão consolidada por tecnologia, com períodos independentes e variações ADA em relação ao AD.</p></div>
   <div class="benchmark-coverage" id="benchmarkCoverage"></div>
@@ -531,6 +607,72 @@ h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Ar
   <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Tecnologia</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit Rate</th><th>Taxa CPC</th><th>VoiceMail / Atendidas %</th><th>VoiceMail / CPC %</th><th>Conversão</th><th>% Hangup</th></tr></thead><tbody id="dailyBody"></tbody></table></div></section>
   <div class="section-label"><h2>Produtividade por campanha</h2><span>Campanhas selecionadas no período</span></div>
   <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Campanha</th><th>Tecnologia</th><th>Dias ativos</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Conv.</th></tr></thead><tbody id="campaignBody"></tbody></table></div></section>
+</section>
+<section id="viewDaily" class="view-pane" role="tabpanel" aria-labelledby="tabDaily" hidden>
+ <div class="daily-hero">
+  <div><div class="section-kicker">INTELIGÊNCIA OPERACIONAL / DIA A DIA</div><h2>Visão dia a dia <span>AD × ADA</span></h2>
+   <p>Todos os volumes, taxas e produtividade. Compare cada dia com a média do mês calendário da campanha selecionada.</p></div>
+  <div class="daily-hero-badge"><span class="mini-pulse"></span><span id="dailyCoverage">Calculando cobertura diária...</span></div>
+ </div>
+ <section class="panel daily-chart-panel">
+  <div class="chart-head">
+   <div><div class="section-kicker">EVOLUÇÃO DIÁRIA INTERATIVA</div><h3>Indicadores AD × ADA</h3><p>Selecione qualquer indicador. Passe o mouse nos pontos para analisar o dia versus a média do mês.</p></div>
+   <div class="daily-chart-controls">
+    <label for="chartMetricDaily">Indicador</label>
+    <select id="chartMetricDaily" aria-label="Indicador da visão dia a dia">
+     <optgroup label="Volumes">
+      <option value="mailing">Mailing</option><option value="logados">Agentes / Logados</option>
+      <option value="tentativas">Tentativas / Discagens</option><option value="atendidas">Atendidas</option>
+      <option value="cpc">CPC</option><option value="voicemail">VoiceMail</option>
+      <option value="acordo" selected>Acordos</option><option value="hangup">Hangup</option>
+     </optgroup>
+     <optgroup label="Taxas e conversão">
+      <option value="spin">Spin</option><option value="hitrate">Hit Rate (%)</option>
+      <option value="taxaCpc">CPC / Atendidas (%)</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas (%)</option>
+      <option value="taxaVoiceMailCpc">VoiceMail / CPC (%)</option><option value="conversao">Acordo / CPC (%)</option>
+      <option value="eficiencia">Eficiência (%)</option><option value="taxaHangup">Hangup / Atendidas (%)</option>
+      <option value="taxaHangupTentativas">Hangup / Discagens (%)</option>
+     </optgroup>
+     <optgroup label="Produtividade">
+      <option value="acordoLogado">Acordos / Agente</option>
+     </optgroup>
+    </select>
+   </div>
+  </div>
+  <div class="daily-quick" role="group" aria-label="Indicadores favoritos da visão diária">
+   <button type="button" data-daily-metric="acordo">Acordos</button>
+   <button type="button" data-daily-metric="cpc">CPC</button>
+   <button type="button" data-daily-metric="voicemail">VoiceMail</button>
+   <button type="button" data-daily-metric="taxaHangup">Hangup / Atendidas %</button>
+   <button type="button" data-daily-metric="taxaHangupTentativas">Hangup / Discagens %</button>
+  </div>
+  <div id="dailySummaryCards" class="daily-summary-cards"></div>
+  <div id="chartMonthAveragesDaily" class="chart-month-averages"></div>
+  <div class="chart-stage daily-chart-stage"><div id="chartBoxDaily" class="chart-box"></div></div>
+  <div id="chartLegendDaily" class="legend"></div>
+  <div class="daily-chart-note">Linhas tracejadas: média do mês completo. Para taxas, a referência mensal utiliza a razão entre os volumes somados do mês; para volumes, a média desconsidera os dias zerados.</div>
+ </section>
+ <section class="panel heatmap-panel" id="heatmapSection">
+  <div class="heatmap-heading"><div><div class="section-kicker">RADAR DE PERFORMANCE</div><h3>Heatmap de todos os indicadores</h3><p>Cada célula apresenta o valor do dia e sua diferença para a média mensal do mesmo indicador.</p></div>
+    <div class="heatmap-controls">
+     <label for="heatmapGroup">Grupo de indicadores</label>
+     <select id="heatmapGroup"><option value="all">Todos os indicadores</option><option value="volume">Volumes</option><option value="rate">Taxas e percentuais</option><option value="productivity">Produtividade</option></select>
+    </div>
+  </div>
+  <div class="heatmap-legend"><span><i class="heat-swatch heat-up"></i> Acima da média</span><span><i class="heat-swatch heat-mid"></i> Próximo da média (±5%)</span><span><i class="heat-swatch heat-down"></i> Abaixo da média</span><span>As cores indicam posição relativa, não necessariamente resultado favorável.</span></div>
+  <div class="heatmap-area"><div class="heatmap-title ad"><span>AD <small>Discador humano</small></span><span id="heatmapCountAD"></span></div><div class="heatmap-scroll" id="heatmapAD"></div></div>
+  <div class="heatmap-area"><div class="heatmap-title ada"><span>ADA <small>Discador digital</small></span><span id="heatmapCountADA"></span></div><div class="heatmap-scroll" id="heatmapADA"></div></div>
+  <div id="heatmapDetail" class="heatmap-detail" role="status" aria-live="polite">Clique em uma célula para consultar data, indicador, valor do dia, média mensal e variação.</div>
+ </section>
+ <section class="panel daily-analysis-panel">
+  <div class="heatmap-heading"><div><div class="section-kicker">ANÁLISE CONSOLIDADA / DIA</div><h3>Base analítica diária completa</h3><p>Todos os indicadores de cada dia. A tabela mantém os valores reais, independentemente do modo Total ou Média dia.</p></div><span id="dailyTableCount" class="daily-count"></span></div>
+  <div class="table-wrap daily-analytic-scroll">
+   <table class="data-table daily-analytic"><thead><tr>
+    <th>Data</th><th>Tecnologia</th><th>Agentes</th><th>Mailing</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit %</th><th>CPC %</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Acordo %</th><th>Efic %</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th><th>Acordos / AGV</th>
+   </tr></thead><tbody id="dailyExplorerBody"></tbody></table>
+  </div>
+ </section>
+</section>
   <div class="foot">Fonte: assistpay.energisa_ad_ada_diario (Neon). Os logados são somados entre campanhas; isso não representa necessariamente pessoas únicas. VoiceMail / Atendidas % = VoiceMail ÷ Atendidas × 100. VoiceMail / CPC % = VoiceMail ÷ CPC × 100. Taxas calculadas a partir dos volumes no modo Total; no modo Média dia são médias dos dias com valor positivo. A visão hora a hora será adicionada após disponibilidade de dados com granularidade horária.</div>
  </div>
 </main>
