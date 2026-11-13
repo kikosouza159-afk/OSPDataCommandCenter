@@ -585,7 +585,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 
 <section class="panel chart-panel" id="evolutionSection">
   <div class="chart-head"><div><div class="section-kicker">INTELIGÊNCIA DE TENDÊNCIA</div><h3>Evolução diária AD × ADA</h3><p>Evolução por dia do período, com referência da média mensal completa.</p></div>
-    <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option><option value="spin">Spin</option><option value="taxaCpc">CPC / Atendimento %</option><option value="eficiencia">Eficiência %</option><option value="taxaHangup">Hangup %</option></select>
+    <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option><option value="spin">Spin</option><option value="taxaCpc">CPC / Atendimento %</option><option value="eficiencia">Eficiência %</option><option value="taxaHangup">Hangup / Atendidas %</option><option value="taxaHangupTentativas">Hangup / Discagens %</option></select>
   </div>
   <div class="chart-command-row">
     <div class="chart-quick-metrics" role="group" aria-label="Indicadores rápidos">
@@ -604,7 +604,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 <div class="chart-hover-card" id="chartPopup" role="tooltip" hidden></div>
 
 <div class="section-label" id="detailsSection"><h2>Detalhamento diário</h2><span id="dailyHint">Totais por dia e tecnologia</span></div>
-  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Tecnologia</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit Rate</th><th>Taxa CPC</th><th>VoiceMail / Atendidas %</th><th>VoiceMail / CPC %</th><th>Conversão</th><th>% Hangup</th></tr></thead><tbody id="dailyBody"></tbody></table></div></section>
+  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Tecnologia</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit Rate</th><th>Taxa CPC</th><th>VoiceMail / Atendidas %</th><th>VoiceMail / CPC %</th><th>Conversão</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th></tr></thead><tbody id="dailyBody"></tbody></table></div></section>
   <div class="section-label"><h2>Produtividade por campanha</h2><span>Campanhas selecionadas no período</span></div>
   <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Campanha</th><th>Tecnologia</th><th>Dias ativos</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Conv.</th></tr></thead><tbody id="campaignBody"></tbody></table></div></section>
 </section>
@@ -687,11 +687,11 @@ const decFmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:1,maximumFract
 const dec2Fmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const volumeKeys=['mailing','logados','tentativas','atendidas','cpc','voicemail','acordo','hangup'];
-const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','eficiencia']);
-const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','eficiencia','acordoLogado'];
+const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia']);
+const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','acordoLogado'];
 const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'% Hangup',eficiencia:'Eficiência',acordoLogado:'Acordos / Agente'};
-const state={rows:[],mode:'average',showAverages:true,periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
+const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',acordoLogado:'Acordos / Agente'};
+const state={rows:[],mode:'average',showAverages:true,activeView:'comparison',heatmapGroup:'all',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
 const isPct=k=>percentageKeys.has(k);
 const nfmt=(n,precision=0)=>Number.isFinite(n)?(precision===2?dec2Fmt:precision===1?decFmt:intFmt).format(n):'—';
 const fmt=(value,key,mode=state.mode)=>{
@@ -718,6 +718,7 @@ function enrich(data){
   taxaVoiceMailCpc:rate(data.voicemail,data.cpc),
   conversao:rate(data.acordo,data.cpc),
   taxaHangup:rate(data.hangup,data.atendidas),
+  taxaHangupTentativas:rate(data.hangup,data.tentativas),
   eficiencia:rate(data.acordo,data.mailing),
   acordoLogado:data.logados>0?data.acordo/data.logados:0
  };
@@ -925,6 +926,8 @@ function renderMatrix(s){
   {label:'VoiceMail / CPC %',key:'taxaVoiceMailCpc'},
   {label:'Acordo %',key:'conversao',highlight:true},
   {label:'Efic %',key:'eficiencia',highlight:true},
+  {label:'Hangup / Atendidas %',key:'taxaHangup'},
+  {label:'Hangup / Discagens %',key:'taxaHangupTentativas'},
   {group:'Produtividade por agente'},
   {label:'Mailing / AGV',prod:'mailing'},
   {label:'Tentativas / AGV',prod:'tentativas'},
@@ -949,7 +952,7 @@ function renderMatrix(s){
  const display=(row,value)=>{
   if(row.special==='name'||row.special==='month')return esc(value);
   if(row.key==='spin')return nfmt(value,1);
-  if(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao'].includes(row.key))return nfmt(value,1)+'%';
+  if(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas'].includes(row.key))return nfmt(value,1)+'%';
   if(row.key==='eficiencia')return nfmt(value,2)+'%';
   return nfmt(value);
  };
@@ -976,7 +979,7 @@ function renderFunnel(s){
   {label:'VoiceMail',key:'voicemail',style:'blue'},
   {label:'Acordo',key:'acordo',style:'orange'}
  ];
- const rates=[['Spin','spin'],['Hit %','hitrate'],['CPC %','taxaCpc'],['VoiceMail / Atendidas %','taxaVoiceMailAtendidas'],['VoiceMail / CPC %','taxaVoiceMailCpc'],['Acordo %','conversao'],['Efic %','eficiencia']];
+ const rates=[['Spin','spin'],['Hit %','hitrate'],['CPC %','taxaCpc'],['VoiceMail / Atendidas %','taxaVoiceMailAtendidas'],['VoiceMail / CPC %','taxaVoiceMailCpc'],['Acordo %','conversao'],['Efic %','eficiencia'],['Hangup / Atendidas %','taxaHangup'],['Hangup / Discagens %','taxaHangupTentativas']];
  const agv=[['Mailing / AGV','mailing'],['Tentativas / AGV','tentativas'],['Atendidas / AGV','atendidas'],['CPC / AGV','cpc'],['Acordo / AGV','acordo']];
  for(const agent of ['AD','ADA']){
   const side=s[agent],main=$('funnel'+agent),delta=$('funnelDeltas'+agent);
@@ -1024,9 +1027,9 @@ function renderDaily(s){
  $('dailyBody').innerHTML=days.length?days.map(d=>{
   const m=d.values;
   const values=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+d.tech+'</span>',
-   ...volumeKeys.map(k=>nfmt(m[k])),nfmt(m.spin,2),fmt(m.hitrate,'hitrate'),fmt(m.taxaCpc,'taxaCpc'),fmt(m.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(m.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(m.conversao,'conversao'),fmt(m.taxaHangup,'taxaHangup')];
+   ...volumeKeys.map(k=>nfmt(m[k])),nfmt(m.spin,2),fmt(m.hitrate,'hitrate'),fmt(m.taxaCpc,'taxaCpc'),fmt(m.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(m.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(m.conversao,'conversao'),fmt(m.taxaHangup,'taxaHangup'),fmt(m.taxaHangupTentativas,'taxaHangupTentativas')];
   return '<tr>'+values.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
- }).join(''):'<tr><td colspan="17">Nenhuma informação para os filtros.</td></tr>';
+ }).join(''):'<tr><td colspan="18">Nenhuma informação para os filtros.</td></tr>';
 }
 function renderCampaigns(s){
  const list=[...s.AD.rows,...s.ADA.rows];
@@ -1079,26 +1082,28 @@ function showPopup(event,day,ctx){
  target.style.left=left+'px';target.style.top=Math.max(8,top)+'px';
 }
 function hidePopup(){$('chartPopup').hidden=true;}
-function renderChart(s){
+function renderChart(s,view='comparison'){
+ const isDaily=view==='daily';
+ const get=id=>$(id+(isDaily?'Daily':''));
  hidePopup();
- const key=$('chartMetric').value;
+ const key=get('chartMetric').value;
  const idxDay=(side,iso)=>dateNumber(iso)-dateNumber(side.period.start)+1;
  const adByDay=new Map(s.AD.days.map(day=>[idxDay(s.AD,day.date),day]));
  const adaByDay=new Map(s.ADA.days.map(day=>[idxDay(s.ADA,day.date),day]));
  const refCache=new Map();
  const monthAverage=(agent,month)=>{
   const cacheKey=agent+'|'+month+'|'+key;
-  if(!refCache.has(cacheKey))refCache.set(cacheKey,monthlyReference(agent,month,key));
+  if(!refCache.has(cacheKey))refCache.set(cacheKey,isDaily?dailyMonthlyBaseline(agent,month,key):monthlyReference(agent,month,key));
   return refCache.get(cacheKey);
  };
  const chip=(agent,side)=>'<div class="month-chip '+(agent==='ADA'?'ada':'')+'"><i class="chip-dot"></i><div><span>'+agent+' · média diária do período</span><b>'+fmt(side.average[key],key,'average')+'</b></div></div>';
- $('chartMonthAverages').innerHTML=chip('AD',s.AD)+chip('ADA',s.ADA);
- $('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(rangeLabel(s.AD.period))+'</span><span><i class="dot ada"></i>ADA · '+esc(rangeLabel(s.ADA.period))+'</span>'+(state.showAverages?'<span style="color:#8398b4">⋯ Tracejado: média do mês calendário</span>':'');
- const avgToggle=$('toggleChartAvg');avgToggle.classList.toggle('is-active',state.showAverages);avgToggle.setAttribute('aria-pressed',String(state.showAverages));
- document.querySelectorAll('.chart-quick-btn').forEach(btn=>{const active=btn.dataset.chartKey===key;btn.classList.toggle('is-active',active);btn.setAttribute('aria-pressed',String(active));});
+ get('chartMonthAverages').innerHTML=chip('AD',s.AD)+chip('ADA',s.ADA);
+ get('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(rangeLabel(s.AD.period))+'</span><span><i class="dot ada"></i>ADA · '+esc(rangeLabel(s.ADA.period))+'</span>'+(isDaily||state.showAverages?'<span style="color:#8398b4">⋯ Tracejado: média do mês calendário</span>':'');
+ if(!isDaily){const avgToggle=$('toggleChartAvg');avgToggle.classList.toggle('is-active',state.showAverages);avgToggle.setAttribute('aria-pressed',String(state.showAverages));
+  document.querySelectorAll('.chart-quick-btn').forEach(btn=>{const active=btn.dataset.chartKey===key;btn.classList.toggle('is-active',active);btn.setAttribute('aria-pressed',String(active));});}
  const maxSpan=Math.max(periodLength(s.AD.period),periodLength(s.ADA.period));
  if(!s.AD.days.length&&!s.ADA.days.length){
-  $('chartBox').innerHTML='<p class="empty-state">Nenhum dado nas campanhas e datas selecionadas.</p>';return;
+  get('chartBox').innerHTML='<p class="empty-state">Nenhum dado nas campanhas e datas selecionadas.</p>';return;
  }
  const maxDay=Math.max(2,maxSpan),W=1050,H=310,padL=64,padR=24,padTop=28,padBottom=43;
  const iw=W-padL-padR,ih=H-padTop-padBottom;
@@ -1131,7 +1136,7 @@ function renderChart(s){
  }
  svg+='<text x="'+(W-padR)+'" y="'+(H-12)+'" fill="#819ab9" font-size="10" text-anchor="end">Dia do período</text>';
  for(const segment of monthSpans){
-  if(!state.showAverages||segment.baseline<=0)continue;
+  if((!isDaily&&!state.showAverages)||segment.baseline<=0)continue;
   const color=segment.agent==='AD'?'#529cfb':'#fb6b3d',yy=y(segment.baseline);
   svg+='<line x1="'+x(segment.start)+'" x2="'+x(segment.end)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="1.4" stroke-dasharray="7 7" opacity=".68"/>';
  }
@@ -1152,9 +1157,9 @@ function renderChart(s){
   }
  }
  svg+='</svg>';
- $('chartBox').innerHTML=svg;
+ get('chartBox').innerHTML=svg;
  const ctx={AD:s.AD,ADA:s.ADA,adByDay,adaByDay,monthAverage,key};
- $('chartBox').querySelectorAll('.plot-point').forEach(circle=>{
+ get('chartBox').querySelectorAll('.plot-point').forEach(circle=>{
   const day=Number(circle.dataset.day);
   circle.addEventListener('pointerenter',e=>showPopup(e,day,ctx));
   circle.addEventListener('pointermove',e=>showPopup(e,day,ctx));
