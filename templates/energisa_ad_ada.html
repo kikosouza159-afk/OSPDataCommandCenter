@@ -165,6 +165,38 @@
 .assist-matrix td[title]{max-width:140px;overflow:hidden;text-overflow:ellipsis}
 .assist-panel-table .assist-matrix td{font-variant-numeric:tabular-nums}
 @media (max-width:480px){.assist-mini-grid{grid-template-columns:1fr 1fr}.assist-mini-metric{padding:6px 5px}}
+
+/* Funis Energisa: identificação dinâmica por campanha e cores distintas por tecnologia */
+.assist-campaign-banner{
+ display:flex;align-items:center;min-height:38px;margin:0 0 11px;padding:9px 11px;
+ border:1px solid #275b89;border-left:3px solid #459ff2;border-radius:9px;
+ background:linear-gradient(95deg,#102e54,#09203d);
+ color:#cde9ff;font-size:11px;font-weight:850;letter-spacing:.1px;
+ line-height:1.35;overflow-wrap:anywhere;
+}
+.assist-campaign-banner.multiple{font-size:10px;font-weight:700}
+.assist-panel-ad{border-color:#177bce;box-shadow:0 0 0 1px #287ed31c,0 12px 25px #0002}
+.assist-panel-ad .assist-panel-title h3 b{color:#70baff}
+.assist-panel-ad .assist-panel-icon{color:#6dc5ff;border-color:#136cb2;background:#0a3055}
+.assist-panel-ad .assist-funnel-stage,
+.assist-panel-ad .assist-funnel-stage.orange{background:#17aaf3;filter:drop-shadow(0 0 5px #0098ec34)}
+.assist-panel-ad .assist-funnel-stage:before,
+.assist-panel-ad .assist-funnel-stage.orange:before{background:linear-gradient(108deg,#154f8b 0%,#1171be 48%,#0e4d89 100%)}
+.assist-panel-ad .assist-funnel-chevron,
+.assist-panel-ad .assist-funnel-chevron.orange{color:#5fd0ff;filter:drop-shadow(0 0 5px #13b3ff66)}
+.assist-panel-ad .assist-agent-metric{border-color:#236da0;background:#082946}
+.assist-panel-ada{border-color:#f16a33;box-shadow:0 0 0 1px #fb5c2824,0 12px 25px #0002}
+.assist-panel-ada .assist-panel-title h3 b{color:#ff986d}
+.assist-panel-ada .assist-panel-icon{color:#ffae8a;border-color:#ae4c2a;background:#3c201f}
+.assist-panel-ada .assist-campaign-banner{color:#ffe1d2;border-color:#a84a2c;border-left-color:#fb5c28;background:linear-gradient(95deg,#49252a,#28192a)}
+.assist-panel-ada .assist-funnel-stage,
+.assist-panel-ada .assist-funnel-stage.orange{background:#ffb269;filter:drop-shadow(0 0 5px #f75c314a)}
+.assist-panel-ada .assist-funnel-stage:before,
+.assist-panel-ada .assist-funnel-stage.orange:before{background:linear-gradient(110deg,#b73e1d 0%,#e45d2a 48%,#bd3d1a 100%)}
+.assist-panel-ada .assist-funnel-chevron,
+.assist-panel-ada .assist-funnel-chevron.orange{color:#ff9c68;filter:drop-shadow(0 0 5px #fb653e77)}
+.assist-panel-ada .assist-agent-metric{border-color:#9b4f33;background:#30202a}
+@media(max-width:740px){.assist-campaign-banner{font-size:10px;min-height:32px}}
 </style>
 </head>
 <body>
@@ -231,6 +263,7 @@
    <div><h3>Funil <b>AD</b></h3><p id="funnelPeriodAD">Período AD</p></div>
    <span class="assist-days" id="funnelDaysAD">0 dias com dados</span>
   </header>
+  <div class="assist-campaign-banner" id="funnelCampaignAD" aria-label="Campanhas selecionadas para o funil AD">Carregando campanhas...</div>
   <div class="assist-agent-metric" id="funnelAgentsAD"></div>
   <div class="assist-funnel-columns">
    <div class="assist-funnel-steps" id="funnelAD"></div>
@@ -246,6 +279,7 @@
    <div><h3>Funil <b>ADA</b></h3><p id="funnelPeriodADA">Período ADA</p></div>
    <span class="assist-days" id="funnelDaysADA">0 dias com dados</span>
   </header>
+  <div class="assist-campaign-banner" id="funnelCampaignADA" aria-label="Campanhas selecionadas para o funil ADA">Carregando campanhas...</div>
   <div class="assist-agent-metric" id="funnelAgentsADA"></div>
   <div class="assist-funnel-columns">
    <div class="assist-funnel-steps" id="funnelADA"></div>
@@ -572,6 +606,14 @@ function renderFunnel(s){
   const side=s[agent],main=$('funnel'+agent),delta=$('funnelDeltas'+agent);
   $('funnelPeriod'+agent).textContent=rangeLabel(side.period);
   $('funnelDays'+agent).textContent=side.activeDays+' dias trabalhados';
+  const names=state.campaigns[agent]
+   .filter(([id])=>state.selection[agent].has(id))
+   .map(([,name])=>name);
+  const label=$('funnelCampaign'+agent);
+  label.textContent=names.length===0?'Nenhuma campanha selecionada':
+   names.length===1?names[0]:names.length+' campanhas selecionadas: '+names.join(' · ');
+  label.title=names.join('\\n');
+  label.classList.toggle('multiple',names.length>1);
   main.innerHTML=stages.map((stage,i)=>{
    const value=stage.averageMailing?side.average.mailing:side.stats[stage.key];
    const widths=[100,95,90,85,80];
