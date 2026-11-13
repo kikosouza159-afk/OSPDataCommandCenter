@@ -3,7 +3,7 @@
 ## Status
 - Banco: Neon, projeto **Cockpit Indicadores**.
 - Nova tabela: `assistpay.energisa_ad_ada_diario`.
-- Base importada em 13/11/2026: **543 linhas**, **17 campanhas**, **64 dias**, de 01/09/2026 a 13/11/2026.
+- Base histórica atualizada em 13/11/2026: **2.368 linhas**, **17 campanhas**, **266 dias com dados**, de 02/01/2026 a 13/11/2026.
 - Dados da Energisa NÃO estão presentes no repositório GitHub.
 - A antiga tabela `assistpay.energisa_ad_ada_snapshot` foi preservada, mas não é mais a fonte do painel.
 
@@ -87,6 +87,17 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - A API entrega `voicemail` aos clientes autorizados e o frontend exibe VoiceMail nos cards, funis, matriz, gráfico, detalhamento diário, por campanha e CSV.
 - Não publicar o arquivo operacional no repositório público.
 
+## Expansão do histórico (13/11/2026)
+- Fonte: nova base colada `Texto colado(20261113-163938).txt`, com **2.368 linhas** de **17 campanhas** e **266 dias distintos** de 02/01/2026 a 13/11/2026.
+- O histórico novo foi aplicado em **uma transação de sete lotes** via `INSERT ... ON CONFLICT (data,campaign_id) DO UPDATE`, com 2.368 linhas afetadas e sem remoção de registros pré-existentes.
+- Foram normalizados **dois `NULL` na coluna Mailing para zero**, pois o campo no banco é obrigatório e o painel exclui zeros das médias.
+- Validação SQL após carga: 2.368 registros, 2.368 chaves únicas, 17 campanhas, 266 datas.
+- Totais validados contra a fonte: Tentativas `489.760.810`; Atendidas `20.469.274`; CPC `11.528.285`; VoiceMail `8.540.440`; Acordos `380.834`; Hangup `187.038`; Mailing `441.636.580`.
+- Primeiro dia disponível em AD: **02/01/2026**. Primeiro dia disponível em ADA: **07/08/2026**.
+- O painel já obtém os limites de data dinamicamente na API, portanto novos meses estão acessíveis nos seletores sem alteração de código ou deploy. O benchmark padrão permanece AD 18 em setembro versus ADA 383 em novembro.
+- O teste de renderização com os 2.368 registros reais confirmou os seis cards, os dois funis, a tabela, o gráfico e seleção de janeiro no AD.
+- Os dados brutos do cliente não são publicados no GitHub.
+
 ## Atualização
-Importação inicial efetuada de 543 linhas em Neon. A API consulta o banco a cada acesso, sem arquivo estático.
+Importação inicial de 543 registros de setembro a novembro e atualização histórica posterior para 2.368 registros de janeiro a novembro de 2026. A API consulta o Neon a cada acesso, sem arquivo estático.
 Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
