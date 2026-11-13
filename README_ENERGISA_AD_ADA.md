@@ -55,6 +55,17 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - A seção "Insights executivos" foi removida conforme solicitado; as informações comparativas permanecem nos cards, matriz, funil e gráfico.
 - CSV: exportação da base filtrada com as 11 colunas recebidas.
 
+## Layout executivo, inspirado no comparativo mensal AssistPay (13/11/2026)
+- **5 cards**: Acordo, Eficiência %, Contato (Atendidas), CPC, Pagamento.
+- Cada card mostra AD → ADA, delta percentual relativo e sinalização visual. Pagamento permanece N/D porque não existe na base.
+- **Funil AD** e **Funil ADA**, lado a lado no desktop, com 6 etapas: Mailing médio, Discado, Contato, CPC, Acordo, Pagamento (N/D).
+- **Mailing médio no funil** é sempre média diária com zeros excluídos; os demais volumes refletem o modo Total / Média dia.
+- Cada funil contém uma coluna de variação ADA × AD por etapa; as duas colunas permitem leitura de cada funil separadamente.
+- **Visão comparativa dos indicadores** substitui a antiga matriz em barras por tabela executiva AD, ADA e variação relativa (%), com grupos de volume, taxas, produtividade e indicadores indisponíveis.
+- Indicadores reais disponíveis: Mailing, Tentativas, Atendidas, CPC, Acordo, Hangup, Logados, Spin, Hit Rate, Taxa CPC, Conversão, Hangup %, Eficiência (Acordos/Mailing), e produtividade por agente. Pagamento e outros indicadores não entregues permanecem indisponíveis; nunca inventar valores.
+- Filtros AD e ADA de data inicial, final e campanhas continuam independentes; a evolução diária e o tooltip da média mensal permanecem abaixo dos funis.
+- Base continua em Neon via API autenticada; nenhuma alteração no banco nem alteração de permissões.
+
 ## Atualização
 Importação inicial efetuada de 543 linhas em Neon. A API consulta o banco a cada acesso, sem arquivo estático.
 Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
