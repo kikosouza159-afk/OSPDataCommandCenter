@@ -67,7 +67,7 @@ def install_energisa_ad_ada(app, can_access, is_admin):
                     cur.execute("""
                         SELECT data::text AS data,
                                campaign_id, nome_campanha, agente, logados,
-                               tentativas, atendidas, cpc, acordo, hangup, mailing
+                               tentativas, atendidas, cpc, voicemail, acordo, hangup, mailing
                         FROM assistpay.energisa_ad_ada_diario
                         ORDER BY data, agente, campaign_id
                     """)
