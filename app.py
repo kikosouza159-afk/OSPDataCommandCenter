@@ -1610,6 +1610,18 @@ if not any(c.get("slug") == "kovi" for c in CLIENTES):
         "logo_url": "https://www.kovi.com.br/hubfs/Kovi-2024/Images/Logo%20preto%20-%20horizontal.svg"
     })
 
+
+# Cliente Energisa | painel comparativo AD × ADA.
+# A base fica no Neon e a rota utiliza a autorização central do Cockpit.
+if not any(c.get("slug") == "energisa" for c in CLIENTES):
+    CLIENTES.insert(3, {
+        "nome": "ENERGISA | AD × ADA",
+        "slug": "energisa",
+        "sigla": "ENG",
+        "domain": "",
+        "logo_url": ""
+    })
+
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -8128,6 +8140,10 @@ def sky_tabulacao():
         mes_referencia=mes_referencia,
         erro=None if graficos else "Nenhuma tabulação encontrada para os filtros selecionados.",
     )
+
+# Rotas protegidas do comparativo Energisa, sem criar uma aplicação paralela.
+from energisa_ad_ada import install_energisa_ad_ada
+install_energisa_ad_ada(app, usuario_pode_acessar_cliente, usuario_e_admin)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
