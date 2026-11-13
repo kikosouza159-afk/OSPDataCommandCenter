@@ -151,6 +151,20 @@
 @media(max-width:1050px){.assist-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.assist-layout{grid-template-columns:1fr 1fr}.assist-panel-title h3{font-size:14px}}
 @media(max-width:740px){.assist-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-layout{grid-template-columns:1fr}.assist-panel-table{grid-column:auto}.assist-grid-intro{align-items:flex-start;flex-direction:column}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 105px}.assist-funnel-stage{height:69px}.assist-kpi-values{font-size:17px}}
 @media(max-width:420px){.assist-kpis{grid-template-columns:1fr}.assist-kpi-values{font-size:20px}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 85px}.assist-stage-value{font-size:17px}.assist-matrix td,.assist-matrix th{font-size:10px;padding:9px 5px}}
+
+/* Correção dos indicadores: ERO, funil Mailing -> Acordos e produtividade AGV */
+.assist-agent-metric{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #2c5978;background:#062a42;padding:7px 12px;border-radius:8px;margin-bottom:9px;font-size:10px;color:#bad6e8}
+.assist-agent-metric strong{font-size:15px;color:#ffffff;font-variant-numeric:tabular-nums}
+.assist-mini-section{border:1px solid #244c6b;background:#061f36;border-radius:9px;margin:12px 0 0;padding:9px}
+.assist-mini-title{font-size:10px;font-weight:850;letter-spacing:.5px;color:#8cd5f4;text-transform:uppercase;margin:0 2px 9px}
+.assist-mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.assist-mini-metric{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px;background:#0c2e4d;border:1px solid #245878;border-radius:6px}
+.assist-mini-metric span{font-size:9px;color:#a7c7de;line-height:1.25}
+.assist-mini-metric b{font-size:11px;color:#f6faff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.assist-matrix tr.assist-row-highlight td{background:#233c5836;font-weight:850}
+.assist-matrix td[title]{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.assist-panel-table .assist-matrix td{font-variant-numeric:tabular-nums}
+@media (max-width:480px){.assist-mini-grid{grid-template-columns:1fr 1fr}.assist-mini-metric{padding:6px 5px}}
 </style>
 </head>
 <body>
@@ -217,11 +231,14 @@
    <div><h3>Funil <b>AD</b></h3><p id="funnelPeriodAD">Período AD</p></div>
    <span class="assist-days" id="funnelDaysAD">0 dias com dados</span>
   </header>
+  <div class="assist-agent-metric" id="funnelAgentsAD"></div>
   <div class="assist-funnel-columns">
    <div class="assist-funnel-steps" id="funnelAD"></div>
    <aside class="assist-funnel-deltas" id="funnelDeltasAD"></aside>
   </div>
-  <div class="assist-funnel-foot">Mailing exibido como média diária dos dias com valor positivo. Demais volumes seguem o modo Total / Média dia selecionado.</div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesAD"></div></div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVAD"></div></div>
+  <div class="assist-funnel-foot">Mailing exibido em média diária sem zeros; demais etapas obedecem ao modo Total / Média dia.</div>
  </section>
  <section class="panel assist-panel assist-panel-ada">
   <header class="assist-panel-title">
@@ -229,11 +246,14 @@
    <div><h3>Funil <b>ADA</b></h3><p id="funnelPeriodADA">Período ADA</p></div>
    <span class="assist-days" id="funnelDaysADA">0 dias com dados</span>
   </header>
+  <div class="assist-agent-metric" id="funnelAgentsADA"></div>
   <div class="assist-funnel-columns">
    <div class="assist-funnel-steps" id="funnelADA"></div>
    <aside class="assist-funnel-deltas" id="funnelDeltasADA"></aside>
   </div>
-  <div class="assist-funnel-foot">Indicadores e taxas são calculados pelos registros filtrados. Pagamento fica N/D até existir essa informação.</div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesADA"></div></div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVADA"></div></div>
+  <div class="assist-funnel-foot">Indicadores e taxas são calculados pelos registros filtrados. As taxas e a produtividade por AGV são exibidas abaixo do funil.</div>
  </section>
  <section class="panel assist-panel assist-panel-table">
   <header class="assist-panel-title">
@@ -246,7 +266,7 @@
     <tbody id="comparisonBody"></tbody>
    </table>
   </div>
-  <div class="assist-table-foot">Taxas calculadas pelos volumes consolidados ou pelas médias sem zeros; variação em relação ao AD.</div>
+  <div class="assist-table-foot">Todos os deltas são calculados com valores não arredondados. Médias ignoram dias zerados.</div>
  </section>
 </div>
 
@@ -407,7 +427,7 @@ function buildFilters(){
    input.max=latest||'';
    input.value=value;
   }
-  const preferred=agent==='AD'?11:385;
+  const preferred=agent==='AD'?18:383;
   const preferredExists=state.campaigns[agent].some(([id])=>id===preferred);
   state.selection[agent]=new Set(preferredExists?[preferred]:state.campaigns[agent].map(([id])=>id));
   const root=$(agent==='AD'?'adChecks':'adaChecks');root.replaceChildren();
@@ -447,7 +467,8 @@ function iconSVG(kind){
   eficiencia:'<path d="M4 19v-5m5 5v-8m5 8v-5m5 5V6"/><path d="M3 11l6-5 4 3 7-6m-5 0h5v5"/>',
   atendidas:'<path d="M4 5h13a3 3 0 0 1 3 3v8l-4-3H7a3 3 0 0 1-3-3z"/><path d="M8 17h6l3 3v-4"/>',
   cpc:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>',
-  pagamento:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M6 15h4"/>'
+  pagamento:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M6 15h4"/>',
+  agentes:'<circle cx="9" cy="8" r="3"/><path d="M3 19v-3a6 6 0 0 1 12 0v3M17 11a3 3 0 1 0 0-6M17 14a5 5 0 0 1 4 5"/>'
  };
  return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(shapes[kind]||shapes.cpc)+'</svg>';
 }
@@ -463,86 +484,118 @@ function renderKpis(s){
   {key:'eficiencia',label:'Efic %',icon:'eficiencia',format:'eficiencia'},
   {key:'atendidas',label:'Contato',icon:'atendidas',format:'atendidas'},
   {key:'cpc',label:'CPC',icon:'cpc',format:'cpc'},
-  {key:'pagamento',label:'Pagamento',icon:'pagamento',format:'pagamento'}
+  {key:'agentes',label:'Agentes',icon:'agentes',format:'agentes'}
  ];
  $('kpis').innerHTML=cards.map((card,index)=>{
-  const hasData=card.key!=='pagamento';
-  const a=hasData?s.AD.stats[card.key]:null;
-  const b=hasData?s.ADA.stats[card.key]:null;
-  const change=changeDisplay(a,b);
-  const format=v=>v===null?'N/D':fmt(v,card.format);
+  const a=card.key==='agentes'?s.AD.agentMean:s.AD.stats[card.key];
+  const b=card.key==='agentes'?s.ADA.agentMean:s.ADA.stats[card.key];
+  const d=changeDisplay(a,b);
+  const display=x=>card.key==='agentes'?nfmt(x):card.key==='eficiencia'?nfmt(x,2)+'%':nfmt(x,state.mode==='average'?0:0);
   return '<article class="assist-kpi" aria-label="'+esc(card.label)+' AD vs ADA">'+
    '<div class="assist-kpi-head"><div class="assist-kpi-icon '+(index===1||index===2||index===3?'cyan':'')+'">'+iconSVG(card.icon)+'</div>'+
-   '<div><div class="assist-kpi-name">'+card.label+'</div><div class="assist-kpi-values" title="AD '+format(a)+' | ADA '+format(b)+'">'+format(a)+' → '+format(b)+'</div></div></div>'+
-   '<div class="assist-kpi-delta '+change.className+'">'+change.mark+' '+change.text+'</div>'+
+   '<div><div class="assist-kpi-name">'+card.label+'</div><div class="assist-kpi-values" title="AD '+display(a)+' | ADA '+display(b)+'">'+display(a)+' → '+display(b)+'</div></div></div>'+
+   '<div class="assist-kpi-delta '+d.className+'">'+d.mark+' '+d.text+'</div>'+
    '<div class="assist-kpi-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></article>';
  }).join('');
 }
 function renderMatrix(s){
+ // A tabela usa valores não arredondados para calcular variações;
+ // o arredondamento é exclusivo da apresentação.
  const rows=[
-  {group:'Volume operacional'},
+  {label:'Campanha',special:'name',noDelta:true},
+  {label:'Dias Trabalhados',special:'days',noDelta:true},
+  {label:'Média Dia',special:'month',noDelta:true},
+  {group:'Volumes e equipe'},
   {label:'Mailing',key:'mailing'},
-  {label:'Discado',key:'tentativas'},
-  {label:'Contato',key:'atendidas'},
+  {label:'Agentes',special:'agents',key:'logados'},
+  {label:'Tentativas',key:'tentativas'},
+  {label:'Atendidas',key:'atendidas'},
   {label:'CPC',key:'cpc'},
-  {label:'Acordo',key:'acordo'},
-  {label:'Hangup',key:'hangup',invert:true},
-  {group:'Taxas e eficiência'},
+  {label:'Acordo',key:'acordo',highlight:true},
+  {group:'Taxas e conversão'},
   {label:'Spin',key:'spin'},
   {label:'Hit %',key:'hitrate'},
   {label:'CPC %',key:'taxaCpc'},
-  {label:'Acordo %',key:'conversao'},
-  {label:'Hangup %',key:'taxaHangup',invert:true},
-  {label:'Efic %',key:'eficiencia'},
-  {group:'Dimensionamento e produtividade'},
-  {label:'Logados (média/dia)',custom:'agentMean',key:'logados'},
-  {label:'Mailing / AGV',prod:'mailing',key:'mailing'},
-  {label:'Tentativas / AGV',prod:'tentativas',key:'tentativas'},
-  {label:'Atendidas / AGV',prod:'atendidas',key:'atendidas'},
-  {label:'CPC / AGV',prod:'cpc',key:'cpc'},
-  {label:'Acordo / AGV',prod:'acordo',key:'acordo'},
-  {group:'Indicadores indisponíveis'},
-  {label:'Pagamento',missing:true}
+  {label:'Acordo %',key:'conversao',highlight:true},
+  {label:'Efic %',key:'eficiencia',highlight:true},
+  {group:'Produtividade por agente'},
+  {label:'Mailing / AGV',prod:'mailing'},
+  {label:'Tentativas / AGV',prod:'tentativas'},
+  {label:'Atendidas / AGV',prod:'atendidas'},
+  {label:'CPC / AGV',prod:'cpc'},
+  {label:'Acordo / AGV',prod:'acordo',highlight:true}
  ];
+ const monthName=side=>{
+  const dates=[...new Set(side.days.map(x=>x.date.slice(0,7)))].sort();
+  const months=dates.length?dates:[side.period.start.slice(0,7)];
+  return months.map(m=>monthNames[Number(m.slice(5,7))-1]||m).join(' / ')+
+   (new Set(months.map(m=>m.slice(0,4))).size>1?' · '+[...new Set(months.map(m=>m.slice(0,4)))].join('/'):'');
+ };
+ const rowData=(row,side)=>{
+  if(row.special==='name')return side.name;
+  if(row.special==='days')return side.activeDays;
+  if(row.special==='month')return monthName(side);
+  if(row.special==='agents')return side.agentMean;
+  if(row.prod)return side.productivity[row.prod];
+  return side.stats[row.key];
+ };
+ const display=(row,value)=>{
+  if(row.special==='name'||row.special==='month')return esc(value);
+  if(row.key==='spin')return nfmt(value,1);
+  if(['hitrate','taxaCpc','conversao'].includes(row.key))return nfmt(value,1)+'%';
+  if(row.key==='eficiencia')return nfmt(value,2)+'%';
+  return nfmt(value);
+ };
  $('comparisonBody').innerHTML=rows.map(row=>{
   if(row.group)return '<tr class="assist-section-row"><td colspan="4">'+esc(row.group)+'</td></tr>';
-  if(row.missing)return '<tr><td>'+esc(row.label)+'</td><td>N/D</td><td>N/D</td><td class="assist-cell-delta na">N/D</td></tr>';
-  const get=(side)=>row.custom?side[row.custom]:row.prod?side.productivity[row.prod]:side.stats[row.key];
-  const a=get(s.AD),b=get(s.ADA),d=deltaInfo(a,b,{invert:!!row.invert});
-  const display=v=>row.custom||row.prod?nfmt(v,1):fmt(v,row.key);
-  return '<tr><td title="'+esc(row.label)+'">'+esc(row.label)+'</td><td>'+display(a)+'</td><td>'+display(b)+'</td>'+
-  '<td class="assist-cell-delta '+(d.cls==='pos'?'pos':d.cls==='neg'?'neg':'')+'">'+(d.value>0?'↑ ':d.value<0?'↓ ':'• ')+d.text+'</td></tr>';
+  const a=rowData(row,s.AD),b=rowData(row,s.ADA);
+  const d=row.noDelta?null:deltaInfo(a,b);
+  const css=d?(d.cls==='pos'?'pos':d.cls==='neg'?'neg':''):'na';
+  const change=d?(d.value>0?'↑ ':d.value<0?'↓ ':'• ')+d.text:'—';
+  const cls=row.highlight?'assist-row-highlight':'';
+  const titleAttr=row.special==='name'?' title="'+esc(a)+' × '+esc(b)+'"':'';
+  return '<tr class="'+cls+'"><td'+titleAttr+'>'+esc(row.label)+'</td><td title="'+esc(a)+'">'+display(row,a)+'</td>'+
+   '<td title="'+esc(b)+'">'+display(row,b)+'</td><td class="assist-cell-delta '+css+'">'+change+'</td></tr>';
  }).join('');
 }
 function renderFunnel(s){
  const stages=[
   {label:'Mailing médio',key:'mailing',style:'blue',averageMailing:true},
-  {label:'Discado',key:'tentativas',style:'blue'},
-  {label:'Contato',key:'atendidas',style:'blue'},
+  {label:'Tentativas',key:'tentativas',style:'blue'},
+  {label:'Atendidas',key:'atendidas',style:'blue'},
   {label:'CPC',key:'cpc',style:'blue'},
-  {label:'Acordo',key:'acordo',style:'orange'},
-  {label:'Pagamento',key:'pagamento',style:'gray',missing:true}
+  {label:'Acordo',key:'acordo',style:'orange'}
  ];
+ const rates=[['Spin','spin'],['Hit %','hitrate'],['CPC %','taxaCpc'],['Acordo %','conversao'],['Efic %','eficiencia']];
+ const agv=[['Mailing / AGV','mailing'],['Tentativas / AGV','tentativas'],['Atendidas / AGV','atendidas'],['CPC / AGV','cpc'],['Acordo / AGV','acordo']];
  for(const agent of ['AD','ADA']){
-  const side=s[agent];
-  const main=$('funnel'+agent),delta=$('funnelDeltas'+agent);
+  const side=s[agent],main=$('funnel'+agent),delta=$('funnelDeltas'+agent);
   $('funnelPeriod'+agent).textContent=rangeLabel(side.period);
-  $('funnelDays'+agent).textContent=side.activeDays+' dias com dados';
+  $('funnelDays'+agent).textContent=side.activeDays+' dias trabalhados';
   main.innerHTML=stages.map((stage,i)=>{
-   const value=stage.missing?null:stage.averageMailing?side.average.mailing:side.stats[stage.key];
-   const widths=[100,96,92,87,81,75];
+   const value=stage.averageMailing?side.average.mailing:side.stats[stage.key];
+   const widths=[100,95,90,85,80];
+   const formatted=nfmt(value);
    return '<div class="assist-funnel-stage '+stage.style+'" style="--funnel-width:'+widths[i]+'%">'+
-    '<span class="assist-stage-label">'+esc(stage.label)+'</span><strong class="assist-stage-value">'+(value===null?'N/D':fmt(value,stage.key,stage.averageMailing?'average':state.mode))+'</strong></div>'+
-    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i>=3?'orange':'')+'" aria-hidden="true">⌄</div>':'');
+    '<span class="assist-stage-label">'+esc(stage.label)+'</span><strong class="assist-stage-value">'+formatted+'</strong></div>'+
+    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i===3?'orange':'')+'" aria-hidden="true">⌄</div>':'');
   }).join('');
-  delta.innerHTML='<div class="assist-delta-title">Variação do funil</div><div class="assist-delta-sub">ADA × AD</div>'+
+  delta.innerHTML='<div class="assist-delta-title">Variação AD × ADA</div><div class="assist-delta-sub">ADA sobre AD</div>'+
    stages.map(stage=>{
-    const a=stage.missing?null:stage.averageMailing?s.AD.average.mailing:s.AD.stats[stage.key];
-    const b=stage.missing?null:stage.averageMailing?s.ADA.average.mailing:s.ADA.stats[stage.key];
+    const a=stage.averageMailing?s.AD.average.mailing:s.AD.stats[stage.key];
+    const b=stage.averageMailing?s.ADA.average.mailing:s.ADA.stats[stage.key];
     const change=changeDisplay(a,b);
     const cls=change.className==='positive'?'up':change.className==='negative'?'down':'na';
     return '<div class="assist-funnel-delta-item"><span>'+esc(stage.label)+'</span><strong class="'+cls+'">'+change.mark+' '+change.text+'</strong></div>';
    }).join('');
+  $('funnelAgents'+agent).innerHTML='<span>Agentes (média dia)</span><strong>'+nfmt(side.agentMean)+'</strong>';
+  $('funnelRates'+agent).innerHTML=rates.map(([label,key])=>{
+   const value=side.stats[key],valueFmt=key==='spin'?nfmt(value,1):key==='eficiencia'?nfmt(value,2)+'%':nfmt(value,1)+'%';
+   return '<div class="assist-mini-metric"><span>'+label+'</span><b>'+valueFmt+'</b></div>';
+  }).join('');
+  $('funnelAGV'+agent).innerHTML=agv.map(([label,key])=>
+   '<div class="assist-mini-metric"><span>'+label+'</span><b>'+nfmt(side.productivity[key])+'</b></div>'
+  ).join('');
  }
 }
 function renderDaily(s){
