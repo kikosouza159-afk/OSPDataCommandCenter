@@ -634,7 +634,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
       <option value="taxaHangupTentativas">Hangup / Discagens (%)</option>
      </optgroup>
      <optgroup label="Produtividade">
-      <option value="acordoLogado">Acordos / Agente</option>
+      <option value="mailingLogado">Mailing / Agente</option><option value="tentativasLogado">Tentativas / Agente</option><option value="atendidasLogado">Atendidas / Agente</option><option value="cpcLogado">CPC / Agente</option><option value="acordoLogado">Acordos / Agente</option>
      </optgroup>
     </select>
    </div>
@@ -668,7 +668,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
   <div class="heatmap-heading"><div><div class="section-kicker">ANÁLISE CONSOLIDADA / DIA</div><h3>Base analítica diária completa</h3><p>Todos os indicadores de cada dia. A tabela mantém os valores reais, independentemente do modo Total ou Média dia.</p></div><span id="dailyTableCount" class="daily-count"></span></div>
   <div class="table-wrap daily-analytic-scroll">
    <table class="data-table daily-analytic"><thead><tr>
-    <th>Data</th><th>Tecnologia</th><th>Agentes</th><th>Mailing</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit %</th><th>CPC %</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Acordo %</th><th>Efic %</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th><th>Acordos / AGV</th>
+    <th>Data</th><th>Tecnologia</th><th>Agentes</th><th>Mailing</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit %</th><th>CPC %</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Acordo %</th><th>Efic %</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th><th>Mailing / AGV</th><th>Tentativas / AGV</th><th>Atendidas / AGV</th><th>CPC / AGV</th><th>Acordos / AGV</th>
    </tr></thead><tbody id="dailyExplorerBody"></tbody></table>
   </div>
  </section>
@@ -688,16 +688,16 @@ const dec2Fmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFrac
 const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const volumeKeys=['mailing','logados','tentativas','atendidas','cpc','voicemail','acordo','hangup'];
 const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia']);
-const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','acordoLogado'];
+const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
 const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',acordoLogado:'Acordos / Agente'};
+const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',mailingLogado:'Mailing / Agente',tentativasLogado:'Tentativas / Agente',atendidasLogado:'Atendidas / Agente',cpcLogado:'CPC / Agente',acordoLogado:'Acordos / Agente'};
 const state={rows:[],mode:'average',showAverages:true,activeView:'comparison',heatmapGroup:'all',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
 const isPct=k=>percentageKeys.has(k);
 const nfmt=(n,precision=0)=>Number.isFinite(n)?(precision===2?dec2Fmt:precision===1?decFmt:intFmt).format(n):'—';
 const fmt=(value,key,mode=state.mode)=>{
  if(!Number.isFinite(value))return '—';
  if(isPct(key))return nfmt(value,2)+'%';
- if(key==='spin'||key==='acordoLogado')return nfmt(value,2);
+ if(key==='spin'||key==='acordoLogado'||key.endsWith('Logado'))return nfmt(value,2);
  return nfmt(value,mode==='average'?1:0);
 };
 const short=(v,key)=>{
@@ -720,6 +720,10 @@ function enrich(data){
   taxaHangup:rate(data.hangup,data.atendidas),
   taxaHangupTentativas:rate(data.hangup,data.tentativas),
   eficiencia:rate(data.acordo,data.mailing),
+  mailingLogado:data.logados>0?data.mailing/data.logados:0,
+  tentativasLogado:data.logados>0?data.tentativas/data.logados:0,
+  atendidasLogado:data.logados>0?data.atendidas/data.logados:0,
+  cpcLogado:data.logados>0?data.cpc/data.logados:0,
   acordoLogado:data.logados>0?data.acordo/data.logados:0
  };
 }
@@ -1168,6 +1172,155 @@ function renderChart(s,view='comparison'){
   circle.addEventListener('blur',hidePopup);
   circle.addEventListener('click',e=>showPopup(e,day,ctx));
  });
+}
+/* Lógica da Visão dia a dia:
+   volumes => média dos dias positivos do mês calendário
+   percentuais/Spin/AGV => razão dos totais do mês, para evitar média simples de taxas
+   filtragem de campanhas independente, mês completo independente das datas visíveis */
+const dailyMonthlyCache=new Map();
+const dailyMetrics=[
+ {key:'mailing',label:'Mailing',group:'volume'},
+ {key:'logados',label:'Agentes',group:'volume'},
+ {key:'tentativas',label:'Tentativas',group:'volume'},
+ {key:'atendidas',label:'Atendidas',group:'volume'},
+ {key:'cpc',label:'CPC',group:'volume'},
+ {key:'voicemail',label:'VoiceMail',group:'volume'},
+ {key:'acordo',label:'Acordos',group:'volume'},
+ {key:'hangup',label:'Hangup',group:'volume'},
+ {key:'spin',label:'Spin',group:'rate'},
+ {key:'hitrate',label:'Hit Rate %',group:'rate'},
+ {key:'taxaCpc',label:'CPC / Atendidas %',group:'rate'},
+ {key:'taxaVoiceMailAtendidas',label:'VoiceMail / Atendidas %',group:'rate'},
+ {key:'taxaVoiceMailCpc',label:'VoiceMail / CPC %',group:'rate'},
+ {key:'conversao',label:'Acordo / CPC %',group:'rate'},
+ {key:'eficiencia',label:'Eficiência %',group:'rate'},
+ {key:'taxaHangup',label:'Hangup / Atendidas %',group:'rate'},
+ {key:'taxaHangupTentativas',label:'Hangup / Discagens %',group:'rate'},
+ {key:'mailingLogado',label:'Mailing / AGV',group:'productivity'},
+ {key:'tentativasLogado',label:'Tentativas / AGV',group:'productivity'},
+ {key:'atendidasLogado',label:'Atendidas / AGV',group:'productivity'},
+ {key:'cpcLogado',label:'CPC / AGV',group:'productivity'},
+ {key:'acordoLogado',label:'Acordos / AGV',group:'productivity'}
+];
+function dailyMonthProfile(agent,month){
+ const selected=[...state.selection[agent]].sort((a,b)=>a-b).join(',');
+ const cacheKey=agent+'|'+month+'|'+selected;
+ if(dailyMonthlyCache.has(cacheKey))return dailyMonthlyCache.get(cacheKey);
+ const rows=state.rows.filter(r=>r.agente===agent&&r.data.startsWith(month)&&state.selection[agent].has(r.campaign_id));
+ const days=dailyRows(rows);
+ const profile={mean:averageDaily(days),weighted:sumRows(rows)};
+ dailyMonthlyCache.set(cacheKey,profile);
+ return profile;
+}
+function dailyMonthlyBaseline(agent,month,key){
+ const profile=dailyMonthProfile(agent,month);
+ return volumeKeys.includes(key)?profile.mean[key]||0:profile.weighted[key]||0;
+}
+function dailyValue(value,key){
+ return fmt(Number(value)||0,key,'total');
+}
+function dailySelectedComparison(s){
+ const key=$('chartMetricDaily').value;
+ const cards=[];
+ for(const agent of ['AD','ADA']){
+  const side=s[agent],latest=side.days[side.days.length-1];
+  const month=latest?latest.date.slice(0,7):side.period.start.slice(0,7);
+  const lastValue=latest?latest.values[key]:null;
+  const average=latest?dailyMonthlyBaseline(agent,month,key):null;
+  cards.push({agent,name:'Último dia',value:lastValue,context:latest?longDate(latest.date):'Sem registros'});
+  cards.push({agent,name:'Média do mês',value:average,context:latest?monthLabel(month):'Sem registros'});
+ }
+ $('dailySummaryCards').innerHTML=cards.map(item=>
+  '<div class="daily-summary-card '+item.agent.toLowerCase()+'"><span class="daily-label">'+esc(item.agent+' · '+item.name)+'</span>'+
+  '<strong class="daily-value">'+(item.value===null?'—':dailyValue(item.value,key))+'</strong>'+
+  '<small>'+esc(item.context)+'</small></div>'
+ ).join('');
+ const quicks=document.querySelectorAll('[data-daily-metric]');
+ quicks.forEach(button=>{const active=button.dataset.dailyMetric===key;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
+}
+function renderDailyChart(s){
+ renderChart(s,'daily');
+ dailySelectedComparison(s);
+}
+function heatmapCell(day,agent,key){
+ const month=day.date.slice(0,7),baseline=dailyMonthlyBaseline(agent,month,key),value=Number(day.values[key])||0;
+ const percent=baseline>0?(value-baseline)/baseline*100:null;
+ const cls=percent===null?'heat-mid':percent>5?'heat-up':percent< -5?'heat-down':'heat-mid';
+ const strong=percent!==null&&Math.abs(percent)>=25?' strong':'';
+ const label=dailyValue(value,key);
+ const delta=percent===null?'N/D':(percent>=0?'+':'')+nfmt(percent,1)+'%';
+ const title=agent+' · '+longDate(day.date)+' · '+(metricLabels[key]||key)+'\nValor: '+label+'\nMédia de '+monthLabel(month)+': '+dailyValue(baseline,key)+'\nVariação: '+delta;
+ return '<button type="button" class="heat-cell '+cls+strong+'" data-heat-tech="'+agent+'" data-heat-date="'+day.date+'" data-heat-key="'+key+'" title="'+esc(title)+'" aria-label="'+esc(title.replaceAll('\n','; '))+'">'+
+  '<span class="heat-number">'+label+'</span><span class="heat-delta">'+delta+'</span></button>';
+}
+function renderHeatmaps(s){
+ const category=$('heatmapGroup').value;
+ const metrics=category==='all'?dailyMetrics:dailyMetrics.filter(m=>m.group===category);
+ for(const agent of ['AD','ADA']){
+  const side=s[agent],dates=side.days;
+  $('heatmapCount'+agent).textContent=dates.length+' dias · '+metrics.length+' indicadores';
+  if(!dates.length){
+   $('heatmap'+agent).innerHTML='<p class="empty-state">Sem registros nas campanhas e datas selecionadas.</p>';continue;
+  }
+  const head='<thead><tr><th>Indicador</th>'+dates.map(d=>'<th title="'+esc(longDate(d.date))+'">'+esc(d.date.slice(5).split('-').reverse().join('/'))+'</th>').join('')+'</tr></thead>';
+  const body=metrics.map(m=>'<tr><td title="'+esc(m.label)+'">'+esc(m.label)+'</td>'+
+   dates.map(day=>'<td>'+heatmapCell(day,agent,m.key)+'</td>').join('')+'</tr>').join('');
+  $('heatmap'+agent).innerHTML='<table class="heatmap-table">'+head+'<tbody>'+body+'</tbody></table>';
+ }
+}
+function renderDailyAnalysis(s){
+ const days=[...s.AD.days.map(d=>({...d,tech:'AD'})),...s.ADA.days.map(d=>({...d,tech:'ADA'}))]
+ .sort((a,b)=>a.date.localeCompare(b.date)||a.tech.localeCompare(b.tech));
+ $('dailyTableCount').textContent=days.length+' linhas';
+ const columns=['logados','mailing','tentativas','atendidas','cpc','voicemail','acordo','hangup','spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','eficiencia','taxaHangup','taxaHangupTentativas','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
+ $('dailyExplorerBody').innerHTML=days.length?days.map(d=>{
+  const data=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+d.tech+'</span>',...columns.map(key=>dailyValue(d.values[key],key))];
+  return '<tr>'+data.map(v=>'<td>'+v+'</td>').join('')+'</tr>';
+ }).join(''):'<tr><td colspan="24">Nenhuma informação diária para os filtros selecionados.</td></tr>';
+}
+function renderDailyExplorer(s){
+ $('dailyCoverage').textContent='AD '+s.AD.days.length+' dias · ADA '+s.ADA.days.length+' dias';
+ renderDailyChart(s);
+ renderHeatmaps(s);
+ renderDailyAnalysis(s);
+}
+function selectDailyMetric(key){
+ if(!dailyMetrics.some(m=>m.key===key))return;
+ $('chartMetricDaily').value=key;
+ renderDailyChart({AD:calcSide('AD'),ADA:calcSide('ADA')});
+}
+function showHeatmapDetails(button,activateMetric){
+ if(!button||!button.dataset.heatKey)return;
+ const key=button.dataset.heatKey,agent=button.dataset.heatTech,date=button.dataset.heatDate;
+ const side=calcSide(agent),day=side.days.find(d=>d.date===date);
+ if(!day)return;
+ const value=Number(day.values[key])||0,baseline=dailyMonthlyBaseline(agent,date.slice(0,7),key);
+ const variation=baseline>0?(value-baseline)/baseline*100:null;
+ const formatted=variation===null?'Média indisponível':(variation>=0?'+':'')+nfmt(variation,1)+'%';
+ $('heatmapDetail').innerHTML='<strong>'+esc(agent)+' · '+esc(longDate(date))+' · '+esc(metricLabels[key]||key)+'</strong>'+
+  ' <span>Valor do dia: <strong>'+dailyValue(value,key)+'</strong></span> · '+
+  '<span>Média do mês: <strong>'+dailyValue(baseline,key)+'</strong></span> · '+
+  '<span class="'+(variation===null?'':variation>=0?'detail-up':'detail-down')+'">Variação: <strong>'+formatted+'</strong></span>';
+ if(activateMetric)selectDailyMetric(key);
+}
+function switchView(view){
+ state.activeView=view==='daily'?'daily':'comparison';
+ const daily=state.activeView==='daily';
+ $('viewComparison').hidden=daily;
+ $('viewDaily').hidden=!daily;
+ $('tabComparison').classList.toggle('active',!daily);
+ $('tabDaily').classList.toggle('active',daily);
+ $('tabComparison').setAttribute('aria-selected',String(!daily));
+ $('tabDaily').setAttribute('aria-selected',String(daily));
+ if(daily&&state.rows.length)renderDailyExplorer({AD:calcSide('AD'),ADA:calcSide('ADA')});
+}
+function setSidebarCollapsed(collapsed){
+ document.body.classList.toggle('sidebar-collapsed',!!collapsed);
+ $('sidebarToggle').setAttribute('aria-expanded',String(!collapsed));
+ $('sidebarToggle').setAttribute('aria-label',collapsed?'Expandir menu lateral':'Recolher menu lateral');
+ $('sidebarToggle').title=collapsed?'Expandir menu lateral':'Recolher menu lateral';
+ $('sidebarToggle').querySelector('.sidebar-toggle-icon').textContent=collapsed?'»':'«';
+ try{localStorage.setItem('energisa.sidebarCollapsed',collapsed?'1':'0')}catch(_){}
 }
 function render(){
  const comparison={AD:calcSide('AD'),ADA:calcSide('ADA')};
