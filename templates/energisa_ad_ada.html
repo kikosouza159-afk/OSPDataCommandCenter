@@ -442,85 +442,109 @@ function headline(s){
  $('filterInfo').textContent='AD: '+rangeLabel(s.AD.period)+' | ADA: '+rangeLabel(s.ADA.period)+'. No modo Média dia, cada indicador desconsidera dias zerados e as taxas são calculadas dos volumes médios. Logados somados entre campanhas.';
  $('rangeLabel').textContent='AD '+rangeLabel(s.AD.period)+' × ADA '+rangeLabel(s.ADA.period);
 }
+function iconSVG(kind){
+ const shapes={
+  acordo:'<path d="M5 8l-2 3 5 7a2 2 0 0 0 3-2m-3-6 4-3h4l5 4-5 7a2 2 0 0 1-3-1l-4-5"/><path d="M3 8l4-4h3l2 2m8 2-3-4h-3l-2 2"/>',
+  eficiencia:'<path d="M4 19v-5m5 5v-8m5 8v-5m5 5V6"/><path d="M3 11l6-5 4 3 7-6m-5 0h5v5"/>',
+  atendidas:'<path d="M4 5h13a3 3 0 0 1 3 3v8l-4-3H7a3 3 0 0 1-3-3z"/><path d="M8 17h6l3 3v-4"/>',
+  cpc:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>',
+  pagamento:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M6 15h4"/>'
+ };
+ return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(shapes[kind]||shapes.cpc)+'</svg>';
+}
+function changeDisplay(a,b){
+ if(a===null||b===null||!Number.isFinite(a)||!Number.isFinite(b))return {text:'N/D',className:'neutral',mark:'•'};
+ const d=deltaInfo(a,b);
+ const positive=d.value>0,negative=d.value<0;
+ return {text:d.text,className:positive?'positive':negative?'negative':'neutral',mark:positive?'↑':negative?'↓':'•'};
+}
 function renderKpis(s){
- const metrics=['tentativas','atendidas','cpc','acordo'];
- $('kpis').innerHTML=metrics.map(key=>{
-  const a=s.AD.stats[key],b=s.ADA.stats[key],d=deltaInfo(a,b);
-  const title=metricLabels[key];
-  return '<article class="panel kpi"><div class="kpi-title">'+title+'</div><div class="values">'+
-    '<div><small class="ad-label">AD</small><div class="number" title="'+nfmt(a,1)+'">'+short(a,key)+'</div></div>'+
-    '<div><small class="ada-label">ADA</small><div class="number" title="'+nfmt(b,1)+'">'+short(b,key)+'</div></div>'+
-    '</div><div class="kpi-foot"><span class="delta '+d.cls+'">'+d.text+'</span><span>Variação ADA × AD</span></div></article>';
+ const cards=[
+  {key:'acordo',label:'Acordo',icon:'acordo',format:'acordo'},
+  {key:'eficiencia',label:'Efic %',icon:'eficiencia',format:'eficiencia'},
+  {key:'atendidas',label:'Contato',icon:'atendidas',format:'atendidas'},
+  {key:'cpc',label:'CPC',icon:'cpc',format:'cpc'},
+  {key:'pagamento',label:'Pagamento',icon:'pagamento',format:'pagamento'}
+ ];
+ $('kpis').innerHTML=cards.map((card,index)=>{
+  const hasData=card.key!=='pagamento';
+  const a=hasData?s.AD.stats[card.key]:null;
+  const b=hasData?s.ADA.stats[card.key]:null;
+  const change=changeDisplay(a,b);
+  const format=v=>v===null?'N/D':fmt(v,card.format);
+  return '<article class="assist-kpi" aria-label="'+esc(card.label)+' AD vs ADA">'+
+   '<div class="assist-kpi-head"><div class="assist-kpi-icon '+(index===1||index===2||index===3?'cyan':'')+'">'+iconSVG(card.icon)+'</div>'+
+   '<div><div class="assist-kpi-name">'+card.label+'</div><div class="assist-kpi-values" title="AD '+format(a)+' | ADA '+format(b)+'">'+format(a)+' → '+format(b)+'</div></div></div>'+
+   '<div class="assist-kpi-delta '+change.className+'">'+change.mark+' '+change.text+'</div>'+
+   '<div class="assist-kpi-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></article>';
  }).join('');
 }
 function renderMatrix(s){
- const groups=[
-  {title:'Volume & estrutura',subtitle:'Esforço e capacidade operacional',items:[
-    {name:'Dias trabalhados',a:s.AD.activeDays,b:s.ADA.activeDays,key:'_days',format:'integer',hint:'Dias com tentativas maiores que zero'},
-    {name:'Mailing',key:'mailing',hint:'Volume de mailing diário consolidado por campanha'},
-    {name:'Agentes / dia',a:s.AD.agentMean,b:s.ADA.agentMean,key:'_agents',format:'agents',hint:'Média de logados por dia, sem deduplicação entre campanhas'},
-    {name:'Tentativas',key:'tentativas'},
-    {name:'Atendidas',key:'atendidas'},
-    {name:'CPC',key:'cpc'},
-    {name:'Acordos',key:'acordo',accent:true}
-  ]},
-  {title:'Eficiência & conversão',subtitle:'Rendimento das tentativas e dos contatos',items:[
-    {name:'Spin',key:'spin',hint:'Tentativas ÷ Mailing'},
-    {name:'Hit Rate',key:'hitrate',hint:'Atendidas ÷ Tentativas'},
-    {name:'Taxa CPC',key:'taxaCpc',hint:'CPC ÷ Atendidas'},
-    {name:'Conversão',key:'conversao',accent:true,hint:'Acordos ÷ CPC'},
-    {name:'Eficiência',key:'eficiencia',accent:true,hint:'Acordos ÷ Mailing'}
-  ]},
-  {title:'Produtividade por agente',subtitle:'Resultado para cada agente-dia',items:[
-    {name:'Mailing / agente',key:'mailing',prod:true},
-    {name:'Tentativas / agente',key:'tentativas',prod:true},
-    {name:'Atendidas / agente',key:'atendidas',prod:true},
-    {name:'CPC / agente',key:'cpc',prod:true},
-    {name:'Acordos / agente',key:'acordo',prod:true,accent:true}
-  ]}
+ const rows=[
+  {group:'Volume operacional'},
+  {label:'Mailing',key:'mailing'},
+  {label:'Discado',key:'tentativas'},
+  {label:'Contato',key:'atendidas'},
+  {label:'CPC',key:'cpc'},
+  {label:'Acordo',key:'acordo'},
+  {label:'Hangup',key:'hangup',invert:true},
+  {group:'Taxas e eficiência'},
+  {label:'Spin',key:'spin'},
+  {label:'Hit %',key:'hitrate'},
+  {label:'CPC %',key:'taxaCpc'},
+  {label:'Acordo %',key:'conversao'},
+  {label:'Hangup %',key:'taxaHangup',invert:true},
+  {label:'Efic %',key:'eficiencia'},
+  {group:'Dimensionamento e produtividade'},
+  {label:'Logados (média/dia)',custom:'agentMean',key:'logados'},
+  {label:'Mailing / AGV',prod:'mailing',key:'mailing'},
+  {label:'Tentativas / AGV',prod:'tentativas',key:'tentativas'},
+  {label:'Atendidas / AGV',prod:'atendidas',key:'atendidas'},
+  {label:'CPC / AGV',prod:'cpc',key:'cpc'},
+  {label:'Acordo / AGV',prod:'acordo',key:'acordo'},
+  {group:'Indicadores indisponíveis'},
+  {label:'Pagamento',missing:true}
  ];
- $('comparisonBody').innerHTML=groups.map(group=>{
-  const metrics=group.items.map(item=>{
-   const a=item.a!==undefined?item.a:(item.prod?s.AD.productivity[item.key]:s.AD.stats[item.key]);
-   const b=item.b!==undefined?item.b:(item.prod?s.ADA.productivity[item.key]:s.ADA.stats[item.key]);
-   const max=Math.max(0,a,b);
-   const wa=max>0?Math.max(0,Math.min(100,a/max*100)):0;
-   const wb=max>0?Math.max(0,Math.min(100,b/max*100)):0;
-   const out=(val)=>item.format==='integer'?nfmt(val):item.format==='agents'||item.prod?nfmt(val,1):fmt(val,item.key);
-   const d=deltaInfo(a,b,{invert:item.key==='hangup'});
-   const tooltip=esc(item.hint||item.name+' · comparação ADA vs AD');
-   return '<div class="visual-metric '+(item.accent?'visual-accent':'')+'" title="'+tooltip+'">'+
-    '<div class="visual-metric-top"><span class="metric-name">'+esc(item.name)+'</span><span class="metric-change '+d.cls+'">'+d.text+'</span></div>'+
-    '<div class="visual-metric-line"><span class="metric-tech">AD</span><div class="visual-track"><div class="visual-fill ad" style="width:'+wa.toFixed(2)+'%"></div></div><strong class="metric-value ad">'+out(a)+'</strong></div>'+
-    '<div class="visual-metric-line"><span class="metric-tech">ADA</span><div class="visual-track"><div class="visual-fill ada" style="width:'+wb.toFixed(2)+'%"></div></div><strong class="metric-value ada">'+out(b)+'</strong></div>'+
-   '</div>';
-  }).join('');
-  return '<div class="visual-group"><div class="visual-group-head"><strong>'+group.title+'</strong><small>'+group.subtitle+'</small></div><div class="visual-group-content">'+metrics+'</div></div>';
+ $('comparisonBody').innerHTML=rows.map(row=>{
+  if(row.group)return '<tr class="assist-section-row"><td colspan="4">'+esc(row.group)+'</td></tr>';
+  if(row.missing)return '<tr><td>'+esc(row.label)+'</td><td>N/D</td><td>N/D</td><td class="assist-cell-delta na">N/D</td></tr>';
+  const get=(side)=>row.custom?side[row.custom]:row.prod?side.productivity[row.prod]:side.stats[row.key];
+  const a=get(s.AD),b=get(s.ADA),d=deltaInfo(a,b,{invert:!!row.invert});
+  const display=v=>row.custom||row.prod?nfmt(v,1):fmt(v,row.key);
+  return '<tr><td title="'+esc(row.label)+'">'+esc(row.label)+'</td><td>'+display(a)+'</td><td>'+display(b)+'</td>'+
+  '<td class="assist-cell-delta '+(d.cls==='pos'?'pos':d.cls==='neg'?'neg':'')+'">'+(d.value>0?'↑ ':d.value<0?'↓ ':'• ')+d.text+'</td></tr>';
  }).join('');
 }
 function renderFunnel(s){
- const steps=['mailing','tentativas','atendidas','cpc','acordo'];
- $('funnel').innerHTML=steps.map(key=>{
-  const a=s.AD.stats[key],b=s.ADA.stats[key],max=Math.max(a,b,1),d=deltaInfo(a,b);
-  return '<div class="funnel-row"><span class="stage">'+metricLabels[key]+'</span><div class="bar-pair">'+
-   '<div class="bar-line"><div class="bar-bg"><div class="bar-fill ad" style="width:'+(Math.max(0,a)/max*100).toFixed(2)+'%"></div></div><span class="bar-number">'+fmt(a,key)+'</span></div>'+
-   '<div class="bar-line"><div class="bar-bg"><div class="bar-fill ada" style="width:'+(Math.max(0,b)/max*100).toFixed(2)+'%"></div></div><span class="bar-number">'+fmt(b,key)+'</span></div></div>'+
-   '<span class="funnel-delta">'+d.text+'</span></div>';
- }).join('');
-}
-function renderEfficiency(s){
- const fields=[
-  ['Spin','spin'],['Hit Rate','hitrate'],['Taxa CPC','taxaCpc'],['Conversão','conversao'],
-  ['Eficiência','eficiencia'],['Acordos / Agente',null]
+ const stages=[
+  {label:'Mailing médio',key:'mailing',style:'blue',averageMailing:true},
+  {label:'Discado',key:'tentativas',style:'blue'},
+  {label:'Contato',key:'atendidas',style:'blue'},
+  {label:'CPC',key:'cpc',style:'blue'},
+  {label:'Acordo',key:'acordo',style:'orange'},
+  {label:'Pagamento',key:'pagamento',style:'gray',missing:true}
  ];
- $('efficiency').innerHTML=fields.map(([label,key])=>{
-  const a=key?s.AD.stats[key]:s.AD.productivity.acordo;
-  const b=key?s.ADA.stats[key]:s.ADA.productivity.acordo;
-  const fn=key?x=>fmt(x,key):x=>nfmt(x,1);
-  const d=deltaInfo(a,b);
-  return '<div class="eff-item"><div class="eff-label">'+label+'</div><div class="eff-number"><span style="color:#96c5ff">'+fn(a)+'</span> <span style="color:#7e96b6">/</span> <span style="color:#ffb08f">'+fn(b)+'</span></div>'+
-  '<div class="eff-legend"><i class="legend-line"></i>AD<i class="legend-line orange"></i>ADA <b style="margin-left:auto;color:'+(d.cls==='pos'?'#76e2ba':d.cls==='neg'?'#f3ad9f':'#b6c4d5')+'">'+d.text+'</b></div></div>';
- }).join('');
+ for(const agent of ['AD','ADA']){
+  const side=s[agent];
+  const main=$('funnel'+agent),delta=$('funnelDeltas'+agent);
+  $('funnelPeriod'+agent).textContent=rangeLabel(side.period);
+  $('funnelDays'+agent).textContent=side.activeDays+' dias com dados';
+  main.innerHTML=stages.map((stage,i)=>{
+   const value=stage.missing?null:stage.averageMailing?side.average.mailing:side.stats[stage.key];
+   const widths=[100,96,92,87,81,75];
+   return '<div class="assist-funnel-stage '+stage.style+'" style="--funnel-width:'+widths[i]+'%">'+
+    '<span class="assist-stage-label">'+esc(stage.label)+'</span><strong class="assist-stage-value">'+(value===null?'N/D':fmt(value,stage.key,stage.averageMailing?'average':state.mode))+'</strong></div>'+
+    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i>=3?'orange':'')+'" aria-hidden="true">⌄</div>':'');
+  }).join('');
+  delta.innerHTML='<div class="assist-delta-title">Variação do funil</div><div class="assist-delta-sub">ADA × AD</div>'+
+   stages.map(stage=>{
+    const a=stage.missing?null:stage.averageMailing?s.AD.average.mailing:s.AD.stats[stage.key];
+    const b=stage.missing?null:stage.averageMailing?s.ADA.average.mailing:s.ADA.stats[stage.key];
+    const change=changeDisplay(a,b);
+    const cls=change.className==='positive'?'up':change.className==='negative'?'down':'na';
+    return '<div class="assist-funnel-delta-item"><span>'+esc(stage.label)+'</span><strong class="'+cls+'">'+change.mark+' '+change.text+'</strong></div>';
+   }).join('');
+ }
 }
 function renderDaily(s){
  const days=[...s.AD.days.map(x=>({...x,tech:'AD'})),...s.ADA.days.map(x=>({...x,tech:'ADA'}))].sort((a,b)=>a.date.localeCompare(b.date)||a.tech.localeCompare(b.tech));
@@ -671,7 +695,6 @@ function render(){
  renderKpis(comparison);
  renderMatrix(comparison);
  renderFunnel(comparison);
- renderEfficiency(comparison);
  renderChart(comparison);
  renderDaily(comparison);
  renderCampaigns(comparison);
