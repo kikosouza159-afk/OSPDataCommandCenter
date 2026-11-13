@@ -141,6 +141,14 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - Teste em mock DOM com os **2.368 registros reais do Neon** confirmou campanha AD 18 com 6 pontos, ADA 383 com 10 pontos, gráfico com uma única série, 22 filtros rápidos, popup individual e Hangup/Discagens com média de novembro `0,032278...`%, em conformidade com cálculo do banco.
 - Código atualizado na branch `main`. O deploy no Render e a revisão visual no navegador de produção ainda não foram confirmados.
 
+## Regra de sinalização VoiceMail: Energisa (13/11/2026)
+- **VoiceMail é contato válido e conta como CPC para a Energisa**. Crescimento de VoiceMail é considerado favorável e deve usar **verde**. Redução deve aparecer em **vermelho**. Volume, VoiceMail/Atendidas e VoiceMail/CPC usam a mesma lógica de sinalização de variação positiva/negativa no painel.
+- Corrigidas inversões antigas nas funções `renderKpis`, `renderMatrix` e `renderFunnel` do template `templates/energisa_ad_ada.html`. Ajustados os textos do funil e tooltip para refletir o significado comercial do indicador.
+- **Não somar VoiceMail ao CPC novamente**: o dado de CPC da fonte já inclui essa classificação. A mudança é de interpretação e apresentação, não de totalização ou da regra de ingestão no Neon.
+- A participação VoiceMail/Atendidas permanece informativa. No relatório executivo, uma redução dessa participação não é classificada automaticamente como ganho de qualidade; o principal sinal favorável é o aumento de contatos válidos.
+- Relatório HTML da análise executiva de 12/11/2026 foi atualizado com narrativas compatíveis e cores favoráveis para crescimento de VoiceMail.
+- Validação da ERO (campanhas AD 18 vs ADA 383, médias diárias dos filtros padrão): VoiceMail aproximadamente `4.317` vs `7.491`, crescimento de `73,5%` em verde, inclusive nas duas taxas da matriz.
+
 ## Atualização
 Importação inicial de 543 registros de setembro a novembro e atualização histórica posterior para 2.368 registros de janeiro a novembro de 2026. A API consulta o Neon a cada acesso, sem arquivo estático.
 Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
