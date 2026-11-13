@@ -108,7 +108,69 @@ function render(){const s=summaryState();$('kpiDescription').textContent=state.m
 function setMode(mode){state.mode=mode;for(const [name,id] of [['total','btnTotal'],['average','btnAverage']]){const b=$(id);b.classList.toggle('active',name===mode);b.setAttribute('aria-pressed',String(name===mode));}render();}
 function exportCsv(){const rows=selectedRows(),headers=['Date','CampaignId','nomecampanha','Logados','Tentativas','Atendidas','Cpc','Acordo','Hangup','Mailing','Agente'];const fields=['data','campaign_id','nome_campanha','logados','tentativas','atendidas','cpc','acordo','hangup','mailing','agente'];const lines=[headers.join(';')];for(const row of rows)lines.push(fields.map(k=>'"'+String(row[k]).replace(/"/g,'""')+'"').join(';'));const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='energisa_ad_ada_diario_'+$('dateStart').value+'_'+$('dateEnd').value+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 function bind(){for(const id of ['dateStart','dateEnd'])$(id).addEventListener('change',()=>{if($('dateStart').value>$('dateEnd').value){$('dateEnd').value=$('dateStart').value;}render();});$('chartMetric').addEventListener('change',()=>renderChart(selectedRows()));$('btnTotal').addEventListener('click',()=>setMode('total'));$('btnAverage').addEventListener('click',()=>setMode('average'));$('exportBtn').addEventListener('click',exportCsv);document.querySelectorAll('[data-pick]').forEach(btn=>btn.addEventListener('click',()=>setPick(btn.dataset.agent,btn.dataset.pick==='all')));$('resetBtn').addEventListener('click',()=>{$('dateStart').value=state.min;$('dateEnd').value=state.max;for(const agent of ['AD','ADA'])setPick(agent,true);setMode('total');});}
-async function start(){try{const response=await fetch(apiUrl,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw Error('Resposta HTTP '+response.status);const payload=await response.json();if(!payload||!Array.isArray(payload.rows)||!payload.rows.length)throw Error('Base diária vazia');state.rows=payload.rows.map(r=>({...r,campaign_id:Number(r.campaign_id)}));state.min=payload.meta.date_min;state.max=payload.meta.date_max;$('dateStart').min=state.min;$('dateStart').max=state.max;$('dateEnd').min=state.min;$('dateEnd').max=state.max;$('dateStart').value=state.min;$('dateEnd').value=state.max;$('rangeLabel').textContent=displayDate(state.min)+' até '+displayDate(state.max);buildCampaigns();bind();$('loading').classList.add('hidden');$('dashboard').classList.remove('hidden');render();}catch(e){console.error('Erro no painel Energisa',e);$('loading').textContent='Não foi possível carregar a tabela diária da Energisa no Neon. Verifique seu acesso e a conexão.';}}
+async function start(){
+  const loading=$('loading');
+  try{
+    loading.textContent='Carregando dados da Energisa...';
+    const response=await fetch(apiUrl,{credentials:'same-origin',cache:'no-store'});
+    if(!response.ok){
+      let code='http_'+response.status;
+      try{
+        const body=await response.json();
+        if(body && typeof body.error==='string')code=body.error;
+      }catch(_){}
+      const e=new Error('API Energisa: '+code+' (HTTP '+response.status+')');
+      e.code=code;
+      throw e;
+    }
+    const payload=await response.json();
+    if(!payload||!Array.isArray(payload.rows)||!payload.rows.length){
+      const e=new Error('Dados recebidos em formato inválido ou vazio');
+      e.code='invalid_response';throw e;
+    }
+    state.rows=payload.rows.map(r=>({...r,campaign_id:Number(r.campaign_id)}));
+    state.min=payload.meta.date_min;state.max=payload.meta.date_max;
+    $('dateStart').min=state.min;$('dateStart').max=state.max;
+    $('dateEnd').min=state.min;$('dateEnd').max=state.max;
+    $('dateStart').value=state.min;$('dateEnd').value=state.max;
+    $('rangeLabel').textContent=displayDate(state.min)+' até '+displayDate(state.max);
+    buildCampaigns();bind();
+    loading.classList.add('hidden');$('dashboard').classList.remove('hidden');render();
+  }catch(e){
+    console.error('Erro no painel Energisa',e);
+    const code=e.code||'client_error';
+    const friendly={
+      table_not_found:'A tabela Energisa não foi localizada no banco configurado para o Cockpit. A base existe no Neon, mas o serviço pode estar apontando para outro banco.',
+      database_connection_failed:'Não foi possível estabelecer conexão com o Neon. Verifique a configuração do serviço e a disponibilidade do banco.',
+      database_permission_denied:'A conexão está ativa, mas o usuário do banco não tem permissão para ler a tabela Energisa.',
+      data_source_unavailable:'A consulta ao Neon falhou. Consulte os registros do serviço Render para identificar o erro.',
+      authentication_required:'A sessão de login expirou. Entre novamente no Cockpit.',
+      forbidden:'Seu usuário não tem permissão para visualizar os dados da Energisa.',
+      password_change_required:'É necessário alterar sua senha no Cockpit antes de acessar o painel.',
+      no_data:'A tabela Energisa está acessível, mas não possui registros.',
+      invalid_response:'A API retornou uma estrutura inesperada. Verifique a versão publicada do Cockpit.'
+    };
+    loading.replaceChildren();
+    loading.style.flexDirection='column';
+    loading.style.gap='14px';
+    loading.style.textAlign='center';
+    const title=document.createElement('strong');
+    title.textContent='Não foi possível carregar o painel Energisa';
+    const message=document.createElement('span');
+    message.style.fontWeight='400';
+    message.style.maxWidth='640px';
+    message.textContent=friendly[code]||'O carregamento falhou. Confira o console e os logs do serviço.';
+    const ref=document.createElement('small');
+    ref.style.color='#ffaf8c';
+    ref.textContent='Código de diagnóstico: '+code;
+    const retry=document.createElement('button');
+    retry.type='button';
+    retry.className='export';
+    retry.textContent='Tentar novamente';
+    retry.addEventListener('click',start);
+    loading.append(title,message,ref,retry);
+  }
+}
 start();
 })();
 </script>
