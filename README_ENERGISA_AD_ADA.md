@@ -98,6 +98,20 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - O teste de renderização com os 2.368 registros reais confirmou os seis cards, os dois funis, a tabela, o gráfico e seleção de janeiro no AD.
 - Os dados brutos do cliente não são publicados no GitHub.
 
+## Redesign tecnológico e interativo do painel (13/11/2026)
+- **Fundo padrão preservado**: a página Energisa passou a incluir `templates/background.html`, o mesmo componente utilizado em `templates/dashboard.html`. A grade, as linhas elétricas, os orbes, o scanline e a chuva de dados mantêm seu aspecto original. A CSS está encapsulada no template Energisa; os outros clientes não foram alterados.
+- **Interação do fundo**: adicionada paralaxe de baixa amplitude vinculada ao ponteiro apenas na Energisa, com `requestAnimationFrame`. Preferência de acessibilidade por movimentos reduzidos desativa as animações complementares.
+- **Novo cabeçalho executivo** com status de fonte, último dia disponível calculado dos registros carregados, período selecionado e navegação rápida por Filtros, Visão geral, Funis, Evolução e Detalhamento.
+- **Filtros preservados** para AD e ADA com datas/campanhas independentes; novos atalhos `Últimos 7 dias`, `Mês mais recente` e `Histórico` respeitam as campanhas selecionadas. Os filtros de data não são sincronizados entre tecnologias.
+- **Cards executivos acionáveis** com 6 KPIs e gráficos de tendência AD azul × ADA laranja obtidos das últimas 16 linhas diárias reais de cada tecnologia. Não há valores simulados nem animação de dados fictícios. Ao clicar num card, o indicador correspondente é aberto no gráfico diário.
+- **Funis interativos** mantêm as 6 etapas existentes e as cores por tecnologia. Cada etapa pode abrir sua série diária. VoiceMail aparece explicitamente como *classificação*, com conector visual pontilhado para não sugerir uma conversão sequencial CPC → VoiceMail → Acordo.
+- **Matriz comparativa** agora permite abrir o indicador no gráfico por clique ou teclado; os deltas de VoiceMail e respectivas taxas utilizam sinalização visual favorável quando há queda.
+- **Gráfico exploratório** ganhou 4 botões rápidos, controle independente de linhas das médias mensais, realce das curvas, navegação pela seleção de indicadores e o popup anterior comparando dia × média do mês calendário (mantido).
+- **Performance e acessibilidade**: transições discretas, `prefers-reduced-motion`, estados de foco visíveis, controle de movimentos e animações locais sem bibliotecas externas.
+- **Backend preservado**: nenhuma alteração em `energisa_ad_ada.py`, controle de acesso, banco Neon, estrutura diária, cálculos ou exportação CSV por causa do redesign.
+- **Validação** com 2.368 registros reais do Neon: 6 cards, 6 sparklines, 6 etapas em cada funil, 25 linhas de matriz, popup e gráfico diário, filtro AD de janeiro/2026, atalhos de período, modo Total/Média dia e habilitar/desabilitar as linhas de média, sem erro de JavaScript no teste de renderização.
+- **Deploy**: alterações estão no GitHub `main`; publicação no Render não foi verificada diretamente.
+
 ## Atualização
 Importação inicial de 543 registros de setembro a novembro e atualização histórica posterior para 2.368 registros de janeiro a novembro de 2026. A API consulta o Neon a cada acesso, sem arquivo estático.
 Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
