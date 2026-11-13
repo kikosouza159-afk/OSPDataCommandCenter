@@ -332,7 +332,7 @@ h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Ar
   <div class="hero-caption"><span class="mini-pulse"></span> Comparativo executivo <span>•</span> Campanhas independentes <span>•</span> Dados reais do Neon</div>
  </div>
  <div class="header-side command-hero__meta">
-  <span class="header-pill hero-data-pill"><span class="status-dot"></span> Banco Neon · Conectado</span>
+  <span class="header-pill hero-data-pill" id="sourceStatus"><span class="status-dot"></span> Neon · Consulta protegida</span>
   <span class="header-pill" id="rangeLabel">Carregando períodos...</span>
   <span class="hero-freshness" id="dataFreshness">Consultando disponibilidade de dados</span>
  </div>
@@ -451,7 +451,7 @@ h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Ar
 
 <section class="panel chart-panel" id="evolutionSection">
   <div class="chart-head"><div><div class="section-kicker">INTELIGÊNCIA DE TENDÊNCIA</div><h3>Evolução diária AD × ADA</h3><p>Evolução por dia do período, com referência da média mensal completa.</p></div>
-    <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option></select>
+    <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option><option value="spin">Spin</option><option value="taxaCpc">CPC / Atendimento %</option><option value="eficiencia">Eficiência %</option><option value="taxaHangup">Hangup %</option></select>
   </div>
   <div class="chart-command-row">
     <div class="chart-quick-metrics" role="group" aria-label="Indicadores rápidos">
@@ -491,7 +491,7 @@ const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxa
 const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','eficiencia','acordoLogado'];
 const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'% Hangup',eficiencia:'Eficiência',acordoLogado:'Acordos / Agente'};
-const state={rows:[],mode:'average',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
+const state={rows:[],mode:'average',showAverages:true,periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
 const isPct=k=>percentageKeys.has(k);
 const nfmt=(n,precision=0)=>Number.isFinite(n)?(precision===2?dec2Fmt:precision===1?decFmt:intFmt).format(n):'—';
 const fmt=(value,key,mode=state.mode)=>{
@@ -669,25 +669,37 @@ function changeDisplay(a,b){
  const positive=d.value>0,negative=d.value<0;
  return {text:d.text,className:positive?'positive':negative?'negative':'neutral',mark:positive?'↑':negative?'↓':'•'};
 }
+function sparkline(s,key){
+ const W=118,H=36,parts=[s.AD.days.slice(-16).map(d=>Number(d.values[key])||0),s.ADA.days.slice(-16).map(d=>Number(d.values[key])||0)];
+ const max=Math.max(1,...parts[0],...parts[1]);
+ const trace=(arr,color)=>!arr.length?'':('<polyline points="'+arr.map((v,i)=>{
+  const x=3+(arr.length===1?W/2:i/(arr.length-1)*(W-6)),y=H-4-v/max*(H-9);
+  return x.toFixed(1)+','+y.toFixed(1);
+ }).join(' ')+'" stroke="'+color+'" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>');
+ return '<svg class="kpi-sparkline" viewBox="0 0 '+W+' '+H+'" aria-hidden="true">'+trace(parts[0],'#5daeff')+trace(parts[1],'#fb744b')+'</svg>';
+}
 function renderKpis(s){
  const cards=[
-  {key:'acordo',label:'Acordo',icon:'acordo',format:'acordo'},
-  {key:'eficiencia',label:'Efic %',icon:'eficiencia',format:'eficiencia'},
-  {key:'atendidas',label:'Contato',icon:'atendidas',format:'atendidas'},
-  {key:'cpc',label:'CPC',icon:'cpc',format:'cpc'},
-  {key:'voicemail',label:'VoiceMail',icon:'voicemail',format:'voicemail'},
-  {key:'agentes',label:'Agentes',icon:'agentes',format:'agentes'}
+  {key:'acordo',label:'Acordos',icon:'acordo',info:'Quantidade de acordos'},
+  {key:'eficiencia',label:'Eficiência',icon:'eficiencia',info:'Acordos ÷ Mailing × 100'},
+  {key:'atendidas',label:'Atendidas',icon:'atendidas',info:'Chamadas atendidas'},
+  {key:'cpc',label:'CPC',icon:'cpc',info:'Contatos com a pessoa certa'},
+  {key:'voicemail',label:'VoiceMail',icon:'voicemail',info:'Classificação VoiceMail, menor volume pode ser favorável'},
+  {key:'agentes',label:'Agentes / dia',icon:'agentes',info:'Média diária de agentes logados'}
  ];
  $('kpis').innerHTML=cards.map((card,index)=>{
-  const a=card.key==='agentes'?s.AD.agentMean:s.AD.stats[card.key];
-  const b=card.key==='agentes'?s.ADA.agentMean:s.ADA.stats[card.key];
-  const d=changeDisplay(a,b);
-  const display=x=>card.key==='agentes'?nfmt(x):card.key==='eficiencia'?nfmt(x,2)+'%':nfmt(x,state.mode==='average'?0:0);
-  return '<article class="assist-kpi" aria-label="'+esc(card.label)+' AD vs ADA">'+
-   '<div class="assist-kpi-head"><div class="assist-kpi-icon '+(index===1||index===2||index===3?'cyan':'')+'">'+iconSVG(card.icon)+'</div>'+
-   '<div><div class="assist-kpi-name">'+card.label+'</div><div class="assist-kpi-values" title="AD '+display(a)+' | ADA '+display(b)+'">'+display(a)+' → '+display(b)+'</div></div></div>'+
-   '<div class="assist-kpi-delta '+d.className+'">'+d.mark+' '+d.text+'</div>'+
-   '<div class="assist-kpi-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></article>';
+  const key=card.key==='agentes'?'logados':card.key;
+  const a=card.key==='agentes'?s.AD.agentMean:s.AD.stats[key];
+  const b=card.key==='agentes'?s.ADA.agentMean:s.ADA.stats[key];
+  const d=deltaInfo(a,b,{invert:card.key==='voicemail'});
+  const display=v=>card.key==='eficiencia'?nfmt(v,2)+'%':nfmt(v);
+  const arrow=d.value>0?'↗':d.value<0?'↘':'•';
+  return '<button type="button" class="assist-kpi" data-chart-key="'+key+'" title="'+esc(card.info)+' · Abrir tendência diária" aria-label="'+esc(card.label)+' AD '+display(a)+' e ADA '+display(b)+'; variação '+d.text+'; abrir gráfico">'+
+   '<span class="assist-kpi-head"><span class="assist-kpi-icon '+(index===1||index===2||index===3?'cyan':'')+'">'+iconSVG(card.icon)+'</span>'+
+   '<span class="assist-kpi-main"><span class="assist-kpi-name">'+card.label+'</span><span class="assist-kpi-values">'+display(a)+' <i>→</i> '+display(b)+'</span></span></span>'+
+   '<span class="assist-kpi-data-label"><span><i class="assist-legend-dot human"></i> AD</span><span><i class="assist-legend-dot digital"></i> ADA</span></span>'+
+   '<span class="assist-kpi-bottom"><span class="assist-kpi-delta '+(d.cls==='pos'?'positive':d.cls==='neg'?'negative':'neutral')+'">'+arrow+' '+d.text+'</span><span class="spark-wrap">'+sparkline(s,key)+'</span></span>'+
+   '<span class="assist-kpi-open">↗ Ver evolução</span></button>';
  }).join('');
 }
 function renderMatrix(s){
@@ -744,12 +756,14 @@ function renderMatrix(s){
  $('comparisonBody').innerHTML=rows.map(row=>{
   if(row.group)return '<tr class="assist-section-row"><td colspan="4">'+esc(row.group)+'</td></tr>';
   const a=rowData(row,s.AD),b=rowData(row,s.ADA);
-  const d=row.noDelta?null:deltaInfo(a,b);
+  const d=row.noDelta?null:deltaInfo(a,b,{invert:['voicemail','taxaVoiceMailAtendidas','taxaVoiceMailCpc'].includes(row.key)});
   const css=d?(d.cls==='pos'?'pos':d.cls==='neg'?'neg':''):'na';
   const change=d?(d.value>0?'↑ ':d.value<0?'↓ ':'• ')+d.text:'—';
   const cls=row.highlight?'assist-row-highlight':'';
+  const clickableKey=!row.special&&!row.prod?row.key:'';
+  const rowAttrs=clickableKey?' data-chart-key="'+clickableKey+'" tabindex="0" aria-label="Exibir evolução '+esc(row.label)+'"':'';
   const titleAttr=row.special==='name'?' title="'+esc(a)+' × '+esc(b)+'"':'';
-  return '<tr class="'+cls+'"><td'+titleAttr+'>'+esc(row.label)+'</td><td title="'+esc(a)+'">'+display(row,a)+'</td>'+
+  return '<tr class="'+cls+'"'+rowAttrs+'><td'+titleAttr+'>'+esc(row.label)+'</td><td title="'+esc(a)+'">'+display(row,a)+'</td>'+
    '<td title="'+esc(b)+'">'+display(row,b)+'</td><td class="assist-cell-delta '+css+'">'+change+'</td></tr>';
  }).join('');
 }
@@ -780,8 +794,9 @@ function renderFunnel(s){
    const value=stage.averageMailing?side.average.mailing:side.stats[stage.key];
    const widths=[100,96,92,88,84,80];
    const formatted=nfmt(value);
-   return '<div class="assist-funnel-stage '+stage.style+'" style="--funnel-width:'+widths[i]+'%">'+
-    '<span class="assist-stage-label">'+esc(stage.label)+'</span><strong class="assist-stage-value">'+formatted+'</strong></div>'+
+   const help=stage.key==='voicemail'?'Classificação de atendimento, não uma conversão de CPC.':'Volume do indicador selecionado.';
+   return '<button type="button" class="assist-funnel-stage '+stage.style+(stage.key==='voicemail'?' classificador':'')+'" data-chart-key="'+stage.key+'" style="--funnel-width:'+widths[i]+'%" title="'+esc(help)+' Abrir tendência.">'+
+    '<span class="assist-stage-label">'+esc(stage.label)+(stage.key==='voicemail'?'<small class="stage-subtype">classificação</small>':'')+'</span><strong class="assist-stage-value">'+formatted+'</strong></button>'+
     (i<stages.length-1?'<div class="assist-funnel-chevron '+(i===4?'orange':'')+'" aria-hidden="true">⌄</div>':'');
   }).join('');
   delta.innerHTML='<div class="assist-delta-title">Variação AD × ADA</div><div class="assist-delta-sub">ADA sobre AD</div>'+
@@ -789,13 +804,14 @@ function renderFunnel(s){
     const a=stage.averageMailing?s.AD.average.mailing:s.AD.stats[stage.key];
     const b=stage.averageMailing?s.ADA.average.mailing:s.ADA.stats[stage.key];
     const change=changeDisplay(a,b);
+    if(stage.key==='voicemail')change.className=change.className==='positive'?'negative':change.className==='negative'?'positive':'neutral';
     const cls=change.className==='positive'?'up':change.className==='negative'?'down':'na';
     return '<div class="assist-funnel-delta-item"><span>'+esc(stage.label)+'</span><strong class="'+cls+'">'+change.mark+' '+change.text+'</strong></div>';
    }).join('');
   $('funnelAgents'+agent).innerHTML='<span>Agentes (média dia)</span><strong>'+nfmt(side.agentMean)+'</strong>';
   $('funnelRates'+agent).innerHTML=rates.map(([label,key])=>{
    const value=side.stats[key],valueFmt=key==='spin'?nfmt(value,1):key==='eficiencia'?nfmt(value,2)+'%':nfmt(value,1)+'%';
-   return '<div class="assist-mini-metric"><span>'+label+'</span><b>'+valueFmt+'</b></div>';
+   return '<button type="button" class="assist-mini-metric" data-chart-key="'+key+'" title="Abrir tendência de '+esc(label)+'"><span>'+label+'</span><b>'+valueFmt+'</b></button>';
   }).join('');
   $('funnelAGV'+agent).innerHTML=agv.map(([label,key])=>
    '<div class="assist-mini-metric"><span>'+label+'</span><b>'+nfmt(side.productivity[key])+'</b></div>'
