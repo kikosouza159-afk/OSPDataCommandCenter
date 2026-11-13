@@ -66,6 +66,16 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - Filtros AD e ADA de data inicial, final e campanhas continuam independentes; a evolução diária e o tooltip da média mensal permanecem abaixo dos funis.
 - Base continua em Neon via API autenticada; nenhuma alteração no banco nem alteração de permissões.
 
+## Ajuste de indicadores ERO (13/11/2026)
+- Benchmark padrão: AD campanha **18** (setembro/2026) versus ADA campanha **383** (novembro/2026), com filtros de período e campanhas editáveis.
+- Média dia: cada volume é calculado como média dos dias com valor > 0, e as taxas são derivadas das médias não arredondadas.
+- Renderização de contagens, Mailing, AGV e produtividade em números inteiros; Spin e demais percentuais com uma casa decimal, Eficiência % com duas casas. O delta percentual sempre usa os números originais, sem arredondamento prévio.
+- Ordem da matriz no comparativo ERO: Campanha; Dias Trabalhados; Média Dia (mês do recorte); Mailing; Agentes (média de logados por dia); Tentativas; Atendidas; CPC; Acordo; Spin; Hit %; CPC %; Acordo %; Efic %; Mailing / AGV; Tentativas / AGV; Atendidas / AGV; CPC / AGV; Acordo / AGV.
+- Funil AD e ADA, do Mailing para baixo: Mailing médio → Tentativas → Atendidas → CPC → Acordo. Agentes, taxas e produtividade por AGV exibidos no próprio painel do funil, abaixo das etapas.
+- Pagamento retirado da versão executiva ERO, porque não existe dado de pagamento nessa tabela.
+- Valores validados diretamente no Neon: AD 6 dias, Mailing 329.344, Agentes 21, Tentativas 189.551, Atendidas 7.961, CPC 5.381, Acordos 129; ADA 10 dias, Mailing 204.009, Agentes 23, Tentativas 215.800, Atendidas 13.166, CPC 8.784, Acordos 379.
+- O código foi testado com os 543 registros do banco e confirmação de 5 cards, 5 etapas por funil, taxas e AGV em cada funil, 22 linhas de matriz e gráfico diário.
+
 ## Atualização
 Importação inicial efetuada de 543 linhas em Neon. A API consulta o banco a cada acesso, sem arquivo estático.
 Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
