@@ -197,9 +197,125 @@
 .assist-panel-ada .assist-funnel-chevron.orange{color:#ff9c68;filter:drop-shadow(0 0 5px #fb653e77)}
 .assist-panel-ada .assist-agent-metric{border-color:#9b4f33;background:#30202a}
 @media(max-width:740px){.assist-campaign-banner{font-size:10px;min-height:32px}}
+
+/* ENERGISA / OSP COMMAND EXPERIENCE 2026
+   Reutiliza exatamente templates/background.html do Cockpit principal.
+   Complementos limitados a esta página. Nenhuma dependência remota. */
+:root{
+ --tech-cyan:#16d5ff;--tech-blue:#348ff0;--tech-orange:#fb5c28;
+ --tech-ink:#020814;--glass:rgba(5,19,38,.76);
+ --glass-border:rgba(49,151,210,.25);--shadow-glow:0 22px 70px rgba(0,0,0,.32)
+}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+body{background:#020814;color:#eef7ff;font-family:Asap,"Segoe UI",Arial,sans-serif;overflow-x:hidden}
+h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Arial,sans-serif}
+:where(button,a,input,select,summary,[tabindex="0"]):focus-visible{outline:2px solid #65daff!important;outline-offset:4px}
+#filtersSection,#summarySection,#funnelsSection,#evolutionSection,#detailsSection{scroll-margin-top:86px}
+/* Estilos originais do menu Cockpit reproduzidos no escopo do seu componente */
+.bg-content{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;isolation:isolate}
+.bg-content .background{position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(0,229,255,.16),transparent 30%),radial-gradient(circle at 80% 70%,rgba(0,106,255,.18),transparent 34%),linear-gradient(135deg,#020814 0%,#07172a 50%,#020814 100%)}
+.bg-content .bg-grid{position:absolute;inset:-80px;background-image:linear-gradient(rgba(0,229,255,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.10) 1px,transparent 1px);background-size:55px 55px;transform:perspective(500px) rotateX(62deg);transform-origin:center bottom;animation:ospGridMove 5s linear infinite;opacity:.40;translate:var(--osp-parallax-x,0px) var(--osp-parallax-y,0px)}
+@keyframes ospGridMove{from{background-position:0 0}to{background-position:0 55px}}
+.bg-content .orb{position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(0,229,255,.10);filter:blur(35px);animation:ospFloatOrb 7s ease-in-out infinite alternate;translate:var(--osp-parallax-x,0px) var(--osp-parallax-y,0px)}
+.bg-content .orb.one{top:12%;left:12%}.bg-content .orb.two{right:10%;bottom:12%;background:rgba(0,102,255,.13);animation-delay:1.5s;translate:var(--osp-parallax-x-rev,0px) var(--osp-parallax-y-rev,0px)}
+@keyframes ospFloatOrb{from{transform:translate(0,0) scale(1)}to{transform:translate(45px,-30px) scale(1.25)}}
+.bg-content .scanline{position:absolute;left:0;right:0;height:130px;background:linear-gradient(transparent,rgba(0,229,255,.08),transparent);animation:ospScan 6s ease-in-out infinite}
+@keyframes ospScan{from{top:-150px}to{top:110vh}}
+.bg-content .electric{position:absolute;inset:0;opacity:.35;filter:drop-shadow(0 0 10px rgba(0,229,255,.8))}
+.bg-content .electric svg{width:100%;height:100%}
+.bg-content .electric path{fill:none;stroke:rgba(0,229,255,.45);stroke-width:1.4;stroke-dasharray:12 900;animation:ospElectricRun 3.2s linear infinite}
+.bg-content .electric path:nth-child(2){animation-delay:1.4s;stroke:rgba(0,120,255,.5)}
+.bg-content .electric path:nth-child(3){animation-delay:2.2s;stroke:rgba(120,240,255,.42)}
+@keyframes ospElectricRun{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
+.bg-content .data-rain{position:absolute;inset:0;overflow:hidden}
+.bg-content .code{position:absolute;top:-120px;font-size:13px;color:rgba(0,229,255,.55);text-shadow:0 0 12px rgba(0,229,255,.8);writing-mode:vertical-rl;letter-spacing:4px;animation:ospRain linear infinite;user-select:none}
+.bg-content .code:nth-child(1){left:6%;animation-duration:8s;animation-delay:0s}
+.bg-content .code:nth-child(2){left:16%;animation-duration:11s;animation-delay:1s}
+.bg-content .code:nth-child(3){left:29%;animation-duration:9s;animation-delay:2s}
+.bg-content .code:nth-child(4){left:43%;animation-duration:13s;animation-delay:.5s}
+.bg-content .code:nth-child(5){left:58%;animation-duration:10s;animation-delay:2.8s}
+.bg-content .code:nth-child(6){left:72%;animation-duration:12s;animation-delay:1.7s}
+.bg-content .code:nth-child(7){left:88%;animation-duration:8.5s;animation-delay:.8s}
+@keyframes ospRain{from{transform:translateY(-140px);opacity:0}10%{opacity:.9}80%{opacity:.75}to{transform:translateY(120vh);opacity:0}}
+/* Dashboard surfaces preserve visibility of the original moving background */
+.layout{position:relative;z-index:1;isolation:isolate}
+.sidebar{z-index:14;background:linear-gradient(180deg,rgba(3,13,34,.89),rgba(4,12,29,.79));backdrop-filter:blur(23px);-webkit-backdrop-filter:blur(23px);border-right:1px solid rgba(50,162,220,.25);box-shadow:10px 0 48px rgba(0,0,0,.19)}
+.sidebar .logo-wrap{border-bottom:1px solid rgba(65,132,184,.2);margin-bottom:12px}
+.sidebar .caption{font-size:10px;letter-spacing:1.9px;color:#9abfdb}
+.nav a.active{background:linear-gradient(90deg,rgba(251,92,40,.19),rgba(251,92,40,.025));box-shadow:inset 3px 0 0 #fb5c28}
+.content{position:relative;z-index:1;background:none!important;max-width:1900px;padding:25px 33px 80px}
+.command-hero{position:relative;isolation:isolate;border:1px solid rgba(53,166,222,.35);border-radius:22px;padding:24px 25px;margin-bottom:12px;background:linear-gradient(115deg,rgba(4,18,39,.92),rgba(9,30,55,.79) 68%,rgba(18,35,62,.63));backdrop-filter:blur(17px);-webkit-backdrop-filter:blur(17px);box-shadow:inset 0 0 26px rgba(16,168,226,.035),var(--shadow-glow);overflow:hidden}
+.command-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 38%,rgba(27,182,241,.045) 60%,transparent 78%);pointer-events:none;z-index:-1}
+.command-hero:after{content:"";position:absolute;right:-44px;top:-120px;width:350px;height:350px;border:1px solid rgba(0,210,255,.14);border-radius:50%;box-shadow:0 0 0 55px rgba(0,207,255,.028),0 0 0 110px rgba(0,207,255,.016);pointer-events:none;z-index:-1}
+.command-hero__copy{position:relative;min-width:0}
+.command-hero .eyebrow{font-size:10px;letter-spacing:1.9px;color:#67d7ff;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.hero-overline{color:#f98c5a}.hero-led,.mini-pulse{width:8px;height:8px;display:inline-block;flex:none;border-radius:50%;background:#27e5bf;box-shadow:0 0 10px rgba(39,229,191,.65);animation:ospPulse 3s ease-in-out infinite}
+.hero-caption .mini-pulse{width:6px;height:6px}
+@keyframes ospPulse{50%{opacity:.45;box-shadow:0 0 2px #27e5bf}}
+.command-hero h1{font-size:clamp(26px,2.4vw,40px);line-height:1.16;margin:10px 0 9px;letter-spacing:-1.1px}
+.hero-cross{color:#77b9e4}.command-hero p{max-width:680px;font-size:12px;color:#adc3df;line-height:1.65;margin:0}
+.hero-caption{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:16px;color:#8db0cd;font-size:10px;letter-spacing:.3px}
+.command-hero__meta{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:8px;min-width:225px}
+.command-hero__meta .header-pill{font-size:10px;background:rgba(7,32,58,.6);border:1px solid rgba(72,167,220,.25);border-radius:20px;max-width:100%;text-align:right}
+.hero-data-pill{color:#6de7d4!important}.hero-freshness{font-size:10px;color:#84a5c3;text-align:right}
+.jump-nav{position:sticky;top:8px;z-index:10;display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:max-content;max-width:100%;margin:0 0 19px;padding:6px 7px;border:1px solid rgba(55,146,204,.28);border-radius:14px;background:rgba(5,21,42,.86);backdrop-filter:blur(19px);-webkit-backdrop-filter:blur(19px);box-shadow:0 10px 34px rgba(0,0,0,.24)}
+.jump-nav__link{padding:9px 13px;border-radius:9px;color:#a4c2e0;font-size:11px;font-weight:760;white-space:nowrap;transition:background .2s ease,color .2s ease}
+.jump-nav__link:hover,.jump-nav__link:focus-visible{color:#fff;background:rgba(49,157,210,.18)}
+/* Elevated glass surfaces */
+.panel,.assist-kpis .assist-kpi{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.panel{background:linear-gradient(140deg,rgba(5,20,44,.87),rgba(5,17,37,.79));border:1px solid rgba(74,149,202,.28);box-shadow:0 14px 42px rgba(0,0,0,.19),inset 0 1px 0 rgba(185,224,255,.05)}
+.filters{border-radius:18px;padding:20px 21px;position:relative;overflow:visible}
+.filter-eyebrow,.section-kicker{color:#65d5ff;font-weight:800;font-size:10px;letter-spacing:1.6px;margin:0 0 7px}
+.filter-head strong{color:#f2f7ff;font-size:17px;letter-spacing:-.2px}
+.source-grid{gap:15px}.source-box{border-radius:14px;padding:17px;background:linear-gradient(130deg,rgba(10,37,72,.82),rgba(6,22,47,.88));box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.source-ada{background:linear-gradient(130deg,rgba(70,32,32,.73),rgba(27,20,42,.85))}
+.source-fields .field{min-width:0}
+.source-box .field select,.source-box .field input[type="date"],.source-box .campaign-picker summary{transition:border .2s ease,box-shadow .2s ease}
+.source-box :is(input,select,summary):hover{border-color:rgba(111,199,247,.61)}
+.source-box .source-symbol{box-shadow:0 4px 15px #107be138}.source-ada .source-symbol{box-shadow:0 4px 15px #fb5c283d}
+.period-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.period-presets button{padding:7px 9px;min-height:31px;border-radius:7px;background:rgba(17,61,103,.45);border:1px solid rgba(68,153,217,.25);color:#a9cce8;font-size:10px;font-weight:750;transition:.16s ease}
+.period-presets button:hover,.period-presets button.is-active{border-color:rgba(112,208,255,.58);background:rgba(28,112,161,.35);color:#edf9ff}
+.source-ada .period-presets button:hover,.source-ada .period-presets button.is-active{border-color:rgba(255,139,91,.55);background:rgba(156,61,33,.26);color:#ffe1d4}
+.benchmark-title{margin:23px 0 15px}.benchmark-title h2{font-size:26px}.benchmark-title .eyebrow{letter-spacing:1.7px}
+.benchmark-coverage span{background:rgba(6,30,55,.78);border-color:rgba(61,135,185,.24);border-radius:10px}
+.assist-grid-intro{margin:27px 0 12px}.assist-grid-intro h2{font-size:19px;letter-spacing:-.3px}
+.assist-note{display:block;border-left:2px solid #ffab74;padding-left:9px;font-size:10px;color:#e8beac}
+.assist-panel{border-radius:17px;background:linear-gradient(165deg,rgba(7,25,51,.93),rgba(4,17,38,.84));box-shadow:0 20px 50px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.04)}
+.assist-panel-ad{border-color:rgba(54,153,243,.5)}.assist-panel-ada{border-color:rgba(251,92,40,.52)}
+.assist-panel-title{padding-bottom:12px;border-bottom:1px solid rgba(120,165,201,.15)}
+.assist-panel-title h3{font-size:16px}
+.assist-campaign-banner{background:rgba(11,44,79,.7)}.assist-panel-ada .assist-campaign-banner{background:rgba(82,40,37,.49)}
+.assist-mini-section{background:rgba(5,21,42,.56)}
+.assist-panel-table{border-color:rgba(47,179,227,.4)}
+.assist-matrix th{position:sticky;top:0;z-index:2}
+.assist-matrix tr:focus-within td{background:rgba(47,136,190,.18)}
+.assist-matrix td{transition:background .16s ease}
+.assist-table-foot{border-top:1px solid rgba(96,167,213,.17);margin-top:10px;padding:12px 5px 0}
+.chart-panel{border-radius:19px}
+.chart-head{gap:12px;align-items:center}
+.chart-head h3{font-size:20px}
+.chart-command-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 13px}
+.chart-quick-metrics{display:flex;flex-wrap:wrap;gap:7px}
+.chart-quick-btn,.chart-avg-toggle{border:1px solid rgba(51,139,198,.33);background:rgba(6,31,57,.72);color:#a4c5e0;font-size:11px;font-weight:800;padding:9px 13px;border-radius:9px;transition:all .2s ease}
+.chart-quick-btn:hover,.chart-quick-btn.is-active,.chart-avg-toggle:hover,.chart-avg-toggle.is-active{color:#f2faff;border-color:rgba(81,209,250,.68);background:rgba(17,89,132,.42);box-shadow:0 0 17px rgba(0,165,228,.10)}
+.chart-avg-toggle.is-active{color:#ffba96;border-color:rgba(251,92,40,.5);background:rgba(128,55,40,.23)}
+.chart-month-averages{margin:9px 0 16px}
+.month-chip{background:rgba(7,35,68,.69)}.month-chip.ada{background:rgba(72,34,42,.65)}
+.chart-box{border-radius:12px;background:linear-gradient(180deg,rgba(6,25,47,.45),rgba(4,15,32,.10));border:1px solid rgba(71,138,190,.13)}
+.chart-svg{height:345px;animation:ospReveal .4s ease both}
+@keyframes ospReveal{from{opacity:.2;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.chart-hover-card{border-color:rgba(72,184,241,.6)!important;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.table-panel{border-radius:16px}
+.data-table th{background:rgba(16,45,76,.95);color:#c9e7f6}
+.data-table td{transition:background .18s ease}.data-table tbody tr:hover{background:rgba(32,115,167,.15)}
+@media(max-width:1000px){.jump-nav{position:relative;top:auto;width:100%;justify-content:space-between}.jump-nav__link{font-size:10px;padding:9px}.command-hero__meta{min-width:0}}
+@media(max-width:650px){.content{padding:14px 12px 65px}.command-hero{padding:18px;border-radius:16px}.command-hero__meta{align-items:flex-start}.command-hero__meta .header-pill{max-width:100%}.hero-freshness{text-align:left}.jump-nav{flex-wrap:nowrap;overflow:auto;justify-content:flex-start}.jump-nav__link{flex:none}.filters{padding:15px}.source-box{padding:13px}.assist-note{margin-top:7px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bg-content *, .hero-led,.mini-pulse,.chart-svg{animation:none!important;transition:none!important}.assist-kpis .assist-kpi,.assist-funnel-stage,.assist-matrix td{transition:none!important}}
 </style>
 </head>
 <body>
+{% include "background.html" %}
 <div class="layout">
 <aside class="sidebar">
  <div class="logo-wrap"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="OLOS"></div>
@@ -208,12 +324,31 @@
  <div class="bottom"><a href="{{ url_for('dashboard') }}">← Voltar ao Cockpit</a></div>
 </aside>
 <main class="content">
- <div class="header"><div><div class="eyebrow">Cockpit OLOS • Inteligência Operacional</div><h1>ENERGISA <span style="color:#fb5c28">|</span> AD × ADA</h1><p>Análise executiva diária, produtividade e eficiência por tecnologia e campanha.</p></div><div class="header-side"><span class="header-pill"><span class="status-dot"></span> Fonte: Neon</span><span class="header-pill" id="rangeLabel">Carregando...</span></div></div>
+ <header class="header command-hero" id="painelTopo">
+ <div class="command-hero__copy">
+  <div class="eyebrow"><span class="hero-led"></span> OSP INTELLIGENCE CENTER <span class="hero-overline">/ ENERGISA</span></div>
+  <h1>ENERGISA <span style="color:#fb5c28">/</span> AD <span class="hero-cross">×</span> ADA</h1>
+  <p>Performance comparada, produtividade e eficiência operacional em tempo real de consulta.</p>
+  <div class="hero-caption"><span class="mini-pulse"></span> Comparativo executivo <span>•</span> Campanhas independentes <span>•</span> Dados reais do Neon</div>
+ </div>
+ <div class="header-side command-hero__meta">
+  <span class="header-pill hero-data-pill"><span class="status-dot"></span> Banco Neon · Conectado</span>
+  <span class="header-pill" id="rangeLabel">Carregando períodos...</span>
+  <span class="hero-freshness" id="dataFreshness">Consultando disponibilidade de dados</span>
+ </div>
+</header>
+<nav class="jump-nav" aria-label="Navegação pelo painel">
+ <a href="#filtersSection" class="jump-nav__link">◉ Filtros</a>
+ <a href="#summarySection" class="jump-nav__link">▥ Visão geral</a>
+ <a href="#funnelsSection" class="jump-nav__link">◈ Funis</a>
+ <a href="#evolutionSection" class="jump-nav__link">⌁ Evolução</a>
+ <a href="#detailsSection" class="jump-nav__link">▦ Detalhamento</a>
+</nav>
  <div id="loading" class="loading">Carregando dados da Energisa...</div>
  <div id="dashboard" class="hidden">
-  <section class="panel filters">
+  <section class="panel filters" id="filtersSection">
   <div class="filter-head">
-    <div><strong>◈ Benchmark AD × ADA</strong><p class="filter-sub">Selecione as campanhas e defina datas de início e fim independentes para cada tecnologia.</p></div>
+    <div><div class="filter-eyebrow">CONTROLE DO BENCHMARK</div><strong>Comparativo AD × ADA</strong><p class="filter-sub">Cada tecnologia tem campanhas e datas próprias. Ajuste o período para investigar qualquer mudança.</p></div>
     <div class="head-actions">
       <div class="segmented" role="group" aria-label="Modo de cálculo">
         <button type="button" id="btnTotal" aria-pressed="false">Total</button>
@@ -230,6 +365,11 @@
         <div class="field"><label for="endAD">Data final</label><input id="endAD" type="date" aria-label="Data final AD"></div>
         <div class="field"><span class="field-label">Campanhas AD</span><details class="campaign-picker" id="adPicker"><summary id="adSummary">Campanhas AD</summary><div class="campaign-menu"><div class="campaign-tools"><button type="button" data-pick="all" data-agent="AD">Todas</button><button type="button" data-pick="none" data-agent="AD">Limpar</button></div><div id="adChecks"></div></div></details></div>
       </div>
+      <div class="period-presets" role="group" aria-label="Atalhos de período AD">
+       <button type="button" data-range="week" data-agent="AD">Últimos 7 dias</button>
+       <button type="button" data-range="month" data-agent="AD">Mês mais recente</button>
+       <button type="button" data-range="all" data-agent="AD">Histórico</button>
+      </div>
       <div class="source-meta" id="adMeta">Selecione o período e a campanha</div>
     </div>
     <div class="source-box source-ada">
@@ -239,6 +379,11 @@
         <div class="field"><label for="endADA">Data final</label><input id="endADA" type="date" aria-label="Data final ADA"></div>
         <div class="field"><span class="field-label">Campanhas ADA</span><details class="campaign-picker" id="adaPicker"><summary id="adaSummary">Campanhas ADA</summary><div class="campaign-menu"><div class="campaign-tools"><button type="button" data-pick="all" data-agent="ADA">Todas</button><button type="button" data-pick="none" data-agent="ADA">Limpar</button></div><div id="adaChecks"></div></div></details></div>
       </div>
+      <div class="period-presets" role="group" aria-label="Atalhos de período ADA">
+       <button type="button" data-range="week" data-agent="ADA">Últimos 7 dias</button>
+       <button type="button" data-range="month" data-agent="ADA">Mês mais recente</button>
+       <button type="button" data-range="all" data-agent="ADA">Histórico</button>
+      </div>
       <div class="source-meta" id="adaMeta">Selecione o período e a campanha</div>
     </div>
   </div>
@@ -246,15 +391,15 @@
 </section>
 <div class="tabs"><button class="tab active">▦ Comparativo executivo</button><button class="tab" disabled title="A base fornecida não possui hora">◷ Hora a hora · em breve</button><button class="export right" id="exportBtn">↓ Exportar CSV</button></div>
 
-<div class="benchmark-title">
+<div class="benchmark-title" id="summarySection">
   <div><div class="eyebrow">ASSISTPAY STYLE · COMPARATIVO AD × ADA</div><h2>Performance executiva <span class="assist-highlight">Energisa</span></h2><p>Visão consolidada por tecnologia, com períodos independentes e variações ADA em relação ao AD.</p></div>
   <div class="benchmark-coverage" id="benchmarkCoverage"></div>
 </div>
 <div class="kpis assist-kpis" id="kpis"></div>
 
-<div class="assist-grid-intro">
+<div class="assist-grid-intro" id="funnelsSection">
   <div><h2>Funis de performance e comparação</h2><p>Etapas operacionais por tecnologia e visão comparativa dos indicadores</p></div>
-  <div class="assist-legend"><span><i class="assist-legend-dot human"></i> AD · humano</span><span><i class="assist-legend-dot digital"></i> ADA · IA</span></div>
+  <div class="assist-legend"><span><i class="assist-legend-dot human"></i> AD · humano</span><span><i class="assist-legend-dot digital"></i> ADA · IA</span><span class="assist-note">VoiceMail é uma classificação, não uma conversão sequencial.</span></div>
 </div>
 <div class="assist-layout">
  <section class="panel assist-panel assist-panel-ad">
@@ -271,7 +416,7 @@
   </div>
   <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesAD"></div></div>
   <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVAD"></div></div>
-  <div class="assist-funnel-foot">Mailing exibido em média diária sem zeros; demais etapas obedecem ao modo Total / Média dia.</div>
+  <div class="assist-funnel-foot">Mailing em média diária sem zeros. VoiceMail é uma classificação operacional, não uma etapa de conversão de CPC. Os demais volumes seguem Total / Média dia.</div>
  </section>
  <section class="panel assist-panel assist-panel-ada">
   <header class="assist-panel-title">
@@ -287,7 +432,7 @@
   </div>
   <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesADA"></div></div>
   <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVADA"></div></div>
-  <div class="assist-funnel-foot">Indicadores e taxas são calculados pelos registros filtrados. As taxas e a produtividade por AGV são exibidas abaixo do funil.</div>
+  <div class="assist-funnel-foot">Dados da campanha e período selecionados. VoiceMail é uma classificação operacional. Taxas e produtividade por AGV aparecem abaixo do funil.</div>
  </section>
  <section class="panel assist-panel assist-panel-table">
   <header class="assist-panel-title">
@@ -304,9 +449,18 @@
  </section>
 </div>
 
-<section class="panel chart-panel">
-  <div class="chart-head"><div><h3>Evolução diária AD × ADA</h3><p>Evolução por dia do período, com referência da média mensal completa.</p></div>
+<section class="panel chart-panel" id="evolutionSection">
+  <div class="chart-head"><div><div class="section-kicker">INTELIGÊNCIA DE TENDÊNCIA</div><h3>Evolução diária AD × ADA</h3><p>Evolução por dia do período, com referência da média mensal completa.</p></div>
     <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option></select>
+  </div>
+  <div class="chart-command-row">
+    <div class="chart-quick-metrics" role="group" aria-label="Indicadores rápidos">
+      <button type="button" class="chart-quick-btn" data-chart-key="acordo">Acordos</button>
+      <button type="button" class="chart-quick-btn" data-chart-key="cpc">CPC</button>
+      <button type="button" class="chart-quick-btn" data-chart-key="voicemail">VoiceMail</button>
+      <button type="button" class="chart-quick-btn" data-chart-key="conversao">Conversão</button>
+    </div>
+    <button class="chart-avg-toggle" id="toggleChartAvg" type="button" aria-pressed="true">◌ Médias mensais</button>
   </div>
   <div id="chartMonthAverages" class="chart-month-averages"></div>
   <div class="chart-caption">Passe o mouse ou toque em um ponto: realizado do dia × média mensal daquela campanha. Séries alinhadas pelo número de dias transcorridos desde o início de cada período, mesmo que as datas sejam diferentes.</div>
@@ -315,7 +469,7 @@
 </section>
 <div class="chart-hover-card" id="chartPopup" role="tooltip" hidden></div>
 
-<div class="section-label"><h2>Detalhamento diário</h2><span id="dailyHint">Totais por dia e tecnologia</span></div>
+<div class="section-label" id="detailsSection"><h2>Detalhamento diário</h2><span id="dailyHint">Totais por dia e tecnologia</span></div>
   <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Tecnologia</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit Rate</th><th>Taxa CPC</th><th>VoiceMail / Atendidas %</th><th>VoiceMail / CPC %</th><th>Conversão</th><th>% Hangup</th></tr></thead><tbody id="dailyBody"></tbody></table></div></section>
   <div class="section-label"><h2>Produtividade por campanha</h2><span>Campanhas selecionadas no período</span></div>
   <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Campanha</th><th>Tecnologia</th><th>Dias ativos</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Conv.</th></tr></thead><tbody id="campaignBody"></tbody></table></div></section>
