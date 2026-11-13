@@ -440,6 +440,15 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 @media(max-width:900px){.daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.heatmap-table th:first-child,.heatmap-table td:first-child{min-width:130px;max-width:130px}}
 @media(max-width:650px){.sidebar-collapsed .sidebar{width:100%;height:auto;flex-basis:auto}.sidebar-collapsed .content{max-width:100%}.daily-chart-panel,.heatmap-panel,.daily-analysis-panel{padding:13px}.daily-chart-controls select{width:100%}.daily-hero{padding:14px}.daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.view-tabs .right{margin-left:0}}
 @media(prefers-reduced-motion:reduce){.sidebar,.heat-cell,.daily-quick button{transition:none!important}}
+
+/* Calendário completo por mês no heatmap: dias sem registro ficam visíveis como lacunas. */
+.heat-swatch.heat-empty{background:#10263b}
+.heatmap-table thead .heatmap-month-row th{top:0;height:34px;background:#0a3658;color:#d2ecff;font-size:10px;border-bottom:1px solid rgba(67,154,205,.22)}
+.heatmap-table thead .heatmap-month-row th:first-child{z-index:6;top:0;background:#102e4e}
+.heatmap-table thead .heatmap-day-row th{top:34px;z-index:4;background:#0e2e4f}
+.heatmap-table thead .heatmap-day-row th:first-child{position:sticky;left:auto;min-width:90px;text-align:center;padding:8px 4px}
+.heatmap-table thead .heatmap-day-row th:nth-child(odd){background:#123755}
+.heatmap-table .heat-na{opacity:.75;min-height:50px}
 </style>
 </head>
 <body>
@@ -659,7 +668,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
      <select id="heatmapGroup"><option value="all">Todos os indicadores</option><option value="volume">Volumes</option><option value="rate">Taxas e percentuais</option><option value="productivity">Produtividade</option></select>
     </div>
   </div>
-  <div class="heatmap-legend"><span><i class="heat-swatch heat-up"></i> Acima da média</span><span><i class="heat-swatch heat-mid"></i> Próximo da média (±5%)</span><span><i class="heat-swatch heat-down"></i> Abaixo da média</span><span>As cores indicam posição relativa, não necessariamente resultado favorável.</span></div>
+  <div class="heatmap-legend"><span><i class="heat-swatch heat-up"></i> Acima da média</span><span><i class="heat-swatch heat-mid"></i> Próximo da média (±5%)</span><span><i class="heat-swatch heat-down"></i> Abaixo da média</span><span>As cores indicam posição relativa, não necessariamente resultado favorável.</span><span><i class="heat-swatch heat-empty"></i> Sem registro no dia</span></div>
   <div class="heatmap-area"><div class="heatmap-title ad"><span>AD <small>Discador humano</small></span><span id="heatmapCountAD"></span></div><div class="heatmap-scroll" id="heatmapAD"></div></div>
   <div class="heatmap-area"><div class="heatmap-title ada"><span>ADA <small>Discador digital</small></span><span id="heatmapCountADA"></span></div><div class="heatmap-scroll" id="heatmapADA"></div></div>
   <div id="heatmapDetail" class="heatmap-detail" role="status" aria-live="polite">Clique em uma célula para consultar data, indicador, valor do dia, média mensal e variação.</div>
@@ -1257,15 +1266,33 @@ function renderHeatmaps(s){
  const category=$('heatmapGroup').value;
  const metrics=category==='all'?dailyMetrics:dailyMetrics.filter(m=>m.group===category);
  for(const agent of ['AD','ADA']){
-  const side=s[agent],dates=side.days;
-  $('heatmapCount'+agent).textContent=dates.length+' dias · '+metrics.length+' indicadores';
-  if(!dates.length){
+  const side=s[agent],observed=new Map(side.days.map(d=>[d.date,d]));
+  const totalCalendarDays=periodLength(side.period);
+  $('heatmapCount'+agent).textContent=side.days.length+' dias com registros · '+totalCalendarDays+' no calendário';
+  if(!side.days.length){
    $('heatmap'+agent).innerHTML='<p class="empty-state">Sem registros nas campanhas e datas selecionadas.</p>';continue;
   }
-  const head='<thead><tr><th>Indicador</th>'+dates.map(d=>'<th title="'+esc(longDate(d.date))+'">'+esc(d.date.slice(5).split('-').reverse().join('/'))+'</th>').join('')+'</tr></thead>';
-  const body=metrics.map(m=>'<tr><td title="'+esc(m.label)+'">'+esc(m.label)+'</td>'+
-   dates.map(day=>'<td>'+heatmapCell(day,agent,m.key)+'</td>').join('')+'</tr>').join('');
-  $('heatmap'+agent).innerHTML='<table class="heatmap-table">'+head+'<tbody>'+body+'</tbody></table>';
+  const calendar=[];
+  for(let index=0;index<totalCalendarDays;index++){
+   const date=addDays(side.period.start,index);
+   calendar.push({date,day:observed.get(date)});
+  }
+  const months=[];
+  for(const entry of calendar){
+   const month=entry.date.slice(0,7);
+   const current=months[months.length-1];
+   if(!current||current.month!==month)months.push({month,count:1});
+   else current.count++;
+  }
+  const monthHead='<tr class="heatmap-month-row"><th rowspan="2">Indicador</th>'+
+   months.map(m=>'<th colspan="'+m.count+'">'+esc(monthLabel(m.month))+'</th>').join('')+'</tr>';
+  const dayHead='<tr class="heatmap-day-row">'+calendar.map(entry=>
+   '<th title="'+esc(longDate(entry.date))+'">'+entry.date.slice(8)+'/'+entry.date.slice(5,7)+'</th>'
+  ).join('')+'</tr>';
+  const content=metrics.map(m=>'<tr><td title="'+esc(m.label)+'">'+esc(m.label)+'</td>'+
+   calendar.map(entry=>'<td>'+(entry.day?heatmapCell(entry.day,agent,m.key):
+    '<span class="heat-na" title="Sem registro em '+esc(longDate(entry.date))+'">—</span>')+'</td>').join('')+'</tr>').join('');
+  $('heatmap'+agent).innerHTML='<table class="heatmap-table"><thead>'+monthHead+dayHead+'</thead><tbody>'+content+'</tbody></table>';
  }
 }
 function renderDailyAnalysis(s){
