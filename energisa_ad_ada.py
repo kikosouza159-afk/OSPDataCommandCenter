@@ -35,9 +35,10 @@ def install_energisa_ad_ada(app, can_access, is_admin):
         if not autorizado():
             return jsonify(error="forbidden"), 403
 
-        # Permite fonte operacional dedicada, preservando a configuração atual do Cockpit.
-        database_url = (os.environ.get("ENERGISA_NEON_DATABASE_URL") or
-                        os.environ.get("ASSISTPAY_NEON_DATABASE_URL") or "").strip()
+        # Usa a mesma conexão validada pela autenticação do Cockpit.
+        # Evita URL secundária divergente e parâmetros de startup não suportados
+        # pelo pooler do Neon.
+        database_url = os.environ.get("ASSISTPAY_NEON_DATABASE_URL", "").strip()
         if not database_url:
             current_app.logger.error("Neon não configurado para painel Energisa")
             return jsonify(error="data_source_unavailable"), 503
@@ -47,7 +48,6 @@ def install_energisa_ad_ada(app, can_access, is_admin):
             with psycopg.connect(
                 database_url,
                 connect_timeout=10,
-                options="-c statement_timeout=20000",
                 application_name="osp_cockpit_energisa_ad_ada",
                 row_factory=dict_row,
             ) as con:
