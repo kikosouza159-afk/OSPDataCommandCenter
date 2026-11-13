@@ -56,13 +56,13 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - CSV: exportação da base filtrada com as 11 colunas recebidas.
 
 ## Layout executivo, inspirado no comparativo mensal AssistPay (13/11/2026)
-- **5 cards**: Acordo, Eficiência %, Contato (Atendidas), CPC, Pagamento.
-- Cada card mostra AD → ADA, delta percentual relativo e sinalização visual. Pagamento permanece N/D porque não existe na base.
-- **Funil AD** e **Funil ADA**, lado a lado no desktop, com 6 etapas: Mailing médio, Discado, Contato, CPC, Acordo, Pagamento (N/D).
+- **5 cards**: Acordo, Eficiência %, Contato (Atendidas), CPC e Agentes (média/dia).
+- Cada card mostra AD → ADA, delta percentual relativo e sinalização visual, sem arredondar os dados antes de calcular os deltas.
+- **Funil AD** e **Funil ADA**, lado a lado no desktop, com 5 etapas: Mailing médio, Tentativas, Atendidas, CPC e Acordo; taxas e produtividade por AGV aparecem abaixo do funil.
 - **Mailing médio no funil** é sempre média diária com zeros excluídos; os demais volumes refletem o modo Total / Média dia.
 - Cada funil contém uma coluna de variação ADA × AD por etapa; as duas colunas permitem leitura de cada funil separadamente.
-- **Visão comparativa dos indicadores** substitui a antiga matriz em barras por tabela executiva AD, ADA e variação relativa (%), com grupos de volume, taxas, produtividade e indicadores indisponíveis.
-- Indicadores reais disponíveis: Mailing, Tentativas, Atendidas, CPC, Acordo, Hangup, Logados, Spin, Hit Rate, Taxa CPC, Conversão, Hangup %, Eficiência (Acordos/Mailing), e produtividade por agente. Pagamento e outros indicadores não entregues permanecem indisponíveis; nunca inventar valores.
+- **Visão comparativa dos indicadores** substitui a antiga matriz em barras por tabela executiva AD, ADA e variação relativa (%), com campanha, dias trabalhados, mês, volumes, taxas e produtividade.
+- Indicadores reais disponíveis na base: Mailing, Tentativas, Atendidas, CPC, Acordo, Hangup, Logados, Spin, Hit Rate, Taxa CPC, Conversão, Hangup %, Eficiência (Acordos/Mailing), e produtividade por agente. Pagamento não é exibido, pois não existe na fonte.
 - Filtros AD e ADA de data inicial, final e campanhas continuam independentes; a evolução diária e o tooltip da média mensal permanecem abaixo dos funis.
 - Base continua em Neon via API autenticada; nenhuma alteração no banco nem alteração de permissões.
 
