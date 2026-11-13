@@ -312,6 +312,59 @@ h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Ar
 @media(max-width:1000px){.jump-nav{position:relative;top:auto;width:100%;justify-content:space-between}.jump-nav__link{font-size:10px;padding:9px}.command-hero__meta{min-width:0}}
 @media(max-width:650px){.content{padding:14px 12px 65px}.command-hero{padding:18px;border-radius:16px}.command-hero__meta{align-items:flex-start}.command-hero__meta .header-pill{max-width:100%}.hero-freshness{text-align:left}.jump-nav{flex-wrap:nowrap;overflow:auto;justify-content:flex-start}.jump-nav__link{flex:none}.filters{padding:15px}.source-box{padding:13px}.assist-note{margin-top:7px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bg-content *, .hero-led,.mini-pulse,.chart-svg{animation:none!important;transition:none!important}.assist-kpis .assist-kpi,.assist-funnel-stage,.assist-matrix td{transition:none!important}}
+
+/* Energisa 2026: cartões acionáveis e micrográficos calculados a partir das séries reais */
+.assist-kpis{gap:12px}
+.assist-kpis .assist-kpi{
+ appearance:none;-webkit-appearance:none;text-align:left;cursor:pointer;display:flex;
+ flex-direction:column;gap:8px;align-items:stretch;justify-content:initial;
+ min-height:175px;padding:16px 13px 13px;
+ background:linear-gradient(155deg,rgba(7,27,55,.91),rgba(4,16,38,.88));
+ border:1px solid rgba(35,162,213,.5);border-radius:15px;
+ box-shadow:0 14px 40px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.04);
+ transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+ position:relative;overflow:hidden
+}
+.assist-kpis .assist-kpi:hover{
+ transform:translateY(-4px);border-color:rgba(65,215,255,.9);
+ box-shadow:0 14px 42px rgba(0,0,0,.26),0 0 28px rgba(0,173,237,.13)
+}
+.assist-kpis .assist-kpi:before{background:#16d5ff}
+.assist-kpis .assist-kpi:after{background:linear-gradient(90deg,#14d5fa,#4b8fe6)}
+.assist-kpi-head{display:flex;gap:9px;align-items:center;min-height:47px}
+.assist-kpi-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.assist-kpi-name{display:block;font-size:10px;color:#a6c5df;letter-spacing:.35px;font-weight:800}
+.assist-kpi-values{display:block;margin:0;font-size:clamp(12px,1.04vw,18px);color:#f7fbff;font-weight:850;letter-spacing:-.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.assist-kpi-values i{font-style:normal;color:#648fae;font-weight:500}
+.assist-kpi-data-label{display:flex;gap:12px;margin-top:1px;color:#9ab9d6;font-size:9px}
+.assist-kpi-data-label>span{display:flex;align-items:center;gap:3px}
+.assist-kpi-data-label i{margin:0;width:6px;height:6px}
+.assist-kpi-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:7px;min-height:45px;margin-top:auto}
+.assist-kpi-delta{margin:0;font-size:clamp(17px,1.4vw,23px);white-space:nowrap}
+.spark-wrap{width:43%;max-width:122px;min-width:59px;height:42px;display:flex;align-items:flex-end;opacity:.87}
+.kpi-sparkline{display:block;width:100%;height:auto;overflow:visible}
+.assist-kpi-open{font-size:9px;letter-spacing:.4px;color:#70d6ff;font-weight:850}
+.assist-kpi-icon{height:35px;width:35px;border-radius:9px}.assist-kpi-icon svg{width:19px;height:19px}
+.assist-kpi-bars{display:none}
+.assist-funnel-stage{appearance:none;-webkit-appearance:none;border:0;color:#fff;font:inherit;cursor:pointer;
+ transition:transform .2s ease,filter .2s ease,opacity .2s ease}
+.assist-funnel-stage:hover{transform:translateY(-2px) scale(1.012);filter:brightness(1.16)!important}
+.assist-funnel-stage:focus-visible{filter:brightness(1.15)!important}
+.assist-funnel-stage.classificador{position:relative}
+.stage-subtype{display:block;font-size:8px;font-weight:750;color:#d7f0ff;letter-spacing:.2px;margin-top:3px;opacity:.84}
+.assist-funnel-stage.classificador .assist-stage-value{font-size:19px}
+.assist-mini-metric{font:inherit;text-align:left;cursor:pointer;transition:background .18s ease,border-color .18s ease}
+.assist-mini-metric[data-chart-key]:hover{background:rgba(31,98,140,.61);border-color:#3e99cc}
+.assist-matrix tr[data-chart-key]{cursor:pointer;transition:background .18s ease}
+.assist-matrix tr[data-chart-key]:hover td{background:rgba(31,104,163,.22)!important}
+.assist-matrix tr[data-chart-key] td:first-child:after{content:" ↗";color:#53beea;opacity:0;transition:opacity .18s}
+.assist-matrix tr[data-chart-key]:hover td:first-child:after{opacity:1}
+.chart-glow-line{filter:blur(3px)}
+@media(min-width:1650px){.assist-kpi-values{font-size:19px}}
+@media(max-width:1300px){.assist-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.assist-kpi-values{font-size:18px}}
+@media(max-width:740px){.assist-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-kpi-values{font-size:16px}}
+@media(max-width:400px){.assist-kpis{grid-template-columns:1fr}.assist-kpi-values{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.assist-kpis .assist-kpi,.assist-funnel-stage,.assist-mini-metric{transition:none!important}.assist-kpis .assist-kpi:hover{transform:none}}
 </style>
 </head>
 <body>
