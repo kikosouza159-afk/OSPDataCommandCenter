@@ -483,6 +483,21 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 @media(max-width:1000px){.daily-chart-panel .chart-head{flex-direction:column}.daily-graph-toolbar{width:100%;justify-content:stretch}.daily-graph-toolbar select{max-width:none}}
 @media(max-width:740px){.daily-summary-cards.single-campaign-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-graph-toolbar .daily-chart-controls{min-width:155px}}
 @media(max-width:510px){.daily-graph-toolbar{flex-direction:column}.daily-graph-toolbar .daily-chart-controls{width:100%;flex:auto}.daily-chart-panel .daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Seletor de 22 KPIs organizado por grupos: volumes, taxas e produtividade. */
+.daily-quick{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.daily-quick-group{display:flex;align-items:center;flex-wrap:wrap;gap:6px 7px}
+.daily-quick-title{display:inline-flex;align-items:center;margin-right:8px;flex:none;min-width:128px;
+ color:#82c8ed;letter-spacing:.85px;font-size:10px;font-weight:900}
+.daily-quick-group>button{display:inline-flex;align-items:center;justify-content:center}
+.daily-quick button.active{color:#fff;background:linear-gradient(110deg,rgba(26,117,176,.5),rgba(30,69,121,.48));border-color:#69d1ff;box-shadow:0 0 0 1px rgba(79,199,255,.13)}
+.daily-chart-panel .chart-head .daily-graph-toolbar{flex:0 1 510px}
+.daily-chart-panel .daily-chart-controls select{font-size:12px}
+.daily-chart-panel .daily-month-reference{margin-right:9px;margin-top:6px}
+.single-campaign-svg .daily-plot-label{pointer-events:none}
+.daily-summary-cards.single-campaign-summary .daily-value{font-variant-numeric:tabular-nums}
+@media(max-width:1000px){.daily-chart-panel .chart-head .daily-graph-toolbar{flex:1 1 auto}}
+@media(max-width:740px){.daily-quick-title{width:100%;margin:0 0 2px}.daily-quick-group{align-items:flex-start}}
 </style>
 </head>
 <body>
@@ -728,7 +743,7 @@ const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxa
 const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
 const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',mailingLogado:'Mailing / Agente',tentativasLogado:'Tentativas / Agente',atendidasLogado:'Atendidas / Agente',cpcLogado:'CPC / Agente',acordoLogado:'Acordos / Agente'};
-const state={rows:[],mode:'average',showAverages:true,activeView:'comparison',heatmapGroup:'all',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
+const state={rows:[],mode:'average',showAverages:true,activeView:'comparison',heatmapGroup:'all',dailyCampaignKey:'',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
 const isPct=k=>percentageKeys.has(k);
 const nfmt=(n,precision=0)=>Number.isFinite(n)?(precision===2?dec2Fmt:precision===1?decFmt:intFmt).format(n):'—';
 const fmt=(value,key,mode=state.mode)=>{
@@ -1340,7 +1355,7 @@ function renderDailySelectedSummary(selected,key){
  const cards=[
   {title:'Último dia',val:latest?latest.values[key]:null,desc:latest?longDate(latest.date):'Sem dados'},
   {title:'Média do mês',val:latest?avg:null,desc:monthLabel(month)},
-  {title:'Melhor dia',val:best?best.values[key]:null,desc:best?longDate(best.date):'Sem dados'},
+  {title:'Maior valor diário',val:best?best.values[key]:null,desc:best?longDate(best.date):'Sem dados'},
   {title:'Dias com registro',val:selected.days.length,desc:'Na seleção de datas'}
  ];
  $('dailySummaryCards').classList.add('single-campaign-summary');
@@ -1651,11 +1666,12 @@ function bind(){
  $('sidebarToggle').addEventListener('click',()=>setSidebarCollapsed(!document.body.classList.contains('sidebar-collapsed')));
  try{setSidebarCollapsed(localStorage.getItem('energisa.sidebarCollapsed')==='1')}catch(_){setSidebarCollapsed(false)}
  $('chartMetricDaily').addEventListener('change',()=>renderDailyChart({AD:calcSide('AD'),ADA:calcSide('ADA')}));
+ $('chartCampaignDaily').addEventListener('change',event=>{state.dailyCampaignKey=event.target.value;renderDailyChart({AD:calcSide('AD'),ADA:calcSide('ADA')});});
  $('heatmapGroup').addEventListener('change',()=>{
   state.heatmapGroup=$('heatmapGroup').value;
   renderHeatmaps({AD:calcSide('AD'),ADA:calcSide('ADA')});
  });
- document.querySelectorAll('[data-daily-metric]').forEach(btn=>btn.addEventListener('click',()=>selectDailyMetric(btn.dataset.dailyMetric)));
+ $('dailyQuickMetrics').addEventListener('click',event=>{const button=event.target.closest('button[data-daily-metric]');if(button)selectDailyMetric(button.dataset.dailyMetric);});
  for(const agent of ['AD','ADA']){
   const area=$('heatmap'+agent);
   area.addEventListener('click',event=>showHeatmapDetails(event.target.closest('button[data-heat-key]'),true));
