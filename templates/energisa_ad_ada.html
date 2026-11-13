@@ -449,6 +449,40 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 .heatmap-table thead .heatmap-day-row th:first-child{position:sticky;left:auto;min-width:90px;text-align:center;padding:8px 4px}
 .heatmap-table thead .heatmap-day-row th:nth-child(odd){background:#123755}
 .heatmap-table .heat-na{opacity:.75;min-height:50px}
+
+/* Hotfix de camadas: o menu de campanhas deve ficar acima das abas e não ser encoberto. */
+#filtersSection.filters{position:relative;z-index:40;overflow:visible;isolation:isolate}
+#filtersSection .source-grid{position:relative;z-index:1}
+#filtersSection .source-box{position:relative;overflow:visible}
+#filtersSection .source-box:has(.campaign-picker[open]){z-index:12}
+#filtersSection .campaign-picker[open]{z-index:14}
+#filtersSection .campaign-picker[open] .campaign-menu{z-index:50;box-shadow:0 20px 52px rgba(0,0,0,.67);border-color:rgba(76,192,249,.6)}
+.view-tabs{position:relative;z-index:2}
+.view-pane{position:relative;z-index:1}
+.daily-chart-panel .chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.daily-chart-panel .chart-head>div:first-child{min-width:0;flex:1}
+.daily-graph-toolbar{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.daily-graph-toolbar .daily-chart-controls{flex:1 1 210px;min-width:195px}
+.daily-graph-toolbar select{min-width:0;width:100%;max-width:315px}
+.single-campaign-label{font-size:11px;font-weight:800;color:#d0ebff;margin-top:9px;max-width:700px;white-space:normal;overflow-wrap:anywhere}
+.single-campaign-label.ada{color:#ffc0a6}
+.daily-quick{display:flex;flex-wrap:wrap;gap:6px 7px;margin-top:15px}
+.daily-quick button{font-size:10px;min-height:32px;border-radius:9px;padding:8px 10px;white-space:nowrap}
+.daily-quick button:hover,.daily-quick button.active{border-color:rgba(81,208,255,.7)}
+.daily-summary-cards.single-campaign-summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+.daily-chart-stage .chart-box{min-height:325px}
+.daily-chart-stage .chart-svg{min-height:310px}
+.daily-chart-panel .daily-month-reference{display:inline-flex;gap:9px;align-items:center;padding:11px 13px;margin-bottom:4px;border:1px solid rgba(49,136,210,.4);border-radius:11px;background:rgba(13,44,76,.68);color:#d6edfa;font-weight:750;font-size:11px}
+.daily-chart-panel .daily-month-reference.ada{border-color:rgba(251,92,40,.42);background:rgba(62,34,48,.6)}
+.daily-chart-panel .daily-month-reference strong{font-size:16px;color:#fff}
+.daily-single-line{filter:drop-shadow(0 0 7px rgba(53,160,244,.33))}
+.daily-single-line.ada{filter:drop-shadow(0 0 7px rgba(251,92,40,.35))}
+.single-plot-point{cursor:pointer;transition:r .12s ease,stroke-width .12s ease}
+.single-plot-point:hover,.single-plot-point:focus-visible{stroke:#fff;stroke-width:3.5}
+.daily-plot-label{font-size:11px;font-weight:900;paint-order:stroke;stroke:#03172c;stroke-width:4px;stroke-linejoin:round}
+@media(max-width:1000px){.daily-chart-panel .chart-head{flex-direction:column}.daily-graph-toolbar{width:100%;justify-content:stretch}.daily-graph-toolbar select{max-width:none}}
+@media(max-width:740px){.daily-summary-cards.single-campaign-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-graph-toolbar .daily-chart-controls{min-width:155px}}
+@media(max-width:510px){.daily-graph-toolbar{flex-direction:column}.daily-graph-toolbar .daily-chart-controls{width:100%;flex:auto}.daily-chart-panel .daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -625,8 +659,8 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
  </div>
  <section class="panel daily-chart-panel">
   <div class="chart-head">
-   <div><div class="section-kicker">EVOLUÇÃO DIÁRIA INTERATIVA</div><h3>Indicadores AD × ADA</h3><p>Selecione qualquer indicador. Passe o mouse nos pontos para analisar o dia versus a média do mês.</p></div>
-   <div class="daily-chart-controls">
+   <div><div class="section-kicker">EVOLUÇÃO DIÁRIA INTERATIVA</div><h3>Indicadores por campanha</h3><p>Uma campanha por vez, com valores identificados nos pontos. Passe o mouse para comparar com a média do mês completo.</p><div id="dailyCampaignName" class="single-campaign-label">Selecione uma campanha</div></div>
+   <div class="daily-graph-toolbar"><div class="daily-chart-controls">
     <label for="chartMetricDaily">Indicador</label>
     <select id="chartMetricDaily" aria-label="Indicador da visão dia a dia">
      <optgroup label="Volumes">
@@ -646,20 +680,14 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
       <option value="mailingLogado">Mailing / Agente</option><option value="tentativasLogado">Tentativas / Agente</option><option value="atendidasLogado">Atendidas / Agente</option><option value="cpcLogado">CPC / Agente</option><option value="acordoLogado">Acordos / Agente</option>
      </optgroup>
     </select>
-   </div>
+   </div><div class="daily-chart-controls"><label for="chartCampaignDaily">Campanha / tecnologia</label><select id="chartCampaignDaily" aria-label="Campanha individual para o gráfico diário"><option value="">Carregando campanhas...</option></select></div></div>
   </div>
-  <div class="daily-quick" role="group" aria-label="Indicadores favoritos da visão diária">
-   <button type="button" data-daily-metric="acordo">Acordos</button>
-   <button type="button" data-daily-metric="cpc">CPC</button>
-   <button type="button" data-daily-metric="voicemail">VoiceMail</button>
-   <button type="button" data-daily-metric="taxaHangup">Hangup / Atendidas %</button>
-   <button type="button" data-daily-metric="taxaHangupTentativas">Hangup / Discagens %</button>
-  </div>
+  <div class="daily-quick" id="dailyQuickMetrics" role="group" aria-label="Selecione um dos 22 indicadores da visão diária"></div>
   <div id="dailySummaryCards" class="daily-summary-cards"></div>
   <div id="chartMonthAveragesDaily" class="chart-month-averages"></div>
   <div class="chart-stage daily-chart-stage"><div id="chartBoxDaily" class="chart-box"></div></div>
   <div id="chartLegendDaily" class="legend"></div>
-  <div class="daily-chart-note">Linhas tracejadas: média do mês completo. Para taxas, a referência mensal utiliza a razão entre os volumes somados do mês; para volumes, a média desconsidera os dias zerados.</div>
+  <div class="daily-chart-note">Linha contínua: resultado diário da campanha selecionada. Linha tracejada: referência do mês calendário completo. As taxas usam a razão entre totais mensais e os volumes usam média diária sem zeros. Os heatmaps abaixo continuam mostrando AD e ADA conforme os filtros gerais.</div>
  </section>
  <section class="panel heatmap-panel" id="heatmapSection">
   <div class="heatmap-heading"><div><div class="section-kicker">RADAR DE PERFORMANCE</div><h3>Heatmap de todos os indicadores</h3><p>Cada célula apresenta o valor do dia e sua diferença para a média mensal do mesmo indicador.</p></div>
