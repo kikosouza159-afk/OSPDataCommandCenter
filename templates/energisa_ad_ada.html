@@ -438,7 +438,6 @@ function headline(s){
  $('comparisonADLabel').textContent=s.AD.name+' · '+rangeLabel(s.AD.period);
  $('comparisonADALabel').textContent=s.ADA.name+' · '+rangeLabel(s.ADA.period);
  $('benchmarkCoverage').innerHTML='<span><b style="color:#7cb2fa">AD</b> '+s.AD.activeDays+' dias trabalhados</span><span><b style="color:#ffab83">ADA</b> '+s.ADA.activeDays+' dias trabalhados</span>';
- $('kpiDescription').textContent=state.mode==='average'?'Média dia · zeros excluídos por indicador':'Total em cada período selecionado';
  $('filterInfo').textContent='AD: '+rangeLabel(s.AD.period)+' | ADA: '+rangeLabel(s.ADA.period)+'. No modo Média dia, cada indicador desconsidera dias zerados e as taxas são calculadas dos volumes médios. Logados somados entre campanhas.';
  $('rangeLabel').textContent='AD '+rangeLabel(s.AD.period)+' × ADA '+rangeLabel(s.ADA.period);
 }
