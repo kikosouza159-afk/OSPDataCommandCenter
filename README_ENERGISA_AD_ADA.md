@@ -1,33 +1,54 @@
-# Energisa | Comparativo AD × ADA (Cockpit OLOS)
+# Energisa | Comparativo diário AD × ADA
 
-## Tela
-- Menu do Cockpit: **ENERGISA | AD × ADA**
-- URL: `/cliente/energisa/painel`
-- API autenticada: `/cliente/energisa/painel/api`
-- Logo oficial da OLOS: `static/img/logo-olos-laranja.png`
-- Acesso: controle central de clientes do Cockpit. Administradores têm acesso; demais usuários dependem de liberação na aba Admin.
+## Status
+- Banco: Neon, projeto **Cockpit Indicadores**.
+- Nova tabela: `assistpay.energisa_ad_ada_diario`.
+- Base importada em 13/11/2026: **543 linhas**, **17 campanhas**, **64 dias**, de 01/09/2026 a 13/11/2026.
+- Dados da Energisa NÃO estão presentes no repositório GitHub.
+- A antiga tabela `assistpay.energisa_ad_ada_snapshot` foi preservada, mas não é mais a fonte do painel.
 
-## Dados e segurança
-- Fonte atual: planilha Energisa de 13/11/2026, com 8.005 registros e 25 campanhas.
-- Armazenamento: Neon (mesma base já usada pelo Cockpit), tabela `assistpay.energisa_ad_ada_snapshot`.
-- Estrutura: uma linha `snapshot_id=1`, `payload jsonb` contendo `meta`, `campaigns` e `rows`.
-- Os registros individuais **não** estão versionados no GitHub; a API exige sessão/autorização e responde com `Cache-Control: no-store`.
-- Banco: conexão `ASSISTPAY_NEON_DATABASE_URL`, já utilizada pelo Cockpit.
+## Cockpit
+- Card: **ENERGISA | AD × ADA**.
+- Página: `/cliente/energisa/painel`.
+- API privada: `/cliente/energisa/painel/api`.
+- Código: `energisa_ad_ada.py` e `templates/energisa_ad_ada.html`.
+- Reutiliza login, ACL por cliente, identidade visual OLOS e `ASSISTPAY_NEON_DATABASE_URL`.
+- Usuários não administradores precisam ser autorizados ao cliente Energisa na aba Admin.
+- A API retorna dados diários exclusivamente; a visão hora a hora está desativada aguardando fonte apropriada.
 
-## Regras
-- **Total:** soma por hora das métricas de volume, com Mailing/Logados iguais ao MAX por campanha/dia.
-- **Média dia:** média de cada métrica por tecnologia, calculada apenas sobre dias em que o valor diário daquela métrica é **maior que zero**. O denominador pode diferir entre métricas.
-- **Taxas e TMA na média dia:** média aritmética dos valores diários válidos (>0), não média das taxas horárias e não divisão dos totais médios.
-- **Hora a hora no modo média:** cada hora mostra sua média entre os dias em que aquele indicador foi positivo, com os registros de Mailing/Logados deduplicados por campanha/dia/hora.
-- O seletor vale para cards, funil, indicadores, linha horária e CSV. No detalhamento diário, cada linha continua representando seu próprio dia.
-- Telecom e %Hangup seguem sinalizados como dados a validar.
+## Esquema SQL
+```sql
+CREATE TABLE IF NOT EXISTS assistpay.energisa_ad_ada_diario (
+  data date NOT NULL,
+  campaign_id integer NOT NULL,
+  nome_campanha text NOT NULL,
+  agente varchar(3) NOT NULL CHECK (agente IN ('AD', 'ADA')),
+  logados integer NOT NULL DEFAULT 0,
+  tentativas bigint NOT NULL DEFAULT 0,
+  atendidas bigint NOT NULL DEFAULT 0,
+  cpc bigint NOT NULL DEFAULT 0,
+  acordo bigint NOT NULL DEFAULT 0,
+  hangup bigint NOT NULL DEFAULT 0,
+  mailing bigint NOT NULL DEFAULT 0,
+  PRIMARY KEY (data,campaign_id),
+  CHECK (logados>=0 AND tentativas>=0 AND atendidas>=0 AND
+         cpc>=0 AND acordo>=0 AND hangup>=0 AND mailing>=0)
+);
+CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
+ ON assistpay.energisa_ad_ada_diario (agente,data DESC);
+```
 
-## Atualização futura
-Esta versão consulta um snapshot no Neon, sem ETL automático. Para atualizar o banco com próximas versões da planilha, implemente uma carga autenticada no ETL_Cockpit ou processo de atualização controlado, mantendo a mesma estrutura JSON e sem publicar a planilha no repositório.
+## Cálculos
+- Origem: arquivo diário tabulado com 11 colunas (`Date`, `CampaignId`, `nomecampanha`, `Logados`, `Tentativas`, `Atendidas`, `Cpc`, `Acordo`, `Hangup`, `Mailing`, `Agente`).
+- A chave (data, campanha) impede repetição entre cargas. A base atual não continha chaves repetidas.
+- Totais: soma por campanha e dia, após granularidade diária estabelecida.
+- Mailing e Logados: a base diária já possui uma linha por campanha/dia, eliminando repetição de registros horários. O somatório entre campanhas pode contar os mesmos operadores, portanto não é um total de pessoas únicas.
+- Média dia: para **cada indicador** o denominador corresponde somente aos dias com valor > 0. Zeros não entram.
+- Taxas e produtividade: `Spin = tentativas / mailing`, `Hit Rate = atendidas / tentativas`, `Taxa CPC = cpc / atendidas`, `Conversão = acordo / cpc`, `% Hangup = hangup / atendidas`, `Acordos por logado = acordo / logados`.
+- Em Total, taxas calculadas sobre volumes consolidados. Em Média dia, calcula-se cada taxa por dia e depois a média dos dias de taxa positiva (não ponderada).
+- Na evolução e detalhamento diário, pontos e linhas representam dados reais daquele dia, não a média do período.
+- CSV: exportação da base filtrada com as 11 colunas recebidas.
 
-## Validações efetuadas
-- Sintaxe JavaScript aprovada
-- Teste numérico de média com zero excluído e Mailing deduplicado aprovado
-- Estrutura da tabela no Neon validada
-- Publicação do código na branch main
-- Deploy Render: depende da configuração de deploy automático e não foi verificado via workspace Render.
+## Atualização
+Importação inicial efetuada de 543 linhas em Neon. A API consulta o banco a cada acesso, sem arquivo estático.
+Novas cargas devem usar `INSERT ... ON CONFLICT (data, campaign_id) DO UPDATE` validado e executado pelo ETL seguro para evitar duplicação. Não publicar dados de clientes no GitHub.
