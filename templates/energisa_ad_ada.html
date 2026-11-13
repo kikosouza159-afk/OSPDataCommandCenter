@@ -893,7 +893,9 @@ function renderChart(s){
  };
  const chip=(agent,side)=>'<div class="month-chip '+(agent==='ADA'?'ada':'')+'"><i class="chip-dot"></i><div><span>'+agent+' · média diária do período</span><b>'+fmt(side.average[key],key,'average')+'</b></div></div>';
  $('chartMonthAverages').innerHTML=chip('AD',s.AD)+chip('ADA',s.ADA);
- $('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(rangeLabel(s.AD.period))+'</span><span><i class="dot ada"></i>ADA · '+esc(rangeLabel(s.ADA.period))+'</span><span style="color:#8398b4">⋯ Tracejado: média do mês calendário</span>';
+ $('chartLegend').innerHTML='<span><i class="dot ad"></i>AD · '+esc(rangeLabel(s.AD.period))+'</span><span><i class="dot ada"></i>ADA · '+esc(rangeLabel(s.ADA.period))+'</span>'+(state.showAverages?'<span style="color:#8398b4">⋯ Tracejado: média do mês calendário</span>':'');
+ const avgToggle=$('toggleChartAvg');avgToggle.classList.toggle('is-active',state.showAverages);avgToggle.setAttribute('aria-pressed',String(state.showAverages));
+ document.querySelectorAll('.chart-quick-btn').forEach(btn=>{const active=btn.dataset.chartKey===key;btn.classList.toggle('is-active',active);btn.setAttribute('aria-pressed',String(active));});
  const maxSpan=Math.max(periodLength(s.AD.period),periodLength(s.ADA.period));
  if(!s.AD.days.length&&!s.ADA.days.length){
   $('chartBox').innerHTML='<p class="empty-state">Nenhum dado nas campanhas e datas selecionadas.</p>';return;
@@ -929,7 +931,7 @@ function renderChart(s){
  }
  svg+='<text x="'+(W-padR)+'" y="'+(H-12)+'" fill="#819ab9" font-size="10" text-anchor="end">Dia do período</text>';
  for(const segment of monthSpans){
-  if(segment.baseline<=0)continue;
+  if(!state.showAverages||segment.baseline<=0)continue;
   const color=segment.agent==='AD'?'#529cfb':'#fb6b3d',yy=y(segment.baseline);
   svg+='<line x1="'+x(segment.start)+'" x2="'+x(segment.end)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="1.4" stroke-dasharray="7 7" opacity=".68"/>';
  }
@@ -942,6 +944,7 @@ function renderChart(s){
    path+=(drawing?'L':'M')+x(day).toFixed(2)+' '+y(value).toFixed(2)+' ';
    drawing=true;
   }
+  svg+='<path class="chart-glow-line" d="'+path+'" fill="none" stroke="'+line.color+'" stroke-width="9" opacity=".16" stroke-linejoin="round" stroke-linecap="round"/>';
   svg+='<path d="'+path+'" fill="none" stroke="'+line.color+'" stroke-width="3.1" stroke-linejoin="round" stroke-linecap="round"/>';
   for(const [day,item] of line.data.entries()){
    const value=chartVal(item,key),xx=x(day),yy=y(value);
@@ -970,6 +973,7 @@ function render(){
  renderChart(comparison);
  renderDaily(comparison);
  renderCampaigns(comparison);
+ updatePresetUI();
 }
 function downloadCSV(){
  const rows=[...chosenRows('AD'),...chosenRows('ADA')];
@@ -981,6 +985,57 @@ function downloadCSV(){
  const url=URL.createObjectURL(file),a=document.createElement('a');
  a.href=url;a.download='energisa_ad_'+state.periods.AD.start+'_'+state.periods.AD.end+'_ada_'+state.periods.ADA.start+'_'+state.periods.ADA.end+'.csv';
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function choosePreset(agent,type){
+ const selected=state.rows.filter(row=>row.agente===agent&&state.selection[agent].has(row.campaign_id));
+ const relevant=selected.length?selected:state.rows.filter(row=>row.agente===agent);
+ const dates=relevant.map(row=>row.data).sort();if(!dates.length)return;
+ const latest=dates[dates.length-1],earliest=dates[0];
+ const from=type==='week'?addDays(latest,-6):type==='month'?latest.slice(0,7)+'-01':earliest;
+ state.periods[agent]={start:from<earliest?earliest:from,end:latest};
+ $('start'+agent).value=state.periods[agent].start;
+ $('end'+agent).value=state.periods[agent].end;
+ render();
+}
+function updatePresetUI(){
+ for(const agent of ['AD','ADA']){
+  const selected=state.rows.filter(r=>r.agente===agent&&state.selection[agent].has(r.campaign_id)).map(r=>r.data).sort();
+  const dates=selected.length?selected:state.rows.filter(r=>r.agente===agent).map(r=>r.data).sort();
+  if(!dates.length)continue;
+  const latest=dates[dates.length-1],earliest=dates[0],p=state.periods[agent];
+  document.querySelectorAll('[data-range][data-agent="'+agent+'"]').forEach(btn=>{
+   const start=btn.dataset.range==='week'?addDays(latest,-6):btn.dataset.range==='month'?latest.slice(0,7)+'-01':earliest;
+   const match=p.start===(start<earliest?earliest:start)&&p.end===latest;
+   btn.classList.toggle('is-active',match);btn.setAttribute('aria-pressed',String(match));
+  });
+ }
+}
+function openMetric(key){
+ const select=$('chartMetric');
+ if(!Array.from(select.options).some(option=>option.value===key))return;
+ select.value=key;
+ renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')});
+ const target=$('evolutionSection');
+ if(target&&target.scrollIntoView)target.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function bindBackgroundParallax(){
+ const bg=typeof document.querySelector==='function'?document.querySelector('.bg-content'):null;
+ if(!bg||typeof window==='undefined'||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+ let scheduled=false,x=0,y=0;
+ document.addEventListener('pointermove',event=>{
+  if(event.pointerType&&event.pointerType!=='mouse')return;
+  x=(event.clientX/window.innerWidth-.5)*14;
+  y=(event.clientY/window.innerHeight-.5)*12;
+  if(scheduled)return;
+  scheduled=true;
+  requestAnimationFrame(()=>{
+   bg.style.setProperty('--osp-parallax-x',x.toFixed(2)+'px');
+   bg.style.setProperty('--osp-parallax-y',y.toFixed(2)+'px');
+   bg.style.setProperty('--osp-parallax-x-rev',(-x*.65).toFixed(2)+'px');
+   bg.style.setProperty('--osp-parallax-y-rev',(-y*.65).toFixed(2)+'px');
+   scheduled=false;
+  });
+ },{passive:true});
 }
 function bind(){
  for(const agent of ['AD','ADA']){
@@ -999,10 +1054,23 @@ function bind(){
  }
  $('btnTotal').addEventListener('click',()=>displayMode('total'));
  $('btnAverage').addEventListener('click',()=>displayMode('average'));
- $('chartMetric').addEventListener('change',render);
+ $('chartMetric').addEventListener('change',()=>renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')}));
+ $('toggleChartAvg').addEventListener('click',()=>{state.showAverages=!state.showAverages;renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')});});
  $('exportBtn').addEventListener('click',downloadCSV);
+ document.querySelectorAll('[data-range]').forEach(btn=>btn.addEventListener('click',()=>choosePreset(btn.dataset.agent,btn.dataset.range)));
+ document.querySelectorAll('.chart-quick-btn').forEach(btn=>btn.addEventListener('click',()=>openMetric(btn.dataset.chartKey)));
+ document.addEventListener('click',event=>{
+  const target=event.target.closest?.('[data-chart-key]:not(.chart-quick-btn)');
+  if(target)openMetric(target.dataset.chartKey);
+ });
+ document.addEventListener('keydown',event=>{
+  if((event.key==='Enter'||event.key===' ')&&event.target.matches?.('tr[data-chart-key]')){
+   event.preventDefault();openMetric(event.target.dataset.chartKey);
+  }
+ });
+ bindBackgroundParallax();
  document.querySelectorAll('[data-pick]').forEach(btn=>btn.addEventListener('click',()=>setCampaigns(btn.dataset.agent,btn.dataset.pick==='all')));
- $('resetBtn').addEventListener('click',()=>{buildFilters();$('chartMetric').value='acordo';displayMode('average')});
+ $('resetBtn').addEventListener('click',()=>{buildFilters();$('chartMetric').value='acordo';state.showAverages=true;displayMode('average')});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePopup()});
  document.addEventListener('click',e=>{
   for(const id of ['adPicker','adaPicker']){const picker=$(id);if(picker.open&&!picker.contains(e.target))picker.open=false;}
@@ -1021,10 +1089,14 @@ async function start(){
   const payload=await response.json();
   if(!Array.isArray(payload.rows)||!payload.rows.length)throw new Error('Resposta vazia');
   state.rows=payload.rows.map(row=>({...row,campaign_id:Number(row.campaign_id)}));
+  const latestDate=state.rows.reduce((m,r)=>r.data>m?r.data:m,'');
+  $('dataFreshness').textContent='Dados disponíveis até '+longDate(latestDate)+' · '+nfmt(state.rows.length)+' registros diários';
+  $('sourceStatus').innerHTML='<span class="status-dot"></span> Banco Neon · Conectado';
   buildFilters();bind();
   loading.classList.add('hidden');$('dashboard').classList.remove('hidden');
   render();
  }catch(error){
+  $('sourceStatus').textContent='Fonte indisponível';
   console.error('Energisa: erro no carregamento',error);
   const msg={
    database_connection_failed:'Não foi possível conectar ao Neon. Verifique a conexão no serviço.',
