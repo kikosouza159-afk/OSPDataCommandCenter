@@ -46,12 +46,12 @@ CREATE INDEX IF NOT EXISTS idx_energisa_ad_ada_agente_data
 - Média dia: para **cada indicador** o denominador corresponde somente aos dias com valor > 0. Zeros não entram.
 - Taxas e produtividade: `Spin = tentativas / mailing`, `Hit Rate = atendidas / tentativas`, `Taxa CPC = cpc / atendidas`, `Conversão = acordo / cpc`, `% Hangup = hangup / atendidas`, `Acordos por logado = acordo / logados`.
 - Em Total, taxas calculadas sobre volumes consolidados. Em Média dia, **cada volume tem sua própria média sem zeros**, e as taxas são recalculadas a partir desses volumes médios (conforme benchmark executivo).
-- Na evolução e detalhamento diário, pontos e linhas representam dados reais daquele dia; o gráfico mostra também a média do mês de cada tecnologia, excluindo zeros por indicador.
-- O popup dos pontos do gráfico mostra a data, valor do dia, média mensal do respectivo mês (AD e ADA independentes) e diferença percentual do dia em relação à média. 
+- A evolução mostra os valores reais por dia. As séries AD e ADA são alinhadas pelo número de dias decorridos desde o início de seus períodos independentes. Linhas tracejadas mostram a média mensal completa para cada campanha selecionada, mesmo quando o recorte atravessa vários meses.
+- O popup mostra a data, valor do dia, média do mês calendário inteiro (para as campanhas selecionadas, sem zeros) e diferença percentual do dia. A média mensal continua constante mesmo ao selecionar uma semana; em meses diferentes cada trecho usa sua própria média. 
 - Fórmula da eficiência: `Eficiência = Acordos / Mailing × 100` (não Acordos / Tentativas).
-- Filtros independentes de mês e campanhas para AD e ADA, permitindo comparativos entre meses diferentes.
-- Padrão inicial de benchmark: campanha AD 11 (setembro/2026) contra campanha ADA 385 (novembro/2026).
-- Matriz AD × ADA com dias trabalhados, indicadores absolutos, taxas, eficiência e produtividade por agente.
+- Filtros independentes de **data inicial e final** e campanhas para AD e ADA, permitindo comparativos entre períodos e meses diferentes. Alterar uma data não modifica a outra tecnologia.
+- Padrão inicial de benchmark: campanha AD 11 (01 a 30/09/2026) contra campanha ADA 385 (03 a 13/11/2026), conforme os dados disponíveis; cada intervalo pode ser personalizado.
+- Matriz visual em barras por categorias: Volume e estrutura, Eficiência e conversão, Produtividade por agente. Cada indicador mostra barras azul AD e laranja ADA, valores e delta percentual do ADA contra o AD.
 - A seção "Insights executivos" foi removida conforme solicitado; as informações comparativas permanecem nos cards, matriz, funil e gráfico.
 - CSV: exportação da base filtrada com as 11 colunas recebidas.
 
