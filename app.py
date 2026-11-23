@@ -4954,6 +4954,14 @@ def montar_visao_hora_a_hora(df):
     cols_hourly = ["HOUR", "MAILING", "Logados", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo"]
     hourly = hourly[cols_hourly].sort_values("HOUR")
 
+    # Padrão visual da operação: sempre exibir 08h a 20h.
+    # Se a origem não trouxe determinada hora, ela aparece zerada em vez de
+    # desaparecer do gráfico, deixando explícita a ausência de carga.
+    horas_padrao = pd.DataFrame({"HOUR": list(range(8, 21))})
+    hourly = horas_padrao.merge(hourly, on="HOUR", how="left")
+    for col in ["MAILING", "Logados", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo"]:
+        hourly[col] = pd.to_numeric(hourly[col], errors="coerce").fillna(0)
+
     hourly["Spin"] = hourly.apply(lambda x: safe_div(x["Discado"], x["MAILING"]), axis=1)
     hourly["Hit"] = hourly.apply(lambda x: safe_div(x["Contato"], x["Discado"]), axis=1)
     hourly["CpcPerc"] = hourly.apply(lambda x: safe_div(x["Cpc"], x["Contato"]), axis=1)
