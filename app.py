@@ -4954,10 +4954,11 @@ def montar_visao_hora_a_hora(df):
     cols_hourly = ["HOUR", "MAILING", "Logados", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo"]
     hourly = hourly[cols_hourly].sort_values("HOUR")
 
-    # Padrão visual da operação: sempre exibir 08h a 20h.
-    # Se a origem não trouxe determinada hora, ela aparece zerada em vez de
-    # desaparecer do gráfico, deixando explícita a ausência de carga.
-    horas_padrao = pd.DataFrame({"HOUR": list(range(8, 21))})
+    # Exibe de 08h somente até a última hora com informação real
+    # no período filtrado. Horas futuras sem carga não aparecem no gráfico.
+    ultima_hora = int(hourly["HOUR"].max()) if not hourly.empty else 8
+    ultima_hora = max(8, min(23, ultima_hora))
+    horas_padrao = pd.DataFrame({"HOUR": list(range(8, ultima_hora + 1))})
     hourly = horas_padrao.merge(hourly, on="HOUR", how="left")
     for col in ["MAILING", "Logados", "Discado", "Contato", "Cpc", "NDOC", "Acordo", "HangUp", "Tempo"]:
         hourly[col] = pd.to_numeric(hourly[col], errors="coerce").fillna(0)
