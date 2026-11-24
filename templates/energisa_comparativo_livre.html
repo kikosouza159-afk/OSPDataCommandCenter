@@ -757,7 +757,7 @@ const dec2Fmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFrac
 const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const volumeKeys=['mailing','logados','tentativas','atendidas','cpc','voicemail','acordo','hangup'];
 const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia']);
-const derivedKeys=['cpcLiquido','cpcLiquidoLogado','spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
+const derivedKeys=['cpcLiquido','cpcLiquidoLogado','spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','cpcLiquidoLogado','acordoLogado'];
 const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',cpcLiquido:'CPC Líquido',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão (Acordos / CPC Líquido)',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',mailingLogado:'Mailing / Agente',tentativasLogado:'Tentativas / Agente',atendidasLogado:'Atendidas / Agente',cpcLogado:'CPC / Agente',cpcLiquidoLogado:'CPC Líquido / Agente',acordoLogado:'Acordos / Agente'};
 const state={rows:[],originalRows:[],sideType:{AD:'AD',ADA:'ADA'},mode:'average',showAverages:true,activeView:'comparison',heatmapGroup:'all',dailyCampaignKey:'',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
@@ -1124,9 +1124,9 @@ function renderDaily(s){
  $('dailyBody').innerHTML=days.length?days.map(d=>{
   const m=d.values;
   const values=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+esc(sideLabel(d.tech))+'</span>',
-   ...volumeKeys.map(k=>nfmt(m[k])),nfmt(m.spin,2),fmt(m.hitrate,'hitrate'),fmt(m.taxaCpc,'taxaCpc'),fmt(m.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(m.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(m.conversao,'conversao'),fmt(m.taxaHangup,'taxaHangup'),fmt(m.taxaHangupTentativas,'taxaHangupTentativas')];
+   ...volumeKeys.slice(0,6).map(k=>nfmt(m[k])),nfmt(m.cpcLiquido),...volumeKeys.slice(6).map(k=>nfmt(m[k])),nfmt(m.spin,2),fmt(m.hitrate,'hitrate'),fmt(m.taxaCpc,'taxaCpc'),fmt(m.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(m.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(m.conversao,'conversao'),fmt(m.taxaHangup,'taxaHangup'),fmt(m.taxaHangupTentativas,'taxaHangupTentativas')];
   return '<tr>'+values.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
- }).join(''):'<tr><td colspan="18">Nenhuma informação para os filtros.</td></tr>';
+ }).join(''):'<tr><td colspan="19">Nenhuma informação para os filtros.</td></tr>';
 }
 function renderCampaigns(s){
  const list=[...s.AD.rows,...s.ADA.rows];
@@ -1139,9 +1139,9 @@ function renderCampaigns(s){
  $('campaignBody').innerHTML=groups.size?[...groups.values()].sort((a,b)=>a.agent.localeCompare(b.agent)||a.id-b.id).map(g=>{
   const d=dailyRows(g.rows),active=d.filter(r=>r.values.tentativas>0).length;
   const stats=state.mode==='average'?averageDaily(d):sumRows(g.rows);
-  const values=[esc(g.name),'<span class="type-tag '+g.agent.toLowerCase()+'">'+esc(sideLabel(g.agent))+'</span>',nfmt(active),...volumeKeys.map(k=>fmt(stats[k],k)),fmt(stats.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(stats.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(stats.conversao,'conversao')];
+  const values=[esc(g.name),'<span class="type-tag '+g.agent.toLowerCase()+'">'+esc(sideLabel(g.agent))+'</span>',nfmt(active),...volumeKeys.slice(0,6).map(k=>fmt(stats[k],k)),fmt(stats.cpcLiquido,'cpcLiquido'),...volumeKeys.slice(6).map(k=>fmt(stats[k],k)),fmt(stats.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(stats.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(stats.conversao,'conversao')];
   return '<tr>'+values.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
- }).join(''):'<tr><td colspan="14">Nenhuma campanha selecionada.</td></tr>';
+ }).join(''):'<tr><td colspan="15">Nenhuma campanha selecionada.</td></tr>';
 }
 function chartVal(item,key){return item?Number(item.values[key]||0):null;}
 function monthlyReference(agent,month,key){
@@ -1278,6 +1278,7 @@ const dailyMetrics=[
  {key:'atendidas',label:'Atendidas',group:'volume'},
  {key:'cpc',label:'CPC',group:'volume'},
  {key:'voicemail',label:'VoiceMail',group:'volume'},
+ {key:'cpcLiquido',label:'CPC Líquido',group:'volume'},
  {key:'acordo',label:'Acordos',group:'volume'},
  {key:'hangup',label:'Hangup',group:'volume'},
  {key:'spin',label:'Spin',group:'rate'},
@@ -1285,7 +1286,7 @@ const dailyMetrics=[
  {key:'taxaCpc',label:'CPC / Atendidas %',group:'rate'},
  {key:'taxaVoiceMailAtendidas',label:'VoiceMail / Atendidas %',group:'rate'},
  {key:'taxaVoiceMailCpc',label:'VoiceMail / CPC %',group:'rate'},
- {key:'conversao',label:'Acordo / CPC %',group:'rate'},
+ {key:'conversao',label:'Acordos / CPC Líquido %',group:'rate'},
  {key:'eficiencia',label:'Eficiência %',group:'rate'},
  {key:'taxaHangup',label:'Hangup / Atendidas %',group:'rate'},
  {key:'taxaHangupTentativas',label:'Hangup / Discagens %',group:'rate'},
@@ -1293,6 +1294,7 @@ const dailyMetrics=[
  {key:'tentativasLogado',label:'Tentativas / AGV',group:'productivity'},
  {key:'atendidasLogado',label:'Atendidas / AGV',group:'productivity'},
  {key:'cpcLogado',label:'CPC / AGV',group:'productivity'},
+ {key:'cpcLiquidoLogado',label:'CPC Líquido / AGV',group:'productivity'},
  {key:'acordoLogado',label:'Acordos / AGV',group:'productivity'}
 ];
 function dailyMonthProfile(agent,month){
@@ -1307,7 +1309,7 @@ function dailyMonthProfile(agent,month){
 }
 function dailyMonthlyBaseline(agent,month,key){
  const profile=dailyMonthProfile(agent,month);
- return volumeKeys.includes(key)?profile.mean[key]||0:profile.weighted[key]||0;
+ return (volumeKeys.includes(key)||key==='cpcLiquido')?profile.mean[key]||0:profile.weighted[key]||0;
 }
 function dailyValue(value,key){
  return fmt(Number(value)||0,key,'total');
@@ -1321,7 +1323,7 @@ function singleCampaignMonthBaseline(agent,campaignId,month,key){
   singleCampaignMonthlyCache.set(cacheKey,{means:averageDaily(dailyRows(rows)),totals:sumRows(rows)});
  }
  const profile=singleCampaignMonthlyCache.get(cacheKey);
- return Number(volumeKeys.includes(key)?profile.means[key]:profile.totals[key])||0;
+ return Number((volumeKeys.includes(key)||key==='cpcLiquido')?profile.means[key]:profile.totals[key])||0;
 }
 function syncDailyCampaignSelector(){
  const picker=$('chartCampaignDaily'),options=[],groups=[];
@@ -1563,11 +1565,11 @@ function renderDailyAnalysis(s){
  const days=[...s.AD.days.map(d=>({...d,tech:'AD'})),...s.ADA.days.map(d=>({...d,tech:'ADA'}))]
  .sort((a,b)=>a.date.localeCompare(b.date)||a.tech.localeCompare(b.tech));
  $('dailyTableCount').textContent=days.length+' linhas';
- const columns=['logados','mailing','tentativas','atendidas','cpc','voicemail','acordo','hangup','spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','eficiencia','taxaHangup','taxaHangupTentativas','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
+ const columns=['logados','mailing','tentativas','atendidas','cpc','voicemail','cpcLiquido','acordo','hangup','spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','eficiencia','taxaHangup','taxaHangupTentativas','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
  $('dailyExplorerBody').innerHTML=days.length?days.map(d=>{
   const data=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+esc(sideLabel(d.tech))+'</span>',...columns.map(key=>dailyValue(d.values[key],key))];
   return '<tr>'+data.map(v=>'<td>'+v+'</td>').join('')+'</tr>';
- }).join(''):'<tr><td colspan="24">Nenhuma informação diária para os filtros selecionados.</td></tr>';
+ }).join(''):'<tr><td colspan="26">Nenhuma informação diária para os filtros selecionados.</td></tr>';
 }
 function renderDailyExplorer(s){
  $('dailyCoverage').textContent=sideLabel('AD')+' '+s.AD.days.length+' dias · '+sideLabel('ADA')+' '+s.ADA.days.length+' dias';
