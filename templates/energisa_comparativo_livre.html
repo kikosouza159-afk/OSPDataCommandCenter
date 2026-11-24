@@ -625,7 +625,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
   </div>
   <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesAD"></div></div>
   <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVAD"></div></div>
-  <div class="assist-funnel-foot">Mailing em média diária sem zeros. VoiceMail conta como CPC na Energisa: aumento aparece em verde. É uma classificação, não uma conversão sequencial nem volume para somar novamente ao CPC. Demais volumes seguem Total / Média dia.</div>
+  <div class="assist-funnel-foot">Mailing em média diária sem zeros. CPC Líquido = CPC − VoiceMail. Conversão = Acordos ÷ CPC Líquido. VoiceMail conta como CPC na Energisa: aumento aparece em verde. É uma classificação, não uma conversão sequencial nem volume para somar novamente ao CPC. Demais volumes seguem Total / Média dia.</div>
  </section>
  <section class="panel assist-panel assist-panel-ada">
   <header class="assist-panel-title">
@@ -641,7 +641,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
   </div>
   <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesADA"></div></div>
   <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVADA"></div></div>
-  <div class="assist-funnel-foot">Dados da campanha e período selecionados. VoiceMail conta como CPC: crescimento é positivo e aparece em verde. Taxas e produtividade por AGV aparecem abaixo do funil.</div>
+  <div class="assist-funnel-foot">Dados da campanha e período selecionados. CPC Líquido = CPC − VoiceMail; conversão usa CPC Líquido. VoiceMail conta como CPC: crescimento é positivo e aparece em verde. Taxas e produtividade por AGV aparecem abaixo do funil.</div>
  </section>
  <section class="panel assist-panel assist-panel-table">
   <header class="assist-panel-title">
@@ -757,9 +757,9 @@ const dec2Fmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFrac
 const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const volumeKeys=['mailing','logados','tentativas','atendidas','cpc','voicemail','acordo','hangup'];
 const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia']);
-const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
+const derivedKeys=['cpcLiquido','cpcLiquidoLogado','spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
 const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',mailingLogado:'Mailing / Agente',tentativasLogado:'Tentativas / Agente',atendidasLogado:'Atendidas / Agente',cpcLogado:'CPC / Agente',acordoLogado:'Acordos / Agente'};
+const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',cpcLiquido:'CPC Líquido',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão (Acordos / CPC Líquido)',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',mailingLogado:'Mailing / Agente',tentativasLogado:'Tentativas / Agente',atendidasLogado:'Atendidas / Agente',cpcLogado:'CPC / Agente',cpcLiquidoLogado:'CPC Líquido / Agente',acordoLogado:'Acordos / Agente'};
 const state={rows:[],originalRows:[],sideType:{AD:'AD',ADA:'ADA'},mode:'average',showAverages:true,activeView:'comparison',heatmapGroup:'all',dailyCampaignKey:'',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
 const sideLabel=side=>(side==='AD'?'A':'B')+' · '+state.sideType[side];
 function rebuildSideRows(){
@@ -799,13 +799,14 @@ const short=(v,key)=>{
 const rate=(a,b)=>b>0?100*a/b:0;
 const blank=()=>({mailing:0,logados:0,tentativas:0,atendidas:0,cpc:0,voicemail:0,acordo:0,hangup:0});
 function enrich(data){
- return {...data,
+ const cpcLiquido=data.cpc-data.voicemail;
+ return {...data,cpcLiquido,
   spin:data.mailing>0?data.tentativas/data.mailing:0,
   hitrate:rate(data.atendidas,data.tentativas),
   taxaCpc:rate(data.cpc,data.atendidas),
   taxaVoiceMailAtendidas:rate(data.voicemail,data.atendidas),
   taxaVoiceMailCpc:rate(data.voicemail,data.cpc),
-  conversao:rate(data.acordo,data.cpc),
+  conversao:rate(data.acordo,cpcLiquido),
   taxaHangup:rate(data.hangup,data.atendidas),
   taxaHangupTentativas:rate(data.hangup,data.tentativas),
   eficiencia:rate(data.acordo,data.mailing),
@@ -813,6 +814,7 @@ function enrich(data){
   tentativasLogado:data.logados>0?data.tentativas/data.logados:0,
   atendidasLogado:data.logados>0?data.atendidas/data.logados:0,
   cpcLogado:data.logados>0?data.cpc/data.logados:0,
+  cpcLiquidoLogado:data.logados>0?cpcLiquido/data.logados:0,
   acordoLogado:data.logados>0?data.acordo/data.logados:0
  };
 }
@@ -871,7 +873,7 @@ function calcSide(agent){
  // Média de AGV ativo; no modo Total, a base de produtividade é a soma de agentes-dia.
  const agentDenominator=state.mode==='average'?agentMean:total.logados;
  const productivity={};
- for(const key of ['mailing','tentativas','atendidas','cpc','acordo']){
+ for(const key of ['mailing','tentativas','atendidas','cpc','cpcLiquido','acordo']){
   productivity[key]=agentDenominator>0?stats[key]/agentDenominator:0;
  }
  return {agent,rows,days,stats,total,average,activeDays,agentMean,productivity,period:{...state.periods[agent]},name:campaignSummary(agent)};
@@ -1010,6 +1012,7 @@ function renderMatrix(s){
   {label:'Atendidas',key:'atendidas'},
   {label:'CPC',key:'cpc'},
   {label:'VoiceMail',key:'voicemail'},
+  {label:'CPC Líquido',key:'cpcLiquido',highlight:true},
   {label:'Acordo',key:'acordo',highlight:true},
   {group:'Taxas e conversão'},
   {label:'Spin',key:'spin'},
@@ -1017,7 +1020,7 @@ function renderMatrix(s){
   {label:'CPC %',key:'taxaCpc'},
   {label:'VoiceMail / Atendidas %',key:'taxaVoiceMailAtendidas'},
   {label:'VoiceMail / CPC %',key:'taxaVoiceMailCpc'},
-  {label:'Acordo %',key:'conversao',highlight:true},
+  {label:'Conversão (Acordos / CPC Líquido) %',key:'conversao',highlight:true},
   {label:'Efic %',key:'eficiencia',highlight:true},
   {label:'Hangup / Atendidas %',key:'taxaHangup'},
   {label:'Hangup / Discagens %',key:'taxaHangupTentativas'},
@@ -1026,6 +1029,7 @@ function renderMatrix(s){
   {label:'Tentativas / AGV',prod:'tentativas'},
   {label:'Atendidas / AGV',prod:'atendidas'},
   {label:'CPC / AGV',prod:'cpc'},
+  {label:'CPC Líquido / AGV',prod:'cpcLiquido'},
   {label:'Acordo / AGV',prod:'acordo',highlight:true}
  ];
  const monthName=side=>{
@@ -1070,10 +1074,11 @@ function renderFunnel(s){
   {label:'Atendidas',key:'atendidas',style:'blue'},
   {label:'CPC',key:'cpc',style:'blue'},
   {label:'VoiceMail',key:'voicemail',style:'blue'},
+  {label:'CPC Líquido',key:'cpcLiquido',style:'blue'},
   {label:'Acordo',key:'acordo',style:'orange'}
  ];
- const rates=[['Spin','spin'],['Hit %','hitrate'],['CPC %','taxaCpc'],['VoiceMail / Atendidas %','taxaVoiceMailAtendidas'],['VoiceMail / CPC %','taxaVoiceMailCpc'],['Acordo %','conversao'],['Efic %','eficiencia'],['Hangup / Atendidas %','taxaHangup'],['Hangup / Discagens %','taxaHangupTentativas']];
- const agv=[['Mailing / AGV','mailing'],['Tentativas / AGV','tentativas'],['Atendidas / AGV','atendidas'],['CPC / AGV','cpc'],['Acordo / AGV','acordo']];
+ const rates=[['Spin','spin'],['Hit %','hitrate'],['CPC %','taxaCpc'],['VoiceMail / Atendidas %','taxaVoiceMailAtendidas'],['VoiceMail / CPC %','taxaVoiceMailCpc'],['Conversão (Acordos / CPC Líquido) %','conversao'],['Efic %','eficiencia'],['Hangup / Atendidas %','taxaHangup'],['Hangup / Discagens %','taxaHangupTentativas']];
+ const agv=[['Mailing / AGV','mailing'],['Tentativas / AGV','tentativas'],['Atendidas / AGV','atendidas'],['CPC / AGV','cpc'],['CPC Líquido / AGV','cpcLiquido'],['Acordo / AGV','acordo']];
  for(const agent of ['AD','ADA']){
   const side=s[agent],main=$('funnel'+agent),delta=$('funnelDeltas'+agent);
   $('funnelPeriod'+agent).textContent=rangeLabel(side.period);
@@ -1088,12 +1093,12 @@ function renderFunnel(s){
   label.classList.toggle('multiple',names.length>1);
   main.innerHTML=stages.map((stage,i)=>{
    const value=stage.averageMailing?side.average.mailing:side.stats[stage.key];
-   const widths=[100,96,92,88,84,80];
+   const widths=[100,96,92,88,84,82,80];
    const formatted=nfmt(value);
    const help=stage.key==='voicemail'?'VoiceMail é uma classificação válida que conta como CPC para a Energisa. Aumento é favorável; não some novamente ao CPC.':'Volume do indicador selecionado.';
    return '<button type="button" class="assist-funnel-stage '+stage.style+(stage.key==='voicemail'?' classificador':'')+'" data-chart-key="'+stage.key+'" style="--funnel-width:'+widths[i]+'%" title="'+esc(help)+' Abrir tendência.">'+
     '<span class="assist-stage-label">'+esc(stage.label)+(stage.key==='voicemail'?'<small class="stage-subtype">classificação</small>':'')+'</span><strong class="assist-stage-value">'+formatted+'</strong></button>'+
-    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i>=3?'classify-link ':'')+(i===4?'orange':'')+'" aria-hidden="true">'+(i>=3?'⋮':'⌄')+'</div>':'');
+    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i>=3?'classify-link ':'')+(i===5?'orange':'')+'" aria-hidden="true">'+(i>=3?'⋮':'⌄')+'</div>':'');
   }).join('');
   delta.innerHTML='<div class="assist-delta-title">Variação B × A</div><div class="assist-delta-sub">Funil B sobre A</div>'+
    stages.map(stage=>{
