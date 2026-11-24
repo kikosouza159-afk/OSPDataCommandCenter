@@ -291,3 +291,12 @@ Correção:
 - Exibe modos **Total** e **Média dia**, funis, taxas de VoiceMail e Hangup, matriz com variações de B vs. A, produtividade, evolução diária, heatmaps e CSV com cenário e tecnologia reais.
 - Fonte: mesma API protegida `/cliente/energisa/painel/api`, tabela Neon `assistpay.energisa_ad_ada_diario`; nenhuma nova tabela ou cópia persistente de dados é criada.
 - Perfis sem acesso ao cliente Energisa recebem HTTP 403. Usuários sem sessão são encaminhados ao login.
+
+### CPC Líquido e conversão (Energisa)
+
+Nos painéis **AD × ADA** e **Comparativo livre**, os funis mostram **CPC Líquido** imediatamente após **VoiceMail** e antes de **Acordos**.
+
+- **CPC Líquido = CPC − VoiceMail** (VoiceMail já está incluído no CPC bruto).
+- **Conversão (%) = Acordos ÷ CPC Líquido × 100**. Quando o denominador for zero, a taxa exibida é 0%.
+- No modo **Média dia**, CPC Líquido corresponde à diferença entre a média diária exibida de CPC e a média diária exibida de VoiceMail. A conversão é calculada sobre essa média líquida, sem usar valores arredondados.
+- A regra também aparece na matriz de indicadores, produtividade por agente, gráficos diários, heatmaps, detalhamento e exportações CSV. Os cálculos usam dados existentes no Neon; não requerem migração de banco.
