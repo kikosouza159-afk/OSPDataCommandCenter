@@ -282,3 +282,12 @@ Correção:
 - As chaves de agrupamento agora são deduplicadas.
 - Corrige o erro: `ValueError: Grouper for 'Faixa_Atraso' not 1-dimensional`.
 - Mantém a regra de Mailing distinto por DATA + Faixa_Atraso + MAILING.
+
+## Comparativo livre da Energisa (AD × AD / ADA × ADA / AD × ADA)
+
+- Acesso autenticado pelo menu **Energisa > Comparativo livre** ou pela rota `/cliente/energisa/comparativo-livre`.
+- O painel original `/cliente/energisa/painel` permanece inalterado.
+- **Funil A** e **Funil B** possuem seletores independentes de tecnologia (AD ou ADA), campanhas e intervalos de datas. A mesma campanha pode ser comparada em meses diferentes.
+- Exibe modos **Total** e **Média dia**, funis, taxas de VoiceMail e Hangup, matriz com variações de B vs. A, produtividade, evolução diária, heatmaps e CSV com cenário e tecnologia reais.
+- Fonte: mesma API protegida `/cliente/energisa/painel/api`, tabela Neon `assistpay.energisa_ad_ada_diario`; nenhuma nova tabela ou cópia persistente de dados é criada.
+- Perfis sem acesso ao cliente Energisa recebem HTTP 403. Usuários sem sessão são encaminhados ao login.
