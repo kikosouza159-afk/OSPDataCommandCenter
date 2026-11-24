@@ -685,7 +685,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 </section>
 <section id="viewDaily" class="view-pane" role="tabpanel" aria-labelledby="tabDaily" hidden>
  <div class="daily-hero">
-  <div><div class="section-kicker">INTELIGÊNCIA OPERACIONAL / DIA A DIA</div><h2>Visão dia a dia <span>AD × ADA</span></h2>
+  <div><div class="section-kicker">INTELIGÊNCIA OPERACIONAL / DIA A DIA</div><h2>Visão dia a dia <span>Funil A × Funil B</span></h2>
    <p>Todos os volumes, taxas e produtividade. Compare cada dia com a média do mês calendário da campanha selecionada.</p></div>
   <div class="daily-hero-badge"><span class="mini-pulse"></span><span id="dailyCoverage">Calculando cobertura diária...</span></div>
  </div>
@@ -719,7 +719,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
   <div id="chartMonthAveragesDaily" class="chart-month-averages"></div>
   <div class="chart-stage daily-chart-stage"><div id="chartBoxDaily" class="chart-box"></div></div>
   <div id="chartLegendDaily" class="legend"></div>
-  <div class="daily-chart-note">Linha contínua: resultado diário da campanha selecionada. Linha tracejada: referência do mês calendário completo. As taxas usam a razão entre totais mensais e os volumes usam média diária sem zeros. Os heatmaps abaixo continuam mostrando AD e ADA conforme os filtros gerais.</div>
+  <div class="daily-chart-note">Linha contínua: resultado diário da campanha selecionada. Linha tracejada: referência do mês calendário completo. As taxas usam a razão entre totais mensais e os volumes usam média diária sem zeros. Os heatmaps abaixo exibem os dois funis conforme a tecnologia e os períodos selecionados.</div>
  </section>
  <section class="panel heatmap-panel" id="heatmapSection">
   <div class="heatmap-heading"><div><div class="section-kicker">RADAR DE PERFORMANCE</div><h3>Heatmap de todos os indicadores</h3><p>Cada célula apresenta o valor do dia e sua diferença para a média mensal do mesmo indicador.</p></div>
@@ -729,8 +729,8 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
     </div>
   </div>
   <div class="heatmap-legend"><span><i class="heat-swatch heat-up"></i> Acima da média</span><span><i class="heat-swatch heat-mid"></i> Próximo da média (±5%)</span><span><i class="heat-swatch heat-down"></i> Abaixo da média</span><span>As cores indicam posição relativa, não necessariamente resultado favorável.</span><span><i class="heat-swatch heat-empty"></i> Sem registro no dia</span></div>
-  <div class="heatmap-area"><div class="heatmap-title ad"><span>AD <small>Discador humano</small></span><span id="heatmapCountAD"></span></div><div class="heatmap-scroll" id="heatmapAD"></div></div>
-  <div class="heatmap-area"><div class="heatmap-title ada"><span>ADA <small>Discador digital</small></span><span id="heatmapCountADA"></span></div><div class="heatmap-scroll" id="heatmapADA"></div></div>
+  <div class="heatmap-area"><div class="heatmap-title ad"><span id="heatmapTitleAD">A · AD <small>Discador humano</small></span><span id="heatmapCountAD"></span></div><div class="heatmap-scroll" id="heatmapAD"></div></div>
+  <div class="heatmap-area"><div class="heatmap-title ada"><span id="heatmapTitleADA">B · ADA <small>Discador com IA</small></span><span id="heatmapCountADA"></span></div><div class="heatmap-scroll" id="heatmapADA"></div></div>
   <div id="heatmapDetail" class="heatmap-detail" role="status" aria-live="polite">Clique em uma célula para consultar data, indicador, valor do dia, média mensal e variação.</div>
  </section>
  <section class="panel daily-analysis-panel">
@@ -778,6 +778,7 @@ function updateScenarioUI(){
   $('funnelType'+side).textContent=label;
   $('comparisonType'+side).textContent=label;
   $('legendSide'+side).textContent=label;
+  $('heatmapTitle'+side).textContent=label+' · '+(state.sideType[side]==='ADA'?'Discador com IA':'Discador humano');
  }
 }
 const isPct=k=>percentageKeys.has(k);
@@ -987,10 +988,10 @@ function renderKpis(s){
   const d=deltaInfo(a,b);
   const display=v=>card.key==='eficiencia'?nfmt(v,2)+'%':nfmt(v);
   const arrow=d.value>0?'↗':d.value<0?'↘':'•';
-  return '<button type="button" class="assist-kpi" data-chart-key="'+key+'" title="'+esc(card.info)+' · Abrir tendência diária" aria-label="'+esc(card.label)+' AD '+display(a)+' e ADA '+display(b)+'; variação '+d.text+'; abrir gráfico">'+
+  return '<button type="button" class="assist-kpi" data-chart-key="'+key+'" title="'+esc(card.info)+' · Abrir tendência diária" aria-label="'+esc(card.label)+' '+esc(sideLabel('AD'))+' '+display(a)+' e '+esc(sideLabel('ADA'))+' '+display(b)+'; variação '+d.text+'; abrir gráfico">'+
    '<span class="assist-kpi-head"><span class="assist-kpi-icon '+(index===1||index===2||index===3?'cyan':'')+'">'+iconSVG(card.icon)+'</span>'+
    '<span class="assist-kpi-main"><span class="assist-kpi-name">'+card.label+'</span><span class="assist-kpi-values">'+display(a)+' <i>→</i> '+display(b)+'</span></span></span>'+
-   '<span class="assist-kpi-data-label"><span><i class="assist-legend-dot human"></i> AD</span><span><i class="assist-legend-dot digital"></i> ADA</span></span>'+
+   '<span class="assist-kpi-data-label"><span><i class="assist-legend-dot human"></i> '+esc(sideLabel('AD'))+'</span><span><i class="assist-legend-dot digital"></i> '+esc(sideLabel('ADA'))+'</span></span>'+
    '<span class="assist-kpi-bottom"><span class="assist-kpi-delta '+(d.cls==='pos'?'positive':d.cls==='neg'?'negative':'neutral')+'">'+arrow+' '+d.text+'</span><span class="spark-wrap">'+sparkline(s,key)+'</span></span>'+
    '<span class="assist-kpi-open">↗ Ver evolução</span></button>';
  }).join('');
@@ -1155,7 +1156,7 @@ function popupInfo(side,entry,index,key,ctx){
  const diff=hasDay&&baseline>0?(value-baseline)/baseline*100:null;
  const direction=diff===null?'':diff>=0?'up':'down';
  const diffText=diff===null?'Sem média válida':(diff>0?'+':'')+nfmt(diff,1)+'% vs média';
- return '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+side.agent.toLowerCase()+'"></i> '+side.agent+' · '+esc(inRange?longDate(day):'Fora do período')+'</span><b>'+ (hasDay?fmt(value,key,'total'):(inRange?'Sem registro':'—')) +'</b></div>'+
+ return '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+side.agent.toLowerCase()+'"></i> '+esc(sideLabel(side.agent))+' · '+esc(inRange?longDate(day):'Fora do período')+'</span><b>'+ (hasDay?fmt(value,key,'total'):(inRange?'Sem registro':'—')) +'</b></div>'+
  (inRange?'<div class="hover-info">Média de '+esc(monthLabel(month))+': <strong>'+fmt(baseline,key,'average')+'</strong> · <span class="hover-delta '+direction+'">'+diffText+'</span>'+(hasDay&&value===0?' · dia zerado excluído da média':'')+'</div>':'')+'</div>';
 }
 function showPopup(event,day,ctx){
@@ -1244,7 +1245,7 @@ function renderChart(s,view='comparison'){
   svg+='<path d="'+path+'" fill="none" stroke="'+line.color+'" stroke-width="3.1" stroke-linejoin="round" stroke-linecap="round"/>';
   for(const [day,item] of line.data.entries()){
    const value=chartVal(item,key),xx=x(day),yy=y(value);
-   svg+='<circle class="plot-point" data-day="'+day+'" data-tech="'+line.agent+'" cx="'+xx+'" cy="'+yy+'" r="4.6" fill="'+line.color+'" stroke="#07162f" stroke-width="2" tabindex="0" role="button" aria-label="'+esc(line.agent+' '+longDate(item.date)+': '+fmt(value,key,'total'))+'"><title>'+esc(line.agent+' '+longDate(item.date)+' • '+fmt(value,key,'total'))+'</title></circle>';
+   svg+='<circle class="plot-point" data-day="'+day+'" data-tech="'+line.agent+'" cx="'+xx+'" cy="'+yy+'" r="4.6" fill="'+line.color+'" stroke="#07162f" stroke-width="2" tabindex="0" role="button" aria-label="'+esc(sideLabel(line.agent)+' '+longDate(item.date)+': '+fmt(value,key,'total'))+'"><title>'+esc(line.agent+' '+longDate(item.date)+' • '+fmt(value,key,'total'))+'</title></circle>';
   }
  }
  svg+='</svg>';
@@ -1413,7 +1414,7 @@ function renderDailySingleChart(selected,key){
   return;
  }
  const days=selected.days,agent=selected.agent;
- $('dailyCoverage').textContent=agent+' · '+days.length+' dias com dados · '+esc(rangeLabel(selected.period));
+ $('dailyCoverage').textContent=sideLabel(agent)+' · '+days.length+' dias com dados · '+esc(rangeLabel(selected.period));
  const color=agent==='AD'?'#52a8ff':'#fb744b';
  legend.innerHTML='<span><i class="dot '+agent.toLowerCase()+'"></i>'+esc(selected.name)+'</span><span class="daily-month-legend">┄ Média do mês calendário (tracejado)</span>';
  if(!days.length){
@@ -1564,7 +1565,7 @@ function renderDailyAnalysis(s){
  }).join(''):'<tr><td colspan="24">Nenhuma informação diária para os filtros selecionados.</td></tr>';
 }
 function renderDailyExplorer(s){
- $('dailyCoverage').textContent='AD '+s.AD.days.length+' dias · ADA '+s.ADA.days.length+' dias';
+ $('dailyCoverage').textContent=sideLabel('AD')+' '+s.AD.days.length+' dias · '+sideLabel('ADA')+' '+s.ADA.days.length+' dias';
  renderDailyChart(s);
  renderHeatmaps(s);
  renderDailyAnalysis(s);
@@ -1582,7 +1583,7 @@ function showHeatmapDetails(button,activateMetric){
  const value=Number(day.values[key])||0,baseline=dailyMonthlyBaseline(agent,date.slice(0,7),key);
  const variation=baseline>0?(value-baseline)/baseline*100:null;
  const formatted=variation===null?'Média indisponível':(variation>=0?'+':'')+nfmt(variation,1)+'%';
- $('heatmapDetail').innerHTML='<strong>'+esc(agent)+' · '+esc(longDate(date))+' · '+esc(metricLabels[key]||key)+'</strong>'+
+ $('heatmapDetail').innerHTML='<strong>'+esc(sideLabel(agent))+' · '+esc(longDate(date))+' · '+esc(metricLabels[key]||key)+'</strong>'+
   ' <span>Valor do dia: <strong>'+dailyValue(value,key)+'</strong></span> · '+
   '<span>Média do mês: <strong>'+dailyValue(baseline,key)+'</strong></span> · '+
   '<span class="'+(variation===null?'':variation>=0?'detail-up':'detail-down')+'">Variação: <strong>'+formatted+'</strong></span>';
