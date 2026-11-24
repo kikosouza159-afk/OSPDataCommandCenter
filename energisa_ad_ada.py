@@ -28,6 +28,15 @@ def install_energisa_ad_ada(app, can_access, is_admin):
             return ("Acesso negado", 403)
         return render_template("energisa_ad_ada.html", usuario=session["usuario"])
 
+    @app.route("/cliente/energisa/comparativo-livre")
+    def energisa_comparativo_livre():
+        """Funis independentes A e B: AD x AD, ADA x ADA, AD x ADA."""
+        if not session.get("usuario"):
+            return redirect(url_for("login"))
+        if not autorizado():
+            return ("Acesso negado", 403)
+        return render_template("energisa_comparativo_livre.html", usuario=session["usuario"])
+
     @app.route("/cliente/energisa/painel/api")
     def energisa_api():
         if not session.get("usuario"):
