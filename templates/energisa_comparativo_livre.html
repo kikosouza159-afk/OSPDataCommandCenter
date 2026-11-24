@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Energisa | Comparativo Livre | Cockpit OLOS</title>
+<style>
+:root{--navy:#000049;--deep:#050b26;--panel:#0b1635;--panel2:#101d41;--orange:#fb5c28;--blue:#4b8fe6;--text:#f4f6fc;--muted:#94a4c3;--line:#27365b;--good:#49d5ac;--warn:#e6ba64}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#112e58 0%,transparent 35%),linear-gradient(125deg,#050b25,#0a1530 68%,#091026);color:var(--text);font:14px "Segoe UI",Arial,sans-serif;min-height:100vh}button,input,select{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer}button:disabled{cursor:not-allowed}.layout{display:flex;min-height:100vh}.sidebar{width:228px;flex:0 0 228px;position:sticky;top:0;align-self:flex-start;height:100vh;padding:25px 16px 18px;background:linear-gradient(185deg,#080e2b,#05091b);border-right:1px solid var(--line);display:flex;flex-direction:column}.logo-wrap{padding:5px 10px 26px}.logo-wrap img{width:144px;max-width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 0 9px #fb5c2840)}.caption{font-size:10px;font-weight:800;letter-spacing:1.6px;color:#657da3;padding:9px 12px}.nav{display:flex;flex-direction:column;gap:7px}.nav a,.nav span{padding:13px 11px;border:1px solid transparent;border-radius:11px;font-weight:700;font-size:12px;color:#91a4c3}.nav a.active{background:linear-gradient(90deg,#fb5c2824,#fb5c2806);border-color:#fb5c2854;color:#ffae93}.nav a:hover{background:#ffffff0c}.nav .inactive{opacity:.4}.nav-icon{display:inline-grid;place-items:center;width:23px;font-size:15px}.bottom{margin-top:auto;border-top:1px solid var(--line);padding-top:15px}.bottom a{display:block;padding:11px;color:#c7d5ed;font-size:12px}.content{flex:1;min-width:0;max-width:1740px;padding:27px 32px 65px}.eyebrow{color:#fb845e;font-size:11px;letter-spacing:2px;font-weight:900;text-transform:uppercase}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:24px}.header h1{margin:6px 0;font-size:28px;font-weight:850;letter-spacing:-.7px}.header p{margin:0;color:var(--muted);line-height:1.5}.header-side{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}.header-pill{border:1px solid var(--line);background:#ffffff08;border-radius:99px;padding:9px 12px;color:#a9bcda;font-size:11px;font-weight:700}.status-dot{width:7px;height:7px;background:var(--good);border-radius:50%;display:inline-block;margin-right:6px}.panel{background:linear-gradient(180deg,#0e1b3bc9,#09152ecd);border:1px solid var(--line);border-radius:17px;box-shadow:0 8px 30px #00000012}.filters{padding:18px 20px;margin-bottom:18px}.filter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.filter-head strong{font-size:13px}.head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.segmented{border:1px solid #35486a;background:#050e26;padding:3px;border-radius:10px;display:flex;gap:2px}.segmented button{background:transparent;color:#9aafca;border:0;border-radius:7px;font-size:11px;font-weight:850;padding:8px 12px}.segmented button.active{background:var(--orange);color:white}.reset{background:transparent;border:1px solid #415170;border-radius:9px;color:#c0cee3;padding:9px 13px;font-size:11px;font-weight:750}.filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.field{min-width:0}.field label,.field .field-label{display:block;font-size:10px;letter-spacing:.5px;font-weight:800;color:#97aaca;margin-bottom:8px;text-transform:uppercase}.field input,.field select,.campaign-picker summary{width:100%;height:43px;background:#081229;color:#e9eefc;border:1px solid #334665;border-radius:9px;padding:10px 12px;outline:none}.field input:focus,.field select:focus,.campaign-picker summary:focus-visible{border-color:var(--orange)}.campaign-picker{position:relative}.campaign-picker summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none;white-space:nowrap;overflow:hidden}.campaign-picker summary::after{content:"⌄";margin-left:10px;color:#a6b5cb}.campaign-picker summary::-webkit-details-marker{display:none}.campaign-menu{position:absolute;top:46px;left:0;right:0;z-index:12;background:#0a1734;border:1px solid #415374;border-radius:10px;padding:10px;box-shadow:0 16px 26px #0008;max-height:280px;overflow:auto}.campaign-tools{display:flex;gap:7px;margin:1px 0 9px}.campaign-tools button{background:#19294b;color:#cbd6ee;border:1px solid #304160;border-radius:7px;padding:7px 10px;font-size:11px}.campaign-item{display:flex;align-items:center;gap:9px;padding:6px 4px;font-size:11px;color:#c5d4ed;line-height:1.35;cursor:pointer}.campaign-item input{height:15px;width:15px;accent-color:var(--orange);flex:0 0 15px}.info{padding:10px 2px 0;color:#849bbd;font-size:11px}.tabs{display:flex;align-items:center;gap:8px;margin:21px 0 16px}.tab{background:#101e3d;border:1px solid #334361;color:#b6c6df;border-radius:9px;padding:9px 13px;font-size:11px;font-weight:800}.tab.active{background:#fb5c2819;border-color:#fb5c286b;color:#ffa584}.tab:disabled{opacity:.47}.right{margin-left:auto}.export{background:var(--orange);border:0;border-radius:9px;color:white;padding:10px 15px;font-size:11px;font-weight:800}.section-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:20px 0 11px}.section-label h2{margin:0;font-size:16px;letter-spacing:-.3px}.section-label span{font-size:11px;color:var(--muted)}.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.kpi{padding:18px;position:relative;overflow:hidden}.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--orange)}.kpi:nth-child(even):before{background:var(--blue)}.kpi-title{color:#b1c2e1;font-size:11px;font-weight:750}.values{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:13px 0 10px}.number{font-size:23px;font-weight:850;line-height:1.1;letter-spacing:-.6px;white-space:nowrap}.values small{display:block;font-size:10px;font-weight:850;margin-bottom:6px}.ad-label{color:#7baff4}.ada-label{color:#ffa180}.kpi-foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:10px}.delta{color:#e2eaff;background:#1f3152;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800}.delta.pos{color:#73e7bf;background:#11433c}.delta.neg{color:#f29a95;background:#4b252f}.split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.funnel{padding:18px 21px}.funnel-row{display:grid;grid-template-columns:100px minmax(0,1fr) 74px;gap:12px;align-items:center;margin:0 0 17px}.funnel-row:last-child{margin-bottom:0}.stage{font-size:11px;color:#b5c8e8;font-weight:800}.bar-pair{display:flex;flex-direction:column;gap:7px}.bar-line{display:flex;align-items:center;gap:10px}.bar-bg{height:11px;border-radius:20px;background:#1b2b4a;overflow:hidden;flex:1}.bar-fill{height:100%;border-radius:20px;min-width:1px}.bar-fill.ad{background:#4b8fe6}.bar-fill.ada{background:#fb5c28}.bar-number{width:96px;text-align:right;color:#ecf2ff;font-size:11px;font-weight:760;white-space:nowrap}.funnel-delta{text-align:right;font-weight:800;font-size:11px;color:#9fbedf}.efficiency{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:18px}.eff-item{padding:11px 12px;background:#ffffff06;border:1px solid #293858;border-radius:11px}.eff-label{font-size:10px;color:#a2b5d4;font-weight:750;margin-bottom:8px}.eff-number{font-size:17px;font-weight:800}.eff-legend{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:10px;color:#9db1cf}.legend-line{width:8px;height:8px;border-radius:50%;background:#4b8fe6;display:inline-block}.legend-line.orange{background:#fb5c28}.insight{padding:16px 19px;margin:16px 0;border-left:3px solid var(--orange);font-size:12px;color:#d0dcef;line-height:1.55}.insight strong{color:#ffc09f}.chart-panel{padding:18px 20px}.chart-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:8px}.chart-head h3{font-size:14px;margin:0}.chart-head select{background:#09152d;color:#eef3fe;border:1px solid #354768;border-radius:8px;padding:8px 10px;max-width:220px}.chart-caption{font-size:10px;color:var(--muted);margin-bottom:6px}.chart-box{width:100%;overflow-x:auto}.chart-svg{display:block;width:100%;min-width:550px;height:270px}.legend{font-size:11px;color:#a9b9cf}.legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.legend .ad{background:var(--blue)}.legend .ada{background:var(--orange)}.legend span{margin-right:14px}.table-panel{padding:17px 19px}.table-wrap{overflow:auto;max-height:440px;border:1px solid #273758;border-radius:10px}.data-table{border-collapse:collapse;width:100%;min-width:1060px;font-size:11px}.data-table th{position:sticky;top:0;background:#192847;color:#a9bddb;text-align:right;padding:11px 10px;border-bottom:1px solid #344565;white-space:nowrap;z-index:2}.data-table td{text-align:right;padding:10px;border-bottom:1px solid #263456;color:#d9e5f4;white-space:nowrap}.data-table th:first-child,.data-table td:first-child{text-align:left}.data-table tbody tr:nth-child(even){background:#ffffff04}.data-table tbody tr:hover{background:#2552832b}.type-tag{padding:3px 6px;border-radius:6px;font-weight:800}.type-tag.ad{color:#88bbff;background:#17406e}.type-tag.ada{color:#ffab90;background:#563026}.empty-state{color:#b0bdd6;padding:18px}.foot{font-size:11px;color:#8096b6;margin-top:14px;line-height:1.5}.loading{min-height:60vh;display:flex;align-items:center;justify-content:center;color:#afc5e5;font-weight:750}.hidden{display:none!important}
+@media(max-width:1200px){.sidebar{width:190px;flex-basis:190px}.content{padding:24px 20px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:900px){.split{grid-template-columns:1fr}.header{flex-direction:column}.header-side{justify-content:flex-start}}@media(max-width:650px){.layout{display:block}.sidebar{position:static;width:100%;height:auto;padding:12px;flex-direction:row;align-items:center;justify-content:space-between}.sidebar .caption,.sidebar .nav,.sidebar .bottom{display:none}.sidebar .logo-wrap{padding:5px}.sidebar .logo-wrap img{width:105px}.content{padding:19px 12px}.filter-grid,.kpis{grid-template-columns:1fr}.filter-head{flex-wrap:wrap}.header h1{font-size:23px}.funnel-row{grid-template-columns:80px minmax(0,1fr) 51px;gap:6px}.bar-number{width:70px;font-size:9px}.efficiency{gap:6px}}
+
+/* Energisa benchmark 2026: estrutura de comparativo executivo */
+.content{max-width:1840px;padding:30px 35px 80px;background:radial-gradient(circle at 92% 3%,rgba(251,92,40,.05),transparent 28%)}
+.header{margin-bottom:24px}.header h1{font-size:31px}.source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.source-box{border-radius:13px;border:1px solid #27466e;background:linear-gradient(125deg,#101d3d,#07142c);padding:16px 17px}
+.source-ada{border-color:#75422d;background:linear-gradient(125deg,#301e30,#12152e)}
+.source-header{display:flex;align-items:center;gap:11px;margin-bottom:14px}.source-header strong{display:block;color:#f2f5ff;font-size:13px}.source-header small{display:block;color:#7798c4;font-size:9px;letter-spacing:1.45px;font-weight:900;margin-top:4px}
+.source-ada .source-header small{color:#d1927d}.source-symbol{width:43px;height:43px;display:grid;place-items:center;border-radius:11px;background:#1b4378;color:#8fc8ff;font-size:13px;font-weight:900;border:1px solid #3a6dac}
+.source-ada .source-symbol{background:#583125;border-color:#85503b;color:#ffab85}.source-pulse{margin-left:auto;color:#4b8fe6;font-size:11px;opacity:.7}.source-ada .source-pulse{color:#fb5c28}
+.source-fields{display:grid;grid-template-columns:170px minmax(0,1fr);gap:10px}.source-meta{margin:12px 2px 0;color:#9aaccc;font-size:11px;min-height:15px}
+.filter-sub{margin:4px 0 0;color:#91a4c6;font-size:11px;line-height:1.5}.filter-head strong{font-size:14px}.filter-head{margin-bottom:18px}
+.source-box .field select,.source-box .campaign-picker summary{height:42px;background:#08142e;border-color:#314664;font-size:12px}.source-box .field select{color:#f6f9ff}
+.benchmark-title{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:19px 0 17px}
+.benchmark-title h2{font-size:23px;letter-spacing:-.55px;margin:5px 0}.benchmark-title p{margin:0;color:#93a8c8;font-size:12px}
+.benchmark-coverage{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;font-size:11px;color:#c6d4ec}
+.benchmark-coverage span{padding:10px 13px;border:1px solid #30405e;border-radius:10px;background:#132340}
+.benchmark-coverage b{color:#fcfaff}
+.kpis{margin-bottom:13px}.kpi{padding:19px 19px 16px;background:linear-gradient(150deg,#102247,#091831)}.kpi:before{width:4px}
+.kpi .number{font-size:27px}.kpi-title{font-size:11px;letter-spacing:.4px;text-transform:uppercase}
+.benchmark-panel{overflow:hidden}.comparison-scroll{width:100%;overflow-x:auto}
+.benchmark-table{border-collapse:collapse;width:100%;min-width:635px;font-size:13px}
+.benchmark-table th{background:#102449;color:#c9d5e9;padding:17px 18px;text-align:right;border-bottom:1px solid #334463}
+.benchmark-table th:first-child{text-align:left;min-width:175px}.benchmark-table th:nth-child(2){background:#152d53}.benchmark-table th:nth-child(3){background:#332437}
+.benchmark-table th small{display:block;font-size:10px;font-weight:600;max-width:265px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#a5b7d1;margin-top:8px}
+.benchmark-table th .tech-head{font-size:12px;letter-spacing:1px}.benchmark-table th.ad-head .tech-head{color:#83b9ff}.benchmark-table th.ada-head .tech-head{color:#ff9f7d}
+.benchmark-table td{padding:11px 18px;border-bottom:1px solid #273758;text-align:right;font-weight:720;font-variant-numeric:tabular-nums;white-space:nowrap}
+.benchmark-table td:first-child{text-align:left;color:#bccce5;font-size:12px}.benchmark-table td:nth-child(2){background:#1c386228;color:#d4e8ff}.benchmark-table td:nth-child(3){background:#6c362522;color:#ffdbc9}
+.benchmark-table tr:last-child td{border-bottom:0}.benchmark-table tr:hover td{background:#263c6055}
+.benchmark-table tr.row-divider td{border-top:1px solid #496381}.benchmark-table tr.row-accent td:first-child{color:#f5f8ff;font-weight:850}
+.benchmark-table .chg{display:inline-block;min-width:76px;text-align:center;padding:5px 8px;border:1px solid #354d70;background:#14233c;border-radius:6px;font-size:11px;font-weight:850}
+.benchmark-table .chg.pos{color:#76edb8;border-color:#245448;background:#103b37}.benchmark-table .chg.neg{color:#fbad99;border-color:#623d3b;background:#3e242f}
+.split{grid-template-columns:1.15fr .85fr;margin-bottom:18px}.subpanel-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 16px}.subpanel-head strong{font-size:13px}.subpanel-head span{font-size:10px;color:#849cbd}
+.eff-item{min-height:96px}.eff-number{white-space:nowrap}.chart-panel{margin-top:6px;padding:23px 23px 18px;overflow:visible}
+.chart-head{margin-bottom:15px}.chart-head h3{font-size:17px}.chart-head p{font-size:11px;color:#91a7c7;margin:6px 0 0}
+.chart-head select{min-width:175px}.chart-month-averages{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+.month-chip{display:flex;align-items:center;gap:9px;border:1px solid #315078;background:#102449;padding:10px 12px;border-radius:10px;min-width:175px}
+.month-chip.ada{background:#311e2b;border-color:#75402e}.month-chip .chip-dot{width:9px;height:9px;background:#4b8fe6;border-radius:50%}.month-chip.ada .chip-dot{background:#fb5c28}
+.month-chip span{display:block;font-size:10px;color:#a0b6d4}.month-chip b{display:block;font-size:17px;margin-top:3px;color:#ecf5ff}
+.chart-stage{position:relative}.chart-box{overflow-x:auto;overflow-y:visible;padding-bottom:5px}
+.chart-svg{height:310px;min-width:640px}.chart-svg .plot-point{cursor:crosshair;transition:r .14s ease;outline:none}.chart-svg .plot-point:hover,.chart-svg .plot-point:focus-visible{r:7}
+.chart-svg .plot-hit{stroke:transparent;stroke-width:18px;cursor:crosshair}
+.chart-hover-card{position:fixed;pointer-events:none;z-index:10000;min-width:266px;max-width:min(330px,calc(100vw - 24px));padding:15px 17px;border-radius:13px;border:1px solid #647392;background:linear-gradient(125deg,#142846,#111931);box-shadow:0 14px 44px #000b;color:#eaf1ff;font-size:12px}
+.chart-hover-card[hidden]{display:none}.chart-hover-card .hover-title{font-weight:850;letter-spacing:.25px;font-size:13px;margin-bottom:11px}
+.chart-hover-card .hover-row{padding:9px 0;border-top:1px solid #304262}.chart-hover-card .hover-tech{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#b2c2d9}
+.chart-hover-card .hover-tech b{color:#e8f1ff}.chart-hover-card .hover-info{font-size:11px;color:#acbed8;margin-top:5px;line-height:1.5}
+.chart-hover-card .hover-delta{font-weight:850}.chart-hover-card .hover-delta.up{color:#72e8bb}.chart-hover-card .hover-delta.down{color:#ffab9a}.chart-caption{line-height:1.5;margin-bottom:12px}
+.chart-panel .legend{margin-top:10px}.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:1200px){.source-fields{grid-template-columns:1fr}.kpi .number{font-size:22px}.benchmark-title{align-items:flex-start;flex-direction:column}.benchmark-coverage{justify-content:flex-start}}
+@media(max-width:900px){.source-grid{grid-template-columns:1fr}.source-fields{grid-template-columns:190px minmax(0,1fr)}.split{grid-template-columns:1fr}}
+@media(max-width:650px){.source-fields{grid-template-columns:1fr}.head-actions{width:100%;justify-content:space-between}.benchmark-table th,.benchmark-table td{padding:11px 12px}.kpi .number{font-size:26px}.chart-panel{padding:16px}.chart-head{align-items:flex-start;flex-direction:column}}
+
+/* Períodos independentes AD e ADA e matriz comparativa em barras */
+.source-fields{grid-template-columns:minmax(120px,.82fr) minmax(120px,.82fr) minmax(180px,1.45fr)!important;gap:10px}
+.source-box .field input[type="date"]{height:42px;background:#08142e;border:1px solid #314664;color:#eef4ff;border-radius:9px;padding:8px 9px;font-size:11px;width:100%;color-scheme:dark}
+.source-box .field input[type="date"]:focus{border-color:#fb5c28;box-shadow:0 0 0 2px #fb5c282b;outline:none}
+.source-ada .field input[type="date"]:focus{border-color:#f79c77}
+.visual-matrix-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;padding:19px 22px 17px;border-bottom:1px solid #2b3d61}
+.visual-matrix-heading strong{font-size:15px;color:#f3f7ff}.visual-matrix-heading p{margin:6px 0 0;font-size:11px;color:#91a7c6;line-height:1.5}
+.visual-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:10px;color:#aebed6}.visual-legend>div{display:flex;align-items:center;gap:6px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.visual-dot{height:8px;width:8px;border-radius:50%;display:inline-block;flex:none}.visual-dot.ad{background:#529cfb}.visual-dot.ada{background:#fb5c28}
+.visual-metric-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;padding:18px}
+.visual-group{min-width:0;overflow:hidden;background:linear-gradient(135deg,#0b1b3a,#0a1530);border:1px solid #2a4064;border-radius:13px}
+.visual-group:last-child{grid-column:span 2}
+.visual-group-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 16px;background:#182e50aa;border-bottom:1px solid #28415f}
+.visual-group-head strong{font-size:12px;color:#ecf4ff;font-weight:850}.visual-group-head small{font-size:10px;color:#9bafcb}
+.visual-group-content{display:grid;grid-template-columns:1fr;gap:0;padding:5px 13px}
+.visual-group:last-child .visual-group-content{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}
+.visual-metric{padding:12px 9px 13px;border-bottom:1px solid #25375a;min-width:0;transition:background .2s ease,border-color .2s ease}
+.visual-metric:last-child{border-bottom-color:transparent}
+.visual-metric:hover{background:#253a5840;border-radius:8px}
+.visual-metric.visual-accent{background:linear-gradient(90deg,#fb5c280d,transparent 65%);border-left:2px solid #fb5c28;border-radius:4px;padding-left:11px}
+.visual-metric-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px;min-width:0}
+.metric-name{font-size:11px;color:#d9e4f8;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.metric-change{white-space:nowrap;font-size:10px;font-weight:850;border:1px solid #435371;background:#1d2b47;color:#bdd1ed;border-radius:6px;padding:4px 7px}
+.metric-change.pos{color:#86efc4;background:#0b3a36;border-color:#235a4c}.metric-change.neg{color:#ffac96;background:#422634;border-color:#673a3b}
+.visual-metric-line{display:grid;grid-template-columns:29px minmax(30px,1fr) minmax(64px,auto);gap:10px;align-items:center;margin:7px 0}
+.metric-tech{color:#91accf;font-size:10px;font-weight:900}
+.visual-track{height:9px;border-radius:20px;background:#1d3153;overflow:hidden;border:1px solid #ffffff06}
+.visual-fill{height:100%;border-radius:20px;box-shadow:0 0 13px #ffffff12}
+.visual-fill.ad{background:linear-gradient(90deg,#2865b9,#71b6ff)}.visual-fill.ada{background:linear-gradient(90deg,#b83c22,#ff8759)}
+.metric-value{white-space:nowrap;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;min-width:62px}.metric-value.ad{color:#a4cfff}.metric-value.ada{color:#ffb592}
+@media(max-width:1280px){.source-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important}.source-fields .field:last-child{grid-column:1/-1}}
+@media(max-width:1050px){.visual-metric-groups{grid-template-columns:1fr}.visual-group:last-child{grid-column:auto}.visual-group:last-child .visual-group-content{grid-template-columns:1fr}}
+@media(max-width:720px){.source-fields{grid-template-columns:1fr 1fr!important}.source-fields .field:last-child{grid-column:1/-1}.visual-metric-groups{padding:10px}.visual-matrix-heading{padding:14px}.visual-legend>div{max-width:100%}}
+@media(max-width:380px){.source-fields{grid-template-columns:1fr!important}}
+
+/* Layout AssistPay-inspired: summary strip, dual funnel + comparison table */
+.assist-highlight{color:#fb5c28}.assist-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.assist-kpis .assist-kpi{position:relative;min-width:0;min-height:135px;padding:18px 14px 14px 15px;border:1px solid #01b9e7;border-radius:13px;background:linear-gradient(148deg,#05182f,#030d22 83%);box-shadow:0 0 0 1px #0f53744a,0 4px 23px #0000001f;overflow:hidden}
+.assist-kpi:before{content:"";position:absolute;inset:0 auto auto 0;width:25px;height:3px;background:#11c8f7;box-shadow:0 0 16px #11c8f7}
+.assist-kpi:after{content:"";position:absolute;right:-2px;bottom:-2px;width:29px;height:3px;background:#11c8f7;box-shadow:0 0 15px #11c8f7}
+.assist-kpi-icon{width:39px;height:39px;display:grid;place-items:center;border:1px solid #ed6b366e;background:#15152d;border-radius:10px;color:#fb6933;flex:none}
+.assist-kpi-icon.cyan{border-color:#01a7c872;background:#092741;color:#20c5ef}.assist-kpi-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.assist-kpi-head{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.assist-kpi-head>div:last-child{min-width:0}.assist-kpi-name{color:#b6c9e2;font-size:11px;font-weight:750}
+.assist-kpi-values{font-size:16px;font-weight:850;letter-spacing:-.4px;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.assist-kpi-delta{margin:12px 0 0 0;font-size:21px;font-weight:950;line-height:1.05;font-variant-numeric:tabular-nums}
+.assist-kpi-delta.positive{color:#42e0a8}.assist-kpi-delta.negative{color:#ff666e}.assist-kpi-delta.neutral{color:#b9c9dc}
+.assist-kpi-bars{position:absolute;right:13px;bottom:13px;height:33px;display:flex;align-items:flex-end;gap:4px;opacity:.55}
+.assist-kpi-bars i{width:5px;display:block;border-radius:2px 2px 0 0;background:linear-gradient(#05cbfa,#005693)}
+.assist-kpi-bars i:nth-child(1){height:24%}.assist-kpi-bars i:nth-child(2){height:45%}.assist-kpi-bars i:nth-child(3){height:62%}.assist-kpi-bars i:nth-child(4){height:87%}.assist-kpi-bars i:nth-child(5){height:100%}
+.assist-grid-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:20px 1px 12px}
+.assist-grid-intro h2{font-size:16px;font-weight:850;margin:0 0 5px}.assist-grid-intro p{font-size:11px;color:#91a8c6;margin:0}
+.assist-legend{display:flex;align-items:center;gap:13px;flex-wrap:wrap;color:#a9c5e2;font-size:10px}.assist-legend-dot{display:inline-block;height:8px;width:8px;border-radius:50%;margin-right:4px}.assist-legend-dot.human{background:#1b93f7}.assist-legend-dot.digital{background:#fb5c28}
+.assist-layout{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,1.03fr) minmax(0,1.1fr);align-items:stretch;gap:13px;margin-bottom:23px}
+.assist-panel{min-width:0;border:1px solid #02b5e8;background:linear-gradient(180deg,#06192f,#07142a 90%);border-radius:13px;padding:14px 12px 12px;overflow:hidden;box-shadow:0 7px 26px #0003}
+.assist-panel-title{min-height:42px;display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.assist-panel-title h3{color:#f5f8ff;font-size:15px;letter-spacing:-.2px;margin:0}.assist-panel-title h3 b{color:#fb6739}
+.assist-panel-title p{margin:4px 0 0;font-size:10px;color:#96b0cc}
+.assist-panel-title>div{min-width:0}.assist-panel-icon{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:8px;color:#fa753f;border:1px solid #fb5c2870;background:#331c27;font-size:21px}.assist-panel-icon.assist-icon-cyan{border-color:#03a6d4;color:#08c8ec;background:#06304a}
+.assist-days{margin-left:auto;border:1px solid #264c75;border-radius:20px;padding:6px 8px;color:#bed8f0;font-size:9px;white-space:nowrap}
+.assist-funnel-columns{display:grid;grid-template-columns:minmax(0,1fr) 87px;gap:10px}.assist-funnel-steps{display:flex;flex-direction:column;align-items:stretch;min-width:0}
+.assist-funnel-stage{height:62px;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto;width:var(--funnel-width,100%);position:relative;clip-path:polygon(0 0,100% 0,87% 100%,13% 100%);background:#009fe2;padding:2px 13px 3px}
+.assist-funnel-stage:before{content:"";position:absolute;inset:2px;clip-path:polygon(0 0,100% 0,87% 100%,13% 100%);background:linear-gradient(105deg,#104c85,#0761ad 51%,#0f4b7b);z-index:0}
+.assist-funnel-stage>*{position:relative;z-index:1;text-align:center}
+.assist-funnel-stage.orange{background:#ff9a3f;filter:drop-shadow(0 0 4px #fb5c283d)}
+.assist-funnel-stage.orange:before{background:linear-gradient(110deg,#a93417,#d94a1d,#bd3618)}
+.assist-funnel-stage.gray{background:#adc4dc}.assist-funnel-stage.gray:before{background:linear-gradient(110deg,#284466,#3c5270,#2d3f58)}
+.assist-stage-label{font-size:10px;color:#d1eaff;line-height:1.15}.assist-stage-value{font-size:21px;font-weight:950;line-height:1.2;color:#fff;white-space:nowrap}
+.assist-funnel-chevron{text-align:center;color:#03c5eb;line-height:14px;height:14px;font-size:19px;font-weight:900;filter:drop-shadow(0 0 4px #00bfff)}
+.assist-funnel-chevron.orange{color:#ff9158}
+.assist-funnel-deltas{border:1px solid #156c92;background:#04142a;border-radius:9px;padding:10px 6px;display:flex;flex-direction:column;gap:7px}
+.assist-delta-title{font-size:10px;font-weight:850;color:#f4f8ff;text-align:center;line-height:1.3;padding:2px 0 5px}.assist-delta-sub{font-size:9px;color:#85bada;text-align:center;margin:-6px 0 3px}
+.assist-funnel-delta-item{flex:1;min-height:55px;border:1px solid #205277;border-radius:7px;background:#0b2542;padding:9px 5px;display:flex;flex-direction:column;justify-content:center}
+.assist-funnel-delta-item span{font-size:9px;color:#b6d0e8}.assist-funnel-delta-item strong{margin-top:5px;font-size:14px;white-space:nowrap;color:#f9c3ab}
+.assist-funnel-delta-item strong.up{color:#54e5ad}.assist-funnel-delta-item strong.down{color:#ff656d}.assist-funnel-delta-item strong.na{color:#9eb3cb}
+.assist-funnel-foot{font-size:9px;color:#b6c9e0;margin-top:12px;border:1px solid #154866;background:#041f38;padding:11px 12px;border-radius:8px;line-height:1.5;min-height:57px}
+.assist-panel-table{border-color:#0299c6}.assist-panel-table .assist-panel-title{margin-bottom:12px}
+.assist-matrix-scroll{overflow-x:auto}.assist-matrix{width:100%;border-collapse:collapse;min-width:325px;font-size:10px}
+.assist-matrix th{background:#113857;color:#edf7ff;font-size:10px;padding:10px 7px;text-align:right;white-space:nowrap;border-bottom:1px solid #265879}
+.assist-matrix th:first-child{text-align:left}.assist-matrix th small{display:block;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#94b7d2;font-size:9px;font-weight:500;margin-top:4px}
+.assist-matrix th:nth-child(2){background:#17446f}.assist-matrix th:nth-child(3){background:#19435e}
+.assist-matrix td{padding:10px 7px;border-bottom:1px solid #23435d;text-align:right;white-space:nowrap;font-size:10px;font-variant-numeric:tabular-nums}
+.assist-matrix tr:nth-child(even){background:#ffffff05}.assist-matrix tr:hover{background:#1f3d56}
+.assist-matrix td:first-child{text-align:left;color:#d3e2f2}.assist-matrix td:nth-child(2){color:#d8e8ff}.assist-matrix td:nth-child(3){color:#ffd0bb}
+.assist-matrix tr.assist-section-row td{font-weight:900;font-size:10px;text-transform:uppercase;letter-spacing:.55px;background:#0b2745;color:#83cced;padding:10px 7px}
+.assist-cell-delta{font-weight:850;color:#abc1d6}.assist-cell-delta.pos{color:#61e8ab}.assist-cell-delta.neg{color:#ff6f77}.assist-cell-delta.na{color:#94a6bd}
+.assist-table-foot{color:#98b1cb;font-size:9px;padding:11px 2px;line-height:1.6}
+@media(min-width:1600px){.assist-kpi-head{gap:12px}.assist-kpi-values{font-size:19px}.assist-panel-title h3{font-size:17px}.assist-funnel-stage{height:69px}.assist-stage-value{font-size:23px}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 99px}.assist-matrix td{padding:12px 8px;font-size:11px}}
+@media(max-width:1350px){.assist-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.assist-layout{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-panel-table{grid-column:1/-1}.assist-matrix{font-size:12px}.assist-matrix td{font-size:12px}.assist-kpis .assist-kpi{padding:14px 9px}.assist-kpi-values{font-size:14px}}
+@media(max-width:1050px){.assist-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.assist-layout{grid-template-columns:1fr 1fr}.assist-panel-title h3{font-size:14px}}
+@media(max-width:740px){.assist-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-layout{grid-template-columns:1fr}.assist-panel-table{grid-column:auto}.assist-grid-intro{align-items:flex-start;flex-direction:column}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 105px}.assist-funnel-stage{height:69px}.assist-kpi-values{font-size:17px}}
+@media(max-width:420px){.assist-kpis{grid-template-columns:1fr}.assist-kpi-values{font-size:20px}.assist-funnel-columns{grid-template-columns:minmax(0,1fr) 85px}.assist-stage-value{font-size:17px}.assist-matrix td,.assist-matrix th{font-size:10px;padding:9px 5px}}
+
+/* Correção dos indicadores: ERO, funil Mailing -> Acordos e produtividade AGV */
+.assist-agent-metric{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #2c5978;background:#062a42;padding:7px 12px;border-radius:8px;margin-bottom:9px;font-size:10px;color:#bad6e8}
+.assist-agent-metric strong{font-size:15px;color:#ffffff;font-variant-numeric:tabular-nums}
+.assist-mini-section{border:1px solid #244c6b;background:#061f36;border-radius:9px;margin:12px 0 0;padding:9px}
+.assist-mini-title{font-size:10px;font-weight:850;letter-spacing:.5px;color:#8cd5f4;text-transform:uppercase;margin:0 2px 9px}
+.assist-mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.assist-mini-metric{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px;background:#0c2e4d;border:1px solid #245878;border-radius:6px}
+.assist-mini-metric span{font-size:9px;color:#a7c7de;line-height:1.25}
+.assist-mini-metric b{font-size:11px;color:#f6faff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.assist-matrix tr.assist-row-highlight td{background:#233c5836;font-weight:850}
+.assist-matrix td[title]{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.assist-panel-table .assist-matrix td{font-variant-numeric:tabular-nums}
+@media (max-width:480px){.assist-mini-grid{grid-template-columns:1fr 1fr}.assist-mini-metric{padding:6px 5px}}
+
+/* Funis Energisa: identificação dinâmica por campanha e cores distintas por tecnologia */
+.assist-campaign-banner{
+ display:flex;align-items:center;min-height:38px;margin:0 0 11px;padding:9px 11px;
+ border:1px solid #275b89;border-left:3px solid #459ff2;border-radius:9px;
+ background:linear-gradient(95deg,#102e54,#09203d);
+ color:#cde9ff;font-size:11px;font-weight:850;letter-spacing:.1px;
+ line-height:1.35;overflow-wrap:anywhere;
+}
+.assist-campaign-banner.multiple{font-size:10px;font-weight:700}
+.assist-panel-ad{border-color:#177bce;box-shadow:0 0 0 1px #287ed31c,0 12px 25px #0002}
+.assist-panel-ad .assist-panel-title h3 b{color:#70baff}
+.assist-panel-ad .assist-panel-icon{color:#6dc5ff;border-color:#136cb2;background:#0a3055}
+.assist-panel-ad .assist-funnel-stage,
+.assist-panel-ad .assist-funnel-stage.orange{background:#17aaf3;filter:drop-shadow(0 0 5px #0098ec34)}
+.assist-panel-ad .assist-funnel-stage:before,
+.assist-panel-ad .assist-funnel-stage.orange:before{background:linear-gradient(108deg,#154f8b 0%,#1171be 48%,#0e4d89 100%)}
+.assist-panel-ad .assist-funnel-chevron,
+.assist-panel-ad .assist-funnel-chevron.orange{color:#5fd0ff;filter:drop-shadow(0 0 5px #13b3ff66)}
+.assist-panel-ad .assist-agent-metric{border-color:#236da0;background:#082946}
+.assist-panel-ada{border-color:#f16a33;box-shadow:0 0 0 1px #fb5c2824,0 12px 25px #0002}
+.assist-panel-ada .assist-panel-title h3 b{color:#ff986d}
+.assist-panel-ada .assist-panel-icon{color:#ffae8a;border-color:#ae4c2a;background:#3c201f}
+.assist-panel-ada .assist-campaign-banner{color:#ffe1d2;border-color:#a84a2c;border-left-color:#fb5c28;background:linear-gradient(95deg,#49252a,#28192a)}
+.assist-panel-ada .assist-funnel-stage,
+.assist-panel-ada .assist-funnel-stage.orange{background:#ffb269;filter:drop-shadow(0 0 5px #f75c314a)}
+.assist-panel-ada .assist-funnel-stage:before,
+.assist-panel-ada .assist-funnel-stage.orange:before{background:linear-gradient(110deg,#b73e1d 0%,#e45d2a 48%,#bd3d1a 100%)}
+.assist-panel-ada .assist-funnel-chevron,
+.assist-panel-ada .assist-funnel-chevron.orange{color:#ff9c68;filter:drop-shadow(0 0 5px #fb653e77)}
+.assist-panel-ada .assist-agent-metric{border-color:#9b4f33;background:#30202a}
+@media(max-width:740px){.assist-campaign-banner{font-size:10px;min-height:32px}}
+
+/* ENERGISA / OSP COMMAND EXPERIENCE 2026
+   Reutiliza exatamente templates/background.html do Cockpit principal.
+   Complementos limitados a esta página. Nenhuma dependência remota. */
+:root{
+ --tech-cyan:#16d5ff;--tech-blue:#348ff0;--tech-orange:#fb5c28;
+ --tech-ink:#020814;--glass:rgba(5,19,38,.76);
+ --glass-border:rgba(49,151,210,.25);--shadow-glow:0 22px 70px rgba(0,0,0,.32)
+}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+body{background:#020814;color:#eef7ff;font-family:Asap,"Segoe UI",Arial,sans-serif;overflow-x:hidden}
+h1,h2,h3,.assist-stage-value,.metric-value{font-family:Avenir,Asap,"Segoe UI",Arial,sans-serif}
+:where(button,a,input,select,summary,[tabindex="0"]):focus-visible{outline:2px solid #65daff!important;outline-offset:4px}
+#filtersSection,#summarySection,#funnelsSection,#evolutionSection,#detailsSection{scroll-margin-top:86px}
+/* Estilos originais do menu Cockpit reproduzidos no escopo do seu componente */
+.bg-content{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;isolation:isolate}
+.bg-content .background{position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(0,229,255,.16),transparent 30%),radial-gradient(circle at 80% 70%,rgba(0,106,255,.18),transparent 34%),linear-gradient(135deg,#020814 0%,#07172a 50%,#020814 100%)}
+.bg-content .bg-grid{position:absolute;inset:-80px;background-image:linear-gradient(rgba(0,229,255,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.10) 1px,transparent 1px);background-size:55px 55px;transform:perspective(500px) rotateX(62deg);transform-origin:center bottom;animation:ospGridMove 5s linear infinite;opacity:.40;translate:var(--osp-parallax-x,0px) var(--osp-parallax-y,0px)}
+@keyframes ospGridMove{from{background-position:0 0}to{background-position:0 55px}}
+.bg-content .orb{position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(0,229,255,.10);filter:blur(35px);animation:ospFloatOrb 7s ease-in-out infinite alternate;translate:var(--osp-parallax-x,0px) var(--osp-parallax-y,0px)}
+.bg-content .orb.one{top:12%;left:12%}.bg-content .orb.two{right:10%;bottom:12%;background:rgba(0,102,255,.13);animation-delay:1.5s;translate:var(--osp-parallax-x-rev,0px) var(--osp-parallax-y-rev,0px)}
+@keyframes ospFloatOrb{from{transform:translate(0,0) scale(1)}to{transform:translate(45px,-30px) scale(1.25)}}
+.bg-content .scanline{position:absolute;left:0;right:0;height:130px;background:linear-gradient(transparent,rgba(0,229,255,.08),transparent);animation:ospScan 6s ease-in-out infinite}
+@keyframes ospScan{from{top:-150px}to{top:110vh}}
+.bg-content .electric{position:absolute;inset:0;opacity:.35;filter:drop-shadow(0 0 10px rgba(0,229,255,.8))}
+.bg-content .electric svg{width:100%;height:100%}
+.bg-content .electric path{fill:none;stroke:rgba(0,229,255,.45);stroke-width:1.4;stroke-dasharray:12 900;animation:ospElectricRun 3.2s linear infinite}
+.bg-content .electric path:nth-child(2){animation-delay:1.4s;stroke:rgba(0,120,255,.5)}
+.bg-content .electric path:nth-child(3){animation-delay:2.2s;stroke:rgba(120,240,255,.42)}
+@keyframes ospElectricRun{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
+.bg-content .data-rain{position:absolute;inset:0;overflow:hidden}
+.bg-content .code{position:absolute;top:-120px;font-size:13px;color:rgba(0,229,255,.55);text-shadow:0 0 12px rgba(0,229,255,.8);writing-mode:vertical-rl;letter-spacing:4px;animation:ospRain linear infinite;user-select:none}
+.bg-content .code:nth-child(1){left:6%;animation-duration:8s;animation-delay:0s}
+.bg-content .code:nth-child(2){left:16%;animation-duration:11s;animation-delay:1s}
+.bg-content .code:nth-child(3){left:29%;animation-duration:9s;animation-delay:2s}
+.bg-content .code:nth-child(4){left:43%;animation-duration:13s;animation-delay:.5s}
+.bg-content .code:nth-child(5){left:58%;animation-duration:10s;animation-delay:2.8s}
+.bg-content .code:nth-child(6){left:72%;animation-duration:12s;animation-delay:1.7s}
+.bg-content .code:nth-child(7){left:88%;animation-duration:8.5s;animation-delay:.8s}
+@keyframes ospRain{from{transform:translateY(-140px);opacity:0}10%{opacity:.9}80%{opacity:.75}to{transform:translateY(120vh);opacity:0}}
+/* Dashboard surfaces preserve visibility of the original moving background */
+.layout{position:relative;z-index:1;isolation:isolate}
+.sidebar{z-index:14;background:linear-gradient(180deg,rgba(3,13,34,.89),rgba(4,12,29,.79));backdrop-filter:blur(23px);-webkit-backdrop-filter:blur(23px);border-right:1px solid rgba(50,162,220,.25);box-shadow:10px 0 48px rgba(0,0,0,.19)}
+.sidebar .logo-wrap{border-bottom:1px solid rgba(65,132,184,.2);margin-bottom:12px}
+.sidebar .caption{font-size:10px;letter-spacing:1.9px;color:#9abfdb}
+.nav a.active{background:linear-gradient(90deg,rgba(251,92,40,.19),rgba(251,92,40,.025));box-shadow:inset 3px 0 0 #fb5c28}
+.content{position:relative;z-index:1;background:none!important;max-width:1900px;padding:25px 33px 80px}
+.command-hero{position:relative;isolation:isolate;border:1px solid rgba(53,166,222,.35);border-radius:22px;padding:24px 25px;margin-bottom:12px;background:linear-gradient(115deg,rgba(4,18,39,.92),rgba(9,30,55,.79) 68%,rgba(18,35,62,.63));backdrop-filter:blur(17px);-webkit-backdrop-filter:blur(17px);box-shadow:inset 0 0 26px rgba(16,168,226,.035),var(--shadow-glow);overflow:hidden}
+.command-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 38%,rgba(27,182,241,.045) 60%,transparent 78%);pointer-events:none;z-index:-1}
+.command-hero:after{content:"";position:absolute;right:-44px;top:-120px;width:350px;height:350px;border:1px solid rgba(0,210,255,.14);border-radius:50%;box-shadow:0 0 0 55px rgba(0,207,255,.028),0 0 0 110px rgba(0,207,255,.016);pointer-events:none;z-index:-1}
+.command-hero__copy{position:relative;min-width:0}
+.command-hero .eyebrow{font-size:10px;letter-spacing:1.9px;color:#67d7ff;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.hero-overline{color:#f98c5a}.hero-led,.mini-pulse{width:8px;height:8px;display:inline-block;flex:none;border-radius:50%;background:#27e5bf;box-shadow:0 0 10px rgba(39,229,191,.65);animation:ospPulse 3s ease-in-out infinite}
+.hero-caption .mini-pulse{width:6px;height:6px}
+@keyframes ospPulse{50%{opacity:.45;box-shadow:0 0 2px #27e5bf}}
+.command-hero h1{font-size:clamp(26px,2.4vw,40px);line-height:1.16;margin:10px 0 9px;letter-spacing:-1.1px}
+.hero-cross{color:#77b9e4}.command-hero p{max-width:680px;font-size:12px;color:#adc3df;line-height:1.65;margin:0}
+.hero-caption{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:16px;color:#8db0cd;font-size:10px;letter-spacing:.3px}
+.command-hero__meta{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:8px;min-width:225px}
+.command-hero__meta .header-pill{font-size:10px;background:rgba(7,32,58,.6);border:1px solid rgba(72,167,220,.25);border-radius:20px;max-width:100%;text-align:right}
+.hero-data-pill{color:#6de7d4!important}.hero-freshness{font-size:10px;color:#84a5c3;text-align:right}
+.jump-nav{position:sticky;top:8px;z-index:10;display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:max-content;max-width:100%;margin:0 0 19px;padding:6px 7px;border:1px solid rgba(55,146,204,.28);border-radius:14px;background:rgba(5,21,42,.86);backdrop-filter:blur(19px);-webkit-backdrop-filter:blur(19px);box-shadow:0 10px 34px rgba(0,0,0,.24)}
+.jump-nav__link{padding:9px 13px;border-radius:9px;color:#a4c2e0;font-size:11px;font-weight:760;white-space:nowrap;transition:background .2s ease,color .2s ease}
+.jump-nav__link:hover,.jump-nav__link:focus-visible{color:#fff;background:rgba(49,157,210,.18)}
+/* Elevated glass surfaces */
+.panel,.assist-kpis .assist-kpi{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.panel{background:linear-gradient(140deg,rgba(5,20,44,.87),rgba(5,17,37,.79));border:1px solid rgba(74,149,202,.28);box-shadow:0 14px 42px rgba(0,0,0,.19),inset 0 1px 0 rgba(185,224,255,.05)}
+.filters{border-radius:18px;padding:20px 21px;position:relative;overflow:visible}
+.filter-eyebrow,.section-kicker{color:#65d5ff;font-weight:800;font-size:10px;letter-spacing:1.6px;margin:0 0 7px}
+.filter-head strong{color:#f2f7ff;font-size:17px;letter-spacing:-.2px}
+.source-grid{gap:15px}.source-box{border-radius:14px;padding:17px;background:linear-gradient(130deg,rgba(10,37,72,.82),rgba(6,22,47,.88));box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.source-ada{background:linear-gradient(130deg,rgba(70,32,32,.73),rgba(27,20,42,.85))}
+.source-fields .field{min-width:0}
+.source-box .field select,.source-box .field input[type="date"],.source-box .campaign-picker summary{transition:border .2s ease,box-shadow .2s ease}
+.source-box :is(input,select,summary):hover{border-color:rgba(111,199,247,.61)}
+.source-box .source-symbol{box-shadow:0 4px 15px #107be138}.source-ada .source-symbol{box-shadow:0 4px 15px #fb5c283d}
+.period-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.period-presets button{padding:7px 9px;min-height:31px;border-radius:7px;background:rgba(17,61,103,.45);border:1px solid rgba(68,153,217,.25);color:#a9cce8;font-size:10px;font-weight:750;transition:.16s ease}
+.period-presets button:hover,.period-presets button.is-active{border-color:rgba(112,208,255,.58);background:rgba(28,112,161,.35);color:#edf9ff}
+.source-ada .period-presets button:hover,.source-ada .period-presets button.is-active{border-color:rgba(255,139,91,.55);background:rgba(156,61,33,.26);color:#ffe1d4}
+.benchmark-title{margin:23px 0 15px}.benchmark-title h2{font-size:26px}.benchmark-title .eyebrow{letter-spacing:1.7px}
+.benchmark-coverage span{background:rgba(6,30,55,.78);border-color:rgba(61,135,185,.24);border-radius:10px}
+.assist-grid-intro{margin:27px 0 12px}.assist-grid-intro h2{font-size:19px;letter-spacing:-.3px}
+.assist-note{display:block;border-left:2px solid #ffab74;padding-left:9px;font-size:10px;color:#e8beac}
+.assist-panel{border-radius:17px;background:linear-gradient(165deg,rgba(7,25,51,.93),rgba(4,17,38,.84));box-shadow:0 20px 50px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.04)}
+.assist-panel-ad{border-color:rgba(54,153,243,.5)}.assist-panel-ada{border-color:rgba(251,92,40,.52)}
+.assist-panel-title{padding-bottom:12px;border-bottom:1px solid rgba(120,165,201,.15)}
+.assist-panel-title h3{font-size:16px}
+.assist-campaign-banner{background:rgba(11,44,79,.7)}.assist-panel-ada .assist-campaign-banner{background:rgba(82,40,37,.49)}
+.assist-mini-section{background:rgba(5,21,42,.56)}
+.assist-panel-table{border-color:rgba(47,179,227,.4)}
+.assist-matrix th{position:sticky;top:0;z-index:2}
+.assist-matrix tr:focus-within td{background:rgba(47,136,190,.18)}
+.assist-matrix td{transition:background .16s ease}
+.assist-table-foot{border-top:1px solid rgba(96,167,213,.17);margin-top:10px;padding:12px 5px 0}
+.chart-panel{border-radius:19px}
+.chart-head{gap:12px;align-items:center}
+.chart-head h3{font-size:20px}
+.chart-command-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 13px}
+.chart-quick-metrics{display:flex;flex-wrap:wrap;gap:7px}
+.chart-quick-btn,.chart-avg-toggle{border:1px solid rgba(51,139,198,.33);background:rgba(6,31,57,.72);color:#a4c5e0;font-size:11px;font-weight:800;padding:9px 13px;border-radius:9px;transition:all .2s ease}
+.chart-quick-btn:hover,.chart-quick-btn.is-active,.chart-avg-toggle:hover,.chart-avg-toggle.is-active{color:#f2faff;border-color:rgba(81,209,250,.68);background:rgba(17,89,132,.42);box-shadow:0 0 17px rgba(0,165,228,.10)}
+.chart-avg-toggle.is-active{color:#ffba96;border-color:rgba(251,92,40,.5);background:rgba(128,55,40,.23)}
+.chart-month-averages{margin:9px 0 16px}
+.month-chip{background:rgba(7,35,68,.69)}.month-chip.ada{background:rgba(72,34,42,.65)}
+.chart-box{border-radius:12px;background:linear-gradient(180deg,rgba(6,25,47,.45),rgba(4,15,32,.10));border:1px solid rgba(71,138,190,.13)}
+.chart-svg{height:345px;animation:ospReveal .4s ease both}
+@keyframes ospReveal{from{opacity:.2;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.chart-hover-card{border-color:rgba(72,184,241,.6)!important;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.table-panel{border-radius:16px}
+.data-table th{background:rgba(16,45,76,.95);color:#c9e7f6}
+.data-table td{transition:background .18s ease}.data-table tbody tr:hover{background:rgba(32,115,167,.15)}
+@media(max-width:1000px){.jump-nav{position:relative;top:auto;width:100%;justify-content:space-between}.jump-nav__link{font-size:10px;padding:9px}.command-hero__meta{min-width:0}}
+@media(max-width:650px){.content{padding:14px 12px 65px}.command-hero{padding:18px;border-radius:16px}.command-hero__meta{align-items:flex-start}.command-hero__meta .header-pill{max-width:100%}.hero-freshness{text-align:left}.jump-nav{flex-wrap:nowrap;overflow:auto;justify-content:flex-start}.jump-nav__link{flex:none}.filters{padding:15px}.source-box{padding:13px}.assist-note{margin-top:7px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bg-content *, .hero-led,.mini-pulse,.chart-svg{animation:none!important;transition:none!important}.assist-kpis .assist-kpi,.assist-funnel-stage,.assist-matrix td{transition:none!important}}
+
+/* Energisa 2026: cartões acionáveis e micrográficos calculados a partir das séries reais */
+.assist-kpis{gap:12px}
+.assist-kpis .assist-kpi{
+ appearance:none;-webkit-appearance:none;text-align:left;cursor:pointer;display:flex;
+ flex-direction:column;gap:8px;align-items:stretch;justify-content:initial;
+ min-height:175px;padding:16px 13px 13px;
+ background:linear-gradient(155deg,rgba(7,27,55,.91),rgba(4,16,38,.88));
+ border:1px solid rgba(35,162,213,.5);border-radius:15px;
+ box-shadow:0 14px 40px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.04);
+ transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+ position:relative;overflow:hidden
+}
+.assist-kpis .assist-kpi:hover{
+ transform:translateY(-4px);border-color:rgba(65,215,255,.9);
+ box-shadow:0 14px 42px rgba(0,0,0,.26),0 0 28px rgba(0,173,237,.13)
+}
+.assist-kpis .assist-kpi:before{background:#16d5ff}
+.assist-kpis .assist-kpi:after{background:linear-gradient(90deg,#14d5fa,#4b8fe6)}
+.assist-kpi-head{display:flex;gap:9px;align-items:center;min-height:47px}
+.assist-kpi-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.assist-kpi-name{display:block;font-size:10px;color:#a6c5df;letter-spacing:.35px;font-weight:800}
+.assist-kpi-values{display:block;margin:0;font-size:clamp(12px,1.04vw,18px);color:#f7fbff;font-weight:850;letter-spacing:-.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.assist-kpi-values i{font-style:normal;color:#648fae;font-weight:500}
+.assist-kpi-data-label{display:flex;gap:12px;margin-top:1px;color:#9ab9d6;font-size:9px}
+.assist-kpi-data-label>span{display:flex;align-items:center;gap:3px}
+.assist-kpi-data-label i{margin:0;width:6px;height:6px}
+.assist-kpi-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:7px;min-height:45px;margin-top:auto}
+.assist-kpi-delta{margin:0;font-size:clamp(17px,1.4vw,23px);white-space:nowrap}
+.spark-wrap{width:43%;max-width:122px;min-width:59px;height:42px;display:flex;align-items:flex-end;opacity:.87}
+.kpi-sparkline{display:block;width:100%;height:auto;overflow:visible}
+.assist-kpi-open{font-size:9px;letter-spacing:.4px;color:#70d6ff;font-weight:850}
+.assist-kpi-icon{height:35px;width:35px;border-radius:9px}.assist-kpi-icon svg{width:19px;height:19px}
+.assist-kpi-bars{display:none}
+.assist-funnel-stage{appearance:none;-webkit-appearance:none;border:0;color:#fff;font:inherit;cursor:pointer;
+ transition:transform .2s ease,filter .2s ease,opacity .2s ease}
+.assist-funnel-stage:hover{transform:translateY(-2px) scale(1.012);filter:brightness(1.16)!important}
+.assist-funnel-stage:focus-visible{filter:brightness(1.15)!important}
+.assist-funnel-stage.classificador{position:relative}
+.stage-subtype{display:block;font-size:8px;font-weight:750;color:#d7f0ff;letter-spacing:.2px;margin-top:3px;opacity:.84}
+.assist-funnel-stage.classificador .assist-stage-value{font-size:19px}
+.assist-mini-metric{font:inherit;text-align:left;cursor:pointer;transition:background .18s ease,border-color .18s ease}
+.assist-mini-metric[data-chart-key]:hover{background:rgba(31,98,140,.61);border-color:#3e99cc}
+.assist-matrix tr[data-chart-key]{cursor:pointer;transition:background .18s ease}
+.assist-matrix tr[data-chart-key]:hover td{background:rgba(31,104,163,.22)!important}
+.assist-matrix tr[data-chart-key] td:first-child:after{content:" ↗";color:#53beea;opacity:0;transition:opacity .18s}
+.assist-matrix tr[data-chart-key]:hover td:first-child:after{opacity:1}
+.chart-glow-line{filter:blur(3px)}
+@media(min-width:1650px){.assist-kpi-values{font-size:19px}}
+@media(max-width:1300px){.assist-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.assist-kpi-values{font-size:18px}}
+@media(max-width:740px){.assist-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assist-kpi-values{font-size:16px}}
+@media(max-width:400px){.assist-kpis{grid-template-columns:1fr}.assist-kpi-values{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.assist-kpis .assist-kpi,.assist-funnel-stage,.assist-mini-metric{transition:none!important}.assist-kpis .assist-kpi:hover{transform:none}}
+
+/* O conector pontilhado diferencia a classificação VoiceMail de uma etapa sequencial. */
+.assist-funnel-chevron.classify-link{font-size:17px;font-weight:900;opacity:.85;height:14px;letter-spacing:3px;line-height:14px}
+.assist-funnel-chevron.classify-link:after{content:"";display:block;position:absolute;left:50%;height:3px;width:1px;background:currentColor;opacity:.38}
+@media(prefers-reduced-motion:reduce){.chart-svg{animation:none!important}}
+
+/* ENERGISA | Visão dia a dia e menu recolhível. Estilo preservado do Cockpit tecnológico. */
+.sidebar{transition:width .25s ease,flex-basis .25s ease,padding .25s ease}
+.sidebar-toggle{align-self:flex-end;flex:none;display:grid;place-items:center;width:34px;height:34px;min-height:34px;margin:0 0 9px;border-radius:10px;border:1px solid rgba(78,167,225,.36);color:#cceeff;background:rgba(15,70,108,.42);font-size:22px;font-weight:900;cursor:pointer;transition:.18s ease}
+.sidebar-toggle:hover{color:#fff;border-color:#67dcff;background:rgba(28,103,143,.6)}
+.sidebar-toggle-icon{line-height:1}
+.sidebar .nav a,.sidebar .nav .inactive{display:flex;align-items:center;gap:7px;min-width:0}
+.sidebar .nav-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.sidebar-collapsed .sidebar{width:70px;flex-basis:70px;padding:19px 9px}
+body.sidebar-collapsed .sidebar .logo-wrap{min-height:55px;padding:6px 3px 12px;display:grid;place-items:center}
+body.sidebar-collapsed .sidebar .logo-wrap:before{content:"O";font-size:29px;color:#fb5c28;font-weight:950;text-shadow:0 0 12px #fb5c2866}
+body.sidebar-collapsed .sidebar .logo-wrap img,body.sidebar-collapsed .sidebar .caption,body.sidebar-collapsed .sidebar .nav-label,body.sidebar-collapsed .sidebar .bottom{display:none}
+body.sidebar-collapsed .sidebar-toggle{align-self:center}
+body.sidebar-collapsed .nav a,body.sidebar-collapsed .nav .inactive{justify-content:center;padding:11px 6px}
+body.sidebar-collapsed .nav-icon{width:auto}
+body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
+.view-pane[hidden]{display:none!important}
+.view-tabs{position:relative;flex-wrap:wrap;gap:9px;padding:6px;margin-top:16px;border:1px solid rgba(69,140,193,.20);border-radius:13px;background:rgba(5,22,45,.66);backdrop-filter:blur(15px)}
+.view-tabs .tab{padding:11px 15px;border-radius:9px;transition:background .2s ease,border .2s ease;color:#bad1e9}
+.view-tabs .tab.active{background:linear-gradient(90deg,rgba(251,92,40,.2),rgba(42,130,197,.1));color:#fff;border-color:rgba(251,92,40,.67);box-shadow:inset 3px 0 0 #fb5c28}
+.view-tabs .tab:not(:disabled):hover{border-color:#6bcdf3;color:#fff}
+.daily-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:19px 0 16px;border:1px solid rgba(68,162,219,.28);background:linear-gradient(100deg,rgba(7,27,51,.88),rgba(17,33,56,.64));padding:21px 23px;border-radius:17px}
+.daily-hero h2{font:850 clamp(23px,2.3vw,34px) Avenir,Asap,"Segoe UI",sans-serif;letter-spacing:-.7px;margin:4px 0}.daily-hero h2 span{color:#fb793e}
+.daily-hero p{font-size:12px;color:#aec6db;line-height:1.6;margin:0;max-width:760px}
+.daily-hero-badge{font-size:11px;font-weight:750;color:#b8dbef;border:1px solid rgba(73,170,211,.3);background:rgba(5,38,65,.8);padding:10px 12px;border-radius:11px;display:flex;align-items:center;gap:7px}
+.daily-chart-panel,.heatmap-panel,.daily-analysis-panel{padding:20px 21px;border-radius:17px;margin:0 0 19px}
+.daily-chart-controls,.heatmap-controls{display:flex;flex-direction:column;gap:6px}
+.daily-chart-controls label,.heatmap-controls label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;font-weight:850;color:#a9c8df}
+.daily-chart-controls select,.heatmap-controls select{min-width:235px;max-width:100%;padding:10px 12px;background:rgba(10,37,64,.95);color:#f4faff;border:1px solid rgba(69,159,211,.4);border-radius:9px;min-height:43px}
+.daily-quick{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 14px}
+.daily-quick button{padding:8px 11px;background:rgba(9,44,72,.8);border:1px solid rgba(73,159,219,.3);border-radius:9px;font-size:10px;font-weight:850;color:#a9cde6;transition:.2s ease}
+.daily-quick button:hover,.daily-quick button.active{color:#fff;border-color:rgba(54,197,241,.7);background:rgba(19,110,153,.43)}
+.daily-summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:11px 0 17px}
+.daily-summary-card{background:linear-gradient(145deg,rgba(9,34,65,.92),rgba(8,27,52,.7));border:1px solid rgba(62,141,204,.32);border-radius:12px;padding:13px 15px;min-width:0}
+.daily-summary-card.ada{border-color:rgba(251,92,40,.34);background:linear-gradient(145deg,rgba(61,30,45,.85),rgba(24,24,47,.72))}
+.daily-summary-card .daily-label{font-size:10px;color:#9bbad7;letter-spacing:.3px}.daily-summary-card .daily-value{display:block;color:#eef8ff;font-size:clamp(17px,1.6vw,23px);font-weight:900;margin:7px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily-summary-card small{font-size:10px;color:#9bbad7}
+.daily-chart-stage .chart-box{min-height:290px}.daily-chart-note{margin-top:10px;font-size:10px;line-height:1.6;color:#8eb2d0}
+.heatmap-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:0 0 15px}
+.heatmap-heading h3{font-size:19px;letter-spacing:-.25px;margin:0 0 5px}.heatmap-heading p{color:#aac4da;font-size:11px;line-height:1.55;margin:0}
+.heatmap-legend{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin:12px 0 17px;font-size:10px;color:#aecce5}
+.heatmap-legend>span{display:flex;align-items:center;gap:6px}
+.heat-swatch{display:inline-block;width:10px;height:10px;border-radius:3px;border:1px solid #ffffff2a}.heat-swatch.heat-up{background:#156a71}.heat-swatch.heat-mid{background:#253c59}.heat-swatch.heat-down{background:#773b42}
+.heatmap-area{margin:0 0 16px;border-radius:12px;border:1px solid rgba(61,139,193,.25);overflow:hidden;background:rgba(4,20,41,.49)}
+.heatmap-title{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;font-size:13px;font-weight:900;gap:12px}
+.heatmap-title small{font-weight:650;color:#9cbcd5;font-size:10px;margin-left:8px}
+.heatmap-title.ad{background:linear-gradient(90deg,rgba(26,99,165,.5),rgba(11,40,69,.6));color:#b5dfff}
+.heatmap-title.ada{background:linear-gradient(90deg,rgba(166,65,38,.5),rgba(44,22,40,.5));color:#ffc2a6}
+.heatmap-title>span:last-child{font-size:10px;color:#bdcfdf}
+.heatmap-scroll{overflow:auto;max-height:630px;scrollbar-color:#356a8b #081a31;scrollbar-width:thin}
+.heatmap-table{border-collapse:separate;border-spacing:3px;min-width:max-content;padding:4px 6px 8px}
+.heatmap-table th{position:sticky;top:0;z-index:3;font-size:10px;background:#0e2e4f;color:#b4d2e8;padding:9px 3px;text-align:center;min-width:90px;border-radius:5px;white-space:nowrap}
+.heatmap-table th:first-child{left:0;z-index:5;min-width:170px;text-align:left;padding-left:10px}
+.heatmap-table td{padding:0;min-width:90px;border:0}
+.heatmap-table td:first-child{position:sticky;left:0;z-index:2;background:rgba(10,38,67,.98);color:#d2e8f7;font-size:10px;font-weight:850;padding:6px 10px;border-radius:5px;min-width:170px;max-width:170px;white-space:normal}
+.heat-cell{display:flex;align-items:center;flex-direction:column;justify-content:center;gap:4px;width:100%;min-height:50px;border-radius:5px;border:1px solid rgba(255,255,255,.045);background:#253c59;color:#e8f2ff;cursor:pointer;transition:filter .14s ease,border .14s ease}
+.heat-cell:hover,.heat-cell:focus-visible{filter:brightness(1.25);border-color:#d3ebff;outline-offset:1px}
+.heat-cell.heat-up{background:linear-gradient(145deg,#0d565c,#1e7473)}.heat-cell.heat-up.strong{background:linear-gradient(145deg,#0b6268,#159485)}
+.heat-cell.heat-down{background:linear-gradient(145deg,#562d40,#82444d)}.heat-cell.heat-down.strong{background:linear-gradient(145deg,#792d40,#a84b48)}
+.heat-cell.heat-mid{background:#243a54}
+.heat-cell .heat-number{font-size:10px;font-weight:900;white-space:nowrap}.heat-cell .heat-delta{font-size:9px;font-weight:750;opacity:.9}
+.heat-na{display:flex;align-items:center;justify-content:center;min-height:50px;background:#112840;color:#62849f;border-radius:5px;font-size:11px}
+.heatmap-detail{padding:14px 16px;border:1px solid rgba(72,167,214,.29);border-radius:11px;background:rgba(8,37,66,.72);font-size:12px;color:#d8eaf8;line-height:1.6}
+.heatmap-detail strong{color:#fff}.heatmap-detail .detail-up{color:#67e4c0}.heatmap-detail .detail-down{color:#ffaaa4}
+.daily-analytic-scroll{max-height:580px;overflow:auto}.daily-analytic{min-width:1620px}
+.daily-analytic th{background:rgba(13,50,81,.96)}.daily-analytic th:first-child,.daily-analytic td:first-child{position:sticky;left:0;background:#102f4e;z-index:2}
+.daily-count{color:#a8cae4;font-size:10px}
+@media(max-width:900px){.daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.heatmap-table th:first-child,.heatmap-table td:first-child{min-width:130px;max-width:130px}}
+@media(max-width:650px){.sidebar-collapsed .sidebar{width:100%;height:auto;flex-basis:auto}.sidebar-collapsed .content{max-width:100%}.daily-chart-panel,.heatmap-panel,.daily-analysis-panel{padding:13px}.daily-chart-controls select{width:100%}.daily-hero{padding:14px}.daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.view-tabs .right{margin-left:0}}
+@media(prefers-reduced-motion:reduce){.sidebar,.heat-cell,.daily-quick button{transition:none!important}}
+
+/* Calendário completo por mês no heatmap: dias sem registro ficam visíveis como lacunas. */
+.heat-swatch.heat-empty{background:#10263b}
+.heatmap-table thead .heatmap-month-row th{top:0;height:34px;background:#0a3658;color:#d2ecff;font-size:10px;border-bottom:1px solid rgba(67,154,205,.22)}
+.heatmap-table thead .heatmap-month-row th:first-child{z-index:6;top:0;background:#102e4e}
+.heatmap-table thead .heatmap-day-row th{top:34px;z-index:4;background:#0e2e4f}
+.heatmap-table thead .heatmap-day-row th:first-child{position:sticky;left:auto;min-width:90px;text-align:center;padding:8px 4px}
+.heatmap-table thead .heatmap-day-row th:nth-child(odd){background:#123755}
+.heatmap-table .heat-na{opacity:.75;min-height:50px}
+
+/* Hotfix de camadas: o menu de campanhas deve ficar acima das abas e não ser encoberto. */
+#filtersSection.filters{position:relative;z-index:40;overflow:visible;isolation:isolate}
+#filtersSection .source-grid{position:relative;z-index:1}
+#filtersSection .source-box{position:relative;overflow:visible}
+#filtersSection .source-box:has(.campaign-picker[open]){z-index:12}
+#filtersSection .campaign-picker[open]{z-index:14}
+#filtersSection .campaign-picker[open] .campaign-menu{z-index:50;box-shadow:0 20px 52px rgba(0,0,0,.67);border-color:rgba(76,192,249,.6)}
+.view-tabs{position:relative;z-index:2}
+.view-pane{position:relative;z-index:1}
+.daily-chart-panel .chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.daily-chart-panel .chart-head>div:first-child{min-width:0;flex:1}
+.daily-graph-toolbar{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.daily-graph-toolbar .daily-chart-controls{flex:1 1 210px;min-width:195px}
+.daily-graph-toolbar select{min-width:0;width:100%;max-width:315px}
+.single-campaign-label{font-size:11px;font-weight:800;color:#d0ebff;margin-top:9px;max-width:700px;white-space:normal;overflow-wrap:anywhere}
+.single-campaign-label.ada{color:#ffc0a6}
+.daily-quick{display:flex;flex-wrap:wrap;gap:6px 7px;margin-top:15px}
+.daily-quick button{font-size:10px;min-height:32px;border-radius:9px;padding:8px 10px;white-space:nowrap}
+.daily-quick button:hover,.daily-quick button.active{border-color:rgba(81,208,255,.7)}
+.daily-summary-cards.single-campaign-summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+.daily-chart-stage .chart-box{min-height:325px}
+.daily-chart-stage .chart-svg{min-height:310px}
+.daily-chart-panel .daily-month-reference{display:inline-flex;gap:9px;align-items:center;padding:11px 13px;margin-bottom:4px;border:1px solid rgba(49,136,210,.4);border-radius:11px;background:rgba(13,44,76,.68);color:#d6edfa;font-weight:750;font-size:11px}
+.daily-chart-panel .daily-month-reference.ada{border-color:rgba(251,92,40,.42);background:rgba(62,34,48,.6)}
+.daily-chart-panel .daily-month-reference strong{font-size:16px;color:#fff}
+.daily-single-line{filter:drop-shadow(0 0 7px rgba(53,160,244,.33))}
+.daily-single-line.ada{filter:drop-shadow(0 0 7px rgba(251,92,40,.35))}
+.single-plot-point{cursor:pointer;transition:r .12s ease,stroke-width .12s ease}
+.single-plot-point:hover,.single-plot-point:focus-visible{stroke:#fff;stroke-width:3.5}
+.daily-plot-label{font-size:11px;font-weight:900;paint-order:stroke;stroke:#03172c;stroke-width:4px;stroke-linejoin:round}
+@media(max-width:1000px){.daily-chart-panel .chart-head{flex-direction:column}.daily-graph-toolbar{width:100%;justify-content:stretch}.daily-graph-toolbar select{max-width:none}}
+@media(max-width:740px){.daily-summary-cards.single-campaign-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-graph-toolbar .daily-chart-controls{min-width:155px}}
+@media(max-width:510px){.daily-graph-toolbar{flex-direction:column}.daily-graph-toolbar .daily-chart-controls{width:100%;flex:auto}.daily-chart-panel .daily-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Seletor de 22 KPIs organizado por grupos: volumes, taxas e produtividade. */
+.daily-quick{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.daily-quick-group{display:flex;align-items:center;flex-wrap:wrap;gap:6px 7px}
+.daily-quick-title{display:inline-flex;align-items:center;margin-right:8px;flex:none;min-width:128px;
+ color:#82c8ed;letter-spacing:.85px;font-size:10px;font-weight:900}
+.daily-quick-group>button{display:inline-flex;align-items:center;justify-content:center}
+.daily-quick button.active{color:#fff;background:linear-gradient(110deg,rgba(26,117,176,.5),rgba(30,69,121,.48));border-color:#69d1ff;box-shadow:0 0 0 1px rgba(79,199,255,.13)}
+.daily-chart-panel .chart-head .daily-graph-toolbar{flex:0 1 510px}
+.daily-chart-panel .daily-chart-controls select{font-size:12px}
+.daily-chart-panel .daily-month-reference{margin-right:9px;margin-top:6px}
+.single-campaign-svg .daily-plot-label{pointer-events:none}
+.daily-summary-cards.single-campaign-summary .daily-value{font-variant-numeric:tabular-nums}
+@media(max-width:1000px){.daily-chart-panel .chart-head .daily-graph-toolbar{flex:1 1 auto}}
+@media(max-width:740px){.daily-quick-title{width:100%;margin:0 0 2px}.daily-quick-group{align-items:flex-start}}
+
+/* Energisa: VoiceMail é contato válido e compõe CPC.
+   O crescimento do volume / participação de VoiceMail é um resultado positivo.
+   Manter contagens independentes para não duplicar contatos já presentes no CPC. */
+.assist-kpi[data-chart-key="voicemail"] .assist-kpi-delta.positive{color:#52e0ae}
+.assist-matrix tr[data-chart-key="voicemail"] .assist-cell-delta.pos,
+.assist-matrix tr[data-chart-key="taxaVoiceMailAtendidas"] .assist-cell-delta.pos,
+.assist-matrix tr[data-chart-key="taxaVoiceMailCpc"] .assist-cell-delta.pos{color:#52e0ae}
+/* Funis independentes, responsivos e sem alteração no estilo geral. */
+.source-fields{grid-template-columns:minmax(135px,.9fr) minmax(120px,1fr) minmax(120px,1fr) minmax(190px,1.4fr)}
+.source-fields select{width:100%;min-height:41px;background:#07132c;color:#f4f6fc;border:1px solid #324d77;border-radius:9px;padding:9px 11px}
+.source-fields select:focus-visible{outline:2px solid var(--orange)}
+.free-helper{margin-top:9px;font-size:12px;color:#b2c5e3}
+@media(max-width:1250px){.source-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.source-fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+{% include "background.html" %}
+<div class="layout">
+<aside class="sidebar" id="sidebarMenu">
+ <button type="button" id="sidebarToggle" class="sidebar-toggle" aria-label="Recolher menu lateral" aria-expanded="true" title="Recolher menu lateral"><span class="sidebar-toggle-icon" aria-hidden="true">«</span></button>
+ <div class="logo-wrap"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="OLOS"></div>
+ <div class="caption">GESTÃO DE PERFORMANCE</div>
+ <nav class="nav"><a href="{{ url_for('dashboard') }}" title="Menu Cockpit"><span class="nav-icon">▦</span><span class="nav-label">Menu Cockpit</span></a><a href="{{ url_for('energisa_painel') }}" title="Painel AD × ADA"><span class="nav-icon">◉</span><span class="nav-label">AD × ADA Energisa</span></a><a class="active" href="{{ url_for('energisa_comparativo_livre') }}" title="Comparativo livre"><span class="nav-icon">⇄</span><span class="nav-label">Comparativo livre</span></a><span class="inactive" title="Hora a hora em breve"><span class="nav-icon">◷</span><span class="nav-label">Hora a hora (em breve)</span></span></nav>
+ <div class="bottom"><a href="{{ url_for('dashboard') }}">← Voltar ao Cockpit</a></div>
+</aside>
+<main class="content">
+ <header class="header command-hero" id="painelTopo">
+ <div class="command-hero__copy">
+  <div class="eyebrow"><span class="hero-led"></span> OSP INTELLIGENCE CENTER <span class="hero-overline">/ ENERGISA</span></div>
+  <h1>ENERGISA <span style="color:#fb5c28">/</span> Comparativo <span class="hero-cross">livre</span></h1>
+  <p>Compare AD ou ADA em qualquer combinação, com campanhas e períodos independentes.</p>
+  <div class="hero-caption"><span class="mini-pulse"></span> AD × AD <span>•</span> ADA × ADA <span>•</span> AD × ADA <span>•</span> Dados reais do Neon</div>
+ </div>
+ <div class="header-side command-hero__meta">
+  <span class="header-pill hero-data-pill" id="sourceStatus"><span class="status-dot"></span> Neon · Consulta protegida</span>
+  <span class="header-pill" id="rangeLabel">Carregando períodos...</span>
+  <span class="hero-freshness" id="dataFreshness">Consultando disponibilidade de dados</span>
+ </div>
+</header>
+<nav class="jump-nav" aria-label="Navegação pelo painel">
+ <a href="#filtersSection" class="jump-nav__link">◉ Filtros</a>
+ <a href="#summarySection" class="jump-nav__link">▥ Visão geral</a>
+ <a href="#funnelsSection" class="jump-nav__link">◈ Funis</a>
+ <a href="#evolutionSection" class="jump-nav__link">⌁ Evolução</a>
+ <a href="#detailsSection" class="jump-nav__link">▦ Detalhamento</a>
+</nav>
+ <div id="loading" class="loading">Carregando dados da Energisa...</div>
+ <div id="dashboard" class="hidden">
+  <section class="panel filters" id="filtersSection">
+  <div class="filter-head">
+    <div><div class="filter-eyebrow">CONTROLE DO BENCHMARK</div><strong>Comparativo livre · Cenário A × Cenário B</strong><p class="filter-sub">Escolha o discador e as campanhas de cada lado, com períodos totalmente independentes.</p></div>
+    <div class="head-actions">
+      <div class="segmented" role="group" aria-label="Modo de cálculo">
+        <button type="button" id="btnTotal" aria-pressed="false">Total</button>
+        <button type="button" id="btnAverage" class="active" aria-pressed="true">Média dia</button>
+      </div>
+      <button type="button" id="resetBtn" class="reset">↺ Restaurar</button>
+    </div>
+  </div>
+  <div class="source-grid">
+    <div class="source-box source-ad">
+      <div class="source-header"><div class="source-symbol" id="sourceTypeAD">AD</div><div><strong>Funil A · cenário base</strong><small>ESCOLHA A TECNOLOGIA</small></div><span class="source-pulse">●</span></div>
+      <div class="source-fields">
+        <div class="field"><label for="typeAD">Tecnologia do funil A</label><select id="typeAD"><option value="AD" selected>AD · Discador humano</option><option value="ADA">ADA · Discador com IA</option></select></div>
+        <div class="field"><label for="startAD">Data inicial</label><input id="startAD" type="date" aria-label="Data inicial AD"></div>
+        <div class="field"><label for="endAD">Data final</label><input id="endAD" type="date" aria-label="Data final AD"></div>
+        <div class="field"><span class="field-label">Campanhas AD</span><details class="campaign-picker" id="adPicker"><summary id="adSummary">Campanhas AD</summary><div class="campaign-menu"><div class="campaign-tools"><button type="button" data-pick="all" data-agent="AD">Todas</button><button type="button" data-pick="none" data-agent="AD">Limpar</button></div><div id="adChecks"></div></div></details></div>
+      </div>
+      <div class="period-presets" role="group" aria-label="Atalhos de período AD">
+       <button type="button" data-range="week" data-agent="AD">Últimos 7 dias</button>
+       <button type="button" data-range="month" data-agent="AD">Mês mais recente</button>
+       <button type="button" data-range="all" data-agent="AD">Histórico</button>
+      </div>
+      <div class="source-meta" id="adMeta">Selecione o período e a campanha</div>
+    </div>
+    <div class="source-box source-ada">
+      <div class="source-header"><div class="source-symbol" id="sourceTypeADA">ADA</div><div><strong>Funil B · cenário comparado</strong><small>ESCOLHA A TECNOLOGIA</small></div><span class="source-pulse">●</span></div>
+      <div class="source-fields">
+        <div class="field"><label for="typeADA">Tecnologia do funil B</label><select id="typeADA"><option value="AD">AD · Discador humano</option><option value="ADA" selected>ADA · Discador com IA</option></select></div>
+        <div class="field"><label for="startADA">Data inicial</label><input id="startADA" type="date" aria-label="Data inicial ADA"></div>
+        <div class="field"><label for="endADA">Data final</label><input id="endADA" type="date" aria-label="Data final ADA"></div>
+        <div class="field"><span class="field-label">Campanhas ADA</span><details class="campaign-picker" id="adaPicker"><summary id="adaSummary">Campanhas ADA</summary><div class="campaign-menu"><div class="campaign-tools"><button type="button" data-pick="all" data-agent="ADA">Todas</button><button type="button" data-pick="none" data-agent="ADA">Limpar</button></div><div id="adaChecks"></div></div></details></div>
+      </div>
+      <div class="period-presets" role="group" aria-label="Atalhos de período ADA">
+       <button type="button" data-range="week" data-agent="ADA">Últimos 7 dias</button>
+       <button type="button" data-range="month" data-agent="ADA">Mês mais recente</button>
+       <button type="button" data-range="all" data-agent="ADA">Histórico</button>
+      </div>
+      <div class="source-meta" id="adaMeta">Selecione o período e a campanha</div>
+    </div>
+  </div>
+  <div class="info" id="filterInfo">A Média dia considera somente dias com valor positivo para cada indicador.</div><div class="free-helper">AD × AD, ADA × ADA ou AD × ADA, inclusive a mesma campanha em datas diferentes. Os funis são independentes.</div>
+</section>
+<div class="tabs view-tabs" role="tablist" aria-label="Visões da Energisa">
+ <button type="button" id="tabComparison" class="tab active" role="tab" aria-selected="true" aria-controls="viewComparison">▦ Comparativo executivo</button>
+ <button type="button" id="tabDaily" class="tab" role="tab" aria-selected="false" aria-controls="viewDaily">▥ Visão dia a dia</button>
+ <button type="button" class="tab" disabled title="A base disponível não contém registros por hora">◷ Hora a hora · em breve</button>
+ <button type="button" class="export right" id="exportBtn">↓ Exportar CSV</button>
+</div>
+<section id="viewComparison" class="view-pane" role="tabpanel" aria-labelledby="tabComparison">
+<div class="benchmark-title" id="summarySection">
+  <div><div class="eyebrow">ASSISTPAY STYLE · COMPARATIVO LIVRE</div><h2>Performance executiva <span class="assist-highlight">Energisa</span></h2><p>Visão comparativa por cenários independentes. A variação mostra o Funil B em relação ao Funil A.</p></div>
+  <div class="benchmark-coverage" id="benchmarkCoverage"></div>
+</div>
+<div class="kpis assist-kpis" id="kpis"></div>
+
+<div class="assist-grid-intro" id="funnelsSection">
+  <div><h2>Funis de performance e comparação</h2><p>Etapas operacionais por tecnologia e visão comparativa dos indicadores</p></div>
+  <div class="assist-legend"><span><i class="assist-legend-dot human"></i> <span id="legendSideAD">A · AD</span></span><span><i class="assist-legend-dot digital"></i> <span id="legendSideADA">B · ADA</span></span><span class="assist-note">VoiceMail conta como CPC na Energisa: aumento do indicador é favorável.</span></div>
+</div>
+<div class="assist-layout">
+ <section class="panel assist-panel assist-panel-ad">
+  <header class="assist-panel-title">
+   <span class="assist-panel-icon" aria-hidden="true">▦</span>
+   <div><h3>Funil <b id="funnelTypeAD">A · AD</b></h3><p id="funnelPeriodAD">Período AD</p></div>
+   <span class="assist-days" id="funnelDaysAD">0 dias com dados</span>
+  </header>
+  <div class="assist-campaign-banner" id="funnelCampaignAD" aria-label="Campanhas selecionadas para o funil AD">Carregando campanhas...</div>
+  <div class="assist-agent-metric" id="funnelAgentsAD"></div>
+  <div class="assist-funnel-columns">
+   <div class="assist-funnel-steps" id="funnelAD"></div>
+   <aside class="assist-funnel-deltas" id="funnelDeltasAD"></aside>
+  </div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesAD"></div></div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVAD"></div></div>
+  <div class="assist-funnel-foot">Mailing em média diária sem zeros. VoiceMail conta como CPC na Energisa: aumento aparece em verde. É uma classificação, não uma conversão sequencial nem volume para somar novamente ao CPC. Demais volumes seguem Total / Média dia.</div>
+ </section>
+ <section class="panel assist-panel assist-panel-ada">
+  <header class="assist-panel-title">
+   <span class="assist-panel-icon" aria-hidden="true">▦</span>
+   <div><h3>Funil <b id="funnelTypeADA">B · ADA</b></h3><p id="funnelPeriodADA">Período ADA</p></div>
+   <span class="assist-days" id="funnelDaysADA">0 dias com dados</span>
+  </header>
+  <div class="assist-campaign-banner" id="funnelCampaignADA" aria-label="Campanhas selecionadas para o funil ADA">Carregando campanhas...</div>
+  <div class="assist-agent-metric" id="funnelAgentsADA"></div>
+  <div class="assist-funnel-columns">
+   <div class="assist-funnel-steps" id="funnelADA"></div>
+   <aside class="assist-funnel-deltas" id="funnelDeltasADA"></aside>
+  </div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Taxas e eficiência</div><div class="assist-mini-grid" id="funnelRatesADA"></div></div>
+  <div class="assist-mini-section"><div class="assist-mini-title">Produtividade por agente</div><div class="assist-mini-grid" id="funnelAGVADA"></div></div>
+  <div class="assist-funnel-foot">Dados da campanha e período selecionados. VoiceMail conta como CPC: crescimento é positivo e aparece em verde. Taxas e produtividade por AGV aparecem abaixo do funil.</div>
+ </section>
+ <section class="panel assist-panel assist-panel-table">
+  <header class="assist-panel-title">
+   <span class="assist-panel-icon assist-icon-cyan" aria-hidden="true">▥</span>
+   <div><h3>Visão comparativa <b>dos indicadores</b></h3><p>Variação do Funil B em relação ao A</p></div>
+  </header>
+  <div class="assist-matrix-scroll">
+   <table class="assist-matrix">
+    <thead><tr><th>Indicador</th><th><span id="comparisonTypeAD">A · AD</span> <small id="comparisonADLabel"></small></th><th><span id="comparisonTypeADA">B · ADA</span> <small id="comparisonADALabel"></small></th><th>Variação</th></tr></thead>
+    <tbody id="comparisonBody"></tbody>
+   </table>
+  </div>
+  <div class="assist-table-foot">Todos os deltas são calculados com valores não arredondados. Médias ignoram dias zerados.</div>
+ </section>
+</div>
+
+<section class="panel chart-panel" id="evolutionSection">
+  <div class="chart-head"><div><div class="section-kicker">INTELIGÊNCIA DE TENDÊNCIA</div><h3>Evolução diária · cenários A × B</h3><p>Evolução por dia do período, com referência da média mensal completa.</p></div>
+    <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option><option value="spin">Spin</option><option value="taxaCpc">CPC / Atendimento %</option><option value="eficiencia">Eficiência %</option><option value="taxaHangup">Hangup / Atendidas %</option><option value="taxaHangupTentativas">Hangup / Discagens %</option></select>
+  </div>
+  <div class="chart-command-row">
+    <div class="chart-quick-metrics" role="group" aria-label="Indicadores rápidos">
+      <button type="button" class="chart-quick-btn" data-chart-key="acordo">Acordos</button>
+      <button type="button" class="chart-quick-btn" data-chart-key="cpc">CPC</button>
+      <button type="button" class="chart-quick-btn" data-chart-key="voicemail">VoiceMail</button>
+      <button type="button" class="chart-quick-btn" data-chart-key="conversao">Conversão</button>
+    </div>
+    <button class="chart-avg-toggle" id="toggleChartAvg" type="button" aria-pressed="true">◌ Médias mensais</button>
+  </div>
+  <div id="chartMonthAverages" class="chart-month-averages"></div>
+  <div class="chart-caption">Passe o mouse ou toque em um ponto: realizado do dia × média mensal daquela campanha. Séries alinhadas pelo número de dias transcorridos desde o início de cada período, mesmo que as datas sejam diferentes.</div>
+  <div class="chart-stage"><div class="chart-box" id="chartBox"></div></div>
+  <div class="legend" id="chartLegend"><span><i class="dot ad"></i>AD</span><span><i class="dot ada"></i>ADA</span></div>
+</section>
+<div class="chart-hover-card" id="chartPopup" role="tooltip" hidden></div>
+
+<div class="section-label" id="detailsSection"><h2>Detalhamento diário</h2><span id="dailyHint">Totais por dia e tecnologia</span></div>
+  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Tecnologia</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit Rate</th><th>Taxa CPC</th><th>VoiceMail / Atendidas %</th><th>VoiceMail / CPC %</th><th>Conversão</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th></tr></thead><tbody id="dailyBody"></tbody></table></div></section>
+  <div class="section-label"><h2>Produtividade por campanha</h2><span>Campanhas selecionadas no período</span></div>
+  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Campanha</th><th>Tecnologia</th><th>Dias ativos</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Conv.</th></tr></thead><tbody id="campaignBody"></tbody></table></div></section>
+</section>
+<section id="viewDaily" class="view-pane" role="tabpanel" aria-labelledby="tabDaily" hidden>
+ <div class="daily-hero">
+  <div><div class="section-kicker">INTELIGÊNCIA OPERACIONAL / DIA A DIA</div><h2>Visão dia a dia <span>AD × ADA</span></h2>
+   <p>Todos os volumes, taxas e produtividade. Compare cada dia com a média do mês calendário da campanha selecionada.</p></div>
+  <div class="daily-hero-badge"><span class="mini-pulse"></span><span id="dailyCoverage">Calculando cobertura diária...</span></div>
+ </div>
+ <section class="panel daily-chart-panel">
+  <div class="chart-head">
+   <div><div class="section-kicker">EVOLUÇÃO DIÁRIA INTERATIVA</div><h3>Indicadores por campanha</h3><p>Uma campanha por vez, com valores identificados nos pontos. Passe o mouse para comparar com a média do mês completo.</p><div id="dailyCampaignName" class="single-campaign-label">Selecione uma campanha</div></div>
+   <div class="daily-graph-toolbar"><div class="daily-chart-controls">
+    <label for="chartMetricDaily">Indicador</label>
+    <select id="chartMetricDaily" aria-label="Indicador da visão dia a dia">
+     <optgroup label="Volumes">
+      <option value="mailing">Mailing</option><option value="logados">Agentes / Logados</option>
+      <option value="tentativas">Tentativas / Discagens</option><option value="atendidas">Atendidas</option>
+      <option value="cpc">CPC</option><option value="voicemail">VoiceMail</option>
+      <option value="acordo" selected>Acordos</option><option value="hangup">Hangup</option>
+     </optgroup>
+     <optgroup label="Taxas e conversão">
+      <option value="spin">Spin</option><option value="hitrate">Hit Rate (%)</option>
+      <option value="taxaCpc">CPC / Atendidas (%)</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas (%)</option>
+      <option value="taxaVoiceMailCpc">VoiceMail / CPC (%)</option><option value="conversao">Acordo / CPC (%)</option>
+      <option value="eficiencia">Eficiência (%)</option><option value="taxaHangup">Hangup / Atendidas (%)</option>
+      <option value="taxaHangupTentativas">Hangup / Discagens (%)</option>
+     </optgroup>
+     <optgroup label="Produtividade">
+      <option value="mailingLogado">Mailing / Agente</option><option value="tentativasLogado">Tentativas / Agente</option><option value="atendidasLogado">Atendidas / Agente</option><option value="cpcLogado">CPC / Agente</option><option value="acordoLogado">Acordos / Agente</option>
+     </optgroup>
+    </select>
+   </div><div class="daily-chart-controls"><label for="chartCampaignDaily">Campanha / tecnologia</label><select id="chartCampaignDaily" aria-label="Campanha individual para o gráfico diário"><option value="">Carregando campanhas...</option></select></div></div>
+  </div>
+  <div class="daily-quick" id="dailyQuickMetrics" role="group" aria-label="Selecione um dos 22 indicadores da visão diária"></div>
+  <div id="dailySummaryCards" class="daily-summary-cards"></div>
+  <div id="chartMonthAveragesDaily" class="chart-month-averages"></div>
+  <div class="chart-stage daily-chart-stage"><div id="chartBoxDaily" class="chart-box"></div></div>
+  <div id="chartLegendDaily" class="legend"></div>
+  <div class="daily-chart-note">Linha contínua: resultado diário da campanha selecionada. Linha tracejada: referência do mês calendário completo. As taxas usam a razão entre totais mensais e os volumes usam média diária sem zeros. Os heatmaps abaixo continuam mostrando AD e ADA conforme os filtros gerais.</div>
+ </section>
+ <section class="panel heatmap-panel" id="heatmapSection">
+  <div class="heatmap-heading"><div><div class="section-kicker">RADAR DE PERFORMANCE</div><h3>Heatmap de todos os indicadores</h3><p>Cada célula apresenta o valor do dia e sua diferença para a média mensal do mesmo indicador.</p></div>
+    <div class="heatmap-controls">
+     <label for="heatmapGroup">Grupo de indicadores</label>
+     <select id="heatmapGroup"><option value="all">Todos os indicadores</option><option value="volume">Volumes</option><option value="rate">Taxas e percentuais</option><option value="productivity">Produtividade</option></select>
+    </div>
+  </div>
+  <div class="heatmap-legend"><span><i class="heat-swatch heat-up"></i> Acima da média</span><span><i class="heat-swatch heat-mid"></i> Próximo da média (±5%)</span><span><i class="heat-swatch heat-down"></i> Abaixo da média</span><span>As cores indicam posição relativa, não necessariamente resultado favorável.</span><span><i class="heat-swatch heat-empty"></i> Sem registro no dia</span></div>
+  <div class="heatmap-area"><div class="heatmap-title ad"><span>AD <small>Discador humano</small></span><span id="heatmapCountAD"></span></div><div class="heatmap-scroll" id="heatmapAD"></div></div>
+  <div class="heatmap-area"><div class="heatmap-title ada"><span>ADA <small>Discador digital</small></span><span id="heatmapCountADA"></span></div><div class="heatmap-scroll" id="heatmapADA"></div></div>
+  <div id="heatmapDetail" class="heatmap-detail" role="status" aria-live="polite">Clique em uma célula para consultar data, indicador, valor do dia, média mensal e variação.</div>
+ </section>
+ <section class="panel daily-analysis-panel">
+  <div class="heatmap-heading"><div><div class="section-kicker">ANÁLISE CONSOLIDADA / DIA</div><h3>Base analítica diária completa</h3><p>Todos os indicadores de cada dia. A tabela mantém os valores reais, independentemente do modo Total ou Média dia.</p></div><span id="dailyTableCount" class="daily-count"></span></div>
+  <div class="table-wrap daily-analytic-scroll">
+   <table class="data-table daily-analytic"><thead><tr>
+    <th>Data</th><th>Tecnologia</th><th>Agentes</th><th>Mailing</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit %</th><th>CPC %</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Acordo %</th><th>Efic %</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th><th>Mailing / AGV</th><th>Tentativas / AGV</th><th>Atendidas / AGV</th><th>CPC / AGV</th><th>Acordos / AGV</th>
+   </tr></thead><tbody id="dailyExplorerBody"></tbody></table>
+  </div>
+ </section>
+</section>
+  <div class="foot">Fonte: assistpay.energisa_ad_ada_diario (Neon). Os logados são somados entre campanhas; isso não representa necessariamente pessoas únicas. VoiceMail / Atendidas % = VoiceMail ÷ Atendidas × 100. VoiceMail / CPC % = VoiceMail ÷ CPC × 100. Taxas calculadas a partir dos volumes no modo Total; no modo Média dia são médias dos dias com valor positivo. A visão hora a hora será adicionada após disponibilidade de dados com granularidade horária.</div>
+ </div>
+</main>
+</div>
+<script>
+(function(){
+'use strict';
+const API_URL='{{ url_for("energisa_api") }}';
+const $=id=>document.getElementById(id);
+const intFmt=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0});
+const decFmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const dec2Fmt=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const volumeKeys=['mailing','logados','tentativas','atendidas','cpc','voicemail','acordo','hangup'];
+const percentageKeys=new Set(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia']);
+const derivedKeys=['spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas','eficiencia','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
+const monthNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const metricLabels={mailing:'Mailing',logados:'Logados',tentativas:'Tentativas',atendidas:'Atendidas',cpc:'CPC',voicemail:'VoiceMail',acordo:'Acordos',hangup:'Hangup',spin:'Spin',hitrate:'Hit Rate',taxaCpc:'CPC / Atendimento',taxaVoiceMailAtendidas:'VoiceMail / Atendidas (%)',taxaVoiceMailCpc:'VoiceMail / CPC (%)',conversao:'Conversão',taxaHangup:'Hangup / Atendidas (%)',taxaHangupTentativas:'Hangup / Discagens (%)',eficiencia:'Eficiência',mailingLogado:'Mailing / Agente',tentativasLogado:'Tentativas / Agente',atendidasLogado:'Atendidas / Agente',cpcLogado:'CPC / Agente',acordoLogado:'Acordos / Agente'};
+const state={rows:[],originalRows:[],sideType:{AD:'AD',ADA:'ADA'},mode:'average',showAverages:true,activeView:'comparison',heatmapGroup:'all',dailyCampaignKey:'',periods:{AD:{start:'',end:''},ADA:{start:'',end:''}},campaigns:{AD:[],ADA:[]},selection:{AD:new Set(),ADA:new Set()}};
+const sideLabel=side=>(side==='AD'?'A':'B')+' · '+state.sideType[side];
+function rebuildSideRows(){
+ state.rows=[];
+ for(const side of ['AD','ADA']){
+  for(const row of state.originalRows){
+   if(row.agente===state.sideType[side])state.rows.push({...row,agente:side,sourceAgent:row.agente});
+  }
+ }
+}
+function updateScenarioUI(){
+ for(const side of ['AD','ADA']){
+  const label=sideLabel(side);
+  $('type'+side).value=state.sideType[side];
+  $('sourceType'+side).textContent=state.sideType[side];
+  $('funnelType'+side).textContent=label;
+  $('comparisonType'+side).textContent=label;
+  $('legendSide'+side).textContent=label;
+ }
+}
+const isPct=k=>percentageKeys.has(k);
+const nfmt=(n,precision=0)=>Number.isFinite(n)?(precision===2?dec2Fmt:precision===1?decFmt:intFmt).format(n):'—';
+const fmt=(value,key,mode=state.mode)=>{
+ if(!Number.isFinite(value))return '—';
+ if(isPct(key))return nfmt(value,2)+'%';
+ if(key==='spin'||key==='acordoLogado'||key.endsWith('Logado'))return nfmt(value,2);
+ return nfmt(value,mode==='average'?1:0);
+};
+const short=(v,key)=>{
+ if(isPct(key))return fmt(v,key);
+ if(!Number.isFinite(v))return '—';
+ if(Math.abs(v)>=1000000)return nfmt(v/1000000,2)+' mi';
+ if(Math.abs(v)>=10000)return nfmt(v/1000,1)+' mil';
+ return fmt(v,key);
+};
+const rate=(a,b)=>b>0?100*a/b:0;
+const blank=()=>({mailing:0,logados:0,tentativas:0,atendidas:0,cpc:0,voicemail:0,acordo:0,hangup:0});
+function enrich(data){
+ return {...data,
+  spin:data.mailing>0?data.tentativas/data.mailing:0,
+  hitrate:rate(data.atendidas,data.tentativas),
+  taxaCpc:rate(data.cpc,data.atendidas),
+  taxaVoiceMailAtendidas:rate(data.voicemail,data.atendidas),
+  taxaVoiceMailCpc:rate(data.voicemail,data.cpc),
+  conversao:rate(data.acordo,data.cpc),
+  taxaHangup:rate(data.hangup,data.atendidas),
+  taxaHangupTentativas:rate(data.hangup,data.tentativas),
+  eficiencia:rate(data.acordo,data.mailing),
+  mailingLogado:data.logados>0?data.mailing/data.logados:0,
+  tentativasLogado:data.logados>0?data.tentativas/data.logados:0,
+  atendidasLogado:data.logados>0?data.atendidas/data.logados:0,
+  cpcLogado:data.logados>0?data.cpc/data.logados:0,
+  acordoLogado:data.logados>0?data.acordo/data.logados:0
+ };
+}
+function sumRows(rows){
+ const totals=blank();
+ for(const r of rows)for(const key of volumeKeys)totals[key]+=Number(r[key])||0;
+ return enrich(totals);
+}
+function dailyRows(rows){
+ const byDay=new Map();
+ for(const row of rows){
+  let rowsOfDay=byDay.get(row.data);
+  if(!rowsOfDay){rowsOfDay=[];byDay.set(row.data,rowsOfDay)}
+  rowsOfDay.push(row);
+ }
+ return [...byDay.entries()]
+  .map(([date,items])=>({date,values:sumRows(items),rows:items}))
+  .sort((a,b)=>a.date.localeCompare(b.date));
+}
+function nonzeroMean(items){const valid=items.filter(v=>Number.isFinite(v)&&v>0);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0;}
+function averageDaily(days){
+ // Média por indicador de volume: desconsidera dias zerados.
+ // Taxas são calculadas dos volumes médios, conforme benchmark executivo.
+ const out={...blank()};
+ for(const key of volumeKeys){
+  out[key]=nonzeroMean(days.map(day=>day.values[key]));
+ }
+ return enrich(out);
+}
+function monthLabel(month){
+ if(!month)return 'Sem mês';
+ const parts=month.split('-'),idx=Number(parts[1])-1;
+ return monthNames[idx]+' / '+parts[0];
+}
+function longDate(day){if(!day)return '—';const p=day.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function dateNumber(iso){return Math.floor(Date.parse(iso+'T00:00:00Z')/86400000);}
+function addDays(iso,days){return new Date((dateNumber(iso)+days)*86400000).toISOString().slice(0,10);}
+function periodLength(period){return !period.start||!period.end?0:Math.max(0,dateNumber(period.end)-dateNumber(period.start)+1);}
+function rangeLabel(period){return longDate(period.start)+' até '+longDate(period.end);}
+function chosenRows(agent){
+ const period=state.periods[agent];
+ return state.rows.filter(row=>row.agente===agent&&row.data>=period.start&&row.data<=period.end&&state.selection[agent].has(row.campaign_id));
+}
+function campaignSummary(agent){
+ const selected=state.campaigns[agent].filter(([id])=>state.selection[agent].has(id));
+ return selected.length===0?'Nenhuma campanha':selected.length===1?selected[0][1]:selected.length+' campanhas selecionadas';
+}
+function calcSide(agent){
+ const rows=chosenRows(agent);
+ const days=dailyRows(rows);
+ const total=sumRows(rows);
+ const average=averageDaily(days);
+ const activeDays=days.filter(row=>row.values.tentativas>0).length;
+ const agentMean=nonzeroMean(days.map(day=>day.values.logados));
+ const stats=state.mode==='average'?average:total;
+ // Média de AGV ativo; no modo Total, a base de produtividade é a soma de agentes-dia.
+ const agentDenominator=state.mode==='average'?agentMean:total.logados;
+ const productivity={};
+ for(const key of ['mailing','tentativas','atendidas','cpc','acordo']){
+  productivity[key]=agentDenominator>0?stats[key]/agentDenominator:0;
+ }
+ return {agent,rows,days,stats,total,average,activeDays,agentMean,productivity,period:{...state.periods[agent]},name:campaignSummary(agent)};
+}
+const deltaInfo=(a,b,{invert=false}={})=>{
+ if(!Number.isFinite(a)||!Number.isFinite(b))return {text:'—',cls:''};
+ if(a===0)return {text:b===0?'0,0%':'Novo',cls:b===0?'':invert?'neg':'pos'};
+ const p=(b-a)/Math.abs(a)*100;
+ return {text:(p>0?'+':'')+nfmt(p,1)+'%',cls:p===0?'':(p>0)!==invert?'pos':'neg',value:p};
+};
+function updatePicker(agent){
+ const count=state.selection[agent].size,total=state.campaigns[agent].length;
+ $(agent==='AD'?'adSummary':'adaSummary').textContent=count===0?'Nenhuma campanha':count===total?'Todas as campanhas ('+count+')':count+' de '+total+' campanhas';
+}
+function setCampaigns(agent,all){
+ const ids=state.campaigns[agent].map(([id])=>id);
+ state.selection[agent]=new Set(all?ids:[]);
+ $(agent==='AD'?'adChecks':'adaChecks').querySelectorAll('input[type=checkbox]').forEach(input=>{input.checked=all});
+ updatePicker(agent);render();
+}
+function buildFilters(onlySide){
+ const groups={AD:new Map(),ADA:new Map()},dates={AD:[],ADA:[]};
+ for(const row of state.rows){
+  dates[row.agente].push(row.data);
+  if(!groups[row.agente].has(row.campaign_id))groups[row.agente].set(row.campaign_id,row.nome_campanha);
+ }
+ for(const agent of (onlySide?[onlySide]:['AD','ADA'])){
+  state.campaigns[agent]=[...groups[agent]].sort((a,b)=>a[0]-b[0]);
+  const days=dates[agent].sort(),earliest=days[0],latest=days[days.length-1];
+  const target=state.sideType[agent]==='AD'?'2026-09':'2026-11';
+  const targetDays=days.filter(day=>day.startsWith(target));
+  const start=targetDays[0]||earliest||'',end=targetDays[targetDays.length-1]||latest||'';
+  state.periods[agent]={start,end};
+  for(const [prefix,value] of [['start',start],['end',end]]){
+   const input=$(prefix+agent);
+   input.min=earliest||'';
+   input.max=latest||'';
+   input.value=value;
+  }
+  const preferred=state.sideType[agent]==='AD'?18:383;
+  const preferredExists=state.campaigns[agent].some(([id])=>id===preferred);
+  state.selection[agent]=new Set(preferredExists?[preferred]:state.campaigns[agent].map(([id])=>id));
+  const root=$(agent==='AD'?'adChecks':'adaChecks');root.replaceChildren();
+  for(const [id,label] of state.campaigns[agent]){
+   const line=document.createElement('label');line.className='campaign-item';
+   const input=document.createElement('input');input.type='checkbox';input.value=String(id);
+   input.checked=state.selection[agent].has(id);
+   const span=document.createElement('span');span.textContent=label;
+   line.append(input,span);root.appendChild(line);
+   input.addEventListener('change',()=>{
+    if(input.checked)state.selection[agent].add(id);else state.selection[agent].delete(id);
+    updatePicker(agent);render();
+   });
+  }
+  updatePicker(agent);
+ }
+}
+function displayMode(mode){
+ state.mode=mode;
+ for(const [name,id] of [['total','btnTotal'],['average','btnAverage']]){
+  const btn=$(id);btn.classList.toggle('active',name===mode);btn.setAttribute('aria-pressed',String(name===mode));
+ }
+ render();
+}
+function headline(s){
+ $('adMeta').textContent=s.AD.activeDays+' dias trabalhados · '+rangeLabel(s.AD.period);
+ $('adaMeta').textContent=s.ADA.activeDays+' dias trabalhados · '+rangeLabel(s.ADA.period);
+ $('comparisonADLabel').textContent=s.AD.name+' · '+rangeLabel(s.AD.period);
+ $('comparisonADALabel').textContent=s.ADA.name+' · '+rangeLabel(s.ADA.period);
+ $('benchmarkCoverage').innerHTML='<span><b style="color:#7cb2fa">'+esc(sideLabel('AD'))+'</b> '+s.AD.activeDays+' dias trabalhados</span><span><b style="color:#ffab83">'+esc(sideLabel('ADA'))+'</b> '+s.ADA.activeDays+' dias trabalhados</span>';
+ $('filterInfo').textContent=sideLabel('AD')+': '+rangeLabel(s.AD.period)+' | '+sideLabel('ADA')+': '+rangeLabel(s.ADA.period)+'. Médias ignoram dias zerados por indicador; taxas calculadas sobre volumes médios.';
+ $('rangeLabel').textContent=sideLabel('AD')+' '+rangeLabel(s.AD.period)+' × '+sideLabel('ADA')+' '+rangeLabel(s.ADA.period);
+}
+function iconSVG(kind){
+ const shapes={
+  acordo:'<path d="M5 8l-2 3 5 7a2 2 0 0 0 3-2m-3-6 4-3h4l5 4-5 7a2 2 0 0 1-3-1l-4-5"/><path d="M3 8l4-4h3l2 2m8 2-3-4h-3l-2 2"/>',
+  eficiencia:'<path d="M4 19v-5m5 5v-8m5 8v-5m5 5V6"/><path d="M3 11l6-5 4 3 7-6m-5 0h5v5"/>',
+  atendidas:'<path d="M4 5h13a3 3 0 0 1 3 3v8l-4-3H7a3 3 0 0 1-3-3z"/><path d="M8 17h6l3 3v-4"/>',
+  cpc:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>',
+  voicemail:'<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h5M8 16h8"/>',
+  pagamento:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M6 15h4"/>',
+  agentes:'<circle cx="9" cy="8" r="3"/><path d="M3 19v-3a6 6 0 0 1 12 0v3M17 11a3 3 0 1 0 0-6M17 14a5 5 0 0 1 4 5"/>'
+ };
+ return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(shapes[kind]||shapes.cpc)+'</svg>';
+}
+function changeDisplay(a,b){
+ if(a===null||b===null||!Number.isFinite(a)||!Number.isFinite(b))return {text:'N/D',className:'neutral',mark:'•'};
+ const d=deltaInfo(a,b);
+ const positive=d.value>0,negative=d.value<0;
+ return {text:d.text,className:positive?'positive':negative?'negative':'neutral',mark:positive?'↑':negative?'↓':'•'};
+}
+function sparkline(s,key){
+ const W=118,H=36,parts=[s.AD.days.slice(-16).map(d=>Number(d.values[key])||0),s.ADA.days.slice(-16).map(d=>Number(d.values[key])||0)];
+ const max=Math.max(1,...parts[0],...parts[1]);
+ const trace=(arr,color)=>!arr.length?'':('<polyline points="'+arr.map((v,i)=>{
+  const x=3+(arr.length===1?W/2:i/(arr.length-1)*(W-6)),y=H-4-v/max*(H-9);
+  return x.toFixed(1)+','+y.toFixed(1);
+ }).join(' ')+'" stroke="'+color+'" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>');
+ return '<svg class="kpi-sparkline" viewBox="0 0 '+W+' '+H+'" aria-hidden="true">'+trace(parts[0],'#5daeff')+trace(parts[1],'#fb744b')+'</svg>';
+}
+function renderKpis(s){
+ const cards=[
+  {key:'acordo',label:'Acordos',icon:'acordo',info:'Quantidade de acordos'},
+  {key:'eficiencia',label:'Eficiência',icon:'eficiencia',info:'Acordos ÷ Mailing × 100'},
+  {key:'atendidas',label:'Atendidas',icon:'atendidas',info:'Chamadas atendidas'},
+  {key:'cpc',label:'CPC',icon:'cpc',info:'Contatos com a pessoa certa'},
+  {key:'voicemail',label:'VoiceMail',icon:'voicemail',info:'Na Energisa, VoiceMail é um contato válido contabilizado como CPC: aumento é positivo.'},
+  {key:'agentes',label:'Agentes / dia',icon:'agentes',info:'Média diária de agentes logados'}
+ ];
+ $('kpis').innerHTML=cards.map((card,index)=>{
+  const key=card.key==='agentes'?'logados':card.key;
+  const a=card.key==='agentes'?s.AD.agentMean:s.AD.stats[key];
+  const b=card.key==='agentes'?s.ADA.agentMean:s.ADA.stats[key];
+  const d=deltaInfo(a,b);
+  const display=v=>card.key==='eficiencia'?nfmt(v,2)+'%':nfmt(v);
+  const arrow=d.value>0?'↗':d.value<0?'↘':'•';
+  return '<button type="button" class="assist-kpi" data-chart-key="'+key+'" title="'+esc(card.info)+' · Abrir tendência diária" aria-label="'+esc(card.label)+' AD '+display(a)+' e ADA '+display(b)+'; variação '+d.text+'; abrir gráfico">'+
+   '<span class="assist-kpi-head"><span class="assist-kpi-icon '+(index===1||index===2||index===3?'cyan':'')+'">'+iconSVG(card.icon)+'</span>'+
+   '<span class="assist-kpi-main"><span class="assist-kpi-name">'+card.label+'</span><span class="assist-kpi-values">'+display(a)+' <i>→</i> '+display(b)+'</span></span></span>'+
+   '<span class="assist-kpi-data-label"><span><i class="assist-legend-dot human"></i> AD</span><span><i class="assist-legend-dot digital"></i> ADA</span></span>'+
+   '<span class="assist-kpi-bottom"><span class="assist-kpi-delta '+(d.cls==='pos'?'positive':d.cls==='neg'?'negative':'neutral')+'">'+arrow+' '+d.text+'</span><span class="spark-wrap">'+sparkline(s,key)+'</span></span>'+
+   '<span class="assist-kpi-open">↗ Ver evolução</span></button>';
+ }).join('');
+}
+function renderMatrix(s){
+ // A tabela usa valores não arredondados para calcular variações;
+ // o arredondamento é exclusivo da apresentação.
+ const rows=[
+  {label:'Campanha',special:'name',noDelta:true},
+  {label:'Dias Trabalhados',special:'days',noDelta:true},
+  {label:'Média Dia',special:'month',noDelta:true},
+  {group:'Volumes e equipe'},
+  {label:'Mailing',key:'mailing'},
+  {label:'Agentes',special:'agents',key:'logados'},
+  {label:'Tentativas',key:'tentativas'},
+  {label:'Atendidas',key:'atendidas'},
+  {label:'CPC',key:'cpc'},
+  {label:'VoiceMail',key:'voicemail'},
+  {label:'Acordo',key:'acordo',highlight:true},
+  {group:'Taxas e conversão'},
+  {label:'Spin',key:'spin'},
+  {label:'Hit %',key:'hitrate'},
+  {label:'CPC %',key:'taxaCpc'},
+  {label:'VoiceMail / Atendidas %',key:'taxaVoiceMailAtendidas'},
+  {label:'VoiceMail / CPC %',key:'taxaVoiceMailCpc'},
+  {label:'Acordo %',key:'conversao',highlight:true},
+  {label:'Efic %',key:'eficiencia',highlight:true},
+  {label:'Hangup / Atendidas %',key:'taxaHangup'},
+  {label:'Hangup / Discagens %',key:'taxaHangupTentativas'},
+  {group:'Produtividade por agente'},
+  {label:'Mailing / AGV',prod:'mailing'},
+  {label:'Tentativas / AGV',prod:'tentativas'},
+  {label:'Atendidas / AGV',prod:'atendidas'},
+  {label:'CPC / AGV',prod:'cpc'},
+  {label:'Acordo / AGV',prod:'acordo',highlight:true}
+ ];
+ const monthName=side=>{
+  const dates=[...new Set(side.days.map(x=>x.date.slice(0,7)))].sort();
+  const months=dates.length?dates:[side.period.start.slice(0,7)];
+  return months.map(m=>monthNames[Number(m.slice(5,7))-1]||m).join(' / ')+
+   (new Set(months.map(m=>m.slice(0,4))).size>1?' · '+[...new Set(months.map(m=>m.slice(0,4)))].join('/'):'');
+ };
+ const rowData=(row,side)=>{
+  if(row.special==='name')return side.name;
+  if(row.special==='days')return side.activeDays;
+  if(row.special==='month')return monthName(side);
+  if(row.special==='agents')return side.agentMean;
+  if(row.prod)return side.productivity[row.prod];
+  return side.stats[row.key];
+ };
+ const display=(row,value)=>{
+  if(row.special==='name'||row.special==='month')return esc(value);
+  if(row.key==='spin')return nfmt(value,1);
+  if(['hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','taxaHangup','taxaHangupTentativas'].includes(row.key))return nfmt(value,1)+'%';
+  if(row.key==='eficiencia')return nfmt(value,2)+'%';
+  return nfmt(value);
+ };
+ $('comparisonBody').innerHTML=rows.map(row=>{
+  if(row.group)return '<tr class="assist-section-row"><td colspan="4">'+esc(row.group)+'</td></tr>';
+  const a=rowData(row,s.AD),b=rowData(row,s.ADA);
+  const d=row.noDelta?null:deltaInfo(a,b);
+  const css=d?(d.cls==='pos'?'pos':d.cls==='neg'?'neg':''):'na';
+  const change=d?(d.value>0?'↑ ':d.value<0?'↓ ':'• ')+d.text:'—';
+  const cls=row.highlight?'assist-row-highlight':'';
+  const clickableKey=!row.special&&!row.prod?row.key:'';
+  const rowAttrs=clickableKey?' data-chart-key="'+clickableKey+'" tabindex="0" aria-label="Exibir evolução '+esc(row.label)+'"':'';
+  const titleAttr=row.special==='name'?' title="'+esc(a)+' × '+esc(b)+'"':'';
+  return '<tr class="'+cls+'"'+rowAttrs+'><td'+titleAttr+'>'+esc(row.label)+'</td><td title="'+esc(a)+'">'+display(row,a)+'</td>'+
+   '<td title="'+esc(b)+'">'+display(row,b)+'</td><td class="assist-cell-delta '+css+'">'+change+'</td></tr>';
+ }).join('');
+}
+function renderFunnel(s){
+ const stages=[
+  {label:'Mailing médio',key:'mailing',style:'blue',averageMailing:true},
+  {label:'Tentativas',key:'tentativas',style:'blue'},
+  {label:'Atendidas',key:'atendidas',style:'blue'},
+  {label:'CPC',key:'cpc',style:'blue'},
+  {label:'VoiceMail',key:'voicemail',style:'blue'},
+  {label:'Acordo',key:'acordo',style:'orange'}
+ ];
+ const rates=[['Spin','spin'],['Hit %','hitrate'],['CPC %','taxaCpc'],['VoiceMail / Atendidas %','taxaVoiceMailAtendidas'],['VoiceMail / CPC %','taxaVoiceMailCpc'],['Acordo %','conversao'],['Efic %','eficiencia'],['Hangup / Atendidas %','taxaHangup'],['Hangup / Discagens %','taxaHangupTentativas']];
+ const agv=[['Mailing / AGV','mailing'],['Tentativas / AGV','tentativas'],['Atendidas / AGV','atendidas'],['CPC / AGV','cpc'],['Acordo / AGV','acordo']];
+ for(const agent of ['AD','ADA']){
+  const side=s[agent],main=$('funnel'+agent),delta=$('funnelDeltas'+agent);
+  $('funnelPeriod'+agent).textContent=rangeLabel(side.period);
+  $('funnelDays'+agent).textContent=side.activeDays+' dias trabalhados';
+  const names=state.campaigns[agent]
+   .filter(([id])=>state.selection[agent].has(id))
+   .map(([,name])=>name);
+  const label=$('funnelCampaign'+agent);
+  label.textContent=names.length===0?'Nenhuma campanha selecionada':
+   names.length===1?names[0]:names.length+' campanhas selecionadas: '+names.join(' · ');
+  label.title=names.join('\\n');
+  label.classList.toggle('multiple',names.length>1);
+  main.innerHTML=stages.map((stage,i)=>{
+   const value=stage.averageMailing?side.average.mailing:side.stats[stage.key];
+   const widths=[100,96,92,88,84,80];
+   const formatted=nfmt(value);
+   const help=stage.key==='voicemail'?'VoiceMail é uma classificação válida que conta como CPC para a Energisa. Aumento é favorável; não some novamente ao CPC.':'Volume do indicador selecionado.';
+   return '<button type="button" class="assist-funnel-stage '+stage.style+(stage.key==='voicemail'?' classificador':'')+'" data-chart-key="'+stage.key+'" style="--funnel-width:'+widths[i]+'%" title="'+esc(help)+' Abrir tendência.">'+
+    '<span class="assist-stage-label">'+esc(stage.label)+(stage.key==='voicemail'?'<small class="stage-subtype">classificação</small>':'')+'</span><strong class="assist-stage-value">'+formatted+'</strong></button>'+
+    (i<stages.length-1?'<div class="assist-funnel-chevron '+(i>=3?'classify-link ':'')+(i===4?'orange':'')+'" aria-hidden="true">'+(i>=3?'⋮':'⌄')+'</div>':'');
+  }).join('');
+  delta.innerHTML='<div class="assist-delta-title">Variação B × A</div><div class="assist-delta-sub">Funil B sobre A</div>'+
+   stages.map(stage=>{
+    const a=stage.averageMailing?s.AD.average.mailing:s.AD.stats[stage.key];
+    const b=stage.averageMailing?s.ADA.average.mailing:s.ADA.stats[stage.key];
+    const change=changeDisplay(a,b);
+    const cls=change.className==='positive'?'up':change.className==='negative'?'down':'na';
+    return '<div class="assist-funnel-delta-item"><span>'+esc(stage.label)+'</span><strong class="'+cls+'">'+change.mark+' '+change.text+'</strong></div>';
+   }).join('');
+  $('funnelAgents'+agent).innerHTML='<span>Agentes (média dia)</span><strong>'+nfmt(side.agentMean)+'</strong>';
+  $('funnelRates'+agent).innerHTML=rates.map(([label,key])=>{
+   const value=side.stats[key],valueFmt=key==='spin'?nfmt(value,1):key==='eficiencia'?nfmt(value,2)+'%':nfmt(value,1)+'%';
+   return '<button type="button" class="assist-mini-metric" data-chart-key="'+key+'" title="Abrir tendência de '+esc(label)+'"><span>'+label+'</span><b>'+valueFmt+'</b></button>';
+  }).join('');
+  $('funnelAGV'+agent).innerHTML=agv.map(([label,key])=>
+   '<div class="assist-mini-metric"><span>'+label+'</span><b>'+nfmt(side.productivity[key])+'</b></div>'
+  ).join('');
+ }
+}
+function renderDaily(s){
+ const days=[...s.AD.days.map(x=>({...x,tech:'AD'})),...s.ADA.days.map(x=>({...x,tech:'ADA'}))].sort((a,b)=>a.date.localeCompare(b.date)||a.tech.localeCompare(b.tech));
+ $('dailyHint').textContent=days.length+' linhas • dias reais dos períodos selecionados';
+ $('dailyBody').innerHTML=days.length?days.map(d=>{
+  const m=d.values;
+  const values=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+esc(sideLabel(d.tech))+'</span>',
+   ...volumeKeys.map(k=>nfmt(m[k])),nfmt(m.spin,2),fmt(m.hitrate,'hitrate'),fmt(m.taxaCpc,'taxaCpc'),fmt(m.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(m.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(m.conversao,'conversao'),fmt(m.taxaHangup,'taxaHangup'),fmt(m.taxaHangupTentativas,'taxaHangupTentativas')];
+  return '<tr>'+values.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
+ }).join(''):'<tr><td colspan="18">Nenhuma informação para os filtros.</td></tr>';
+}
+function renderCampaigns(s){
+ const list=[...s.AD.rows,...s.ADA.rows];
+ const groups=new Map();
+ for(const row of list){
+  const key=row.agente+':'+row.campaign_id;
+  if(!groups.has(key))groups.set(key,{agent:row.agente,id:row.campaign_id,name:row.nome_campanha,rows:[]});
+  groups.get(key).rows.push(row);
+ }
+ $('campaignBody').innerHTML=groups.size?[...groups.values()].sort((a,b)=>a.agent.localeCompare(b.agent)||a.id-b.id).map(g=>{
+  const d=dailyRows(g.rows),active=d.filter(r=>r.values.tentativas>0).length;
+  const stats=state.mode==='average'?averageDaily(d):sumRows(g.rows);
+  const values=[esc(g.name),'<span class="type-tag '+g.agent.toLowerCase()+'">'+esc(sideLabel(g.agent))+'</span>',nfmt(active),...volumeKeys.map(k=>fmt(stats[k],k)),fmt(stats.taxaVoiceMailAtendidas,'taxaVoiceMailAtendidas'),fmt(stats.taxaVoiceMailCpc,'taxaVoiceMailCpc'),fmt(stats.conversao,'conversao')];
+  return '<tr>'+values.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
+ }).join(''):'<tr><td colspan="14">Nenhuma campanha selecionada.</td></tr>';
+}
+function chartVal(item,key){return item?Number(item.values[key]||0):null;}
+function monthlyReference(agent,month,key){
+ // Mês calendário completo da campanha selecionada, independente do recorte de datas.
+ // Portanto selecionar uma semana não altera artificialmente a média mensal do popup.
+ const rows=state.rows.filter(row=>
+  row.agente===agent&&row.data.slice(0,7)===month&&state.selection[agent].has(row.campaign_id)
+ );
+ return averageDaily(dailyRows(rows))[key]||0;
+}
+function popupInfo(side,entry,index,key,ctx){
+ const day=addDays(side.period.start,index-1);
+ const inRange=day<=side.period.end;
+ const month=day.slice(0,7),baseline=inRange?ctx.monthAverage(side.agent,month):0;
+ const hasDay=inRange&&entry!==undefined;
+ const value=hasDay?chartVal(entry,key):null;
+ const diff=hasDay&&baseline>0?(value-baseline)/baseline*100:null;
+ const direction=diff===null?'':diff>=0?'up':'down';
+ const diffText=diff===null?'Sem média válida':(diff>0?'+':'')+nfmt(diff,1)+'% vs média';
+ return '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+side.agent.toLowerCase()+'"></i> '+side.agent+' · '+esc(inRange?longDate(day):'Fora do período')+'</span><b>'+ (hasDay?fmt(value,key,'total'):(inRange?'Sem registro':'—')) +'</b></div>'+
+ (inRange?'<div class="hover-info">Média de '+esc(monthLabel(month))+': <strong>'+fmt(baseline,key,'average')+'</strong> · <span class="hover-delta '+direction+'">'+diffText+'</span>'+(hasDay&&value===0?' · dia zerado excluído da média':'')+'</div>':'')+'</div>';
+}
+function showPopup(event,day,ctx){
+ const target=$('chartPopup');
+ target.innerHTML='<div class="hover-title">'+esc(metricLabels[ctx.key])+' · '+day+'º dia do período</div>'+
+  popupInfo(ctx.AD,ctx.adByDay.get(day),day,ctx.key,ctx)+
+  popupInfo(ctx.ADA,ctx.adaByDay.get(day),day,ctx.key,ctx);
+ target.hidden=false;
+ const rect=target.getBoundingClientRect();
+ const anchor=event.clientX!==undefined?{x:event.clientX,y:event.clientY}:(event.target.getBoundingClientRect()?{x:event.target.getBoundingClientRect().left,y:event.target.getBoundingClientRect().top}:{x:40,y:230});
+ const windowWidth=document.documentElement.clientWidth,windowHeight=document.documentElement.clientHeight;
+ const left=Math.max(8,Math.min(windowWidth-rect.width-8,anchor.x-rect.width/2));
+ let top=anchor.y-rect.height-18;
+ if(top<8)top=Math.min(windowHeight-rect.height-8,anchor.y+22);
+ target.style.left=left+'px';target.style.top=Math.max(8,top)+'px';
+}
+function hidePopup(){$('chartPopup').hidden=true;}
+function renderChart(s,view='comparison'){
+ const isDaily=view==='daily';
+ const get=id=>$(id+(isDaily?'Daily':''));
+ hidePopup();
+ const key=get('chartMetric').value;
+ const idxDay=(side,iso)=>dateNumber(iso)-dateNumber(side.period.start)+1;
+ const adByDay=new Map(s.AD.days.map(day=>[idxDay(s.AD,day.date),day]));
+ const adaByDay=new Map(s.ADA.days.map(day=>[idxDay(s.ADA,day.date),day]));
+ const refCache=new Map();
+ const monthAverage=(agent,month)=>{
+  const cacheKey=agent+'|'+month+'|'+key;
+  if(!refCache.has(cacheKey))refCache.set(cacheKey,isDaily?dailyMonthlyBaseline(agent,month,key):monthlyReference(agent,month,key));
+  return refCache.get(cacheKey);
+ };
+ const chip=(agent,side)=>'<div class="month-chip '+(agent==='ADA'?'ada':'')+'"><i class="chip-dot"></i><div><span>'+sideLabel(agent)+' · média diária do período</span><b>'+fmt(side.average[key],key,'average')+'</b></div></div>';
+ get('chartMonthAverages').innerHTML=chip('AD',s.AD)+chip('ADA',s.ADA);
+ get('chartLegend').innerHTML='<span><i class="dot ad"></i>'+esc(sideLabel('AD'))+' · '+esc(rangeLabel(s.AD.period))+'</span><span><i class="dot ada"></i>'+esc(sideLabel('ADA'))+' · '+esc(rangeLabel(s.ADA.period))+'</span>'+(isDaily||state.showAverages?'<span style="color:#8398b4">⋯ Tracejado: média do mês calendário</span>':'');
+ if(!isDaily){const avgToggle=$('toggleChartAvg');avgToggle.classList.toggle('is-active',state.showAverages);avgToggle.setAttribute('aria-pressed',String(state.showAverages));
+  document.querySelectorAll('.chart-quick-btn').forEach(btn=>{const active=btn.dataset.chartKey===key;btn.classList.toggle('is-active',active);btn.setAttribute('aria-pressed',String(active));});}
+ const maxSpan=Math.max(periodLength(s.AD.period),periodLength(s.ADA.period));
+ if(!s.AD.days.length&&!s.ADA.days.length){
+  get('chartBox').innerHTML='<p class="empty-state">Nenhum dado nas campanhas e datas selecionadas.</p>';return;
+ }
+ const maxDay=Math.max(2,maxSpan),W=1050,H=310,padL=64,padR=24,padTop=28,padBottom=43;
+ const iw=W-padL-padR,ih=H-padTop-padBottom;
+ const monthSpans=[];
+ for(const side of [s.AD,s.ADA]){
+  const days=periodLength(side.period);
+  let segment=null;
+  for(let day=1;day<=days;day++){
+   const month=addDays(side.period.start,day-1).slice(0,7);
+   const baseline=monthAverage(side.agent,month);
+   if(!segment||segment.month!==month){
+    segment={agent:side.agent,start:day,end:day,month,baseline};
+    monthSpans.push(segment);
+   }else segment.end=day;
+  }
+ }
+ const vals=[...s.AD.days.map(d=>d.values[key]),...s.ADA.days.map(d=>d.values[key]),...monthSpans.map(x=>x.baseline)].filter(v=>Number.isFinite(v));
+ const max=Math.max(1,...vals)*1.12;
+ const x=d=>padL+(d-1)/(maxDay-1)*iw;
+ const y=v=>padTop+ih-Math.max(0,v)/max*ih;
+ const faxis=v=>isPct(key)?nfmt(v,1)+'%':v>=1000000?nfmt(v/1000000,1)+' mi':v>=1000?nfmt(v/1000,1)+' mil':nfmt(v);
+ let svg='<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolução diária alinhada pelo dia relativo de cada período">';
+ for(let i=0;i<=4;i++){
+  const v=max*i/4,yy=y(v);
+  svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#29415f" stroke-dasharray="3 5"/><text x="'+(padL-9)+'" y="'+(yy+4)+'" fill="#8fa4c4" font-size="11" text-anchor="end">'+faxis(v)+'</text>';
+ }
+ const interval=maxDay>45?10:maxDay>23?5:maxDay>11?3:1;
+ for(let day=1;day<=maxDay;day+=interval){
+  svg+='<text x="'+x(day)+'" y="'+(H-13)+'" fill="#849cbb" font-size="11" text-anchor="middle">'+day+'</text>';
+ }
+ svg+='<text x="'+(W-padR)+'" y="'+(H-12)+'" fill="#819ab9" font-size="10" text-anchor="end">Dia do período</text>';
+ for(const segment of monthSpans){
+  if((!isDaily&&!state.showAverages)||segment.baseline<=0)continue;
+  const color=segment.agent==='AD'?'#529cfb':'#fb6b3d',yy=y(segment.baseline);
+  svg+='<line x1="'+x(segment.start)+'" x2="'+x(segment.end)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="1.4" stroke-dasharray="7 7" opacity=".68"/>';
+ }
+ const series=[{agent:'AD',color:'#529cfb',data:adByDay},{agent:'ADA',color:'#fb6b3d',data:adaByDay}];
+ for(const line of series){
+  let path='',drawing=false;
+  for(let day=1;day<=maxDay;day++){
+   if(!line.data.has(day)){drawing=false;continue;}
+   const value=chartVal(line.data.get(day),key);
+   path+=(drawing?'L':'M')+x(day).toFixed(2)+' '+y(value).toFixed(2)+' ';
+   drawing=true;
+  }
+  svg+='<path class="chart-glow-line" d="'+path+'" fill="none" stroke="'+line.color+'" stroke-width="9" opacity=".16" stroke-linejoin="round" stroke-linecap="round"/>';
+  svg+='<path d="'+path+'" fill="none" stroke="'+line.color+'" stroke-width="3.1" stroke-linejoin="round" stroke-linecap="round"/>';
+  for(const [day,item] of line.data.entries()){
+   const value=chartVal(item,key),xx=x(day),yy=y(value);
+   svg+='<circle class="plot-point" data-day="'+day+'" data-tech="'+line.agent+'" cx="'+xx+'" cy="'+yy+'" r="4.6" fill="'+line.color+'" stroke="#07162f" stroke-width="2" tabindex="0" role="button" aria-label="'+esc(line.agent+' '+longDate(item.date)+': '+fmt(value,key,'total'))+'"><title>'+esc(line.agent+' '+longDate(item.date)+' • '+fmt(value,key,'total'))+'</title></circle>';
+  }
+ }
+ svg+='</svg>';
+ get('chartBox').innerHTML=svg;
+ const ctx={AD:s.AD,ADA:s.ADA,adByDay,adaByDay,monthAverage,key};
+ get('chartBox').querySelectorAll('.plot-point').forEach(circle=>{
+  const day=Number(circle.dataset.day);
+  circle.addEventListener('pointerenter',e=>showPopup(e,day,ctx));
+  circle.addEventListener('pointermove',e=>showPopup(e,day,ctx));
+  circle.addEventListener('pointerleave',hidePopup);
+  circle.addEventListener('focus',()=>{const rect=circle.getBoundingClientRect();showPopup({clientX:rect.left+rect.width/2,clientY:rect.top},day,ctx)});
+  circle.addEventListener('blur',hidePopup);
+  circle.addEventListener('click',e=>showPopup(e,day,ctx));
+ });
+}
+/* Lógica da Visão dia a dia:
+   volumes => média dos dias positivos do mês calendário
+   percentuais/Spin/AGV => razão dos totais do mês, para evitar média simples de taxas
+   filtragem de campanhas independente, mês completo independente das datas visíveis */
+const dailyMonthlyCache=new Map();
+const dailyMetrics=[
+ {key:'mailing',label:'Mailing',group:'volume'},
+ {key:'logados',label:'Agentes',group:'volume'},
+ {key:'tentativas',label:'Tentativas',group:'volume'},
+ {key:'atendidas',label:'Atendidas',group:'volume'},
+ {key:'cpc',label:'CPC',group:'volume'},
+ {key:'voicemail',label:'VoiceMail',group:'volume'},
+ {key:'acordo',label:'Acordos',group:'volume'},
+ {key:'hangup',label:'Hangup',group:'volume'},
+ {key:'spin',label:'Spin',group:'rate'},
+ {key:'hitrate',label:'Hit Rate %',group:'rate'},
+ {key:'taxaCpc',label:'CPC / Atendidas %',group:'rate'},
+ {key:'taxaVoiceMailAtendidas',label:'VoiceMail / Atendidas %',group:'rate'},
+ {key:'taxaVoiceMailCpc',label:'VoiceMail / CPC %',group:'rate'},
+ {key:'conversao',label:'Acordo / CPC %',group:'rate'},
+ {key:'eficiencia',label:'Eficiência %',group:'rate'},
+ {key:'taxaHangup',label:'Hangup / Atendidas %',group:'rate'},
+ {key:'taxaHangupTentativas',label:'Hangup / Discagens %',group:'rate'},
+ {key:'mailingLogado',label:'Mailing / AGV',group:'productivity'},
+ {key:'tentativasLogado',label:'Tentativas / AGV',group:'productivity'},
+ {key:'atendidasLogado',label:'Atendidas / AGV',group:'productivity'},
+ {key:'cpcLogado',label:'CPC / AGV',group:'productivity'},
+ {key:'acordoLogado',label:'Acordos / AGV',group:'productivity'}
+];
+function dailyMonthProfile(agent,month){
+ const selected=[...state.selection[agent]].sort((a,b)=>a-b).join(',');
+ const cacheKey=agent+'|'+month+'|'+selected;
+ if(dailyMonthlyCache.has(cacheKey))return dailyMonthlyCache.get(cacheKey);
+ const rows=state.rows.filter(r=>r.agente===agent&&r.data.startsWith(month)&&state.selection[agent].has(r.campaign_id));
+ const days=dailyRows(rows);
+ const profile={mean:averageDaily(days),weighted:sumRows(rows)};
+ dailyMonthlyCache.set(cacheKey,profile);
+ return profile;
+}
+function dailyMonthlyBaseline(agent,month,key){
+ const profile=dailyMonthProfile(agent,month);
+ return volumeKeys.includes(key)?profile.mean[key]||0:profile.weighted[key]||0;
+}
+function dailyValue(value,key){
+ return fmt(Number(value)||0,key,'total');
+}
+/* A evolução diária agora é individual por campanha; somente os heatmaps continuam agregando os filtros AD e ADA. */
+const singleCampaignMonthlyCache=new Map();
+function singleCampaignMonthBaseline(agent,campaignId,month,key){
+ const cacheKey=agent+'|'+campaignId+'|'+month;
+ if(!singleCampaignMonthlyCache.has(cacheKey)){
+  const rows=state.rows.filter(row=>row.agente===agent&&row.campaign_id===campaignId&&row.data.slice(0,7)===month);
+  singleCampaignMonthlyCache.set(cacheKey,{means:averageDaily(dailyRows(rows)),totals:sumRows(rows)});
+ }
+ const profile=singleCampaignMonthlyCache.get(cacheKey);
+ return Number(volumeKeys.includes(key)?profile.means[key]:profile.totals[key])||0;
+}
+function syncDailyCampaignSelector(){
+ const picker=$('chartCampaignDaily'),options=[],groups=[];
+ for(const agent of ['AD','ADA']){
+  const choices=state.campaigns[agent].filter(([id])=>state.selection[agent].has(id));
+  if(!choices.length)continue;
+  groups.push('<optgroup label="'+esc(sideLabel(agent))+'">'+
+   choices.map(([id,name])=>{
+    options.push({agent,id,name,key:agent+':'+id});
+    return '<option value="'+agent+':'+id+'">'+esc(name)+'</option>';
+   }).join('')+'</optgroup>');
+ }
+ const signature=options.map(x=>x.key+':'+x.name).join('|');
+ if(picker.dataset.optionsHash!==signature){
+  picker.innerHTML=options.length?groups.join(''):'<option value="">Selecione campanhas nos filtros superiores</option>';
+  picker.dataset.optionsHash=signature;
+ }
+ const current=options.find(x=>x.key===state.dailyCampaignKey);
+ // Mantém a escolha de campanha enquanto ela continuar selecionada no benchmark.
+ const selected=current||options.find(x=>x.key==='AD:18')||options[0]||null;
+ state.dailyCampaignKey=selected?selected.key:'';
+ picker.value=state.dailyCampaignKey;
+ picker.title=selected?selected.name:'Nenhuma campanha selecionada';
+ return selected;
+}
+function selectedDailyCampaign(){
+ const selected=syncDailyCampaignSelector();
+ if(!selected)return null;
+ const period=state.periods[selected.agent];
+ const rows=state.rows.filter(row=>
+  row.agente===selected.agent&&row.campaign_id===selected.id&&row.data>=period.start&&row.data<=period.end
+ );
+ return {...selected,period,days:dailyRows(rows)};
+}
+function dailySinglePointLabel(value,key){
+ if(isPct(key))return nfmt(value,1)+'%';
+ if(key==='spin'||key.endsWith('Logado'))return nfmt(value,1);
+ if(Math.abs(value)>=1000000)return nfmt(value/1000000,1)+' mi';
+ if(Math.abs(value)>=10000)return nfmt(value/1000,1)+' mil';
+ return nfmt(value);
+}
+function showDailySinglePopup(event,day,context){
+ const key=context.key,raw=Number(day.values[key])||0;
+ const baseline=singleCampaignMonthBaseline(context.agent,context.id,day.date.slice(0,7),key);
+ const diff=baseline>0?(raw-baseline)/baseline*100:null;
+ const target=$('chartPopup');
+ target.innerHTML='<div class="hover-title">'+esc(metricLabels[key]||key)+' · '+esc(longDate(day.date))+'</div>'+
+  '<div class="hover-row"><div class="hover-tech"><span><i class="dot '+context.agent.toLowerCase()+'"></i> '+esc(context.name)+'</span></div>'+
+  '<div class="hover-info">Valor do dia: <strong>'+dailyValue(raw,key)+'</strong></div>'+
+  '<div class="hover-info">Média do mês ('+esc(monthLabel(day.date.slice(0,7)))+'): <strong>'+dailyValue(baseline,key)+'</strong></div>'+
+  '<div class="hover-info">Variação versus média: <strong class="hover-delta '+(diff===null?'':diff>=0?'up':'down')+'">'+
+   (diff===null?'Sem média válida':(diff>=0?'+':'')+nfmt(diff,1)+'%')+'</strong></div>'+
+  (raw===0?'<div class="hover-info">Dia zerado não entra na média dos volumes.</div>':'')+
+  '</div>';
+ target.hidden=false;
+ const rect=target.getBoundingClientRect(),el=event.target;
+ const anchorX=Number.isFinite(event.clientX)?event.clientX:el?.getBoundingClientRect?.().left||40;
+ const anchorY=Number.isFinite(event.clientY)?event.clientY:el?.getBoundingClientRect?.().top||200;
+ const windowWidth=document.documentElement.clientWidth,windowHeight=document.documentElement.clientHeight;
+ const left=Math.max(8,Math.min(windowWidth-rect.width-8,anchorX-rect.width/2));
+ let top=anchorY-rect.height-18;
+ if(top<8)top=Math.min(windowHeight-rect.height-8,anchorY+20);
+ target.style.left=left+'px';target.style.top=Math.max(8,top)+'px';
+}
+function renderDailySelectedSummary(selected,key){
+ const latest=selected.days[selected.days.length-1]||null;
+ const best=selected.days.reduce((acc,day)=>{
+  return !acc||day.values[key]>acc.values[key]?day:acc;
+ },null);
+ const month=latest?latest.date.slice(0,7):selected.period.end.slice(0,7);
+ const avg=singleCampaignMonthBaseline(selected.agent,selected.id,month,key);
+ const cards=[
+  {title:'Último dia',val:latest?latest.values[key]:null,desc:latest?longDate(latest.date):'Sem dados'},
+  {title:'Média do mês',val:latest?avg:null,desc:monthLabel(month)},
+  {title:'Maior valor diário',val:best?best.values[key]:null,desc:best?longDate(best.date):'Sem dados'},
+  {title:'Dias com registro',val:selected.days.length,desc:'Na seleção de datas'}
+ ];
+ $('dailySummaryCards').classList.add('single-campaign-summary');
+ $('dailySummaryCards').innerHTML=cards.map(card=>
+  '<article class="daily-summary-card '+selected.agent.toLowerCase()+'"><span class="daily-label">'+esc(card.title)+'</span>'+
+  '<strong class="daily-value">'+(card.val===null?'—':card.title==='Dias com registro'?nfmt(card.val):dailyValue(card.val,key))+'</strong>'+
+  '<small>'+esc(card.desc)+'</small></article>'
+ ).join('');
+}
+function renderDailySingleChart(selected,key){
+ hidePopup();
+ const area=$('chartBoxDaily'),monthRef=$('chartMonthAveragesDaily'),legend=$('chartLegendDaily');
+ const label=$('dailyCampaignName');
+ label.textContent=selected?selected.name:'Nenhuma campanha selecionada';
+ label.classList.toggle('ada',selected?.agent==='ADA');
+ if(!selected){
+  area.innerHTML='<p class="empty-state">Selecione uma campanha AD ou ADA nos filtros superiores para visualizar sua evolução.</p>';
+  monthRef.innerHTML='';legend.innerHTML='';$('dailySummaryCards').innerHTML='';
+  $('dailyCoverage').textContent='Nenhuma campanha selecionada';
+  return;
+ }
+ const days=selected.days,agent=selected.agent;
+ $('dailyCoverage').textContent=agent+' · '+days.length+' dias com dados · '+esc(rangeLabel(selected.period));
+ const color=agent==='AD'?'#52a8ff':'#fb744b';
+ legend.innerHTML='<span><i class="dot '+agent.toLowerCase()+'"></i>'+esc(selected.name)+'</span><span class="daily-month-legend">┄ Média do mês calendário (tracejado)</span>';
+ if(!days.length){
+  area.innerHTML='<p class="empty-state">A campanha '+esc(selected.name)+' não possui registros nas datas selecionadas. Altere o período acima.</p>';
+  monthRef.innerHTML='';renderDailySelectedSummary(selected,key);
+  return;
+ }
+ const first=days[0].date,last=days[days.length-1].date;
+ const firstNumber=dateNumber(first),span=Math.max(1,dateNumber(last)-firstNumber);
+ const W=1110,H=360,L=76,R=33,T=58,B=52,iw=W-L-R,ih=H-T-B;
+ const x=date=>days.length===1?L+iw/2:L+(dateNumber(date)-firstNumber)/span*iw;
+ const observedMonths=[...new Set(days.map(d=>d.date.slice(0,7)))];
+ const baselines=observedMonths.map(month=>({month,value:singleCampaignMonthBaseline(agent,selected.id,month,key)}));
+ const values=[...days.map(d=>Number(d.values[key])||0),...baselines.map(m=>m.value)];
+ const maxY=Math.max(1,...values)*1.18;
+ const y=v=>T+ih-Math.max(0,v)/maxY*ih;
+ const faxis=v=>isPct(key)?nfmt(v,1)+'%':v>=1000000?nfmt(v/1000000,1)+' mi':v>=1000?nfmt(v/1000,1)+' mil':nfmt(v);
+ let svg='<svg class="chart-svg single-campaign-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolução diária da campanha '+esc(selected.name)+' com rótulos e média mensal">';
+ for(let i=0;i<=4;i++){
+  const value=maxY*i/4,yy=y(value);
+  svg+='<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="#1b4163" stroke-dasharray="3 5"/>'+
+   '<text x="'+(L-11)+'" y="'+(yy+4)+'" fill="#94b9d7" font-size="11" text-anchor="end">'+faxis(value)+'</text>';
+ }
+ // O eixo X utiliza a data real, mas somente o intervalo com registros,
+ // eliminando o espaço vazio dos demais dias sem produção.
+ const tickStep=Math.max(1,Math.ceil(days.length/14));
+ for(let i=0;i<days.length;i++){
+  if(i%tickStep!==0&&i!==days.length-1)continue;
+  const date=days[i].date;
+  svg+='<text x="'+x(date).toFixed(2)+'" y="'+(H-16)+'" text-anchor="middle" fill="#9cbad8" font-size="10">'+date.slice(8)+'/'+date.slice(5,7)+'</text>';
+ }
+ for(const {month,value} of baselines){
+  const start=first>month+'-01'?first:month+'-01';
+  const lastOfMonth=addDays(month+'-01',new Date(Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),0)).getUTCDate()-1);
+  const finish=last<lastOfMonth?last:lastOfMonth;
+  if(start>finish||value<=0)continue;
+  svg+='<line x1="'+x(start).toFixed(2)+'" x2="'+x(finish).toFixed(2)+'" y1="'+y(value).toFixed(2)+'" y2="'+y(value).toFixed(2)+
+  '" stroke="'+color+'" stroke-width="1.8" stroke-dasharray="7 7" opacity=".72"/>';
+ }
+ let linePath='';
+ days.forEach((day,i)=>{
+  const xx=x(day.date),yy=y(Number(day.values[key])||0);
+  linePath+=(i===0?'M':'L')+xx.toFixed(2)+' '+yy.toFixed(2)+' ';
+ });
+ svg+='<path d="'+linePath+'" fill="none" stroke="'+color+'" stroke-width="11" opacity=".15" stroke-linejoin="round" stroke-linecap="round"/>'+
+ '<path class="daily-single-line '+agent.toLowerCase()+'" d="'+linePath+'" fill="none" stroke="'+color+'" stroke-width="3.7" stroke-linejoin="round" stroke-linecap="round"/>';
+ const labelEvery=Math.max(1,Math.ceil(days.length/16));
+ days.forEach((day,i)=>{
+  const raw=Number(day.values[key])||0,xx=x(day.date),yy=y(raw);
+  svg+='<circle class="single-plot-point" data-date="'+day.date+'" cx="'+xx.toFixed(2)+'" cy="'+yy.toFixed(2)+
+   '" r="5.8" fill="'+color+'" stroke="#091b35" stroke-width="2.1" tabindex="0" role="button" aria-label="'+
+   esc(longDate(day.date)+' · '+dailyValue(raw,key)+' · abrir comparação com média do mês')+'"><title>'+
+   esc(longDate(day.date)+' · '+dailyValue(raw,key))+'</title></circle>';
+  if(i%labelEvery===0||i===days.length-1){
+   const labelY=Math.max(20,yy-14-(i%2)*3);
+   svg+='<text class="daily-plot-label" x="'+xx.toFixed(2)+'" y="'+labelY.toFixed(2)+'" text-anchor="middle" fill="'+color+'">'+
+    esc(dailySinglePointLabel(raw,key))+'</text>';
+  }
+ });
+ svg+='</svg>';
+ area.innerHTML=svg;
+ monthRef.innerHTML=baselines.map(({month,value})=>'<span class="daily-month-reference '+agent.toLowerCase()+'">'+
+  '<span>'+esc(monthLabel(month))+' · média do mês</span> <strong>'+dailyValue(value,key)+'</strong></span>').join('');
+ const byDate=new Map(days.map(d=>[d.date,d]));
+ area.querySelectorAll('.single-plot-point').forEach(circle=>{
+  const day=byDate.get(circle.dataset.date);if(!day)return;
+  circle.addEventListener('pointerenter',event=>showDailySinglePopup(event,day,{...selected,key}));
+  circle.addEventListener('pointermove',event=>showDailySinglePopup(event,day,{...selected,key}));
+  circle.addEventListener('pointerleave',hidePopup);
+  circle.addEventListener('focus',()=>{const box=circle.getBoundingClientRect();showDailySinglePopup({clientX:box.left+box.width/2,clientY:box.top,target:circle},day,{...selected,key})});
+  circle.addEventListener('blur',hidePopup);
+  circle.addEventListener('click',event=>showDailySinglePopup(event,day,{...selected,key}));
+ });
+ renderDailySelectedSummary(selected,key);
+}
+function renderDailyQuickButtons(key){
+ const area=$('dailyQuickMetrics');
+ if(area.dataset.ready!=='1'){
+  const groups=[['volume','VOLUMES'],['rate','TAXAS E CONVERSÕES'],['productivity','PRODUTIVIDADE / AGV']];
+  area.innerHTML=groups.map(([group,label])=>'<div class="daily-quick-group"><span class="daily-quick-title">'+label+'</span>'+
+   dailyMetrics.filter(item=>item.group===group).map(item=>
+   '<button type="button" data-daily-metric="'+item.key+'" aria-pressed="false">'+esc(item.label)+'</button>'
+   ).join('')+'</div>').join('');
+  area.dataset.ready='1';
+ }
+ area.querySelectorAll('[data-daily-metric]').forEach(button=>{
+  const active=button.dataset.dailyMetric===key;
+  button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
+ });
+}
+function renderDailyChart(s){
+ const selected=selectedDailyCampaign(),key=$('chartMetricDaily').value;
+ renderDailyQuickButtons(key);
+ renderDailySingleChart(selected,key);
+}
+function heatmapCell(day,agent,key){
+ const month=day.date.slice(0,7),baseline=dailyMonthlyBaseline(agent,month,key),value=Number(day.values[key])||0;
+ const percent=baseline>0?(value-baseline)/baseline*100:null;
+ const cls=percent===null?'heat-mid':percent>5?'heat-up':percent< -5?'heat-down':'heat-mid';
+ const strong=percent!==null&&Math.abs(percent)>=25?' strong':'';
+ const label=dailyValue(value,key);
+ const delta=percent===null?'N/D':(percent>=0?'+':'')+nfmt(percent,1)+'%';
+ const title=agent+' · '+longDate(day.date)+' · '+(metricLabels[key]||key)+'\nValor: '+label+'\nMédia de '+monthLabel(month)+': '+dailyValue(baseline,key)+'\nVariação: '+delta;
+ return '<button type="button" class="heat-cell '+cls+strong+'" data-heat-tech="'+agent+'" data-heat-date="'+day.date+'" data-heat-key="'+key+'" title="'+esc(title)+'" aria-label="'+esc(title.replaceAll('\n','; '))+'">'+
+  '<span class="heat-number">'+label+'</span><span class="heat-delta">'+delta+'</span></button>';
+}
+function renderHeatmaps(s){
+ const category=$('heatmapGroup').value;
+ const metrics=category==='all'?dailyMetrics:dailyMetrics.filter(m=>m.group===category);
+ for(const agent of ['AD','ADA']){
+  const side=s[agent],observed=new Map(side.days.map(d=>[d.date,d]));
+  const totalCalendarDays=periodLength(side.period);
+  $('heatmapCount'+agent).textContent=side.days.length+' dias com registros · '+totalCalendarDays+' no calendário';
+  if(!side.days.length){
+   $('heatmap'+agent).innerHTML='<p class="empty-state">Sem registros nas campanhas e datas selecionadas.</p>';continue;
+  }
+  const calendar=[];
+  for(let index=0;index<totalCalendarDays;index++){
+   const date=addDays(side.period.start,index);
+   calendar.push({date,day:observed.get(date)});
+  }
+  const months=[];
+  for(const entry of calendar){
+   const month=entry.date.slice(0,7);
+   const current=months[months.length-1];
+   if(!current||current.month!==month)months.push({month,count:1});
+   else current.count++;
+  }
+  const monthHead='<tr class="heatmap-month-row"><th rowspan="2">Indicador</th>'+
+   months.map(m=>'<th colspan="'+m.count+'">'+esc(monthLabel(m.month))+'</th>').join('')+'</tr>';
+  const dayHead='<tr class="heatmap-day-row">'+calendar.map(entry=>
+   '<th title="'+esc(longDate(entry.date))+'">'+entry.date.slice(8)+'/'+entry.date.slice(5,7)+'</th>'
+  ).join('')+'</tr>';
+  const content=metrics.map(m=>'<tr><td title="'+esc(m.label)+'">'+esc(m.label)+'</td>'+
+   calendar.map(entry=>'<td>'+(entry.day?heatmapCell(entry.day,agent,m.key):
+    '<span class="heat-na" title="Sem registro em '+esc(longDate(entry.date))+'">—</span>')+'</td>').join('')+'</tr>').join('');
+  $('heatmap'+agent).innerHTML='<table class="heatmap-table"><thead>'+monthHead+dayHead+'</thead><tbody>'+content+'</tbody></table>';
+ }
+}
+function renderDailyAnalysis(s){
+ const days=[...s.AD.days.map(d=>({...d,tech:'AD'})),...s.ADA.days.map(d=>({...d,tech:'ADA'}))]
+ .sort((a,b)=>a.date.localeCompare(b.date)||a.tech.localeCompare(b.tech));
+ $('dailyTableCount').textContent=days.length+' linhas';
+ const columns=['logados','mailing','tentativas','atendidas','cpc','voicemail','acordo','hangup','spin','hitrate','taxaCpc','taxaVoiceMailAtendidas','taxaVoiceMailCpc','conversao','eficiencia','taxaHangup','taxaHangupTentativas','mailingLogado','tentativasLogado','atendidasLogado','cpcLogado','acordoLogado'];
+ $('dailyExplorerBody').innerHTML=days.length?days.map(d=>{
+  const data=[esc(longDate(d.date)),'<span class="type-tag '+d.tech.toLowerCase()+'">'+esc(sideLabel(d.tech))+'</span>',...columns.map(key=>dailyValue(d.values[key],key))];
+  return '<tr>'+data.map(v=>'<td>'+v+'</td>').join('')+'</tr>';
+ }).join(''):'<tr><td colspan="24">Nenhuma informação diária para os filtros selecionados.</td></tr>';
+}
+function renderDailyExplorer(s){
+ $('dailyCoverage').textContent='AD '+s.AD.days.length+' dias · ADA '+s.ADA.days.length+' dias';
+ renderDailyChart(s);
+ renderHeatmaps(s);
+ renderDailyAnalysis(s);
+}
+function selectDailyMetric(key){
+ if(!dailyMetrics.some(m=>m.key===key))return;
+ $('chartMetricDaily').value=key;
+ renderDailyChart({AD:calcSide('AD'),ADA:calcSide('ADA')});
+}
+function showHeatmapDetails(button,activateMetric){
+ if(!button||!button.dataset.heatKey)return;
+ const key=button.dataset.heatKey,agent=button.dataset.heatTech,date=button.dataset.heatDate;
+ const side=calcSide(agent),day=side.days.find(d=>d.date===date);
+ if(!day)return;
+ const value=Number(day.values[key])||0,baseline=dailyMonthlyBaseline(agent,date.slice(0,7),key);
+ const variation=baseline>0?(value-baseline)/baseline*100:null;
+ const formatted=variation===null?'Média indisponível':(variation>=0?'+':'')+nfmt(variation,1)+'%';
+ $('heatmapDetail').innerHTML='<strong>'+esc(agent)+' · '+esc(longDate(date))+' · '+esc(metricLabels[key]||key)+'</strong>'+
+  ' <span>Valor do dia: <strong>'+dailyValue(value,key)+'</strong></span> · '+
+  '<span>Média do mês: <strong>'+dailyValue(baseline,key)+'</strong></span> · '+
+  '<span class="'+(variation===null?'':variation>=0?'detail-up':'detail-down')+'">Variação: <strong>'+formatted+'</strong></span>';
+ if(activateMetric)selectDailyMetric(key);
+}
+function switchView(view){
+ state.activeView=view==='daily'?'daily':'comparison';
+ const daily=state.activeView==='daily';
+ $('viewComparison').hidden=daily;
+ $('viewDaily').hidden=!daily;
+ $('tabComparison').classList.toggle('active',!daily);
+ $('tabDaily').classList.toggle('active',daily);
+ $('tabComparison').setAttribute('aria-selected',String(!daily));
+ $('tabDaily').setAttribute('aria-selected',String(daily));
+ if(daily&&state.rows.length)renderDailyExplorer({AD:calcSide('AD'),ADA:calcSide('ADA')});
+}
+function setSidebarCollapsed(collapsed){
+ document.body.classList.toggle('sidebar-collapsed',!!collapsed);
+ $('sidebarToggle').setAttribute('aria-expanded',String(!collapsed));
+ $('sidebarToggle').setAttribute('aria-label',collapsed?'Expandir menu lateral':'Recolher menu lateral');
+ $('sidebarToggle').title=collapsed?'Expandir menu lateral':'Recolher menu lateral';
+ $('sidebarToggle').querySelector('.sidebar-toggle-icon').textContent=collapsed?'»':'«';
+ try{localStorage.setItem('energisa.sidebarCollapsed',collapsed?'1':'0')}catch(_){}
+}
+function render(){
+ updateScenarioUI();
+ const comparison={AD:calcSide('AD'),ADA:calcSide('ADA')};
+ headline(comparison);
+ renderKpis(comparison);
+ renderMatrix(comparison);
+ renderFunnel(comparison);
+ renderChart(comparison);
+ renderDaily(comparison);
+ renderCampaigns(comparison);
+ updatePresetUI();
+ if(state.activeView==='daily')renderDailyExplorer(comparison);
+}
+function downloadCSV(){
+ const rows=[...chosenRows('AD'),...chosenRows('ADA')];
+ const fields=['data','campaign_id','nome_campanha','agente','logados','tentativas','atendidas','cpc','voicemail','acordo','hangup','mailing'];
+ const titles=['Cenario','Data','CampaignId','NomeCampanha','Tecnologia','Logados','Tentativas','Atendidas','CPC','VoiceMail','Acordos','Hangup','Mailing'];
+ const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const lines=[titles.map(quote).join(';')];
+ for(const row of rows)lines.push(['Funil '+(row.agente==='AD'?'A':'B'),...fields.map(k=>k==='agente'?state.sideType[row.agente]:row[k])].map(quote).join(';'));
+ const file=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(file),a=document.createElement('a');
+ a.href=url;a.download='energisa_livre_'+state.periods.AD.start+'_'+state.periods.ADA.end+'.csv';
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function choosePreset(agent,type){
+ const selected=state.rows.filter(row=>row.agente===agent&&state.selection[agent].has(row.campaign_id));
+ const relevant=selected.length?selected:state.rows.filter(row=>row.agente===agent);
+ const dates=relevant.map(row=>row.data).sort();if(!dates.length)return;
+ const latest=dates[dates.length-1],earliest=dates[0];
+ const from=type==='week'?addDays(latest,-6):type==='month'?latest.slice(0,7)+'-01':earliest;
+ state.periods[agent]={start:from<earliest?earliest:from,end:latest};
+ $('start'+agent).value=state.periods[agent].start;
+ $('end'+agent).value=state.periods[agent].end;
+ render();
+}
+function updatePresetUI(){
+ for(const agent of ['AD','ADA']){
+  const selected=state.rows.filter(r=>r.agente===agent&&state.selection[agent].has(r.campaign_id)).map(r=>r.data).sort();
+  const dates=selected.length?selected:state.rows.filter(r=>r.agente===agent).map(r=>r.data).sort();
+  if(!dates.length)continue;
+  const latest=dates[dates.length-1],earliest=dates[0],p=state.periods[agent];
+  document.querySelectorAll('[data-range][data-agent="'+agent+'"]').forEach(btn=>{
+   const start=btn.dataset.range==='week'?addDays(latest,-6):btn.dataset.range==='month'?latest.slice(0,7)+'-01':earliest;
+   const match=p.start===(start<earliest?earliest:start)&&p.end===latest;
+   btn.classList.toggle('is-active',match);btn.setAttribute('aria-pressed',String(match));
+  });
+ }
+}
+function openMetric(key){
+ const select=$('chartMetric');
+ if(!Array.from(select.options).some(option=>option.value===key))return;
+ select.value=key;
+ renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')});
+ const target=$('evolutionSection');
+ if(target&&target.scrollIntoView){const reduce=typeof window!=='undefined'&&window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}
+}
+function bindBackgroundParallax(){
+ const bg=typeof document.querySelector==='function'?document.querySelector('.bg-content'):null;
+ if(!bg||typeof window==='undefined'||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+ let scheduled=false,x=0,y=0;
+ document.addEventListener('pointermove',event=>{
+  if(event.pointerType&&event.pointerType!=='mouse')return;
+  x=(event.clientX/window.innerWidth-.5)*14;
+  y=(event.clientY/window.innerHeight-.5)*12;
+  if(scheduled)return;
+  scheduled=true;
+  requestAnimationFrame(()=>{
+   bg.style.setProperty('--osp-parallax-x',x.toFixed(2)+'px');
+   bg.style.setProperty('--osp-parallax-y',y.toFixed(2)+'px');
+   bg.style.setProperty('--osp-parallax-x-rev',(-x*.65).toFixed(2)+'px');
+   bg.style.setProperty('--osp-parallax-y-rev',(-y*.65).toFixed(2)+'px');
+   scheduled=false;
+  });
+ },{passive:true});
+}
+function bind(){
+ for(const agent of ['AD','ADA']){
+  for(const prefix of ['start','end']){
+   $(prefix+agent).addEventListener('change',event=>{
+    const period=state.periods[agent];
+    period[prefix]=event.target.value;
+    if(!period[prefix]){period[prefix]=prefix==='start'?period.end:period.start;event.target.value=period[prefix];}
+    if(period.start>period.end){
+     if(prefix==='start'){period.end=period.start;$('end'+agent).value=period.end;}
+     else{period.start=period.end;$('start'+agent).value=period.start;}
+    }
+    render();
+   });
+  }
+ }
+ for(const side of ['AD','ADA']){
+  $('type'+side).addEventListener('change',event=>{
+   const next=event.target.value;
+   if(!['AD','ADA'].includes(next)||state.sideType[side]===next)return;
+   state.sideType[side]=next;
+   rebuildSideRows();
+   buildFilters(side);
+   state.dailyCampaignKey='';
+   render();
+  });
+ }
+ $('tabComparison').addEventListener('click',()=>switchView('comparison'));
+ $('tabDaily').addEventListener('click',()=>switchView('daily'));
+ $('sidebarToggle').addEventListener('click',()=>setSidebarCollapsed(!document.body.classList.contains('sidebar-collapsed')));
+ try{setSidebarCollapsed(localStorage.getItem('energisa.sidebarCollapsed')==='1')}catch(_){setSidebarCollapsed(false)}
+ $('chartMetricDaily').addEventListener('change',()=>renderDailyChart({AD:calcSide('AD'),ADA:calcSide('ADA')}));
+ $('chartCampaignDaily').addEventListener('change',event=>{state.dailyCampaignKey=event.target.value;renderDailyChart({AD:calcSide('AD'),ADA:calcSide('ADA')});});
+ $('heatmapGroup').addEventListener('change',()=>{
+  state.heatmapGroup=$('heatmapGroup').value;
+  renderHeatmaps({AD:calcSide('AD'),ADA:calcSide('ADA')});
+ });
+ $('dailyQuickMetrics').addEventListener('click',event=>{const button=event.target.closest('button[data-daily-metric]');if(button)selectDailyMetric(button.dataset.dailyMetric);});
+ for(const agent of ['AD','ADA']){
+  const area=$('heatmap'+agent);
+  area.addEventListener('click',event=>showHeatmapDetails(event.target.closest('button[data-heat-key]'),true));
+  area.addEventListener('pointerover',event=>showHeatmapDetails(event.target.closest('button[data-heat-key]'),false));
+  area.addEventListener('focusin',event=>showHeatmapDetails(event.target.closest('button[data-heat-key]'),false));
+ }
+ document.querySelectorAll('.jump-nav__link').forEach(link=>link.addEventListener('click',()=>{if(state.activeView==='daily')switchView('comparison')}));
+ $('btnTotal').addEventListener('click',()=>displayMode('total'));
+ $('btnAverage').addEventListener('click',()=>displayMode('average'));
+ $('chartMetric').addEventListener('change',()=>renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')}));
+ $('toggleChartAvg').addEventListener('click',()=>{state.showAverages=!state.showAverages;renderChart({AD:calcSide('AD'),ADA:calcSide('ADA')});});
+ $('exportBtn').addEventListener('click',downloadCSV);
+ document.querySelectorAll('[data-range]').forEach(btn=>btn.addEventListener('click',()=>choosePreset(btn.dataset.agent,btn.dataset.range)));
+ document.querySelectorAll('.chart-quick-btn').forEach(btn=>btn.addEventListener('click',()=>openMetric(btn.dataset.chartKey)));
+ document.addEventListener('click',event=>{
+  const target=event.target.closest?.('[data-chart-key]:not(.chart-quick-btn)');
+  if(target)openMetric(target.dataset.chartKey);
+ });
+ document.addEventListener('keydown',event=>{
+  if((event.key==='Enter'||event.key===' ')&&event.target.matches?.('tr[data-chart-key]')){
+   event.preventDefault();openMetric(event.target.dataset.chartKey);
+  }
+ });
+ bindBackgroundParallax();
+ document.querySelectorAll('[data-pick]').forEach(btn=>btn.addEventListener('click',()=>setCampaigns(btn.dataset.agent,btn.dataset.pick==='all')));
+ $('resetBtn').addEventListener('click',()=>{state.sideType={AD:'AD',ADA:'ADA'};rebuildSideRows();buildFilters();state.dailyCampaignKey='';$('chartMetric').value='acordo';state.showAverages=true;displayMode('average')});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePopup()});
+ document.addEventListener('click',e=>{
+  for(const id of ['adPicker','adaPicker']){const picker=$(id);if(picker.open&&!picker.contains(e.target))picker.open=false;}
+ });
+}
+async function start(){
+ const loading=$('loading');
+ try{
+  loading.textContent='Carregando benchmark Energisa do Neon...';
+  const response=await fetch(API_URL,{credentials:'same-origin',cache:'no-store'});
+  if(!response.ok){
+   let code='http_'+response.status;
+   try{const data=await response.json();if(typeof data.error==='string')code=data.error}catch(_){}
+   const ex=new Error('Energisa API '+code);ex.code=code;throw ex;
+  }
+  const payload=await response.json();
+  if(!Array.isArray(payload.rows)||!payload.rows.length)throw new Error('Resposta vazia');
+  state.originalRows=payload.rows.map(row=>({...row,campaign_id:Number(row.campaign_id)}));
+  rebuildSideRows();
+  const latestDate=state.originalRows.reduce((m,r)=>r.data>m?r.data:m,'');
+  $('dataFreshness').textContent='Dados disponíveis até '+longDate(latestDate)+' · '+nfmt(state.originalRows.length)+' registros diários';
+  $('sourceStatus').innerHTML='<span class="status-dot"></span> Banco Neon · Conectado';
+  buildFilters();bind();
+  loading.classList.add('hidden');$('dashboard').classList.remove('hidden');
+  render();
+ }catch(error){
+  $('sourceStatus').textContent='Fonte indisponível';
+  console.error('Energisa: erro no carregamento',error);
+  const msg={
+   database_connection_failed:'Não foi possível conectar ao Neon. Verifique a conexão no serviço.',
+   table_not_found:'A tabela Energisa não existe no banco configurado para o Cockpit.',
+   database_permission_denied:'A conexão não tem autorização de leitura da tabela Energisa.',
+   authentication_required:'Sua sessão expirou. Faça login novamente.',
+   forbidden:'Sem permissão de acesso à Energisa.',
+   no_data:'A tabela diária da Energisa está vazia.',
+   data_source_unavailable:'Fonte de dados indisponível. Consulte os logs do Cockpit.'
+  };
+  loading.replaceChildren();
+  loading.style.flexDirection='column';loading.style.textAlign='center';loading.style.gap='12px';
+  const title=document.createElement('strong');title.textContent='Falha ao carregar o comparativo Energisa';
+  const description=document.createElement('span');description.textContent=msg[error.code]||'Não foi possível iniciar o painel. Verifique o serviço ou recarregue a página.';
+  const retry=document.createElement('button');retry.type='button';retry.className='export';retry.textContent='Tentar novamente';retry.addEventListener('click',start);
+  loading.append(title,description,retry);
+ }
+}
+start();
+})();
+</script>
+</body>
+</html>
