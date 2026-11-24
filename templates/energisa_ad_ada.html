@@ -515,7 +515,7 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
  <button type="button" id="sidebarToggle" class="sidebar-toggle" aria-label="Recolher menu lateral" aria-expanded="true" title="Recolher menu lateral"><span class="sidebar-toggle-icon" aria-hidden="true">«</span></button>
  <div class="logo-wrap"><img src="{{ url_for('static', filename='img/logo-olos-laranja.png') }}" alt="OLOS"></div>
  <div class="caption">GESTÃO DE PERFORMANCE</div>
- <nav class="nav"><a href="{{ url_for('dashboard') }}" title="Menu Cockpit"><span class="nav-icon">▦</span><span class="nav-label">Menu Cockpit</span></a><a class="active" href="{{ url_for('energisa_painel') }}" title="Energisa"><span class="nav-icon">◉</span><span class="nav-label">AD × ADA Energisa</span></a><span class="inactive" title="Hora a hora em breve"><span class="nav-icon">◷</span><span class="nav-label">Hora a hora (em breve)</span></span></nav>
+ <nav class="nav"><a href="{{ url_for('dashboard') }}" title="Menu Cockpit"><span class="nav-icon">▦</span><span class="nav-label">Menu Cockpit</span></a><a class="active" href="{{ url_for('energisa_painel') }}" title="Energisa"><span class="nav-icon">◉</span><span class="nav-label">AD × ADA Energisa</span></a><a href="{{ url_for('energisa_comparativo_livre') }}" title="Comparativo livre de campanhas e períodos"><span class="nav-icon">⇄</span><span class="nav-label">Comparativo livre</span></a><span class="inactive" title="Hora a hora em breve"><span class="nav-icon">◷</span><span class="nav-label">Hora a hora (em breve)</span></span></nav>
  <div class="bottom"><a href="{{ url_for('dashboard') }}">← Voltar ao Cockpit</a></div>
 </aside>
 <main class="content">
