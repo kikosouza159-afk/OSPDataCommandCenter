@@ -1601,10 +1601,11 @@ function render(){
 }
 function downloadCSV(){
  const rows=[...chosenRows('AD'),...chosenRows('ADA')];
- const fields=['data','campaign_id','nome_campanha','agente','logados','tentativas','atendidas','cpc','voicemail','acordo','hangup','mailing'];
- const headings=['Data','CampaignId','NomeCampanha','Agente','Logados','Tentativas','Atendidas','CPC','VoiceMail','Acordos','Hangup','Mailing'];
+ const fields=['data','campaign_id','nome_campanha','agente','logados','tentativas','atendidas','cpc','voicemail','cpcLiquido','acordo','conversao','hangup','mailing'];
+ const headings=['Data','CampaignId','NomeCampanha','Agente','Logados','Tentativas','Atendidas','CPC','VoiceMail','CPC Líquido','Acordos','Conversão %','Hangup','Mailing'];
+ const csvMetric=(row,key)=>key==='cpcLiquido'?(Number(row.cpc)||0)-(Number(row.voicemail)||0):key==='conversao'?rate(Number(row.acordo)||0,(Number(row.cpc)||0)-(Number(row.voicemail)||0)):row[key];
  const lines=[headings.map(x=>'"'+x+'"').join(';')];
- for(const row of rows)lines.push(fields.map(k=>'"'+String(row[k]??'').replace(/"/g,'""')+'"').join(';'));
+ for(const row of rows)lines.push(fields.map(k=>'"'+String(csvMetric(row,k)??'').replace(/"/g,'""')+'"').join(';'));
  const file=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
  const url=URL.createObjectURL(file),a=document.createElement('a');
  a.href=url;a.download='energisa_ad_'+state.periods.AD.start+'_'+state.periods.AD.end+'_ada_'+state.periods.ADA.start+'_'+state.periods.ADA.end+'.csv';
