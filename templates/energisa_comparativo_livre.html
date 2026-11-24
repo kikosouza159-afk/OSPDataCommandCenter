@@ -660,13 +660,14 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 
 <section class="panel chart-panel" id="evolutionSection">
   <div class="chart-head"><div><div class="section-kicker">INTELIGÊNCIA DE TENDÊNCIA</div><h3>Evolução diária · cenários A × B</h3><p>Evolução por dia do período, com referência da média mensal completa.</p></div>
-    <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option><option value="spin">Spin</option><option value="taxaCpc">CPC / Atendimento %</option><option value="eficiencia">Eficiência %</option><option value="taxaHangup">Hangup / Atendidas %</option><option value="taxaHangupTentativas">Hangup / Discagens %</option></select>
+    <select id="chartMetric"><option value="tentativas">Tentativas</option><option value="atendidas">Atendidas</option><option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="cpcLiquido">CPC Líquido</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas %</option><option value="taxaVoiceMailCpc">VoiceMail / CPC %</option><option value="acordo" selected>Acordos</option><option value="mailing">Mailing</option><option value="logados">Logados</option><option value="hangup">Hangup</option><option value="conversao">Conversão</option><option value="hitrate">Hit Rate</option><option value="spin">Spin</option><option value="taxaCpc">CPC / Atendimento %</option><option value="eficiencia">Eficiência %</option><option value="taxaHangup">Hangup / Atendidas %</option><option value="taxaHangupTentativas">Hangup / Discagens %</option></select>
   </div>
   <div class="chart-command-row">
     <div class="chart-quick-metrics" role="group" aria-label="Indicadores rápidos">
       <button type="button" class="chart-quick-btn" data-chart-key="acordo">Acordos</button>
       <button type="button" class="chart-quick-btn" data-chart-key="cpc">CPC</button>
       <button type="button" class="chart-quick-btn" data-chart-key="voicemail">VoiceMail</button>
+       <button type="button" class="chart-quick-btn" data-chart-key="cpcLiquido">CPC Líquido</button>
       <button type="button" class="chart-quick-btn" data-chart-key="conversao">Conversão</button>
     </div>
     <button class="chart-avg-toggle" id="toggleChartAvg" type="button" aria-pressed="true">◌ Médias mensais</button>
@@ -679,9 +680,9 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 <div class="chart-hover-card" id="chartPopup" role="tooltip" hidden></div>
 
 <div class="section-label" id="detailsSection"><h2>Detalhamento diário</h2><span id="dailyHint">Totais por dia e tecnologia</span></div>
-  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Tecnologia</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit Rate</th><th>Taxa CPC</th><th>VoiceMail / Atendidas %</th><th>VoiceMail / CPC %</th><th>Conversão</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th></tr></thead><tbody id="dailyBody"></tbody></table></div></section>
+  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Tecnologia</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>CPC Líquido</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit Rate</th><th>Taxa CPC</th><th>VoiceMail / Atendidas %</th><th>VoiceMail / CPC %</th><th>Conversão</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th></tr></thead><tbody id="dailyBody"></tbody></table></div></section>
   <div class="section-label"><h2>Produtividade por campanha</h2><span>Campanhas selecionadas no período</span></div>
-  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Campanha</th><th>Tecnologia</th><th>Dias ativos</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Conv.</th></tr></thead><tbody id="campaignBody"></tbody></table></div></section>
+  <section class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Campanha</th><th>Tecnologia</th><th>Dias ativos</th><th>Mailing</th><th>Logados</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>CPC Líquido</th><th>Acordos</th><th>Hangup</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Conversão / CPC Líquido %</th></tr></thead><tbody id="campaignBody"></tbody></table></div></section>
 </section>
 <section id="viewDaily" class="view-pane" role="tabpanel" aria-labelledby="tabDaily" hidden>
  <div class="daily-hero">
@@ -698,18 +699,18 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
      <optgroup label="Volumes">
       <option value="mailing">Mailing</option><option value="logados">Agentes / Logados</option>
       <option value="tentativas">Tentativas / Discagens</option><option value="atendidas">Atendidas</option>
-      <option value="cpc">CPC</option><option value="voicemail">VoiceMail</option>
+      <option value="cpc">CPC</option><option value="voicemail">VoiceMail</option><option value="cpcLiquido">CPC Líquido</option>
       <option value="acordo" selected>Acordos</option><option value="hangup">Hangup</option>
      </optgroup>
      <optgroup label="Taxas e conversão">
       <option value="spin">Spin</option><option value="hitrate">Hit Rate (%)</option>
       <option value="taxaCpc">CPC / Atendidas (%)</option><option value="taxaVoiceMailAtendidas">VoiceMail / Atendidas (%)</option>
-      <option value="taxaVoiceMailCpc">VoiceMail / CPC (%)</option><option value="conversao">Acordo / CPC (%)</option>
+      <option value="taxaVoiceMailCpc">VoiceMail / CPC (%)</option><option value="conversao">Acordos / CPC Líquido (%)</option>
       <option value="eficiencia">Eficiência (%)</option><option value="taxaHangup">Hangup / Atendidas (%)</option>
       <option value="taxaHangupTentativas">Hangup / Discagens (%)</option>
      </optgroup>
      <optgroup label="Produtividade">
-      <option value="mailingLogado">Mailing / Agente</option><option value="tentativasLogado">Tentativas / Agente</option><option value="atendidasLogado">Atendidas / Agente</option><option value="cpcLogado">CPC / Agente</option><option value="acordoLogado">Acordos / Agente</option>
+      <option value="mailingLogado">Mailing / Agente</option><option value="tentativasLogado">Tentativas / Agente</option><option value="atendidasLogado">Atendidas / Agente</option><option value="cpcLogado">CPC / Agente</option><option value="cpcLiquidoLogado">CPC Líquido / Agente</option><option value="acordoLogado">Acordos / Agente</option>
      </optgroup>
     </select>
    </div><div class="daily-chart-controls"><label for="chartCampaignDaily">Campanha / tecnologia</label><select id="chartCampaignDaily" aria-label="Campanha individual para o gráfico diário"><option value="">Carregando campanhas...</option></select></div></div>
@@ -737,12 +738,12 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
   <div class="heatmap-heading"><div><div class="section-kicker">ANÁLISE CONSOLIDADA / DIA</div><h3>Base analítica diária completa</h3><p>Todos os indicadores de cada dia. A tabela mantém os valores reais, independentemente do modo Total ou Média dia.</p></div><span id="dailyTableCount" class="daily-count"></span></div>
   <div class="table-wrap daily-analytic-scroll">
    <table class="data-table daily-analytic"><thead><tr>
-    <th>Data</th><th>Tecnologia</th><th>Agentes</th><th>Mailing</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit %</th><th>CPC %</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Acordo %</th><th>Efic %</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th><th>Mailing / AGV</th><th>Tentativas / AGV</th><th>Atendidas / AGV</th><th>CPC / AGV</th><th>Acordos / AGV</th>
+    <th>Data</th><th>Tecnologia</th><th>Agentes</th><th>Mailing</th><th>Tentativas</th><th>Atendidas</th><th>CPC</th><th>VoiceMail</th><th>CPC Líquido</th><th>Acordos</th><th>Hangup</th><th>Spin</th><th>Hit %</th><th>CPC %</th><th>VM / Atendidas %</th><th>VM / CPC %</th><th>Conversão / CPC Líquido %</th><th>Efic %</th><th>Hangup / Atendidas %</th><th>Hangup / Discagens %</th><th>Mailing / AGV</th><th>Tentativas / AGV</th><th>Atendidas / AGV</th><th>CPC / AGV</th><th>CPC Líquido / AGV</th><th>Acordos / AGV</th>
    </tr></thead><tbody id="dailyExplorerBody"></tbody></table>
   </div>
  </section>
 </section>
-  <div class="foot">Fonte: assistpay.energisa_ad_ada_diario (Neon). Os logados são somados entre campanhas; isso não representa necessariamente pessoas únicas. VoiceMail / Atendidas % = VoiceMail ÷ Atendidas × 100. VoiceMail / CPC % = VoiceMail ÷ CPC × 100. Taxas calculadas a partir dos volumes no modo Total; no modo Média dia são médias dos dias com valor positivo. A visão hora a hora será adicionada após disponibilidade de dados com granularidade horária.</div>
+  <div class="foot">Fonte: assistpay.energisa_ad_ada_diario (Neon). Os logados são somados entre campanhas; isso não representa necessariamente pessoas únicas. VoiceMail / Atendidas % = VoiceMail ÷ Atendidas × 100. VoiceMail / CPC % = VoiceMail ÷ CPC × 100. CPC Líquido = CPC − VoiceMail. Conversão = Acordos ÷ CPC Líquido × 100 (0% quando CPC Líquido é zero). Taxas calculadas a partir dos volumes no modo Total; no modo Média dia são médias dos dias com valor positivo. A visão hora a hora será adicionada após disponibilidade de dados com granularidade horária.</div>
  </div>
 </main>
 </div>
