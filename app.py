@@ -7411,6 +7411,22 @@ def _sky_pagamento_ler(mes, dias):
     finally:
         con.close()
 
+def _sky_mensal_penetracao_unique(df_unique, mes, segmento="total"):
+    """Penetração consolidada do Unique Mês, sem recorte por dias ou segmento."""
+    if segmento != "total" or not isinstance(df_unique, pd.DataFrame) or df_unique.empty:
+        return None
+    if not {"DATA", "Abertura", "Discado", "MAILING"}.issubset(df_unique.columns):
+        return None
+    fatia = df_unique[
+        (df_unique["DATA"].dt.strftime("%Y-%m") == mes)
+        & (_normalizar_abertura_unique(df_unique["Abertura"]) == "unique mes")
+    ]
+    if fatia.empty:
+        return None
+    # Mesmo cálculo do card de eficiência da visão Unique mensal.
+    return safe_div(fatia["Discado"].sum(), fatia["MAILING"].sum())
+
+
 def _sky_mensal_resumo(df, mes, dias, pagamento, segmento="total"):
     import pandas as pd
     fatia = df[df["DATA"].dt.strftime("%Y-%m") == mes].copy()
@@ -7448,7 +7464,9 @@ def sky_comparativo_mensal():
     if not _sky_mensal_permitido():
         return acesso_negado()
     meses_pt = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
-    df = carregar_bases_sky()["daily"].copy()
+    bases = carregar_bases_sky()
+    df = bases["daily"].copy()
+    df_unique = bases.get("unique")
     disponiveis = sorted(df["DATA"].dropna().dt.strftime("%Y-%m").unique().tolist())
     if not disponiveis:
         return render_template("sky_comparativo_mensal.html", erro="Sem dados disponíveis.", meses=[])
@@ -7512,10 +7530,13 @@ def sky_comparativo_mensal():
         editavel=False
     a = _sky_mensal_resumo(df,anterior,dias,pa,segmento)
     b = _sky_mensal_resumo(df,atual,dias,pb,segmento)
-    ordem = ["Mailing","Discado","Contato","CPC","NDOC","Acordo","Spin","Hit %","Loc %","Conver %","Logados","NDOC %","Efic %","Acordo / ADA","Pagamento","Efetividade %","Efic Pagamento %"]
+    a["Penetração (Unique Mês)"] = _sky_mensal_penetracao_unique(df_unique, anterior, segmento)
+    b["Penetração (Unique Mês)"] = _sky_mensal_penetracao_unique(df_unique, atual, segmento)
+    ordem = ["Mailing","Discado","Contato","CPC","NDOC","Acordo","Spin","Penetração (Unique Mês)","Hit %","Loc %","Conver %","Logados","NDOC %","Efic %","Acordo / ADA","Pagamento","Efetividade %","Efic Pagamento %"]
     percentuais={"Hit %","Loc %","Conver %","NDOC %","Efic %","Efetividade %","Efic Pagamento %"}
     def formato(k,v):
         if v is None:return "N/D"
+        if k == "Penetração (Unique Mês)":return br_percent(v)
         if k in percentuais:return f"{v*100:,.1f}%".replace(",", "X").replace(".", ",").replace("X", ".")
         if k=="Spin" or k=="Acordo / ADA":return f"{v:,.1f}".replace(",", "X").replace(".", ",").replace("X", ".")
         return f"{v:,.0f}".replace(",", ".")
