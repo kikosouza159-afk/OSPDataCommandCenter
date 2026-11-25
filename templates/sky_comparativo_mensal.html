@@ -381,6 +381,14 @@ tbody tr:hover{background:rgba(20,91,137,.28)}
             {% for m in meses %}<option value="{{m.valor}}" {% if m.valor==atual %}selected{% endif %}>{{m.label}}</option>{% endfor %}
           </select>
         </div>
+        <div class="field">
+          <label for="segmento">Segmento</label>
+          <select id="segmento" name="segmento">
+            <option value="total" {% if segmento == 'total' %}selected{% endif %}>Churn + Prechurn</option>
+            <option value="pre_churn" {% if segmento == 'pre_churn' %}selected{% endif %}>Prechurn · até 90 dias</option>
+            <option value="churn" {% if segmento == 'churn' %}selected{% endif %}>Churn · acima de 90 dias</option>
+          </select>
+        </div>
         <div class="field days">
           <label for="dias">Dias trabalhados</label>
           <input id="dias" name="dias" type="number" min="1" max="31" value="{{dias}}">
@@ -518,7 +526,11 @@ tbody tr:hover{background:rgba(20,91,137,.28)}
         </form>
         {% else %}
         <div class="payment-disabled">
+          {% if pagamento_segmentado_indisponivel %}
+          <strong>Pagamento não segmentado:</strong> os pagamentos manuais atuais são mensais e não possuem abertura Prechurn/Churn.
+          {% else %}
           <strong>Pagamento manual indisponível:</strong> conexão com o Neon não disponível.
+          {% endif %}
         </div>
         {% endif %}
       </section>

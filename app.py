@@ -7411,9 +7411,14 @@ def _sky_pagamento_ler(mes, dias):
     finally:
         con.close()
 
-def _sky_mensal_resumo(df, mes, dias, pagamento):
+def _sky_mensal_resumo(df, mes, dias, pagamento, segmento="total"):
     import pandas as pd
     fatia = df[df["DATA"].dt.strftime("%Y-%m") == mes].copy()
+
+    if segmento in ("pre_churn", "churn") and "Faixa_Atraso" in fatia.columns:
+        fatia["SegmentoFiltro"] = fatia["Faixa_Atraso"].apply(classificar_faixa_funil)
+        fatia = fatia[fatia["SegmentoFiltro"] == segmento].copy()
+
     datas = sorted(fatia["DATA"].dropna().dt.normalize().unique())[:dias]
     fatia = fatia[fatia["DATA"].dt.normalize().isin(datas)]
     soma = lambda k: float(fatia[k].sum()) if k in fatia else 0.0
@@ -7454,11 +7459,20 @@ def sky_comparativo_mensal():
     atual = atual if atual in disponiveis else atual_padrao
     anterior = anterior if anterior in disponiveis else ant_padrao
 
+    segmento = request.args.get("segmento", "total").strip().lower()
+    if segmento not in ("total", "pre_churn", "churn"):
+        segmento = "total"
+
+    df_segmento = df.copy()
+    if segmento in ("pre_churn", "churn") and "Faixa_Atraso" in df_segmento.columns:
+        df_segmento["SegmentoFiltro"] = df_segmento["Faixa_Atraso"].apply(classificar_faixa_funil)
+        df_segmento = df_segmento[df_segmento["SegmentoFiltro"] == segmento].copy()
+
     # Quantidade real de dias com dados em cada mês. O padrão da tela acompanha
     # automaticamente a última data carregada do mês atual selecionado.
     dias_por_mes = {
         mes: int(
-            df.loc[df["DATA"].dt.strftime("%Y-%m") == mes, "DATA"]
+            df_segmento.loc[df_segmento["DATA"].dt.strftime("%Y-%m") == mes, "DATA"]
               .dropna()
               .dt.normalize()
               .nunique()
@@ -7474,11 +7488,12 @@ def sky_comparativo_mensal():
 
     meses = [{"valor":m,"label":meses_pt[int(m[-2:])-1]+"/"+m[:4]} for m in disponiveis[::-1]]
     label = lambda m: meses_pt[int(m[-2:])-1] + "/" + m[:4]
+    pagamento_segmentado_indisponivel = segmento != "total"
     try:
         con = _sky_pagamentos_connection()
-        editavel = con is not None
+        editavel = con is not None and segmento == "total"
         pa = pb = None
-        if con is not None:
+        if con is not None and segmento == "total":
             try:
                 with con.cursor() as cur:
                     cur.execute(
@@ -7495,8 +7510,8 @@ def sky_comparativo_mensal():
     except Exception:
         pa=pb=None
         editavel=False
-    a = _sky_mensal_resumo(df,anterior,dias,pa)
-    b = _sky_mensal_resumo(df,atual,dias,pb)
+    a = _sky_mensal_resumo(df,anterior,dias,pa,segmento)
+    b = _sky_mensal_resumo(df,atual,dias,pb,segmento)
     ordem = ["Mailing","Discado","Contato","CPC","NDOC","Acordo","Spin","Hit %","Loc %","Conver %","Logados","NDOC %","Efic %","Acordo / ADA","Pagamento","Efetividade %","Efic Pagamento %"]
     percentuais={"Hit %","Loc %","Conver %","NDOC %","Efic %","Efetividade %","Efic Pagamento %"}
     def formato(k,v):
@@ -7536,7 +7551,9 @@ def sky_comparativo_mensal():
     return render_template("sky_comparativo_mensal.html",erro=None,meses=meses,anterior=anterior,atual=atual,
         dias=dias,dias_por_mes=dias_por_mes,rotulo_anterior=label(anterior),rotulo_atual=label(atual),funis=funis,linhas=linhas,
         destaques=[dict(linha(k), icon=icones[k], slug=k.lower().replace(" ", "-").replace("%","pct")) for k in ["Acordo","Efic %","Contato","CPC","Pagamento"]],
-        pag_a=pa,pag_b=pb,pagamento_editavel=editavel,csrf_token=session["assistpay_mensal_csrf"])
+        pag_a=pa,pag_b=pb,pagamento_editavel=editavel,
+        pagamento_segmentado_indisponivel=pagamento_segmentado_indisponivel,
+        segmento=segmento,csrf_token=session["assistpay_mensal_csrf"])
 
 @app.route("/cliente/sky-negocie-online/painel/comparativo-mensal/pagamento", methods=["POST"])
 def sky_mensal_pagamento():
@@ -7597,6 +7614,7 @@ def _carregar_sky_tabulacao():
 
     horas = [f"H{h:02d}" for h in range(8, 21)]
     colunas = ["Data", "DispositionId", "Description", "Classificado", "Total", *horas]
+    colunas_com_segmento = ["Data", "DispositionId", "Description", "Classificado", "Faixa_Atraso", "Total", *horas]
 
     def _normalizar_classificacao(valor):
         texto = str(valor or "").strip()
@@ -7628,6 +7646,10 @@ def _carregar_sky_tabulacao():
                             disposition_id::text AS "DispositionId",
                             description AS "Description",
                             COALESCE(NULLIF(TRIM(classificado), ''), 'Outros') AS "Classificado",
+                            COALESCE(
+                                NULLIF(TRIM(payload->>'Faixa_atraso'), ''),
+                                NULLIF(TRIM(payload->>'Faixa_Atraso'), '')
+                            ) AS "Faixa_Atraso",
                             CASE
                                 WHEN TRIM(COALESCE(total, '')) ~ '^-?[0-9]+([.,][0-9]+)?$'
                                     THEN REPLACE(TRIM(total), ',', '.')::numeric
@@ -7654,7 +7676,7 @@ def _carregar_sky_tabulacao():
                     if rows:
                         nomes = [d.name for d in cur.description]
                         df = pd.DataFrame(rows, columns=nomes)
-                        df = df[colunas].copy()
+                        df = df[colunas_com_segmento].copy()
                         df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
                         df["Total"] = pd.to_numeric(df["Total"], errors="coerce").fillna(0)
                         for hora in horas:
@@ -7690,8 +7712,10 @@ def _carregar_sky_tabulacao():
     for hora in horas:
         if hora not in df.columns:
             df[hora] = 0
+    if "Faixa_Atraso" not in df.columns:
+        df["Faixa_Atraso"] = None
 
-    df = df[colunas].copy()
+    df = df[colunas_com_segmento].copy()
     df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
     df["Total"] = pd.to_numeric(df["Total"], errors="coerce").fillna(0)
     for hora in horas:
@@ -7733,6 +7757,8 @@ def sky_tabulacao():
             data_max="",
             periodo="Sem dados disponíveis",
             mes_referencia="",
+            segmento="total",
+            segmentacao_disponivel=False,
             erro="A base de tabulação está vazia ou indisponível.",
         )
 
@@ -7754,7 +7780,7 @@ def sky_tabulacao():
     # com seleção de múltiplos dias.
     ultimo_dia = df["Data"].max().normalize()
     primeira_abertura = not any(
-        chave in request.args for chave in ("mes", "datas", "inicio", "fim")
+        chave in request.args for chave in ("mes", "datas", "inicio", "fim", "segmento")
     )
 
     mes_param = request.args.get("mes")
@@ -7770,6 +7796,14 @@ def sky_tabulacao():
     datas_raw = request.args.get("datas", "").strip()
     inicio_raw = request.args.get("inicio", "").strip()
     fim_raw = request.args.get("fim", "").strip()
+    segmento = request.args.get("segmento", "total").strip().lower()
+    if segmento not in ("total", "pre_churn", "churn"):
+        segmento = "total"
+
+    segmentacao_disponivel = (
+        "Faixa_Atraso" in df.columns
+        and df["Faixa_Atraso"].fillna("").astype(str).str.strip().ne("").any()
+    )
 
     if primeira_abertura:
         datas_raw = ultimo_dia.strftime("%d/%m/%Y")
@@ -7796,6 +7830,10 @@ def sky_tabulacao():
     fim_dt = _parse_data_filtro(fim_raw)
 
     filtrado = df.copy()
+    if segmento in ("pre_churn", "churn") and segmentacao_disponivel:
+        filtrado["SegmentoFiltro"] = filtrado["Faixa_Atraso"].apply(classificar_faixa_funil)
+        filtrado = filtrado[filtrado["SegmentoFiltro"] == segmento].copy()
+
     if mes_selecionado:
         filtrado = filtrado[filtrado["Data"].dt.strftime("%Y-%m") == mes_selecionado]
 
@@ -7817,6 +7855,9 @@ def sky_tabulacao():
     )
     mes_ref_key = data_referencia.strftime("%Y-%m")
     mes_ref = df[df["Data"].dt.strftime("%Y-%m") == mes_ref_key].copy()
+    if segmento in ("pre_churn", "churn") and segmentacao_disponivel:
+        mes_ref["SegmentoFiltro"] = mes_ref["Faixa_Atraso"].apply(classificar_faixa_funil)
+        mes_ref = mes_ref[mes_ref["SegmentoFiltro"] == segmento].copy()
     mes_referencia = f"{meses_pt[data_referencia.month - 1]}/{data_referencia.year}"
 
     graficos = []
@@ -8147,6 +8188,8 @@ def sky_tabulacao():
         data_max=df["Data"].max().strftime("%Y-%m-%d"),
         periodo=periodo,
         mes_referencia=mes_referencia,
+        segmento=segmento,
+        segmentacao_disponivel=segmentacao_disponivel,
         erro=None if graficos else "Nenhuma tabulação encontrada para os filtros selecionados.",
     )
 
