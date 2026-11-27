@@ -62,12 +62,12 @@
     label(ctx,title,x,y+10,w,20,colors.navy,700);
     const cols=3, gap=9, cell=(w-gap*(cols-1))/cols;
     items.forEach((item,i)=>{
-      const xx=x+(i%cols)*(cell+gap), yy=y+25+Math.floor(i/cols)*47;
-      rect(ctx,xx,yy,cell,42,'#f4f6fa',colors.line,7);
-      label(ctx,item.label,xx+9,yy+11,cell-18,14,colors.muted,400,'left',10);
-      label(ctx,item.value,xx+9,yy+29,cell-18,19,colors.ink,700,'left',12);
+      const xx=x+(i%cols)*(cell+gap), yy=y+25+Math.floor(i/cols)*37;
+      rect(ctx,xx,yy,cell,33,'#f4f6fa',colors.line,7);
+      label(ctx,item.label,xx+9,yy+9,cell-18,13,colors.muted,400,'left',10);
+      label(ctx,item.value,xx+9,yy+24,cell-18,18,colors.ink,700,'left',12);
     });
-    return y+25+Math.ceil(items.length/cols)*47;
+    return y+25+Math.ceil(items.length/cols)*37;
   }
   function drawFunnels(ctx,data) {
     const x0=95, w=850, y=233;
@@ -119,9 +119,72 @@
             k||row.highlight?700:400,k?'right':'left',11));
         }
       });
+      if(i===0 && start+rows.length*h+125<y+727){
+        const yy=start+rows.length*h+14;
+        label(ctx,'Campanhas selecionadas',x+24,yy+11,w-48,20,colors.navy,700);
+        data.sides.forEach((side,j)=>{
+          label(ctx,side.name,x+24,yy+40+j*42,120,18,side.color,700);
+          label(ctx,side.campaign,x+150,yy+40+j*42,w-175,17,colors.ink,400,'left',11);
+        });
+      }
     });
     label(ctx,'Deltas calculados com valores não arredondados. Médias ignoram dias zerados.',95,985,1705,18,colors.muted);
     label(ctx,'CPC Líquido = CPC − VoiceMail. Conversão = Acordos ÷ CPC Líquido.',95,1011,1705,18,colors.muted);
+  }
+  function drawCombined(ctx,data) {
+    const y=233, w=525;
+    data.sides.forEach((s,i)=>{
+      const x=95+i*540;
+      rect(ctx,x,y,w,727,'#ffffff',colors.line,14);
+      label(ctx,'Funil '+s.name,x+15,y+22,w-30,26,s.color,700);
+      label(ctx,s.period+' · '+s.days,x+15,y+47,w-30,17,colors.muted);
+      label(ctx,s.campaign,x+15,y+72,w-30,17,colors.ink,700,'left',11);
+      label(ctx,'Agentes (média dia): '+s.agents,x+15,y+96,w-30,17,colors.muted);
+      label(ctx,s.deltaTitle,x+w-15,y+120,150,14,colors.muted,700,'right',10);
+      s.stages.forEach((stage,j)=>{
+        const yy=y+131+j*42, ww=355*stage.width/100, xx=x+15+(355-ww)/2;
+        ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx+ww,yy);ctx.lineTo(xx+ww-9,yy+37);ctx.lineTo(xx+9,yy+37);ctx.closePath();
+        ctx.fillStyle=s.color;ctx.fill();
+        label(ctx,stage.label,xx+15,yy+18,ww*.51-15,15,'#fff',700,'left',10);
+        label(ctx,stage.value,xx+ww-15,yy+18,ww*.46-15,19,'#fff',700,'right',11);
+        rect(ctx,x+w-133,yy+2,118,33,'#f4f6fa',colors.line,6);
+        label(ctx,stage.delta,x+w-74,yy+18,108,17,stage.deltaColor,700,'center',10);
+      });
+      const compact=(items,yy,title)=>{
+        label(ctx,title,x+15,yy+9,w-30,18,colors.navy,700);
+        const cw=(w-37)/2;
+        items.forEach((item,j)=>{
+          const xx=x+15+(j%2)*(cw+7), rowY=yy+21+Math.floor(j/2)*31;
+          rect(ctx,xx,rowY,cw,27,'#f4f6fa',colors.line,5);
+          label(ctx,item.label,xx+6,rowY+13,cw-68,12,colors.muted,400,'left',9);
+          label(ctx,item.value,xx+cw-6,rowY+13,57,14,colors.ink,700,'right',9);
+        });
+        return yy+21+Math.ceil(items.length/2)*31;
+      };
+      const end=compact(s.rates,y+432,'Taxas e eficiência');
+      compact(s.productivity,end+2,'Produtividade por agente');
+    });
+    const x=1175, tw=650;
+    rect(ctx,x,y,tw,727,'#fff',colors.line,14);
+    rect(ctx,x+8,y+8,tw-16,35,colors.navy,null,6);
+    const xs=[x+15,x+385,x+507,x+tw-15], widths=[254,107,107,105];
+    ['Indicador',data.sides[0].name,data.sides[1].name,'Variação'].forEach((v,j)=>
+      label(ctx,v,xs[j],y+25,widths[j],16,'#fff',700,j?'right':'left',10));
+    const h=Math.min(25,Math.floor(672/data.rows.length));
+    data.rows.forEach((row,j)=>{
+      const yy=y+46+j*h;
+      if(row.group){
+        rect(ctx,x+8,yy+1,tw-16,h-2,'#e9edf5',null,4);
+        label(ctx,row.cells[0],xs[0],yy+h/2,tw-30,15,colors.navy,700);
+      }else{
+        if(row.highlight||j%2===0) rect(ctx,x+8,yy,tw-16,h,row.highlight?'#eef3fa':'#f8f9fb',null,3);
+        row.cells.slice(0,4).forEach((v,k)=>label(ctx,v,xs[k],yy+h/2,widths[k],15,
+          k===3?row.color:k===1?colors.blue:k===2?colors.orange:colors.ink,
+          k||row.highlight?700:400,k?'right':'left',9));
+      }
+    });
+    label(ctx,'Mailing: média diária sem zeros. VoiceMail integra o CPC e não deve ser somado novamente. CPC Líquido = CPC − VoiceMail.',95,985,1705,18,colors.muted);
+    label(ctx,'Conversão = Acordos ÷ CPC Líquido. Deltas usam valores não arredondados. Médias ignoram dias zerados.',95,1011,1705,18,colors.muted);
   }
   async function exportPNG(kind) {
     const data=snapshot();
@@ -129,12 +192,12 @@
     const canvas=document.createElement('canvas'); canvas.width=1920;canvas.height=1080;
     const ctx=canvas.getContext('2d'); if(!ctx) throw Error('Canvas indisponível neste navegador.');
     ctx.drawImage(bg,0,0,1920,1080);
-    const title=kind==='funis'?'Funis de performance e comparação':'Visão comparativa dos indicadores';
+    const title=kind==='funis'?'Funis de performance e comparação':kind==='completo'?'Funis de performance e indicadores':'Visão comparativa dos indicadores';
     label(ctx,'ENERGISA  /  PERFORMANCE OPERACIONAL',95,126,1640,19,colors.orange,700);
     label(ctx,title,95,169,1705,43,colors.navy,700);
     label(ctx,data.sides.map(s=>s.name+' · '+s.period).join('    |    ')+'    |    '+data.mode+'    |    '+data.comparison,
       95,210,1705,21,colors.muted,400,'left',14);
-    if(kind==='funis') drawFunnels(ctx,data); else drawTable(ctx,data);
+    if(kind==='funis') drawFunnels(ctx,data); else if(kind==='completo') drawCombined(ctx,data); else drawTable(ctx,data);
     const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Falha ao gerar PNG.')),'image/png'));
     const url=URL.createObjectURL(blob), a=document.createElement('a');
     a.href=url; a.download='Energisa_'+kind+'_'+new Date().toISOString().slice(0,10)+'.png';
