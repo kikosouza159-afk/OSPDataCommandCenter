@@ -330,7 +330,7 @@ tbody tr:hover{background:rgba(20,91,137,.28)}
   
 
 </style>
-</head>
+<style>.sky-slide-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.sky-slide-button{background:#fb5c28;color:#fff;border:0;border-radius:8px;padding:9px 13px;font:700 12px Arial,sans-serif;cursor:pointer;white-space:nowrap}.sky-slide-button:disabled{opacity:.55;cursor:wait}.sky-slide-button:focus-visible{outline:2px solid #345f99;outline-offset:3px}.card-head{flex-wrap:wrap}</style></head>
 <body>
   <div class="cockpit-bg">
     <div class="grid"></div>
@@ -420,6 +420,7 @@ tbody tr:hover{background:rgba(20,91,137,.28)}
       {% endfor %}
     </section>
 
+    <div class="sky-slide-actions" aria-label="Exportar apresentação"><button type="button" class="sky-slide-button" data-sky-slide="funis">↓ PNG · Funis</button><button type="button" class="sky-slide-button" data-sky-slide="indicadores">↓ PNG · Indicadores</button><button type="button" class="sky-slide-button" data-sky-slide="completo">↓ PNG · Completo</button></div>
     <div class="compare-grid">
       {% for mes in funis %}
       <section class="tech-panel funnel-panel" aria-label="Funil {{mes.label}}">
@@ -559,4 +560,5 @@ window.addEventListener('DOMContentLoaded',function(){
   }
 });
 </script>
+<script src="{{ url_for('static', filename='js/sky_export_slide.js') }}" data-background="{{ url_for('static', filename='img/olos-fundo-apresentacao.webp') }}"></script>
 </body></html>
