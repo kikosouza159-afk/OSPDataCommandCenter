@@ -319,7 +319,7 @@
       .period{white-space:normal}
     }
   </style>
-</head>
+<style>.sky-slide-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.sky-slide-button{background:#fb5c28;color:#fff;border:0;border-radius:8px;padding:9px 13px;font:700 12px Arial,sans-serif;cursor:pointer;white-space:nowrap}.sky-slide-button:disabled{opacity:.55;cursor:wait}.sky-slide-button:focus-visible{outline:2px solid #345f99;outline-offset:3px}.card-head{flex-wrap:wrap}</style></head>
 <body>
   <div class="cockpit-bg">
     <div class="grid"></div>
@@ -418,7 +418,7 @@
         <h2>Visão por classificação</h2>
         <p>Representatividade das tabulações no período × média diária do mês.</p>
       </div>
-      <span class="month-tag">Média {{ mes_referencia }}</span>
+      <div class="sky-slide-actions"><span class="month-tag">Média {{ mes_referencia }}</span><button type="button" class="sky-slide-button" data-sky-slide="classificacao">↓ PNG · Todas as classificações</button></div>
     </div>
 
     <section class="charts">
@@ -432,7 +432,7 @@
                 <small>Período × média do mês</small>
               </div>
             </div>
-            <span class="class-share">100% da classificação</span>
+            <span class="class-share">100% da classificação</span><button type="button" class="sky-slide-button" data-sky-slide="classificacao" data-sky-index="{{ loop.index0 }}">↓ PNG · Classificação</button>
           </div>
           <div class="chart-wrap">
             <canvas id="chart-{{ loop.index }}"></canvas>
@@ -458,7 +458,7 @@
           </div>
           <div class="hour-class-filter">
             <label>Classificação</label>
-            <select id="hour-classification-filter"></select>
+            <select id="hour-classification-filter"></select><button type="button" class="sky-slide-button" data-sky-slide="hora">↓ PNG · Hora a hora</button>
           </div>
         </div>
         <div class="hourly-wrap">
@@ -472,7 +472,7 @@
         <h2>Heatmap diário</h2>
         <p>Todas as tabulações do mês em uma única leitura. Passe o mouse sobre qualquer célula para comparar o dia com a média mensal.</p>
       </div>
-      <span class="month-tag">{{ mes_referencia }}</span>
+      <div class="sky-slide-actions"><span class="month-tag">{{ mes_referencia }}</span><button type="button" class="sky-slide-button" data-sky-slide="heatmap">↓ PNG · Todos os heatmaps</button></div>
     </div>
 
     <section class="trends">
@@ -486,6 +486,7 @@
                 <small>Todas as tabulações × dias do mês</small>
               </div>
             </div>
+            <button type="button" class="sky-slide-button" data-sky-slide="heatmap" data-sky-index="{{ loop.index0 }}">↓ PNG · Heatmap</button>
           </div>
           <div class="heatmap-wrap">
             <div class="heatmap-grid" id="heatmap-{{ loop.index }}"></div>
@@ -524,6 +525,7 @@
       "Outros": {bg:"rgba(167,139,250,.76)", border:"rgba(196,181,253,1)", soft:"rgba(196,181,253,.20)", dot:"#c4b5fd"}
     };
 
+    window.skySlideData={graficos,evolucao,visaoHora,sub:{{ periodo|tojson }}+'  |  '+(document.querySelector('select[name="segmento"]')?.selectedOptions[0]?.textContent.trim()||''),ref:{{ mes_referencia|tojson }}};
     Chart.register(ChartDataLabels);
 
     document.querySelectorAll(".dot").forEach(function(el){
@@ -826,5 +828,6 @@
       });
     });
   </script>
+<script src="{{ url_for('static', filename='js/sky_export_slide.js') }}" data-background="{{ url_for('static', filename='img/olos-fundo-apresentacao.webp') }}"></script>
 </body>
 </html>
