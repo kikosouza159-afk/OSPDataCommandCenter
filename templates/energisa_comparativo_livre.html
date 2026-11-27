@@ -607,6 +607,10 @@ body.sidebar-collapsed .content{max-width:calc(100vw - 70px)}
 <div class="kpis assist-kpis" id="kpis"></div>
 
 <div class="assist-grid-intro" id="funnelsSection">
+  <div class="energisa-slide-actions" style="order:3;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <button type="button" class="export" data-energisa-slide="funis" title="Baixar funis em PNG 1920 × 1080 com fundo OLOS">↓ PNG · Funis</button>
+    <button type="button" class="export" data-energisa-slide="indicadores" title="Baixar indicadores em PNG 1920 × 1080 com fundo OLOS">↓ PNG · Indicadores</button>
+  </div>
   <div><h2>Funis de performance e comparação</h2><p>Etapas operacionais por tecnologia e visão comparativa dos indicadores</p></div>
   <div class="assist-legend"><span><i class="assist-legend-dot human"></i> <span id="legendSideAD">A · AD</span></span><span><i class="assist-legend-dot digital"></i> <span id="legendSideADA">B · ADA</span></span><span class="assist-note">VoiceMail conta como CPC na Energisa: aumento do indicador é favorável.</span></div>
 </div>
@@ -1804,5 +1808,6 @@ async function start(){
 start();
 })();
 </script>
+<script src="{{ url_for('static', filename='js/energisa_export_slide.js') }}" data-background="{{ url_for('static', filename='img/olos-fundo-apresentacao.webp') }}"></script>
 </body>
 </html>
